@@ -1009,6 +1009,124 @@ table.cal td.host { color: var(--clay); }
   .trip-map { height: 200px; }
 }
 
+/* ===== round 12: card / list view toggle on Discover ===== */
+
+.view-toggle {
+  display: inline-flex;
+  background: var(--paper);
+  border: 1px solid var(--sand);
+  border-radius: 999px;
+  padding: 3px;
+}
+.view-toggle .view-btn {
+  background: none;
+  border: none;
+  padding: 6px 14px;
+  cursor: pointer;
+  color: var(--ink-soft);
+  border-radius: 999px;
+  display: inline-flex;
+  align-items: center;
+  transition: background 0.15s ease, color 0.15s ease;
+}
+.view-toggle .view-btn:hover { color: var(--sea); }
+.view-toggle .view-btn.active { background: var(--sea); color: #fff; }
+.view-toggle .view-btn svg { display: block; }
+
+/* list view — compact horizontal cards */
+.grid.list-view {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+.grid.list-view .card {
+  flex-direction: row;
+  align-items: stretch;
+  border-radius: 12px;
+  transition: transform 0.12s ease, box-shadow 0.18s ease;
+}
+.grid.list-view .card:hover { transform: translateY(-1px); }
+.grid.list-view .card .thumb {
+  width: 150px;
+  min-width: 150px;
+  height: auto;
+  flex-shrink: 0;
+  padding: 0;
+}
+.grid.list-view .card .thumb::after { display: none; }
+.grid.list-view .card .badge {
+  top: 10px; left: 10px;
+  font-size: 10.5px; padding: 3px 9px;
+}
+.grid.list-view .card .save-btn,
+.grid.list-view .card .compare-btn {
+  width: 30px; height: 30px;
+  font-size: 13px;
+  top: 10px;
+}
+.grid.list-view .card .save-btn { right: 10px; }
+.grid.list-view .card .compare-btn { right: 46px; }
+.grid.list-view .card .body {
+  flex: 1;
+  padding: 14px 18px;
+  gap: 4px;
+}
+.grid.list-view .card h3 { font-size: 18px; margin-top: 2px; }
+.grid.list-view .card .place { font-size: 12px; }
+.grid.list-view .card .tag { font-size: 13.5px; }
+.grid.list-view .card .meta { margin-top: 4px; gap: 5px; }
+
+@media (max-width: 620px) {
+  .view-toggle { display: none; }
+}
+
+/* ===== round 13: sport pills (Wave / Wind / Kite / Wing) on Discover ===== */
+
+.sport-pills-wrap { padding-top: 18px; padding-bottom: 0; margin-bottom: -8px; }
+.sport-pills {
+  display: flex;
+  gap: 8px;
+  justify-content: center;
+  flex-wrap: wrap;
+}
+.sport-pill {
+  font-family: 'DM Sans', sans-serif;
+  font-size: 14px;
+  font-weight: 600;
+  background: var(--paper);
+  border: 1px solid var(--sand);
+  border-radius: 999px;
+  padding: 9px 18px;
+  cursor: pointer;
+  color: var(--ink);
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  transition: background 0.15s ease, color 0.15s ease, border-color 0.15s ease;
+}
+.sport-pill:hover { background: var(--sea-soft); border-color: #cde0e3; color: var(--sea); }
+.sport-pill.active {
+  background: var(--sea);
+  border-color: var(--sea);
+  color: #fff;
+}
+.sport-pill.soon { color: var(--ink-soft); }
+.sport-pill.soon .soon-tag {
+  font-size: 9.5px;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--ink-soft);
+  opacity: 0.7;
+  margin-left: 2px;
+}
+.sport-pill.soon.active { background: var(--clay); border-color: var(--clay); color: #fff; }
+.sport-pill.soon.active .soon-tag { color: rgba(255,255,255,0.85); opacity: 1; }
+
+@media (max-width: 620px) {
+  .sport-pills-wrap { padding-top: 14px; }
+  .sport-pill { font-size: 13px; padding: 8px 14px; }
+}
+
 /* ===== round 9: detail-page mini-map + BOOK NOW button ===== */
 
 .detail-map {

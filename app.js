@@ -108,14 +108,80 @@ function townStripHTML() {
   return `<div class="town-intro-strip">${cards}</div>`;
 }
 
+/* ---- view preference (cards vs list), persisted in localStorage ---- */
+function getViewPref() {
+  return localStorage.getItem("wavebase_view_pref") || "grid";
+}
+function setViewPref(pref) {
+  localStorage.setItem("wavebase_view_pref", pref);
+}
+function viewToggleHTML(pref) {
+  const gridIcon = '<svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>';
+  const listIcon = '<svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><line x1="3" y1="6" x2="3.01" y2="6"/><line x1="3" y1="12" x2="3.01" y2="12"/><line x1="3" y1="18" x2="3.01" y2="18"/></svg>';
+  return `<div class="view-toggle" role="group" aria-label="Result view">
+    <button class="view-btn ${pref === "grid" ? "active" : ""}" data-view="grid" aria-label="Card view" title="Card view">${gridIcon}</button>
+    <button class="view-btn ${pref === "list" ? "active" : ""}" data-view="list" aria-label="List view" title="List view">${listIcon}</button>
+  </div>`;
+}
+function wireViewToggle(container) {
+  container.querySelectorAll(".view-btn").forEach(btn => {
+    btn.addEventListener("click", () => {
+      setViewPref(btn.dataset.view);
+      runSearch();
+    });
+  });
+}
+
+/* ---- sport scope (wave / wind / kite / wing) — wave is live, rest 'soon' ---- */
+const WAVEBASE_SPORTS = [
+  { key: "wave", label: "Wave", live: true },
+  { key: "wind", label: "Wind" },
+  { key: "kite", label: "Kite" },
+  { key: "wing", label: "Wing" }
+];
+function getSportPref() {
+  const params = new URLSearchParams(window.location.search);
+  const fromUrl = params.get("sport");
+  if (fromUrl) return fromUrl;
+  return localStorage.getItem("wavebase_sport_pref") || "wave";
+}
+function setSportPref(sport) {
+  localStorage.setItem("wavebase_sport_pref", sport);
+}
+function sportLabel(key) {
+  const s = WAVEBASE_SPORTS.find(s => s.key === key);
+  return s ? s.label : key;
+}
+function sportPillsHTML(active) {
+  return `<div class="sport-pills" role="tablist" aria-label="Surf sport">
+    ${WAVEBASE_SPORTS.map(s =>
+      `<button class="sport-pill ${s.key === active ? "active" : ""}${s.live ? "" : " soon"}" data-sport="${s.key}" role="tab" aria-selected="${s.key === active}">${s.label}${s.live ? "" : ' <span class="soon-tag">soon</span>'}</button>`
+    ).join("")}
+  </div>`;
+}
+function wireSportPills(container) {
+  container.querySelectorAll(".sport-pill").forEach(btn => {
+    btn.addEventListener("click", () => {
+      setSportPref(btn.dataset.sport);
+      const url = new URL(window.location.href);
+      if (btn.dataset.sport === "wave") url.searchParams.delete("sport");
+      else url.searchParams.set("sport", btn.dataset.sport);
+      window.history.replaceState(null, "", url.toString());
+      runSearch();
+    });
+  });
+}
+
 function runSearch() {
   const country = document.getElementById("f-country").value;
   const level = document.getElementById("f-level").value;
   const month = document.getElementById("f-month").value;
   const type  = document.getElementById("f-type").value;
+  const sport = getSportPref();
   const results = document.getElementById("results");
+  const longSport = { wave: "Wave surfing", wind: "Windsurfing", kite: "Kitesurfing", wing: "Wing foiling" };
 
-  // keep URL in sync — country + filters — so links are shareable AND back-navigation restores the state
+  // keep URL in sync — country + filters + sport — so links are shareable AND back-navigation restores the state
   const url = new URL(window.location.href);
   const setParam = (k, v, isDefault) => {
     if (v && !isDefault) url.searchParams.set(k, v);
@@ -125,16 +191,37 @@ function runSearch() {
   setParam("level", level, level === "all");
   setParam("type", type, type === "all");
   setParam("month", month, month === "all");
+  setParam("sport", sport, sport === "wave");
   window.history.replaceState(null, "", url.toString());
 
-  // empty state — no country picked yet
+  // refresh sport pill active state to reflect current sport
+  document.querySelectorAll(".sport-pill").forEach(btn => {
+    const isActive = btn.dataset.sport === sport;
+    btn.classList.toggle("active", isActive);
+    btn.setAttribute("aria-selected", isActive ? "true" : "false");
+  });
+
+  // sport other than wave → straight to COMING SOON (with or without country)
+  if (sport !== "wave") {
+    const dest = country ? findCountry(country) : null;
+    const flag = dest ? dest.flag : "";
+    const title = country ? `${longSport[sport]} in ${country}` : longSport[sport];
+    results.innerHTML = `<section class="coming-soon">
+      ${flag ? `<div class="coming-flag">${flag}</div>` : ""}
+      <h2>Coming soon</h2>
+      <p><strong>${title}</strong> is on its way. Wave surfing in Morocco is the live sport &amp; region for now — wind, kite and wing follow.</p>
+    </section>`;
+    return;
+  }
+
+  // wave + no country yet
   if (!country) {
     results.innerHTML = `<div class="empty"><strong>Pick a country to begin.</strong><br>
       Use the &ldquo;Where?&rdquo; picker above, or open the Destinations menu in the header.</div>`;
     return;
   }
 
-  // coming-soon state — country isn't the live one
+  // wave + non-Morocco country → COMING SOON
   if (country !== "Morocco") {
     const dest = findCountry(country);
     const flag = dest ? dest.flag : "";
@@ -146,7 +233,7 @@ function runSearch() {
     return;
   }
 
-  // Morocco — apply the other filters and render the real content
+  // wave + Morocco — apply the other filters and render the real content
   const matches = WAVEBASE_DATA.filter(e => {
     const okL = level === "all" || e.levels.includes(level);
     const okM = month === "all" || e.goodMonths.includes(parseInt(month, 10));
@@ -154,29 +241,35 @@ function runSearch() {
     return okL && okM && okT;
   });
 
-  let html = `<div class="results-head"><h2>Tamraght &amp; Taghazout, Morocco</h2></div>`;
-  html += townStripHTML();
+  const pref = getViewPref();
+  const gridClass = pref === "list" ? "grid list-view" : "grid";
+  let html = "";
 
   if (matches.length === 0) {
+    html += `<div class="results-head"><h2>Tamraght &amp; Taghazout, Morocco</h2></div>`;
+    html += townStripHTML();
     html += `<div class="empty"><strong>Nothing's a perfect match here.</strong><br>
       The quick-and-dirty only covers Tamraght &amp; Taghazout for now. Try loosening a filter.</div>`;
   } else {
+    html += `<div class="results-head"><h2>Tamraght &amp; Taghazout, Morocco</h2>${viewToggleHTML(pref)}</div>`;
+    html += townStripHTML();
     const spots = matches.filter(e => e.type === "spot");
     const stays = matches.filter(e => e.type === "stay");
     if (spots.length) {
       html += `<section class="result-section">
         <h2>Surf spots <span class="seccount">${spots.length}</span></h2>
-        <div class="grid">${spots.map(cardHTML).join("")}</div></section>`;
+        <div class="${gridClass}">${spots.map(cardHTML).join("")}</div></section>`;
     }
     if (stays.length) {
       html += `<section class="result-section">
         <h2>Stays <span class="seccount">${stays.length}</span></h2>
-        <div class="grid">${stays.map(cardHTML).join("")}</div></section>`;
+        <div class="${gridClass}">${stays.map(cardHTML).join("")}</div></section>`;
     }
   }
 
   results.innerHTML = html;
   wireCards(results);
+  wireViewToggle(results);
 }
 
 function initIndex() {
@@ -215,6 +308,18 @@ function initIndex() {
     if (el) el.addEventListener("change", runSearch);
   });
   document.getElementById("search-btn").addEventListener("click", runSearch);
+
+  // inject sport pills (Wave / Wind / Kite / Wing) above the searcher section
+  const searcherEl = document.querySelector(".searcher");
+  const searcherSection = searcherEl && searcherEl.closest("section");
+  if (searcherSection && !document.querySelector(".sport-pills")) {
+    const wrap = document.createElement("section");
+    wrap.className = "wrap sport-pills-wrap";
+    wrap.innerHTML = sportPillsHTML(getSportPref());
+    searcherSection.parentNode.insertBefore(wrap, searcherSection);
+    wireSportPills(wrap);
+  }
+
   runSearch();
 }
 
