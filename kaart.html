@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Map — WaveBase</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600&family=DM+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
+  <link rel="stylesheet" href="styles.css?v=10">
+</head>
+<body>
+
+  <header class="site-header">
+    <div class="wrap">
+      <a href="index.html" class="logo">Wave<span>Base</span></a>
+      <nav class="site-nav">
+        <a href="index.html">Discover</a>
+        <a href="kaart.html" class="active">Map</a>
+        <a href="compare.html" id="nav-compare">Compare</a>
+        <a href="account.html" id="nav-account">My WaveBase</a>
+      </nav>
+    </div>
+  </header>
+
+  <main>
+    <section class="wrap">
+      <div class="map-intro">
+        <h1>The map</h1>
+        <p>Surf spots and stays on the map — for now zoomed to Tamraght &amp; Taghazout. Toggle them on or off separately.</p>
+      </div>
+      <div class="map-filters">
+        <label><input type="checkbox" id="t-spot" checked> <span class="dot spot"></span> Surf spots</label>
+        <label><input type="checkbox" id="t-stay" checked> <span class="dot stay"></span> Stays</label>
+      </div>
+      <div id="map"></div>
+    </section>
+  </main>
+
+  <footer class="site-footer">
+    <div class="wrap">
+      <div>WaveBase &mdash; quick-and-dirty prototype</div>
+      <div class="note">Honest surf info based on recent reviews, with labelled area data for surf conditions. Work in progress — Tamraght &amp; Taghazout first, the rest to follow.</div>
+    </div>
+  </footer>
+
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+  <script src="data.js?v=10"></script>
+  <script src="account.js?v=10"></script>
+  <script src="app.js?v=10"></script>
+</body>
+</html>

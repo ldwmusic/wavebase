@@ -1,0 +1,7 @@
+.DS_Store
+.dropbox
+.dropbox.attr
+desktop.ini
+Thumbs.db
+*.pyc
+__pycache__/

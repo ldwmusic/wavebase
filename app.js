@@ -1,0 +1,752 @@
+/* WaveBase — QnD logic (English). One script, routes per page:
+   index (search + split lists), spot (detail), map, account, compare. */
+
+function cap(s) { return s.charAt(0).toUpperCase() + s.slice(1); }
+function byId(id) { return WAVEBASE_DATA.find(x => x.id === id); }
+function bookingHref(e) {
+  if (e.bookingUrl) return e.bookingUrl;
+  return `https://www.booking.com/searchresults.html?ss=${encodeURIComponent(e.name + " " + e.town)}`;
+}
+function typeLabel(t) { return t === "spot" ? "Surf spot" : "Stay"; }
+function crowdLabel(n) { return { rustig: "Quiet", gemiddeld: "Moderate", druk: "Busy" }[n] || n; }
+function thumbStyle(e) { return e.photo ? ` style="background-image:url('${e.photo}')"` : ""; }
+
+/* ---- nav: profile name + compare count ---- */
+function updateNav() {
+  const acc = document.getElementById("nav-account");
+  if (acc) {
+    const p = WaveBaseAccount.getProfile();
+    acc.textContent = p.name ? ("Hi, " + p.name) : "My WaveBase";
+  }
+  const cmp = document.getElementById("nav-compare");
+  if (cmp) {
+    const n = WaveBaseAccount.getCompare().length;
+    cmp.textContent = n ? `Compare (${n})` : "Compare";
+  }
+}
+
+/* ---- card ---- */
+function cardHTML(e) {
+  const pills = e.levels.map(l => `<span class="pill">${cap(l)}</span>`).join("");
+  const saved = WaveBaseAccount.isSaved(e.id);
+  const comparing = WaveBaseAccount.isComparing(e.id);
+  return `
+  <article class="card" data-href="spot.html?id=${e.id}">
+    <div class="thumb ${e.type}${e.photo ? " has-photo" : ""}"${thumbStyle(e)}>
+      <span class="badge">${typeLabel(e.type)}</span>
+      <button class="compare-btn ${comparing ? "on" : ""}" data-compare="${e.id}" aria-label="Compare" title="${comparing ? "In your compare list" : "Add to compare"}">⇄</button>
+      <button class="save-btn ${saved ? "on" : ""}" data-save="${e.id}" aria-label="Save" title="${saved ? "Saved" : "Save this place"}">${saved ? "♥" : "♡"}</button>
+    </div>
+    <div class="body">
+      <div class="place">${e.town}</div>
+      <h3>${e.name}</h3>
+      <p class="tag">${e.tagline}</p>
+      <div class="meta">${pills}</div>
+    </div>
+  </article>`;
+}
+
+function wireCards(container) {
+  container.querySelectorAll(".card").forEach(card => {
+    card.addEventListener("click", ev => {
+      if (ev.target.closest(".save-btn") || ev.target.closest(".compare-btn")) return;
+      window.location.href = card.dataset.href;
+    });
+  });
+  container.querySelectorAll(".save-btn").forEach(btn => {
+    btn.addEventListener("click", ev => {
+      ev.stopPropagation();
+      const on = WaveBaseAccount.toggleSave(btn.dataset.save);
+      btn.classList.toggle("on", on);
+      btn.textContent = on ? "♥" : "♡";
+      btn.title = on ? "Saved" : "Save this place";
+    });
+  });
+  container.querySelectorAll(".compare-btn").forEach(btn => {
+    btn.addEventListener("click", ev => {
+      ev.stopPropagation();
+      const on = WaveBaseAccount.toggleCompare(btn.dataset.compare);
+      btn.classList.toggle("on", on);
+      btn.title = on ? "In your compare list" : "Add to compare";
+      updateNav();
+    });
+  });
+}
+
+/* ---- INDEX: country-driven search ---- */
+function findCountry(name) {
+  if (typeof WAVEBASE_DESTINATIONS === "undefined") return null;
+  for (const c of WAVEBASE_DESTINATIONS) {
+    for (const co of c.countries) {
+      if (co.name === name) return co;
+    }
+  }
+  return null;
+}
+
+function townStripHTML() {
+  if (typeof WAVEBASE_TOWNS === "undefined") return "";
+  const cards = Object.keys(WAVEBASE_TOWNS).map(name => {
+    const t = WAVEBASE_TOWNS[name];
+    return `<div class="town-card">
+      <h3>${t.naam}</h3>
+      <p>${t.intro}</p>
+      <div class="town-card-facts">
+        <span><strong>What to do:</strong> ${t.teDoen}</span>
+        <span><strong>Getting there:</strong> ${t.afstand}</span>
+        <span><strong>Public transport:</strong> ${t.vervoer}</span>
+      </div>
+    </div>`;
+  }).join("");
+  return `<div class="town-intro-strip">${cards}</div>`;
+}
+
+function runSearch() {
+  const country = document.getElementById("f-country").value;
+  const level = document.getElementById("f-level").value;
+  const month = document.getElementById("f-month").value;
+  const type  = document.getElementById("f-type").value;
+  const results = document.getElementById("results");
+
+  // keep URL in sync — country + filters — so links are shareable AND back-navigation restores the state
+  const url = new URL(window.location.href);
+  const setParam = (k, v, isDefault) => {
+    if (v && !isDefault) url.searchParams.set(k, v);
+    else url.searchParams.delete(k);
+  };
+  setParam("country", country, !country);
+  setParam("level", level, level === "all");
+  setParam("type", type, type === "all");
+  setParam("month", month, month === "all");
+  window.history.replaceState(null, "", url.toString());
+
+  // empty state — no country picked yet
+  if (!country) {
+    results.innerHTML = `<div class="empty"><strong>Pick a country to begin.</strong><br>
+      Use the &ldquo;Where?&rdquo; picker above, or open the Destinations menu in the header.</div>`;
+    return;
+  }
+
+  // coming-soon state — country isn't the live one
+  if (country !== "Morocco") {
+    const dest = findCountry(country);
+    const flag = dest ? dest.flag : "";
+    results.innerHTML = `<section class="coming-soon">
+      <div class="coming-flag">${flag}</div>
+      <h2>Coming soon</h2>
+      <p><strong>${country}</strong> is on its way. WaveBase is rolling out worldwide — Morocco is the live region for now.</p>
+    </section>`;
+    return;
+  }
+
+  // Morocco — apply the other filters and render the real content
+  const matches = WAVEBASE_DATA.filter(e => {
+    const okL = level === "all" || e.levels.includes(level);
+    const okM = month === "all" || e.goodMonths.includes(parseInt(month, 10));
+    const okT = type === "all" || e.type === type;
+    return okL && okM && okT;
+  });
+
+  let html = `<div class="results-head"><h2>Tamraght &amp; Taghazout, Morocco</h2></div>`;
+  html += townStripHTML();
+
+  if (matches.length === 0) {
+    html += `<div class="empty"><strong>Nothing's a perfect match here.</strong><br>
+      The quick-and-dirty only covers Tamraght &amp; Taghazout for now. Try loosening a filter.</div>`;
+  } else {
+    const spots = matches.filter(e => e.type === "spot");
+    const stays = matches.filter(e => e.type === "stay");
+    if (spots.length) {
+      html += `<section class="result-section">
+        <h2>Surf spots <span class="seccount">${spots.length}</span></h2>
+        <div class="grid">${spots.map(cardHTML).join("")}</div></section>`;
+    }
+    if (stays.length) {
+      html += `<section class="result-section">
+        <h2>Stays <span class="seccount">${stays.length}</span></h2>
+        <div class="grid">${stays.map(cardHTML).join("")}</div></section>`;
+    }
+  }
+
+  results.innerHTML = html;
+  wireCards(results);
+}
+
+function initIndex() {
+  const mSel = document.getElementById("f-month");
+  for (let i = 1; i <= 12; i++) {
+    const o = document.createElement("option");
+    o.value = i; o.textContent = WAVEBASE_MONTHS[i];
+    mSel.appendChild(o);
+  }
+  // populate the country picker from WAVEBASE_DESTINATIONS, grouped by continent
+  const cSel = document.getElementById("f-country");
+  if (cSel && typeof WAVEBASE_DESTINATIONS !== "undefined") {
+    WAVEBASE_DESTINATIONS.forEach(cont => {
+      const og = document.createElement("optgroup");
+      og.label = cont.continent;
+      cont.countries.forEach(co => {
+        const o = document.createElement("option");
+        o.value = co.name;
+        o.textContent = `${co.flag}  ${co.name}` + (co.status === "live" ? "" : " — soon");
+        og.appendChild(o);
+      });
+      cSel.appendChild(og);
+    });
+  }
+  // pre-select all filters from URL params (country + level/type/month) — supports deep links and back-navigation
+  const params = new URLSearchParams(window.location.search);
+  [["country","f-country"],["level","f-level"],["type","f-type"],["month","f-month"]].forEach(([k, id]) => {
+    const v = params.get(k);
+    if (v) {
+      const el = document.getElementById(id);
+      if (el) el.value = v;
+    }
+  });
+  ["f-level", "f-month", "f-type", "f-country"].forEach(id => {
+    const el = document.getElementById(id);
+    if (el) el.addEventListener("change", runSearch);
+  });
+  document.getElementById("search-btn").addEventListener("click", runSearch);
+  runSearch();
+}
+
+/* ---- SPOT: detail page ---- */
+function laagHTML(laag) {
+  const blokken = laag.inhoud.map(b =>
+    `<div class="blok"><h3>${b.kop}</h3><p>${b.tekst}</p></div>`).join("");
+  return `<section class="laag"><h2>${laag.titel}</h2>
+    <span class="bron">Source: ${laag.bron}</span>${blokken}</section>`;
+}
+
+function vergelijkingHTML(v) {
+  if (!v) return "";
+  const rows = v.rijen.map(r =>
+    `<tr><td class="mon">${r.label}</td><td class="surf">${r.a}</td><td class="host">${r.b}</td></tr>`).join("");
+  return `<section class="vergelijking"><h2>${v.kop}</h2>
+    <table class="cal"><tr><th>Period</th><th>Surf</th><th>Stay</th></tr>${rows}</table></section>`;
+}
+
+function druktelIndicator(niveau) {
+  const order = ["rustig", "gemiddeld", "druk"];
+  const idx = order.indexOf(niveau);
+  const segs = [0, 1, 2].map(i =>
+    `<span class="drukte-seg${i <= idx ? " on " + niveau : ""}"></span>`).join("");
+  return `<span class="drukte-bar" title="${crowdLabel(niveau)}">${segs}</span>`;
+}
+
+function conditiesHTML(c) {
+  if (!c) return "";
+  return `<section class="condities">
+    <h2>Conditions</h2>
+    <div class="cond-grid">
+      <div class="cond-item"><span class="cond-label">Wave type</span><span class="cond-val">${c.golftype}</span></div>
+      <div class="cond-item"><span class="cond-label">Wave height</span><span class="cond-val">${c.golfhoogte}</span></div>
+      <div class="cond-item"><span class="cond-label">Wind</span><span class="cond-val">${c.wind}</span></div>
+      <div class="cond-item"><span class="cond-label">Water temperature</span><span class="cond-val">${c.water}</span></div>
+      <div class="cond-item drukte-item">
+        <span class="cond-label">Crowd &middot; ${crowdLabel(c.drukte.niveau)} ${druktelIndicator(c.drukte.niveau)}</span>
+        <span class="cond-val">${c.drukte.tekst}</span>
+      </div>
+    </div>
+  </section>`;
+}
+
+function verblijfHTML(v) {
+  if (!v) return "";
+  const rows = [
+    ["Food", v.eten],
+    ["Distance from surf spot", v.afstandSpot],
+    ["Gear rental", v.verhuur],
+    ["Lessons", v.lessen],
+    ["Rating", v.rating],
+    ["Vibe", v.sfeer],
+    ["Other activities", v.activiteiten]
+  ];
+  const items = rows.map(([k, val]) =>
+    `<div class="cond-item"><span class="cond-label">${k}</span><span class="cond-val">${val || "—"}</span></div>`
+  ).join("");
+  return `<section class="condities">
+    <h2>The stay at a glance</h2>
+    <div class="cond-grid verblijf-grid">${items}</div>
+  </section>`;
+}
+
+function buurtHTML(b) {
+  if (!b) return "";
+  return `<section class="buurt">
+    <h2>Nearby</h2>
+    <div class="buurt-grid">
+      <div class="buurt-item"><span class="buurt-label">Food</span><span>${b.eten}</span></div>
+      <div class="buurt-item"><span class="buurt-label">Parking</span><span>${b.parking}</span></div>
+      <div class="buurt-item"><span class="buurt-label">Gear rental</span><span>${b.verhuur}</span></div>
+    </div>
+  </section>`;
+}
+
+function townPanelHTML(townName) {
+  const towns = (typeof WAVEBASE_TOWNS !== "undefined") ? WAVEBASE_TOWNS : null;
+  const t = towns && towns[townName];
+  if (!t) return "";
+  return `<section class="town-panel">
+    <h2>The town &middot; ${t.naam}</h2>
+    <p class="town-intro-line">${t.intro}</p>
+    <div class="town-grid">
+      <div class="town-item"><span class="town-label">What to do</span><span>${t.teDoen}</span></div>
+      <div class="town-item"><span class="town-label">Public transport</span><span>${t.vervoer}</span></div>
+      <div class="town-item"><span class="town-label">Getting there</span><span>${t.afstand}</span></div>
+    </div>
+    ${t.bron ? `<span class="bron">Source: ${t.bron}</span>` : ""}
+  </section>`;
+}
+
+function tripOptionsHTML() {
+  const opts = WaveBaseAccount.getTrips().map(t => `<option value="${t.id}">${t.name}</option>`).join("");
+  return `<option value="">+ Add to a trip…</option>${opts}<option value="__new">➕ New trip…</option>`;
+}
+
+function initSpot() {
+  const root = document.getElementById("detail-root");
+  const id = new URLSearchParams(window.location.search).get("id");
+  const e = byId(id);
+  if (!e) {
+    root.innerHTML = `<p class="empty"><strong>Not found.</strong><br>
+      <a href="index.html">Back to all places</a></p>`;
+    return;
+  }
+  document.title = `${e.name} — WaveBase`;
+  const verhaal = e.verhaal.map(p => `<p>${p}</p>`).join("");
+  const samenvatting = e.samenvatting.map(s => `<li>${s}</li>`).join("");
+  const lagen = e.lagen.map(laagHTML).join("");
+  const saved = WaveBaseAccount.isSaved(e.id);
+  const comparing = WaveBaseAccount.isComparing(e.id);
+
+  root.innerHTML = `
+    <a class="backlink" href="index.html?country=Morocco">&larr; Back to all places</a>
+    <div class="detail-photo ${e.type}${e.photo ? " has-photo" : ""}"${e.photo ? ` style="background-image:url('${e.photo}')"` : ""}>
+      ${e.photo ? "" : `<span class="photo-placeholder">Photo coming soon</span>`}
+    </div>
+    <header class="detail-head">
+      <div class="place">${typeLabel(e.type)} &middot; ${e.town}</div>
+      <h1>${e.name}</h1>
+      <p class="tag">${e.tagline}</p>
+      ${e.coordsLabel ? `<p class="coords-note">About the location: ${e.coordsLabel}</p>` : ""}
+      <div class="detail-actions">
+        ${e.type === "stay" ? `<a class="btn btn-book" href="${bookingHref(e)}" target="_blank" rel="noopener">Book now ↗</a>` : ""}
+        <button class="btn ghost ${saved ? "on" : ""}" id="save-toggle">${saved ? "♥ Saved" : "♡ Save this place"}</button>
+        <button class="btn ghost ${comparing ? "on" : ""}" id="compare-toggle">${comparing ? "✓ In compare" : "+ Compare"}</button>
+        <select id="trip-select">${tripOptionsHTML()}</select>
+      </div>
+    </header>
+
+    ${e.coords ? `<div class="detail-map" id="detail-map"></div>` : ""}
+
+    <div class="kort">
+      <h2>In short</h2>
+      <ul>${samenvatting}</ul>
+    </div>
+
+    ${conditiesHTML(e.condities)}
+    ${verblijfHTML(e.verblijf)}
+
+    <div class="verhaal">
+      <h2>The honest story</h2>
+      ${verhaal}
+    </div>
+
+    ${lagen}
+    ${buurtHTML(e.buurt)}
+    ${vergelijkingHTML(e.vergelijking)}
+    ${townPanelHTML(e.town)}
+
+    <section class="fit">
+      <div class="box yes"><h3>Ideal for</h3><p>${e.ideaalVoor}</p></div>
+      <div class="box no"><h3>Not ideal if</h3><p>${e.nietIdeaalAls}</p></div>
+    </section>`;
+
+  // mini-map showing this entry's location
+  if (e.coords && typeof L !== "undefined" && document.getElementById("detail-map")) {
+    const m = L.map("detail-map", { scrollWheelZoom: false });
+    L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
+      attribution: "&copy; OpenStreetMap contributors", maxZoom: 19
+    }).addTo(m);
+    const color = e.type === "spot" ? "#3f6f7d" : "#bd6242";
+    L.circleMarker(e.coords, { radius: 10, color: "#fff", weight: 3, fillColor: color, fillOpacity: 1 })
+      .bindPopup(`<strong>${e.name}</strong><br>${typeLabel(e.type)} &middot; ${e.town}`)
+      .addTo(m);
+    m.setView(e.coords, 14);
+  }
+
+  document.getElementById("save-toggle").addEventListener("click", function () {
+    const on = WaveBaseAccount.toggleSave(e.id);
+    this.textContent = on ? "♥ Saved" : "♡ Save this place";
+    this.classList.toggle("on", on);
+  });
+  document.getElementById("compare-toggle").addEventListener("click", function () {
+    const on = WaveBaseAccount.toggleCompare(e.id);
+    this.textContent = on ? "✓ In compare" : "+ Compare";
+    this.classList.toggle("on", on);
+    updateNav();
+  });
+  document.getElementById("trip-select").addEventListener("change", function () {
+    const v = this.value;
+    if (!v) return;
+    if (v === "__new") {
+      const name = window.prompt("Name your new trip:");
+      if (name) {
+        const t = WaveBaseAccount.addTrip(name);
+        WaveBaseAccount.addToTrip(t.id, e.id);
+        alert(`"${e.name}" added to trip "${t.name}".`);
+      }
+    } else {
+      WaveBaseAccount.addToTrip(v, e.id);
+      const t = WaveBaseAccount.getTrips().find(x => x.id === v);
+      alert(`"${e.name}" added to trip "${t ? t.name : ""}".`);
+    }
+    this.innerHTML = tripOptionsHTML();
+    this.value = "";
+  });
+
+  // back link: if the user came from inside the site, use history.back() to restore their previous state
+  // (the href is the fallback for direct loads — points to Morocco since all live content is there)
+  const back = root.querySelector(".backlink");
+  if (back) {
+    back.addEventListener("click", ev => {
+      if (document.referrer && document.referrer.startsWith(window.location.origin)) {
+        ev.preventDefault();
+        history.back();
+      }
+    });
+  }
+}
+
+/* ---- MAP ---- */
+function initMap() {
+  const map = L.map("map");
+  L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
+    attribution: "&copy; OpenStreetMap contributors", maxZoom: 19
+  }).addTo(map);
+
+  const layers = { spot: L.layerGroup(), stay: L.layerGroup() };
+  const allCoords = [];
+  WAVEBASE_DATA.forEach(e => {
+    if (!e.coords) return;
+    allCoords.push(e.coords);
+    const color = e.type === "spot" ? "#3f6f7d" : "#bd6242";
+    const m = L.circleMarker(e.coords, {
+      radius: 8, color: "#fff", weight: 2, fillColor: color, fillOpacity: 1
+    });
+    const note = e.coordsLabel ? "<br><em>Approximate location</em>" : "";
+    m.bindPopup(`<strong>${e.name}</strong><br>${typeLabel(e.type)} &middot; ${e.town}${note}<br>
+      <a href="spot.html?id=${e.id}">See the analysis →</a>`);
+    m.addTo(layers[e.type]);
+  });
+  layers.spot.addTo(map);
+  layers.stay.addTo(map);
+  if (allCoords.length) map.fitBounds(allCoords, { padding: [30, 30] });
+
+  document.getElementById("t-spot").addEventListener("change", function () {
+    if (this.checked) layers.spot.addTo(map); else map.removeLayer(layers.spot);
+  });
+  document.getElementById("t-stay").addEventListener("change", function () {
+    if (this.checked) layers.stay.addTo(map); else map.removeLayer(layers.stay);
+  });
+}
+
+/* ---- trip maps (account) — a roadtrip-style map per trip ---- */
+function initTripMaps(trips) {
+  if (typeof L === "undefined") return;
+  trips.forEach(t => {
+    const el = document.getElementById("trip-map-" + t.id);
+    if (!el) return;
+    const items = t.spotIds.map(byId).filter(e => e && e.coords);
+    if (!items.length) return;
+    const map = L.map(el, { scrollWheelZoom: false });
+    L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
+      attribution: "&copy; OpenStreetMap contributors", maxZoom: 19
+    }).addTo(map);
+    const coords = [];
+    items.forEach((e, i) => {
+      coords.push(e.coords);
+      const icon = L.divIcon({
+        className: "trip-pin " + e.type,
+        html: String(i + 1),
+        iconSize: [26, 26],
+        iconAnchor: [13, 13]
+      });
+      L.marker(e.coords, { icon: icon })
+        .bindPopup(`<strong>${i + 1}. ${e.name}</strong><br>${typeLabel(e.type)} &middot; ${e.town}<br>
+          <a href="spot.html?id=${e.id}">See the analysis →</a>`)
+        .addTo(map);
+    });
+    if (coords.length > 1) {
+      L.polyline(coords, { color: "#2a2723", weight: 2, opacity: 0.55, dashArray: "4,7" }).addTo(map);
+    }
+    map.fitBounds(coords, { padding: [30, 30], maxZoom: 13 });
+  });
+}
+
+/* ---- ACCOUNT (fake, local) ---- */
+function renderAccount() {
+  const root = document.getElementById("account-root");
+  const p = WaveBaseAccount.getProfile();
+  const saved = WaveBaseAccount.getSaved().map(byId).filter(Boolean);
+  const trips = WaveBaseAccount.getTrips();
+
+  function opts(list, val) {
+    return list.map(o => `<option value="${o}" ${val === o ? "selected" : ""}>${o}</option>`).join("");
+  }
+  const levelOpts = ["beginner", "intermediate", "advanced"]
+    .map(l => `<option value="${l}" ${p.level === l ? "selected" : ""}>${cap(l)}</option>`).join("");
+  const boardOpts = opts(["Shortboard", "Longboard", "Funboard", "Fish", "Foamie", "Other"], p.boardType);
+  const styleOpts = opts(["Solo", "Couple", "Friends", "Family"], p.travelStyle);
+  const intentOpts = opts(["Pure surf", "Learn", "Progress", "Surf + chill"], p.tripIntent);
+
+  const savedHTML = saved.length
+    ? `<div class="grid">${saved.map(cardHTML).join("")}</div>`
+    : `<p class="muted">Nothing saved yet. Tap the heart on a spot or stay.</p>`;
+
+  const tripsHTML = trips.length
+    ? trips.map(t => {
+        const items = t.spotIds.map(byId).filter(Boolean);
+        const located = items.filter(e => e.coords);
+        const list = items.length
+          ? `<ol class="trip-items">${items.map((e, i) =>
+              `<li><div class="trip-item-row" draggable="true" data-trip="${t.id}" data-idx="${i}" title="Drag to reorder">
+                <span class="drag-grip" aria-hidden="true">⠿</span>
+                <span class="trip-item-main"><a href="spot.html?id=${e.id}" draggable="false">${e.name}</a> <span class="muted">&middot; ${typeLabel(e.type)} &middot; ${e.town}</span></span>
+                <span class="trip-item-ctrl">
+                  <button class="tc-btn tc-del" data-remove data-trip="${t.id}" data-spot="${e.id}" aria-label="Remove from trip" title="Remove from trip">✕</button>
+                </span>
+              </div></li>`).join("")}</ol>`
+          : `<p class="muted">Empty so far — add places from a detail page.</p>`;
+        const mapDiv = located.length ? `<div class="trip-map" id="trip-map-${t.id}"></div>` : "";
+        return `<div class="trip">
+          <div class="trip-head"><h3>${t.name}</h3><button class="link-btn" data-del="${t.id}">remove</button></div>
+          ${list}
+          ${mapDiv}</div>`;
+      }).join("")
+    : `<p class="muted">No trips yet.</p>`;
+
+  root.innerHTML = `
+    <h1>My WaveBase</h1>
+    <p class="muted lead-note">This is a fake account — everything is stored locally in your browser. There's no real login or server yet; that's phase 2.</p>
+
+    <section class="acc-block">
+      <h2>Profile</h2>
+      <p class="muted form-note">The more you fill in, the better WaveBase can match spots and stays to you.</p>
+      <div class="profile-form">
+        <label>Name<input type="text" id="p-name" value="${p.name || ""}" placeholder="Your name"></label>
+        <label>Email<input type="email" id="p-email" value="${p.email || ""}" placeholder="you@example.com"></label>
+        <label>Birth year<input type="number" id="p-birthyear" value="${p.birthYear || ""}" placeholder="1995" min="1920" max="2020"></label>
+        <label>Home country<input type="text" id="p-country" value="${p.homeCountry || ""}" placeholder="e.g. Belgium"></label>
+        <label>Surf level<select id="p-level"><option value="">—</option>${levelOpts}</select></label>
+        <label>Years surfing<input type="number" id="p-years" value="${p.yearsSurfing || ""}" placeholder="3" min="0" max="80"></label>
+        <label>Board<select id="p-board"><option value="">—</option>${boardOpts}</select></label>
+        <label>Travel style<select id="p-style"><option value="">—</option>${styleOpts}</select></label>
+        <label>What you want from a trip<select id="p-intent"><option value="">—</option>${intentOpts}</select></label>
+        <button class="btn" id="p-save">Save profile</button>
+      </div>
+    </section>
+
+    <section class="acc-block">
+      <h2>Saved places <span class="seccount">${saved.length}</span></h2>
+      ${savedHTML}
+    </section>
+
+    <section class="acc-block">
+      <div class="trip-section-head">
+        <h2>My trips <span class="seccount">${trips.length}</span></h2>
+        <button class="btn ghost" id="new-trip">+ New trip</button>
+      </div>
+      <p class="muted form-note">Drag locations to reorder them — each trip's map and its route line follow the order. Use ✕ to remove a stop.</p>
+      ${tripsHTML}
+    </section>`;
+
+  document.getElementById("p-save").addEventListener("click", () => {
+    WaveBaseAccount.setProfile({
+      name: document.getElementById("p-name").value,
+      email: document.getElementById("p-email").value,
+      birthYear: document.getElementById("p-birthyear").value,
+      homeCountry: document.getElementById("p-country").value,
+      level: document.getElementById("p-level").value,
+      yearsSurfing: document.getElementById("p-years").value,
+      boardType: document.getElementById("p-board").value,
+      travelStyle: document.getElementById("p-style").value,
+      tripIntent: document.getElementById("p-intent").value
+    });
+    updateNav();
+    alert("Profile saved.");
+  });
+  document.getElementById("new-trip").addEventListener("click", () => {
+    const name = window.prompt("Name your new trip:");
+    if (name) { WaveBaseAccount.addTrip(name); renderAccount(); }
+  });
+  root.querySelectorAll("[data-del]").forEach(b => {
+    b.addEventListener("click", () => { WaveBaseAccount.deleteTrip(b.dataset.del); renderAccount(); });
+  });
+  let dragSrc = null;
+  root.querySelectorAll(".trip-item-row[draggable='true']").forEach(row => {
+    row.addEventListener("dragstart", e => {
+      dragSrc = { tripId: row.dataset.trip, fromIndex: parseInt(row.dataset.idx, 10) };
+      row.classList.add("dragging");
+      if (e.dataTransfer) {
+        e.dataTransfer.effectAllowed = "move";
+        try { e.dataTransfer.setData("text/plain", row.dataset.idx); } catch (err) {}
+      }
+    });
+    row.addEventListener("dragend", () => {
+      row.classList.remove("dragging");
+      root.querySelectorAll(".trip-item-row.drag-over").forEach(x => x.classList.remove("drag-over"));
+      dragSrc = null;
+    });
+    row.addEventListener("dragover", e => {
+      if (!dragSrc || dragSrc.tripId !== row.dataset.trip) return;
+      e.preventDefault();
+      if (e.dataTransfer) e.dataTransfer.dropEffect = "move";
+      row.classList.add("drag-over");
+    });
+    row.addEventListener("dragleave", () => {
+      row.classList.remove("drag-over");
+    });
+    row.addEventListener("drop", e => {
+      e.preventDefault();
+      row.classList.remove("drag-over");
+      if (!dragSrc || dragSrc.tripId !== row.dataset.trip) return;
+      const toIndex = parseInt(row.dataset.idx, 10);
+      if (dragSrc.fromIndex !== toIndex) {
+        WaveBaseAccount.reorderTrip(row.dataset.trip, dragSrc.fromIndex, toIndex);
+        renderAccount();
+      }
+    });
+  });
+  root.querySelectorAll("[data-remove]").forEach(b => {
+    b.addEventListener("click", () => {
+      WaveBaseAccount.removeFromTrip(b.dataset.trip, b.dataset.spot);
+      renderAccount();
+    });
+  });
+  if (root.querySelector(".grid")) wireCards(root);
+  initTripMaps(trips);
+}
+
+/* ---- COMPARE ---- */
+function compareKeyPoints(e) {
+  if (e.type === "spot") {
+    const c = e.condities || {};
+    return [
+      ["Wave type", c.golftype || "—"],
+      ["Wave height", c.golfhoogte || "—"],
+      ["Crowd", c.drukte ? crowdLabel(c.drukte.niveau) : "—"],
+      ["Levels", e.levels.map(cap).join(", ")],
+      ["Water", c.water || "—"]
+    ];
+  }
+  const v = e.verblijf || {};
+  return [
+    ["Food", v.eten || "—"],
+    ["Distance from surf spot", v.afstandSpot || "—"],
+    ["Gear rental", v.verhuur || "—"],
+    ["Lessons available?", v.lessen || "—"],
+    ["Rating", v.rating || "—"],
+    ["Chill or party", v.sfeer || "—"],
+    ["Other activities", v.activiteiten || "—"]
+  ];
+}
+
+function renderCompare() {
+  const root = document.getElementById("compare-root");
+  const items = WaveBaseAccount.getCompare().map(byId).filter(Boolean);
+  if (!items.length) {
+    root.innerHTML = `<h1>Compare</h1>
+      <p class="muted">Nothing to compare yet. Tap the "⇄" button on a spot or stay, then come back here.</p>`;
+    return;
+  }
+  const cols = items.map(e => {
+    const pts = compareKeyPoints(e).map(([k, v]) =>
+      v ? `<div class="cmp-row"><span class="cmp-k">${k}</span><span class="cmp-v">${v}</span></div>` : "").join("");
+    return `<div class="cmp-col">
+      <div class="thumb ${e.type}${e.photo ? " has-photo" : ""}"${thumbStyle(e)}>
+        <span class="badge">${typeLabel(e.type)}</span>
+      </div>
+      <div class="cmp-body">
+        <div class="place">${e.town}</div>
+        <h3><a href="spot.html?id=${e.id}">${e.name}</a></h3>
+        <p class="tag">${e.tagline}</p>
+        ${pts}
+        <button class="link-btn" data-uncompare="${e.id}">remove</button>
+      </div>
+    </div>`;
+  }).join("");
+  root.innerHTML = `
+    <div class="compare-head">
+      <h1>Compare <span class="seccount">${items.length}</span></h1>
+      <button class="btn ghost" id="clear-compare">Clear all</button>
+    </div>
+    <div class="cmp-grid">${cols}</div>`;
+  document.getElementById("clear-compare").addEventListener("click", () => {
+    WaveBaseAccount.clearCompare(); updateNav(); renderCompare();
+  });
+  root.querySelectorAll("[data-uncompare]").forEach(b => {
+    b.addEventListener("click", () => {
+      WaveBaseAccount.toggleCompare(b.dataset.uncompare);
+      updateNav(); renderCompare();
+    });
+  });
+}
+
+/* ---- destinations mega-menu ---- */
+function initDestinations() {
+  if (typeof WAVEBASE_DESTINATIONS === "undefined") return;
+  const nav = document.querySelector(".site-nav");
+  const header = document.querySelector(".site-header");
+  if (!nav || !header || document.getElementById("destinations-trigger")) return;
+
+  const trigger = document.createElement("button");
+  trigger.id = "destinations-trigger";
+  trigger.className = "nav-destinations";
+  trigger.type = "button";
+  trigger.textContent = "Destinations";
+  nav.prepend(trigger);
+
+  const cols = WAVEBASE_DESTINATIONS.map(c => {
+    const chips = c.countries.map(co => {
+      const href = `index.html?country=${encodeURIComponent(co.name)}`;
+      return co.status === "live"
+        ? `<a class="dest-chip live" href="${href}">${co.flag} ${co.name}</a>`
+        : `<a class="dest-chip soon" href="${href}">${co.flag} ${co.name}<span class="soon-tag">soon</span></a>`;
+    }).join("");
+    return `<div class="dest-continent"><h3>${c.continent}</h3><div class="dest-chips">${chips}</div></div>`;
+  }).join("");
+
+  const panel = document.createElement("div");
+  panel.id = "destinations-menu";
+  panel.className = "destinations-menu";
+  panel.innerHTML = `<div class="wrap">
+    <div class="dest-grid">${cols}</div>
+    <p class="dest-note">WaveBase is rolling out worldwide — Morocco is live now, the rest are on the way.</p>
+  </div>`;
+  header.appendChild(panel);
+
+  trigger.addEventListener("click", ev => {
+    ev.stopPropagation();
+    const open = panel.classList.toggle("open");
+    trigger.classList.toggle("active", open);
+  });
+  panel.addEventListener("click", ev => ev.stopPropagation());
+  document.addEventListener("click", () => {
+    panel.classList.remove("open");
+    trigger.classList.remove("active");
+  });
+}
+
+/* ---- router ---- */
+document.addEventListener("DOMContentLoaded", () => {
+  updateNav();
+  initDestinations();
+  if (document.getElementById("results")) initIndex();
+  if (document.getElementById("detail-root")) initSpot();
+  if (document.getElementById("map")) initMap();
+  if (document.getElementById("account-root")) renderAccount();
+  if (document.getElementById("compare-root")) renderCompare();
+});

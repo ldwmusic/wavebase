@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>WaveBase — honest surf guide for Morocco</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600&family=DM+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles.css?v=10">
+</head>
+<body>
+
+  <header class="site-header">
+    <div class="wrap">
+      <a href="index.html" class="logo">Wave<span>Base</span></a>
+      <nav class="site-nav">
+        <a href="index.html" class="active">Discover</a>
+        <a href="kaart.html">Map</a>
+        <a href="compare.html" id="nav-compare">Compare</a>
+        <a href="account.html" id="nav-account">My WaveBase</a>
+      </nav>
+    </div>
+  </header>
+
+  <main>
+    <section class="hero wrap">
+      <p class="kicker">Honest surf guide</p>
+      <h1>Surfing, told <span class="ul">honestly</span></h1>
+      <p class="lead">No marketing spin. Just what a spot or stay is really like — by season, for your level — based on recent reviews and people who've actually been there.</p>
+    </section>
+
+    <section class="wrap">
+      <div class="searcher">
+        <p class="sentence">
+          <span class="field">
+            <span>Where?</span>
+            <select id="f-country">
+              <option value="">Pick a country…</option>
+            </select>
+          </span>
+          <span class="field">
+            <span>For who?</span>
+            <select id="f-level">
+              <option value="all">Any level</option>
+              <option value="beginner">Beginner</option>
+              <option value="intermediate">Intermediate</option>
+              <option value="advanced">Advanced</option>
+            </select>
+          </span>
+          <span class="field">
+            <span>What?</span>
+            <select id="f-type">
+              <option value="all">Spots &amp; stays</option>
+              <option value="spot">Surf spots</option>
+              <option value="stay">Stays</option>
+            </select>
+          </span>
+          <span class="field">
+            <span>When?</span>
+            <select id="f-month">
+              <option value="all">Doesn't matter</option>
+            </select>
+          </span>
+        </p>
+        <div class="actions">
+          <button class="btn" id="search-btn">Show what fits me</button>
+        </div>
+      </div>
+    </section>
+
+    <section class="wrap">
+      <div id="results"></div>
+    </section>
+  </main>
+
+  <footer class="site-footer">
+    <div class="wrap">
+      <div>WaveBase &mdash; quick-and-dirty prototype</div>
+      <div class="note">Honest surf info based on recent reviews, with labelled area data for surf conditions. Work in progress — Tamraght &amp; Taghazout first, the rest to follow.</div>
+    </div>
+  </footer>
+
+  <script src="data.js?v=10"></script>
+  <script src="account.js?v=10"></script>
+  <script src="app.js?v=10"></script>
+</body>
+</html>
