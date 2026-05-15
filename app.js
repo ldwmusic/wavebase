@@ -16,7 +16,8 @@ function updateNav() {
   const acc = document.getElementById("nav-account");
   if (acc) {
     const p = WaveBaseAccount.getProfile();
-    acc.textContent = p.name ? ("Hi, " + p.name) : "My WaveBase";
+    const firstName = (p.name || "").trim().split(/\s+/)[0];
+    acc.textContent = firstName ? ("Hi, " + firstName) : "My WaveBase";
   }
   const cmp = document.getElementById("nav-compare");
   if (cmp) {

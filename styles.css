@@ -870,6 +870,53 @@ table.cal td.host { color: var(--clay); }
   .coming-flag { font-size: 56px; }
 }
 
+/* ===== round 10: mobile polish ===== */
+@media (max-width: 620px) {
+  /* header — stack vertically; nav wraps under the logo, doesn't overflow */
+  .site-header { padding: 14px 0; }
+  .site-header .wrap {
+    flex-direction: column;
+    align-items: center;
+    gap: 10px;
+  }
+  .site-nav {
+    gap: 14px;
+    row-gap: 6px;
+    flex-wrap: wrap;
+    justify-content: center;
+  }
+  .site-nav a, .nav-destinations { font-size: 14px; }
+
+  /* searcher — keep the "sentence" readable but tighter */
+  .searcher .sentence { font-size: 17px; gap: 8px 6px; line-height: 1.8; }
+  .searcher select { font-size: 15px; padding: 6px 10px; }
+
+  /* detail-actions — Book now goes full-width, others tighter */
+  .detail-actions { gap: 8px; }
+  .detail-actions .btn { padding: 11px 18px; font-size: 14px; }
+  .detail-actions select { padding: 9px 14px; font-size: 14px; }
+  .btn.btn-book { width: 100%; justify-content: center; }
+
+  /* general tightening */
+  .wrap { padding: 0 18px; }
+  .verhaal { padding: 22px 20px; }
+  .town-panel { padding: 20px 18px; }
+  .kort { padding: 20px 22px; }
+  .hero { padding: 40px 0 16px; }
+  .hero h1 { font-size: clamp(30px, 9vw, 44px); }
+  .results-head h2 { font-size: 22px; }
+  .result-section h2 { font-size: 22px; }
+
+  /* trip items — give the row a bit more breathing room */
+  .trip-item-main { font-size: 14px; }
+  .trip-item-ctrl { gap: 3px; }
+
+  /* destinations mega-menu — already capped at 72vh, ensure padding */
+  .destinations-menu .wrap { padding: 0 18px; }
+  .dest-continent h3 { font-size: 13px; }
+  .dest-chip { font-size: 13px; padding: 5px 11px; }
+}
+
 /* ===== round 9: detail-page mini-map + BOOK NOW button ===== */
 
 .detail-map {
