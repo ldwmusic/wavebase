@@ -512,6 +512,78 @@ function initIndex() {
   runSearch();
 }
 
+/* ---- SEO helpers ---- */
+const SITE_ORIGIN = "https://wavebase.lode-b162.workers.dev";
+
+function setMeta(selector, attr, value) {
+  let el = document.querySelector(selector);
+  if (!el) {
+    el = document.createElement("meta");
+    const m = selector.match(/\[(name|property)="([^"]+)"\]/);
+    if (m) el.setAttribute(m[1], m[2]);
+    document.head.appendChild(el);
+  }
+  el.setAttribute(attr, value);
+}
+
+function applySpotSEO(e) {
+  const typeLabelStr = typeLabel(e.type);
+  const country = entryCountry(e);
+  const title = `${e.name} — ${typeLabelStr} in ${e.town}, ${country} | WaveBase`;
+  const desc = (e.tagline || `Honest analysis of ${e.name} (${typeLabelStr}) in ${e.town}, ${country}.`).slice(0, 300);
+  const url = `${SITE_ORIGIN}/spot.html?id=${e.id}`;
+
+  document.title = title;
+  setMeta('meta[name="description"]', "content", desc);
+  setMeta('meta[property="og:title"]', "content", title);
+  setMeta('meta[property="og:description"]', "content", desc);
+  setMeta('meta[property="og:url"]', "content", url);
+  setMeta('meta[name="twitter:title"]', "content", title);
+  setMeta('meta[name="twitter:description"]', "content", desc);
+
+  // canonical link
+  let canonical = document.querySelector('link[rel="canonical"]');
+  if (!canonical) {
+    canonical = document.createElement("link");
+    canonical.setAttribute("rel", "canonical");
+    document.head.appendChild(canonical);
+  }
+  canonical.setAttribute("href", url);
+
+  // JSON-LD structured data — schema.org type per entity type
+  const schemaType = e.type === "spot" ? "TouristAttraction"
+                   : e.type === "stay" ? "LodgingBusiness"
+                   : "LocalBusiness";
+  const ld = {
+    "@context": "https://schema.org",
+    "@type": schemaType,
+    "name": e.name,
+    "description": desc,
+    "url": url,
+    "address": {
+      "@type": "PostalAddress",
+      "addressLocality": e.town,
+      "addressCountry": country
+    }
+  };
+  if (e.coords) {
+    ld.geo = {
+      "@type": "GeoCoordinates",
+      "latitude": e.coords[0],
+      "longitude": e.coords[1]
+    };
+  }
+  if (e.bookingUrl) ld.sameAs = [e.bookingUrl];
+  let ldEl = document.getElementById("ld-spot");
+  if (!ldEl) {
+    ldEl = document.createElement("script");
+    ldEl.type = "application/ld+json";
+    ldEl.id = "ld-spot";
+    document.head.appendChild(ldEl);
+  }
+  ldEl.textContent = JSON.stringify(ld);
+}
+
 /* ---- SPOT: detail page ---- */
 function laagHTML(laag) {
   const blokken = laag.inhoud.map(b =>
@@ -634,7 +706,7 @@ function initSpot() {
       <a href="index.html">Back to all places</a></p>`;
     return;
   }
-  document.title = `${e.name} — WaveBase`;
+  applySpotSEO(e);
   const verhaal = e.verhaal.map(p => `<p>${p}</p>`).join("");
   const samenvatting = e.samenvatting.map(s => `<li>${s}</li>`).join("");
   const lagen = e.lagen.map(laagHTML).join("");

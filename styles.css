@@ -92,6 +92,117 @@ a:hover { text-decoration: underline; }
   margin: 0 auto;
 }
 
+/* ---- About page ---- */
+.about-hero { padding: 72px 0 36px; text-align: center; }
+.about-hero .kicker {
+  font-size: 13px;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--clay);
+  font-weight: 600;
+  margin-bottom: 18px;
+}
+.about-hero h1 {
+  font-size: clamp(34px, 5vw, 52px);
+  max-width: 20ch;
+  margin: 0 auto 22px;
+}
+.about-hero h1 .ul {
+  background-image: linear-gradient(transparent 62%, var(--sand-deep) 62%, var(--sand-deep) 92%, transparent 92%);
+}
+.about-hero p.lead {
+  font-size: 19px;
+  color: var(--ink-soft);
+  max-width: 56ch;
+  margin: 0 auto;
+}
+.about-section {
+  max-width: 720px;
+  margin: 0 auto 44px;
+}
+.about-section h2 {
+  font-family: 'Fraunces', serif;
+  font-size: 28px;
+  margin-bottom: 18px;
+  padding-bottom: 8px;
+  border-bottom: 2px solid var(--sand);
+}
+.about-section p {
+  font-size: 17px;
+  line-height: 1.7;
+  color: var(--ink);
+  margin-bottom: 14px;
+}
+.about-section em { font-style: italic; color: var(--ink-soft); }
+.about-section strong { font-weight: 600; }
+.about-list, .about-labels, .about-live {
+  list-style: none;
+  padding: 0;
+  margin: 0 0 14px;
+}
+.about-list li, .about-labels li, .about-live li {
+  font-size: 17px;
+  line-height: 1.7;
+  margin-bottom: 14px;
+  padding-left: 0;
+}
+.about-list { counter-reset: ab; }
+.about-list li {
+  counter-increment: ab;
+  padding-left: 36px;
+  position: relative;
+}
+.about-list li::before {
+  content: counter(ab);
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 26px;
+  height: 26px;
+  border-radius: 999px;
+  background: var(--sea);
+  color: #fff;
+  font-family: 'DM Sans', sans-serif;
+  font-size: 14px;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.about-labels li {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+}
+.lab-dot {
+  flex: 0 0 auto;
+  font-size: 22px;
+  line-height: 1;
+  margin-top: 2px;
+}
+.about-live li {
+  padding-left: 22px;
+  position: relative;
+}
+.about-live li::before {
+  content: "•";
+  position: absolute;
+  left: 4px;
+  color: var(--sea);
+  font-size: 22px;
+  line-height: 1;
+}
+.about-cta {
+  text-align: center;
+  margin-top: 16px;
+  margin-bottom: 60px;
+}
+@media (max-width: 620px) {
+  .about-section { padding: 0 4px; }
+  .about-section h2 { font-size: 24px; }
+  .about-section p, .about-list li, .about-labels li, .about-live li { font-size: 16px; }
+}
+
 /* ---- situatie-zoeker ---- */
 .searcher {
   background: var(--paper);

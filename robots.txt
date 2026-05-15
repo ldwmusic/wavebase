@@ -1,0 +1,5 @@
+User-agent: *
+Allow: /
+Disallow: /account.html
+
+Sitemap: https://wavebase.lode-b162.workers.dev/sitemap.xml
