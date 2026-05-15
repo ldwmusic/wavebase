@@ -375,12 +375,13 @@ table.cal td.host { color: var(--clay); }
 .site-nav a.active { color: var(--ink); }
 
 /* gesplitste resultaatsecties */
-.result-section { margin-bottom: 44px; }
+.result-section { margin-bottom: 44px; scroll-margin-top: 12px; }
 .result-section h2 {
   font-size: 26px;
-  margin-bottom: 18px;
+  margin: 0;
   padding-bottom: 8px;
   border-bottom: 2px solid var(--sand);
+  flex: 1;
 }
 .seccount {
   font-family: 'DM Sans', sans-serif;
@@ -388,6 +389,84 @@ table.cal td.host { color: var(--clay); }
   color: #fff; background: var(--sea);
   border-radius: 999px; padding: 2px 10px;
   vertical-align: middle; margin-left: 6px;
+}
+
+/* Section toggle (the clickable section header) */
+.section-toggle {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  width: 100%;
+  padding: 0 0 0;
+  margin: 0 0 18px;
+  background: none;
+  border: none;
+  cursor: pointer;
+  text-align: left;
+  font: inherit;
+  color: inherit;
+}
+.section-toggle:hover .section-chev { color: var(--ink); }
+.section-toggle:hover h2 { border-bottom-color: var(--sea); }
+.section-chev {
+  flex: 0 0 auto;
+  display: inline-block;
+  font-size: 22px;
+  line-height: 1.2;
+  color: var(--ink-soft);
+  transition: transform 0.18s ease;
+  margin-top: 4px;
+}
+.result-section.collapsed .section-chev { transform: rotate(-90deg); }
+.result-section.collapsed .section-body { display: none; }
+.result-section.collapsed .section-toggle { margin-bottom: 8px; }
+
+/* Sticky chip jumper above sections */
+.section-jumper {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  padding: 12px 0;
+  margin: 4px 0 24px;
+  background: var(--paper);
+  position: sticky;
+  top: 0;
+  z-index: 50;
+  border-bottom: 1px solid var(--sand);
+}
+.jumper-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 7px 14px;
+  background: var(--cream);
+  border: 1px solid var(--sand);
+  border-radius: 999px;
+  font-family: 'DM Sans', sans-serif;
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--ink);
+  text-decoration: none;
+  transition: background 0.15s, border-color 0.15s, transform 0.05s;
+}
+.jumper-chip:hover { background: var(--sand); border-color: var(--sand-deep); }
+.jumper-chip:active { transform: scale(0.97); }
+.jumper-count {
+  display: inline-block;
+  background: var(--sand);
+  color: var(--ink-soft);
+  padding: 1px 8px;
+  border-radius: 999px;
+  font-size: 12px;
+  font-weight: 600;
+  line-height: 1.5;
+}
+/* On mobile the site header is sticky too — offset the jumper underneath it */
+@media (max-width: 620px) {
+  .section-jumper {
+    top: calc(env(safe-area-inset-top, 0px) + 50px);
+  }
+  .result-section { scroll-margin-top: calc(env(safe-area-inset-top, 0px) + 110px); }
 }
 
 /* opslaan-hartje op kaartjes */

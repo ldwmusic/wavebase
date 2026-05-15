@@ -319,28 +319,63 @@ function runSearch() {
     html += `<div class="results-head"><h2>${heading}</h2>${viewToggleHTML(pref)}</div>`;
     html += townStripHTML(country);
     const spots   = matches.filter(e => e.type === "spot");
-    const stays   = matches.filter(e => e.type === "stay");
     const centres = matches.filter(e => e.type === "centre");
-    if (spots.length) {
-      html += `<section class="result-section">
-        <h2>Surf spots <span class="seccount">${spots.length}</span></h2>
-        <div class="${gridClass}">${spots.map(cardHTML).join("")}</div></section>`;
+    const stays   = matches.filter(e => e.type === "stay");
+    const sections = [
+      { key: "spots",   label: "Surf spots",   items: spots   },
+      { key: "centres", label: "Surf centres", items: centres },
+      { key: "stays",   label: "Stays",        items: stays   }
+    ].filter(s => s.items.length);
+
+    // Sticky jumper chips — only when there's more than one section to jump between
+    if (sections.length >= 2) {
+      html += `<nav class="section-jumper" aria-label="Jump to section">${sections.map(s =>
+        `<a class="jumper-chip" href="#sec-${s.key}" data-jump="${s.key}">${s.label} <span class="jumper-count">${s.items.length}</span></a>`
+      ).join("")}</nav>`;
     }
-    if (centres.length) {
-      html += `<section class="result-section">
-        <h2>Surf centres <span class="seccount">${centres.length}</span></h2>
-        <div class="${gridClass}">${centres.map(cardHTML).join("")}</div></section>`;
-    }
-    if (stays.length) {
-      html += `<section class="result-section">
-        <h2>Stays <span class="seccount">${stays.length}</span></h2>
-        <div class="${gridClass}">${stays.map(cardHTML).join("")}</div></section>`;
-    }
+
+    sections.forEach(s => {
+      html += `<section class="result-section" id="sec-${s.key}">
+        <button class="section-toggle" type="button" aria-expanded="true" aria-controls="body-${s.key}">
+          <span class="section-chev" aria-hidden="true">▾</span>
+          <h2>${s.label} <span class="seccount">${s.items.length}</span></h2>
+        </button>
+        <div class="${gridClass} section-body" id="body-${s.key}">${s.items.map(cardHTML).join("")}</div>
+      </section>`;
+    });
   }
 
   results.innerHTML = html;
   wireCards(results);
   wireViewToggle(results);
+  wireSectionToggle(results);
+  wireSectionJumper(results);
+}
+
+function wireSectionToggle(container) {
+  container.querySelectorAll(".section-toggle").forEach(btn => {
+    btn.addEventListener("click", () => {
+      const section = btn.closest(".result-section");
+      const wasOpen = btn.getAttribute("aria-expanded") === "true";
+      btn.setAttribute("aria-expanded", wasOpen ? "false" : "true");
+      section.classList.toggle("collapsed", wasOpen);
+    });
+  });
+}
+
+function wireSectionJumper(container) {
+  container.querySelectorAll(".jumper-chip").forEach(chip => {
+    chip.addEventListener("click", ev => {
+      ev.preventDefault();
+      const key = chip.dataset.jump;
+      const section = document.getElementById("sec-" + key);
+      if (!section) return;
+      // Expand if currently collapsed so the user lands on visible content
+      const btn = section.querySelector(".section-toggle");
+      if (btn && btn.getAttribute("aria-expanded") === "false") btn.click();
+      section.scrollIntoView({ behavior: "smooth", block: "start" });
+    });
+  });
 }
 
 function initIndex() {
