@@ -1170,7 +1170,7 @@ const WAVEBASE_DATA = [
     country: "Greece",
     sports: ["wind", "wing"],
     name: "Kouremenos Beach",
-    town: "Palaikastro",
+    town: "Palekastro",
     tagline: "East Crete's meltemi engine — a 2 km bay that turns on with thermal side-shore wind nearly every summer afternoon.",
     levels: ["beginner", "intermediate", "advanced"],
     goodMonths: [5,6,7,8,9,10],
@@ -1187,7 +1187,7 @@ const WAVEBASE_DATA = [
     verhaal: [
       `Kouremenos is the reason windsurfers and wing-foilers come to far-east Crete. A ~2 km open bay facing east, framed by hills that funnel the meltemi (the summer NW thermal wind) straight along the coast as side-shore. From about June into September it blows almost every afternoon — strong enough for advanced sailors, manageable enough on the inside that beginners can learn here too.`,
       `The bay is shallow on the inside (flat to small chop, perfect for learning), with more swell building up further out. The three centres on the beach — Surf Club Kouremenos, Freak Surf and Gone Surfing — all teach windsurfing and wing foiling; rentals run alongside the lessons.`,
-      `LDW went windsurfing here. The honest fine print: in the morning the wind can be flaky — Kouremenos is an afternoon spot. And the village (Palaikastro) is 1.5 km inland — not on the beach itself.`
+      `LDW went windsurfing here. The honest fine print: in the morning the wind can be flaky — Kouremenos is an afternoon spot. And the village (Palekastro) is 1.5 km inland — not on the beach itself.`
     ],
     lagen: [
       {
@@ -1203,7 +1203,7 @@ const WAVEBASE_DATA = [
         titel: "The region & getting there",
         bron: "Public travel guides, 2025–26",
         inhoud: [
-          { kop: "Location", tekst: `Far east of Crete, ~165 km / ~2h15 from Heraklion airport; ~25 km from Sitia (regional airport). Palaikastro village (with tavernas, mini-markets, accommodation) is 1.5 km inland.` },
+          { kop: "Location", tekst: `Far east of Crete, ~165 km / ~2h15 from Heraklion airport; ~25 km from Sitia (regional airport). Palekastro village (with tavernas, mini-markets, accommodation) is 1.5 km inland.` },
           { kop: "Side trips", tekst: `Vai palm-tree beach (~10 km — a tourist beach, not a surf spot), Zakros Gorge hike (~30 min), Toplou Monastery, Itanos Minoan ruins.` }
         ]
       }
@@ -1216,7 +1216,7 @@ const WAVEBASE_DATA = [
       drukte: { niveau: "gemiddeld", tekst: "Three centres share the beach; the bay is long enough to spread out, but the inside near the centres is the busiest." }
     },
     buurt: {
-      eten: "A small beach taverna at the bay; more tavernas in Palaikastro village 1.5 km inland.",
+      eten: "A small beach taverna at the bay; more tavernas in Palekastro village 1.5 km inland.",
       parking: "Free along the beach road.",
       verhuur: "Surf Club Kouremenos, Freak Surf, Gone Surfing — all on the beach (windsurf/wing/kite gear + lessons)."
     },
@@ -1231,22 +1231,22 @@ const WAVEBASE_DATA = [
     country: "Greece",
     sports: ["wind"],
     name: "Tenda Beach",
-    town: "Palaikastro",
-    tagline: "A remote freestyle-windsurf spot at the far-NE tip of Crete — ~15 km past Palaikastro, past Vai, towards Cape Sidero.",
+    town: "Palekastro",
+    tagline: "A remote freestyle-windsurf spot at the far-NE tip of Crete — ~15 km past Palekastro, past Vai, towards Cape Sidero.",
     levels: ["intermediate", "advanced"],
     goodMonths: [5,6,7,8,9,10],
     coords: [35.2867921, 26.2888294],
-    coordsLabel: "Verified via Google Maps pin (LDW). Remote rocky bay between Vai (~7 km south) and Cape Sidero, ~15 km from Palaikastro.",
+    coordsLabel: "Verified via Google Maps pin (LDW). Remote rocky bay between Vai (~7 km south) and Cape Sidero, ~15 km from Palekastro.",
     photo: "",
     samenvatting: [
-      "A remote rocky bay at the far north-east tip of Crete — 15 km from Palaikastro, 7 km past Vai.",
+      "A remote rocky bay at the far north-east tip of Crete — 15 km from Palekastro, 7 km past Vai.",
       "Known among windsurfers as a freestyle spot — exposed to the meltemi, with both flat and wavy patches.",
       "No centres, no rental, no facilities — sailors travel here from Kouremenos when they want this kind of water.",
       "Bron-strength: 🟢 SOLID — crete-today, cretanbeaches.com & east-Crete wind guides all describe the same remote freestyle bay."
     ],
     verhaal: [
-      `Tenda is not the neighbour of Kouremenos — it's a separate destination at the far north-eastern tip of Crete, about 15 km from Palaikastro and 7 km past the Vai palm beach, on the road towards Cape Sidero. A remote rocky area, much quieter than Kouremenos, with the meltemi blowing straight in.`,
-      `Among windsurfers it's known mainly as a freestyle spot — the west-facing bay (the one actually called Tenda) catches the wind and the chop, while the adjacent east bay (Eligas) tends to stay flatter. No centres, no rental, no taverna: you bring your own gear and drive out from Palaikastro or Kouremenos for the day.`
+      `Tenda is not the neighbour of Kouremenos — it's a separate destination at the far north-eastern tip of Crete, about 15 km from Palekastro and 7 km past the Vai palm beach, on the road towards Cape Sidero. A remote rocky area, much quieter than Kouremenos, with the meltemi blowing straight in.`,
+      `Among windsurfers it's known mainly as a freestyle spot — the west-facing bay (the one actually called Tenda) catches the wind and the chop, while the adjacent east bay (Eligas) tends to stay flatter. No centres, no rental, no taverna: you bring your own gear and drive out from Palekastro or Kouremenos for the day.`
     ],
     lagen: [
       {
@@ -1265,7 +1265,7 @@ const WAVEBASE_DATA = [
       drukte: { niveau: "rustig", tekst: "Almost empty — remote, no infrastructure." }
     },
     buurt: {
-      eten: "Nothing on the spot — pack your own; tavernas back in Palaikastro village (~15 km).",
+      eten: "Nothing on the spot — pack your own; tavernas back in Palekastro village (~15 km).",
       parking: "Informal along the access track.",
       verhuur: "Nothing on site — bring your own gear (or rig at Kouremenos and drive)."
     },
@@ -1345,7 +1345,7 @@ const WAVEBASE_DATA = [
     coordsLabel: "Google Maps-verified pin of Mazida Ammos beach — the main launch bay (~1 km south-west of Xerokampos hamlet).",
     photo: "",
     samenvatting: [
-      "Remote far-south-east coast — quieter and emptier than the Palaikastro cluster (~40 min drive south).",
+      "Remote far-south-east coast — quieter and emptier than the Palekastro cluster (~40 min drive south).",
       "Best on S wind: side-on from the right, deep chop and playful small waves.",
       "Real wave spot in winter — SW storms produce sideshore wind from the right.",
       "Meltemi (NW) blows fully offshore here — wrong wind for this coast. Complementary to Kouremenos.",
@@ -1353,7 +1353,7 @@ const WAVEBASE_DATA = [
       "Bron-strength: 🟢 SOLID — surfingr.com, kite-and-windsurfing-guide, allincrete + windfinder all describe the same pattern."
     ],
     verhaal: [
-      `Xerokampos sits on the far south-east tip of Crete — about a 40-min drive south of Palaikastro through dramatic mountain road. A cluster of small bays (the main launch is Mazida Ammos / Amatou) with crystal water, fine white sand, and almost no infrastructure.`,
+      `Xerokampos sits on the far south-east tip of Crete — about a 40-min drive south of Palekastro through dramatic mountain road. A cluster of small bays (the main launch is Mazida Ammos / Amatou) with crystal water, fine white sand, and almost no infrastructure.`,
       `Wind window: this is a southern-shore spot, so the meltemi (the NW summer wind that makes Kouremenos work) blows fully offshore here — useless. Instead, Xerokampos comes alive on S wind days: side-on from the right, with deep chop and playful small waves. In winter, SW storms turn it into a real wave spot with sideshore wind, good for jumps and rides.`,
       `It's a "bring everything" spot: no centres, no rental, no beach café for kilometres. Worth it specifically on the wind days the rest of east Crete is flat.`
     ],
@@ -1396,7 +1396,7 @@ const WAVEBASE_DATA = [
     country: "Greece",
     sports: ["wind", "wing"],
     name: "Gone Surfing Crete",
-    town: "Palaikastro",
+    town: "Palekastro",
     tagline: "Small, owner-run windsurf + wing foil centre on Kouremenos — pioneers of wing-foiling teaching in Greece (since 2019).",
     levels: ["beginner", "intermediate", "advanced"],
     goodMonths: [5,6,7,8,9,10],
@@ -1446,7 +1446,7 @@ const WAVEBASE_DATA = [
     country: "Greece",
     sports: ["wind", "wing"],
     name: "Freak Surf (Freak Windsurf Station)",
-    town: "Palaikastro",
+    town: "Palekastro",
     tagline: "Established Kouremenos station — running since 2004; full beach setup, bikes, yoga, sister station in Dakhla.",
     levels: ["beginner", "intermediate", "advanced"],
     goodMonths: [5,6,7,8,9,10],
@@ -1499,7 +1499,7 @@ const WAVEBASE_DATA = [
     country: "Greece",
     sports: ["wind", "wing", "kite"],
     name: "Surf Beach Apartments",
-    town: "Palaikastro",
+    town: "Palekastro",
     tagline: "Directly in the middle of Kouremenos beach, next to Surf Beach Bar and the windsurf centres.",
     levels: ["beginner", "intermediate", "advanced"],
     goodMonths: [5,6,7,8,9,10],
@@ -1508,7 +1508,7 @@ const WAVEBASE_DATA = [
     photo: "",
     bookingUrl: "https://www.surfbeachapts.gr/",
     verblijf: {
-      eten: "Studios have kitchenettes; Surf Beach Bar next door; supermarkets in Palaikastro village 1.5 km inland.",
+      eten: "Studios have kitchenettes; Surf Beach Bar next door; supermarkets in Palekastro village 1.5 km inland.",
       afstandSpot: "On Kouremenos beach itself — next door to the windsurf centres.",
       verhuur: "Not run by the apartments — Surf Club Kouremenos, Freak Surf and Gone Surfing are all on the same beach.",
       lessen: "Lessons via the three centres on the beach, not the apartments.",
@@ -1524,7 +1524,7 @@ const WAVEBASE_DATA = [
     ],
     verhaal: [
       `Surf Beach Apartments is exactly what the name suggests — a small set of self-catering studios on the sand at Kouremenos, next door to the Surf Beach Bar and the windsurf centres. The main reason to stay here is simple: you wake up, look at the bay, see whether it's blowing, walk to the centre. No driving, no faff.`,
-      `It's not a surf camp. There are no in-house lessons, no shared dinners — the wind side of the trip happens at Surf Club Kouremenos, Freak Surf or Gone Surfing, all on the same beach. For food and groceries, you walk or drive 1.5 km inland to Palaikastro village.`,
+      `It's not a surf camp. There are no in-house lessons, no shared dinners — the wind side of the trip happens at Surf Club Kouremenos, Freak Surf or Gone Surfing, all on the same beach. For food and groceries, you walk or drive 1.5 km inland to Palekastro village.`,
       `Listed across Booking.com, TripAdvisor, Hotels.com, Planet Windsurf Holidays and their own site (surfbeachapts.gr). The own-site link is the primary book-direct option.`
     ],
     lagen: [
@@ -1557,7 +1557,7 @@ const WAVEBASE_DATA = [
     country: "Greece",
     sports: ["wind", "wing", "kite"],
     name: "Akti Villas",
-    town: "Palaikastro",
+    town: "Palekastro",
     tagline: "Apartment-style villas right on Kouremenos beach — 30 m from the water, surrounded by olive trees.",
     levels: ["beginner", "intermediate", "advanced"],
     goodMonths: [5,6,7,8,9,10],
@@ -1566,7 +1566,7 @@ const WAVEBASE_DATA = [
     photo: "",
     bookingUrl: "https://www.akti-villas.gr/",
     verblijf: {
-      eten: "Apartments with kitchens; small beach taverna nearby; tavernas in Palaikastro village (~2 km inland).",
+      eten: "Apartments with kitchens; small beach taverna nearby; tavernas in Palekastro village (~2 km inland).",
       afstandSpot: "On Kouremenos beach — 30 m from the water per their own site. Walk to the centres.",
       verhuur: "Not on site — windsurf/wing/kite gear at the three centres on Kouremenos beach.",
       lessen: "Not on site — book through Surf Club Kouremenos / Freak Surf / Gone Surfing.",
@@ -1582,7 +1582,7 @@ const WAVEBASE_DATA = [
       "Bron-strength: 🟢 SOLID — own site + TripAdvisor + regional guides agree."
     ],
     verhaal: [
-      `Akti Villas sits right on Kouremenos beach — 30 m from the water by their own description, surrounded by olive groves. The postal area is Palaikastro / Kouremenos, 72300 Sitia. Reviews across TripAdvisor (4.4/5) and the regional east-Crete accommodation sites are consistent: clean modern apartments, friendly hosts, well-equipped kitchens. (Heads up: on Google Maps the building is currently listed as "Hotel Coast Village" at this address — same place, just a different signboard.)`,
+      `Akti Villas sits right on Kouremenos beach — 30 m from the water by their own description, surrounded by olive groves. The postal area is Palekastro / Kouremenos, 72300 Sitia. Reviews across TripAdvisor (4.4/5) and the regional east-Crete accommodation sites are consistent: clean modern apartments, friendly hosts, well-equipped kitchens. (Heads up: on Google Maps the building is currently listed as "Hotel Coast Village" at this address — same place, just a different signboard.)`,
       `It's not a surf camp — no in-house lessons, no shared dinners. The wind side happens at one of the three centres on the same beach (Surf Club Kouremenos, Freak Surf, Gone Surfing). What you get is comfort and quiet, on the bay.`,
       `Honest fine print: Akti Villas is not listed on Booking.com — booking is direct via their own site (akti-villas.gr) or by phone. So an automatic Booking link would land on the wrong place.`
     ],
@@ -1616,17 +1616,17 @@ const WAVEBASE_DATA = [
     country: "Greece",
     sports: ["wind", "wing", "kite"],
     name: "Flamingo Apartments",
-    town: "Palaikastro",
-    tagline: "Family-run self-catering studios in Agathia hamlet near Palaikastro — with on-site windsurf/kite gear storage.",
+    town: "Palekastro",
+    tagline: "Family-run self-catering studios in Agathia hamlet near Palekastro — with on-site windsurf/kite gear storage.",
     levels: ["beginner", "intermediate", "advanced"],
     goodMonths: [5,6,7,8,9,10],
     coords: [35.1962405, 26.2638173],
-    coordsLabel: "Verified via Google Maps pin. In Agathia hamlet (~900 m east of Palaikastro village, on the road toward Kouremenos beach).",
+    coordsLabel: "Verified via Google Maps pin. In Agathia hamlet (~900 m east of Palekastro village, on the road toward Kouremenos beach).",
     photo: "",
     bookingUrl: "https://flamingo-apartments-palaikastro.gr/en/",
     verblijf: {
-      eten: "Apartments (5 beds) and studios (3 beds) with kitchenettes; sea-view verandas; tavernas in Palaikastro a short walk away.",
-      afstandSpot: "Near Kouremenos beach (in the Palaikastro area); two windsurf centres at the nearby beach.",
+      eten: "Apartments (5 beds) and studios (3 beds) with kitchenettes; sea-view verandas; tavernas in Palekastro a short walk away.",
+      afstandSpot: "Near Kouremenos beach (in the Palekastro area); two windsurf centres at the nearby beach.",
       verhuur: "On-site windsurf and kitesurf gear storage for guests.",
       lessen: "Not on site — book through the centres on Kouremenos.",
       rating: "Listed on Booking.com, Trivago, Airbnb, KAYAK and their own site (flamingo-apartments-palaikastro.gr). Bron-strength: 🟢 SOLID — multiple independent platforms.",
@@ -1634,13 +1634,13 @@ const WAVEBASE_DATA = [
       activiteiten: "Windsurfing first; also snorkelling, hiking, mountain biking, fishing in the area."
     },
     samenvatting: [
-      "Family-run apartments and studios in Agathia hamlet, near Palaikastro.",
+      "Family-run apartments and studios in Agathia hamlet, near Palekastro.",
       "On-site windsurf/kite gear storage — practical for sailors travelling with kit.",
       "Listed on Booking, Trivago, Airbnb, KAYAK and their own site.",
       "Bron-strength: 🟢 SOLID — multiple independent platforms confirm the listing."
     ],
     verhaal: [
-      `Flamingo Apartments is a family-run set of apartments and studios in Agathia, a small hamlet near Palaikastro. The veranda overlooks the sea; the kitchenettes mean you can self-cater between sessions; and — practical detail — they offer on-site windsurf and kitesurf gear storage, which matters if you're flying in with your own kit.`,
+      `Flamingo Apartments is a family-run set of apartments and studios in Agathia, a small hamlet near Palekastro. The veranda overlooks the sea; the kitchenettes mean you can self-cater between sessions; and — practical detail — they offer on-site windsurf and kitesurf gear storage, which matters if you're flying in with your own kit.`,
       `Not on the beach itself: Kouremenos is a short drive or walk, with two windsurf centres there for lessons and rentals. Not a camp — independent travellers who want a base.`,
       `Listed across Booking.com, Trivago, Airbnb, KAYAK and their own site (flamingo-apartments-palaikastro.gr) — the own-site link is the cleanest book-direct option.`
     ],
@@ -1656,7 +1656,7 @@ const WAVEBASE_DATA = [
         titel: "The stay — Flamingo Apartments",
         bron: "🟢 SOLID — flamingo-apartments-palaikastro.gr + Booking.com + Trivago + Airbnb + KAYAK",
         inhoud: [
-          { kop: "What it is", tekst: `Family-run apartments and studios in Agathia hamlet near Palaikastro. Sea-view verandas, kitchenettes.` },
+          { kop: "What it is", tekst: `Family-run apartments and studios in Agathia hamlet near Palekastro. Sea-view verandas, kitchenettes.` },
           { kop: "Practical detail", tekst: `On-site windsurf and kitesurf gear storage — unusual for a non-camp stay.` },
           { kop: "Who stays here", tekst: `Independent sailors and travellers; not a camp crowd.` }
         ]
@@ -1673,12 +1673,12 @@ const WAVEBASE_DATA = [
     country: "Greece",
     sports: ["wind", "wing", "kite"],
     name: "Villa Amalia",
-    town: "Palaikastro",
+    town: "Palekastro",
     tagline: "Family-owned villas on the hillside overlooking Kouremenos Beach and Freak Windsurf Station — six self-catering units, sea views, olive groves.",
     levels: ["beginner", "intermediate", "advanced"],
     goodMonths: [5,6,7,8,9,10],
     coords: [35.2194294, 26.2566817],
-    coordsLabel: "Verified via Google Maps pin. On the hillside north of Palaikastro, overlooking Kouremenos Beach (matches their own site's \"on the mountain side\" description).",
+    coordsLabel: "Verified via Google Maps pin. On the hillside north of Palekastro, overlooking Kouremenos Beach (matches their own site's \"on the mountain side\" description).",
     photo: "",
     bookingUrl: "https://www.villa-amalia.com/",
     verblijf: {
@@ -1730,7 +1730,7 @@ const WAVEBASE_DATA = [
     country: "Greece",
     sports: ["wind", "wing", "kite"],
     name: "Kouremenos Beach Apartments",
-    town: "Palaikastro",
+    town: "Palekastro",
     tagline: "A second beachfront option on Kouremenos — older but solidly reviewed; about as close as it gets.",
     levels: ["beginner", "intermediate", "advanced"],
     goodMonths: [5,6,7,8,9,10],
@@ -1805,12 +1805,12 @@ const WAVEBASE_TOWNS = {
     afstand: "About 19 km north of Agadir city — roughly 30–45 min by road. Agadir Al Massira Airport is ~60 min. Marrakech, the next major city, is ~250 km / ~3 hours to Agadir via the A7.",
     bron: "Public travel & transport guides, 2025–26; distances cross-checked across multiple sources."
   },
-  "Palaikastro": {
-    naam: "Palaikastro",
+  "Palekastro": {
+    naam: "Palekastro",
     country: "Greece",
     intro: "A quiet inland village in far-east Crete, 1.5 km from Kouremenos Bay — the windsurf/wing/kite cluster of east Crete. Small, traditional, with tavernas around the square and a Minoan archaeological site on the edge of town.",
-    teDoen: "Beyond the water: the Palaikastro Minoan ruins (~2.5 km, free), the Vai palm-tree beach (~10 km, the only natural palm forest in Europe — a tourist beach, not a surf spot), the Itanos ancient site, the Toplou Monastery (~12 km), and the Zakros Gorge / Valley of the Dead hike (~25 min drive). Quiet evenings, family tavernas.",
-    vervoer: "By car: ~2 h 15 min from Heraklion airport (HER) via the north-coast E75, ~1 h 15 min from Sitia airport (JSH, regional). Public bus from Sitia is limited (a few daily). The cluster — Palaikastro village → Kouremenos beach → Hiona beach → Vai — is best done by rental car or scooter.",
+    teDoen: "Beyond the water: the Palekastro Minoan ruins (~2.5 km, free), the Vai palm-tree beach (~10 km, the only natural palm forest in Europe — a tourist beach, not a surf spot), the Itanos ancient site, the Toplou Monastery (~12 km), and the Zakros Gorge / Valley of the Dead hike (~25 min drive). Quiet evenings, family tavernas.",
+    vervoer: "By car: ~2 h 15 min from Heraklion airport (HER) via the north-coast E75, ~1 h 15 min from Sitia airport (JSH, regional). Public bus from Sitia is limited (a few daily). The cluster — Palekastro village → Kouremenos beach → Hiona beach → Vai — is best done by rental car or scooter.",
     afstand: "Far east of Crete, ~165 km / ~2 h 15 min from Heraklion; ~25 km / ~30 min from Sitia. Athens is a 30-min flight from Heraklion (or an overnight ferry to Heraklion or Sitia).",
     bron: "Public travel & transport guides, 2025–26; airport distances cross-checked across multiple sources."
   }
