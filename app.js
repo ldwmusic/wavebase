@@ -104,6 +104,25 @@ function findCountry(name) {
 function entryCountry(e) { return e.country || "Morocco"; }
 function entrySports(e)  { return e.sports  || ["wave"]; }
 
+/* HTML-escape user-supplied strings before injecting into innerHTML */
+function escHTML(s) {
+  return String(s).replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+}
+
+/* Free-text matcher — checks name, town, country, tagline, summary, story and layer titles */
+function searchMatch(e, q) {
+  const ql = String(q || "").toLowerCase().trim();
+  if (!ql) return true;
+  const layerText = (e.lagen || []).map(l => l.titel + " " + (l.inhoud || []).map(b => b.kop + " " + b.tekst).join(" ")).join(" ");
+  const haystack = [
+    e.name, e.town, entryCountry(e), e.tagline,
+    ...(e.samenvatting || []),
+    ...(e.verhaal || []),
+    layerText
+  ].join(" ").toLowerCase();
+  return haystack.includes(ql);
+}
+
 /* Derive live country×sport combos from the actual data, so COMING SOON copy
    updates automatically as new countries/sports get content. */
 function getLiveCombos() {
@@ -219,16 +238,48 @@ function wireSportPills(container) {
   });
 }
 
+/* Render the spots/centres/stays sections + sticky jumper bar shared between
+   country-picker mode and free-text search mode. Returns the HTML string. */
+function renderResultsSections(matches, gridClass) {
+  if (!matches.length) return "";
+  const spots   = matches.filter(e => e.type === "spot");
+  const centres = matches.filter(e => e.type === "centre");
+  const stays   = matches.filter(e => e.type === "stay");
+  const sections = [
+    { key: "spots",   label: "Surf spots",   items: spots   },
+    { key: "centres", label: "Surf centres", items: centres },
+    { key: "stays",   label: "Stays",        items: stays   }
+  ].filter(s => s.items.length);
+  let html = "";
+  if (sections.length >= 2) {
+    html += `<nav class="section-jumper" aria-label="Jump to section">${sections.map(s =>
+      `<a class="jumper-chip" href="#sec-${s.key}" data-jump="${s.key}">${s.label} <span class="jumper-count">${s.items.length}</span></a>`
+    ).join("")}</nav>`;
+  }
+  sections.forEach(s => {
+    html += `<section class="result-section" id="sec-${s.key}">
+      <button class="section-toggle" type="button" aria-expanded="true" aria-controls="body-${s.key}">
+        <span class="section-chev" aria-hidden="true">▾</span>
+        <h2>${s.label} <span class="seccount">${s.items.length}</span></h2>
+      </button>
+      <div class="${gridClass} section-body" id="body-${s.key}">${s.items.map(cardHTML).join("")}</div>
+    </section>`;
+  });
+  return html;
+}
+
 function runSearch() {
   const country = document.getElementById("f-country").value;
   const level = document.getElementById("f-level").value;
   const month = document.getElementById("f-month").value;
   const type  = document.getElementById("f-type").value;
   const sport = getSportPref();
+  const qEl   = document.getElementById("f-search");
+  const query = qEl ? qEl.value.trim() : "";
   const results = document.getElementById("results");
   const longSport = { wave: "Wave surfing", wind: "Windsurfing", kite: "Kitesurfing", wing: "Wing foiling" };
 
-  // keep URL in sync — country + filters + sport — so links are shareable AND back-navigation restores the state
+  // keep URL in sync — country + filters + sport + free-text query — so links are shareable AND back-navigation restores the state
   const url = new URL(window.location.href);
   const setParam = (k, v, isDefault) => {
     if (v && !isDefault) url.searchParams.set(k, v);
@@ -239,7 +290,12 @@ function runSearch() {
   setParam("type", type, type === "all");
   setParam("month", month, month === "all");
   setParam("sport", sport, sport === "wave");
+  setParam("q", query, !query);
   window.history.replaceState(null, "", url.toString());
+
+  // Toggle the clear-search button based on whether there's a query
+  const clearBtn = document.getElementById("f-search-clear");
+  if (clearBtn) clearBtn.hidden = !query;
 
   // refresh sport pill active state to reflect current sport
   document.querySelectorAll(".sport-pill").forEach(btn => {
@@ -248,10 +304,40 @@ function runSearch() {
     btn.setAttribute("aria-selected", isActive ? "true" : "false");
   });
 
+  const pref = getViewPref();
+  const gridClass = pref === "list" ? "grid list-view" : "grid";
+
+  // ============ FREE-TEXT SEARCH MODE — overrides the country picker ============
+  if (query) {
+    const matches = WAVEBASE_DATA.filter(e => {
+      if (!searchMatch(e, query)) return false;
+      if (!entrySports(e).includes(sport)) return false;
+      const okL = level === "all" || e.levels.includes(level);
+      const okM = month === "all" || e.goodMonths.includes(parseInt(month, 10));
+      const okT = type === "all" || e.type === type;
+      return okL && okM && okT;
+    });
+    let html = `<div class="results-head"><h2>Search: &ldquo;${escHTML(query)}&rdquo; <span class="seccount">${matches.length}</span></h2>${matches.length ? viewToggleHTML(pref) : ""}</div>`;
+    if (matches.length === 0) {
+      html += `<div class="empty">
+        <strong>Nothing matches &ldquo;${escHTML(query)}&rdquo; in <strong>${longSport[sport]}</strong>.</strong><br>
+        Try a different spelling, a broader term, or another sport — or clear the search and browse by country.
+      </div>`;
+    } else {
+      html += renderResultsSections(matches, gridClass);
+    }
+    results.innerHTML = html;
+    wireCards(results);
+    wireViewToggle(results);
+    wireSectionToggle(results);
+    wireSectionJumper(results);
+    return;
+  }
+
   // no country yet → ask the user to pick one
   if (!country) {
     results.innerHTML = `<div class="empty"><strong>Pick a country to begin.</strong><br>
-      Use the &ldquo;Where?&rdquo; picker above, or open the Destinations menu in the header.</div>`;
+      Use the &ldquo;Where?&rdquo; picker above, type a place in the search bar, or open the Destinations menu in the header.</div>`;
     return;
   }
 
@@ -305,8 +391,6 @@ function runSearch() {
     return okL && okM && okT;
   });
 
-  const pref = getViewPref();
-  const gridClass = pref === "list" ? "grid list-view" : "grid";
   const heading = countryHeading(country);
   let html = "";
 
@@ -318,31 +402,7 @@ function runSearch() {
   } else {
     html += `<div class="results-head"><h2>${heading}</h2>${viewToggleHTML(pref)}</div>`;
     html += townStripHTML(country);
-    const spots   = matches.filter(e => e.type === "spot");
-    const centres = matches.filter(e => e.type === "centre");
-    const stays   = matches.filter(e => e.type === "stay");
-    const sections = [
-      { key: "spots",   label: "Surf spots",   items: spots   },
-      { key: "centres", label: "Surf centres", items: centres },
-      { key: "stays",   label: "Stays",        items: stays   }
-    ].filter(s => s.items.length);
-
-    // Sticky jumper chips — only when there's more than one section to jump between
-    if (sections.length >= 2) {
-      html += `<nav class="section-jumper" aria-label="Jump to section">${sections.map(s =>
-        `<a class="jumper-chip" href="#sec-${s.key}" data-jump="${s.key}">${s.label} <span class="jumper-count">${s.items.length}</span></a>`
-      ).join("")}</nav>`;
-    }
-
-    sections.forEach(s => {
-      html += `<section class="result-section" id="sec-${s.key}">
-        <button class="section-toggle" type="button" aria-expanded="true" aria-controls="body-${s.key}">
-          <span class="section-chev" aria-hidden="true">▾</span>
-          <h2>${s.label} <span class="seccount">${s.items.length}</span></h2>
-        </button>
-        <div class="${gridClass} section-body" id="body-${s.key}">${s.items.map(cardHTML).join("")}</div>
-      </section>`;
-    });
+    html += renderResultsSections(matches, gridClass);
   }
 
   results.innerHTML = html;
@@ -400,9 +460,9 @@ function initIndex() {
       cSel.appendChild(og);
     });
   }
-  // pre-select all filters from URL params (country + level/type/month) — supports deep links and back-navigation
+  // pre-select all filters from URL params (country + level/type/month + free-text q) — supports deep links and back-navigation
   const params = new URLSearchParams(window.location.search);
-  [["country","f-country"],["level","f-level"],["type","f-type"],["month","f-month"]].forEach(([k, id]) => {
+  [["country","f-country"],["level","f-level"],["type","f-type"],["month","f-month"],["q","f-search"]].forEach(([k, id]) => {
     const v = params.get(k);
     if (v) {
       const el = document.getElementById(id);
@@ -414,6 +474,27 @@ function initIndex() {
     if (el) el.addEventListener("change", runSearch);
   });
   document.getElementById("search-btn").addEventListener("click", runSearch);
+
+  // live free-text search (debounced — small dataset, so 150 ms is plenty)
+  const fSearch = document.getElementById("f-search");
+  if (fSearch) {
+    let t;
+    fSearch.addEventListener("input", () => {
+      clearTimeout(t);
+      t = setTimeout(runSearch, 150);
+    });
+    fSearch.addEventListener("keydown", ev => {
+      if (ev.key === "Escape") { fSearch.value = ""; runSearch(); fSearch.blur(); }
+    });
+  }
+  const fClear = document.getElementById("f-search-clear");
+  if (fClear && fSearch) {
+    fClear.addEventListener("click", () => {
+      fSearch.value = "";
+      runSearch();
+      fSearch.focus();
+    });
+  }
 
   // inject sport pills (Wave / Wind / Kite / Wing) above the searcher section
   const searcherEl = document.querySelector(".searcher");
