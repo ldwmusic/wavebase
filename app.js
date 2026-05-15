@@ -7,7 +7,16 @@ function bookingHref(e) {
   if (e.bookingUrl) return e.bookingUrl;
   return `https://www.booking.com/searchresults.html?ss=${encodeURIComponent(e.name + " " + e.town)}`;
 }
-function typeLabel(t) { return t === "spot" ? "Surf spot" : "Stay"; }
+function typeLabel(t) {
+  if (t === "spot") return "Surf spot";
+  if (t === "centre") return "Surf centre";
+  return "Stay";
+}
+function typeColor(t) {
+  if (t === "spot") return "#3f6f7d";    // teal — surf spots
+  if (t === "centre") return "#e0a447";  // amber — surf centres
+  return "#bd6242";                       // orange — stays
+}
 function crowdLabel(n) { return { rustig: "Quiet", gemiddeld: "Moderate", druk: "Busy" }[n] || n; }
 function thumbStyle(e) { return e.photo ? ` style="background-image:url('${e.photo}')"` : ""; }
 
@@ -309,12 +318,18 @@ function runSearch() {
   } else {
     html += `<div class="results-head"><h2>${heading}</h2>${viewToggleHTML(pref)}</div>`;
     html += townStripHTML(country);
-    const spots = matches.filter(e => e.type === "spot");
-    const stays = matches.filter(e => e.type === "stay");
+    const spots   = matches.filter(e => e.type === "spot");
+    const stays   = matches.filter(e => e.type === "stay");
+    const centres = matches.filter(e => e.type === "centre");
     if (spots.length) {
       html += `<section class="result-section">
         <h2>Surf spots <span class="seccount">${spots.length}</span></h2>
         <div class="${gridClass}">${spots.map(cardHTML).join("")}</div></section>`;
+    }
+    if (centres.length) {
+      html += `<section class="result-section">
+        <h2>Surf centres <span class="seccount">${centres.length}</span></h2>
+        <div class="${gridClass}">${centres.map(cardHTML).join("")}</div></section>`;
     }
     if (stays.length) {
       html += `<section class="result-section">
@@ -440,6 +455,25 @@ function verblijfHTML(v) {
   </section>`;
 }
 
+function dienstenHTML(d) {
+  if (!d) return "";
+  const rows = [
+    ["Lessons", d.lessen],
+    ["Rental", d.rental],
+    ["Gear brands", d.brands],
+    ["Facilities", d.faciliteiten],
+    ["Team & vibe", d.team],
+    ["Contact", d.contact]
+  ];
+  const items = rows.map(([k, val]) =>
+    `<div class="cond-item"><span class="cond-label">${k}</span><span class="cond-val">${val || "—"}</span></div>`
+  ).join("");
+  return `<section class="condities">
+    <h2>The centre at a glance</h2>
+    <div class="cond-grid verblijf-grid">${items}</div>
+  </section>`;
+}
+
 function buurtHTML(b) {
   if (!b) return "";
   return `<section class="buurt">
@@ -505,6 +539,7 @@ function initSpot() {
       ${e.coordsLabel ? `<p class="coords-note">About the location: ${e.coordsLabel}</p>` : ""}
       <div class="detail-actions">
         ${e.type === "stay" ? `<a class="btn btn-book" href="${bookingHref(e)}" target="_blank" rel="noopener">Book now ↗</a>` : ""}
+        ${e.type === "centre" && e.bookingUrl ? `<a class="btn btn-book" href="${e.bookingUrl}" target="_blank" rel="noopener">Visit website ↗</a>` : ""}
         <button class="btn ghost ${saved ? "on" : ""}" id="save-toggle">${saved ? "♥ Saved" : "♡ Save this place"}</button>
         <button class="btn ghost ${comparing ? "on" : ""}" id="compare-toggle">${comparing ? "✓ In compare" : "+ Compare"}</button>
         <select id="trip-select">${tripOptionsHTML()}</select>
@@ -520,6 +555,7 @@ function initSpot() {
 
     ${conditiesHTML(e.condities)}
     ${verblijfHTML(e.verblijf)}
+    ${dienstenHTML(e.diensten)}
 
     <div class="verhaal">
       <h2>The honest story</h2>
@@ -542,8 +578,7 @@ function initSpot() {
     L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
       attribution: "&copy; OpenStreetMap contributors", maxZoom: 19
     }).addTo(m);
-    const color = e.type === "spot" ? "#3f6f7d" : "#bd6242";
-    L.circleMarker(e.coords, { radius: 10, color: "#fff", weight: 3, fillColor: color, fillOpacity: 1 })
+    L.circleMarker(e.coords, { radius: 10, color: "#fff", weight: 3, fillColor: typeColor(e.type), fillOpacity: 1 })
       .bindPopup(`<strong>${e.name}</strong><br>${typeLabel(e.type)} &middot; ${e.town}`)
       .addTo(m);
     m.setView(e.coords, 14);
@@ -599,14 +634,13 @@ function initMap() {
     attribution: "&copy; OpenStreetMap contributors", maxZoom: 19
   }).addTo(map);
 
-  const layers = { spot: L.layerGroup(), stay: L.layerGroup() };
+  const layers = { spot: L.layerGroup(), stay: L.layerGroup(), centre: L.layerGroup() };
   const allCoords = [];
   WAVEBASE_DATA.forEach(e => {
-    if (!e.coords) return;
+    if (!e.coords || !layers[e.type]) return;
     allCoords.push(e.coords);
-    const color = e.type === "spot" ? "#3f6f7d" : "#bd6242";
     const m = L.circleMarker(e.coords, {
-      radius: 8, color: "#fff", weight: 2, fillColor: color, fillOpacity: 1
+      radius: 8, color: "#fff", weight: 2, fillColor: typeColor(e.type), fillOpacity: 1
     });
     const note = e.coordsLabel ? "<br><em>Approximate location</em>" : "";
     m.bindPopup(`<strong>${e.name}</strong><br>${typeLabel(e.type)} &middot; ${e.town}${note}<br>
@@ -615,6 +649,7 @@ function initMap() {
   });
   layers.spot.addTo(map);
   layers.stay.addTo(map);
+  layers.centre.addTo(map);
   if (allCoords.length) map.fitBounds(allCoords, { padding: [30, 30] });
 
   document.getElementById("t-spot").addEventListener("change", function () {
@@ -623,6 +658,12 @@ function initMap() {
   document.getElementById("t-stay").addEventListener("change", function () {
     if (this.checked) layers.stay.addTo(map); else map.removeLayer(layers.stay);
   });
+  const tCentre = document.getElementById("t-centre");
+  if (tCentre) {
+    tCentre.addEventListener("change", function () {
+      if (this.checked) layers.centre.addTo(map); else map.removeLayer(layers.centre);
+    });
+  }
 }
 
 /* ---- trip maps (account) — a roadtrip-style map per trip ---- */
@@ -812,6 +853,16 @@ function compareKeyPoints(e) {
       ["Crowd", c.drukte ? crowdLabel(c.drukte.niveau) : "—"],
       ["Levels", e.levels.map(cap).join(", ")],
       ["Water", c.water || "—"]
+    ];
+  }
+  if (e.type === "centre") {
+    const d = e.diensten || {};
+    return [
+      ["Lessons", d.lessen || "—"],
+      ["Rental", d.rental || "—"],
+      ["Gear brands", d.brands || "—"],
+      ["Facilities", d.faciliteiten || "—"],
+      ["Team & vibe", d.team || "—"]
     ];
   }
   const v = e.verblijf || {};

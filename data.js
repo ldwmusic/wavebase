@@ -1389,6 +1389,109 @@ const WAVEBASE_DATA = [
      LDW found no verifiable source listing it as a surf spot. Crete is not
      a wave-surf destination; wave sailing happens at Faneromeni, not here. */
 
+  /* ----------------- SURF CENTRES — EAST CRETE ----------------- */
+  {
+    id: "gone-surfing",
+    type: "centre",
+    country: "Greece",
+    sports: ["wind", "wing"],
+    name: "Gone Surfing Crete",
+    town: "Palaikastro",
+    tagline: "Small, owner-run windsurf + wing foil centre on Kouremenos — pioneers of wing-foiling teaching in Greece (since 2019).",
+    levels: ["beginner", "intermediate", "advanced"],
+    goodMonths: [5,6,7,8,9,10],
+    coords: [35.2055, 26.2715],
+    coordsLabel: "Approximate — on Kouremenos beach; exact pin not yet verified.",
+    photo: "",
+    bookingUrl: "https://gonesurfing.gr/",
+    diensten: {
+      lessen: "Windsurfing, wing foiling, wind foiling, tandem windsurfing — beginners through advanced.",
+      rental: "Windsurf, wing foil, SUP. Different foil types, board sizes and wing sizes to fit beginner to advanced.",
+      brands: "Fanatic boards + Duotone sails and wings — \"the latest\" of each, per the UK windsurf press feature.",
+      faciliteiten: "Equipment storage. Small owner-run station at the end of the beach road.",
+      team: "Small enough \"to know our guests by name\" (own words). Reviewers consistently highlight teaching capability and personal service.",
+      contact: "+30 6941427787 · gonesurfingcrete@gmail.com · gonesurfing.gr"
+    },
+    samenvatting: [
+      "Small owner-run windsurf + wing foil centre on Kouremenos beach.",
+      "Among the first in Greece to introduce windsurf foiling; pioneers of wing-foiling teaching since 2019.",
+      "Fanatic boards + Duotone sails/wings; lessons and rentals for all levels.",
+      "Bron-strength: 🟢 SOLID — gonesurfing.gr (own site) + Windsurf magazine UK feature + TripAdvisor reviews all align."
+    ],
+    verhaal: [
+      `Gone Surfing is a small, owner-run windsurf and wing foil centre at the end of the road on Kouremenos beach. Pitched as quality over volume: small enough to know guests by name, with current high-end equipment (Fanatic boards, Duotone sails and wings).`,
+      `Their distinction in the Kouremenos cluster: among the first in Greece to introduce windsurf foiling, and pioneers of wing-foiling teaching since 2019. If you're learning to wing or want foil-specific gear that's actually current, this is the centre to look at first.`,
+      `Reviewers and the UK windsurf press converge on the same theme — a "family" atmosphere, instructors known for teaching capability, attentive service. Trade-off: not a high-capacity station; capacity per session is limited.`
+    ],
+    lagen: [
+      {
+        titel: "What it is",
+        bron: "🟢 SOLID — gonesurfing.gr + Windsurf magazine UK + TripAdvisor",
+        inhoud: [
+          { kop: "Lessons", tekst: `Windsurfing and wing foiling for all levels — beginners through advanced. Tandem windsurfing and wind foil also on offer.` },
+          { kop: "Rental", tekst: `Windsurf, wing foil, SUP. Different foil types, board sizes and wing sizes.` },
+          { kop: "Gear", tekst: `Fanatic boards + Duotone sails and wings — current high-end kit. Equipment storage available for guests.` },
+          { kop: "Atmosphere", tekst: `Owner-run, small, family vibe. Reviewers highlight teaching capability and personal service.` }
+        ]
+      }
+    ],
+    vergelijking: null,
+    ideaalVoor: "Wing-foilers and windsurfers wanting quality teaching and current foil gear; people who prefer an intimate centre over a big station.",
+    nietIdeaalAls: "You want a high-capacity, full-infrastructure station with constant turnover."
+  },
+
+  {
+    id: "freak-surf",
+    type: "centre",
+    country: "Greece",
+    sports: ["wind", "wing"],
+    name: "Freak Surf (Freak Windsurf Station)",
+    town: "Palaikastro",
+    tagline: "Established Kouremenos station — running since 2004; full beach setup, bikes, yoga, sister station in Dakhla.",
+    levels: ["beginner", "intermediate", "advanced"],
+    goodMonths: [5,6,7,8,9,10],
+    coords: [35.2075, 26.2700],
+    coordsLabel: "Approximate — on Kouremenos beach (searchable as \"Freak Windsurf & Bike Center\" on Google Maps); exact pin not yet verified.",
+    photo: "",
+    bookingUrl: "https://www.freak-surf.com/crete/",
+    diensten: {
+      lessen: "Windsurfing and wing foiling lessons; international instructors (English, French, Italian, German).",
+      rental: "Windsurf and wing foil — JP Australia boards and NeilPryde (North Sails) sails. Among the first stations worldwide to offer foil lessons and rentals.",
+      brands: "JP Australia + NeilPryde (NP) — established windsurf brands; multiple foil setups.",
+      faciliteiten: "Electricity, water, showers, sun beds, beach volleyball, evening entertainment. Mountain bike rental and yoga classes on site.",
+      team: "Running since 2004 — established player. International team; one staff member on \"baywatch\" duty at all times.",
+      contact: "+30 6979253861 · freak-surf.com"
+    },
+    samenvatting: [
+      "Established windsurf + wing foil station on Kouremenos — running since 2004.",
+      "Full beach setup: showers, sun beds, volleyball, evening entertainment. Also mountain bike rental and yoga.",
+      "JP Australia boards + NeilPryde sails; pioneer of foil lessons & rentals worldwide.",
+      "Sister station in Dakhla (Morocco) — same brand, same teaching approach.",
+      "Bron-strength: 🟢 SOLID — own site + TripAdvisor + Boards Windsurfing + Greeka all describe the same setup."
+    ],
+    verhaal: [
+      `Freak Surf — also signposted as Freak Windsurf Station — is the established player on Kouremenos beach, running since 2004. A bigger, broader setup than Gone Surfing: alongside windsurf and wing foil lessons and rentals, they run a mountain bike rental, yoga classes, evening entertainment, showers, sun beds, and a beach volleyball court.`,
+      `The pitch is teaching quality + safety + breadth. Their international team teaches in English, French, Italian and German. They keep a "baywatch" staff member watching the water at all times. They were among the first stations worldwide to offer foil lessons and rentals.`,
+      `Note: Freak Surf also operates a sister station in Dakhla, Morocco — same brand, same teaching approach. If you've sailed with them in Crete, you'll find the same setup waiting in Morocco.`
+    ],
+    lagen: [
+      {
+        titel: "What it is",
+        bron: "🟢 SOLID — freak-surf.com + TripAdvisor + Boards Windsurfing + Greeka",
+        inhoud: [
+          { kop: "Lessons", tekst: `Windsurfing and wing foiling, all levels. International instructors (EN/FR/IT/DE). Among the first stations to teach foil.` },
+          { kop: "Rental", tekst: `Windsurf and wing foil — JP Australia boards and NeilPryde sails. Multiple sizes for different abilities and wind strengths.` },
+          { kop: "Beach setup", tekst: `Showers, sun beds, volleyball, mountain bike rental, yoga, evening entertainment. Broad infrastructure.` },
+          { kop: "Safety", tekst: `One staff member on baywatch duty at all times.` },
+          { kop: "Sister station", tekst: `Freak Surf also operates a windsurf station in Dakhla (Morocco). Same brand; arrangements are separate but cross-recognisable.` }
+        ]
+      }
+    ],
+    vergelijking: null,
+    ideaalVoor: "Windsurfers and wing-foilers wanting a full-service station with infrastructure and amenities, or those bringing non-sailing companions.",
+    nietIdeaalAls: "You want a quiet, small, family-feel centre — go to Gone Surfing instead."
+  },
+
   /* ----------------- STAYS — EAST CRETE ----------------- */
   {
     id: "surf-beach-apartments",
