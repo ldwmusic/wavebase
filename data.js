@@ -1422,7 +1422,7 @@ const WAVEBASE_DATA = [
     verhaal: [
       `Gone Surfing is the owner-run center at the south end of Kouremenos beach, run by Christos and Maria. The TripAdvisor signal is exceptional: 4.9/5 over 195 reviews, ranked #1 of 3 activities in Palekastro. Distribution: 183 excellent, 7 good, just 5 reviews below "good" out of 195.`,
       `What recurs across reviews: warm welcome, "brand new" Fanatic/Duotone gear, the rescue boat watching over sessions, a "family" atmosphere. A French reviewer in 2025 calls it "an old-school spirit — where generosity, helping others, and sharing happiness are at the core of everything they do". Another notes "10 out of 10 from me" with the option to "swap and change [boards] as much as you wanted". The wind on Kouremenos itself is described as "reliable from 7:00 to 24:00 — no guessing, no waiting".`,
-      `Honest minpunt: one 2-star review (Philippe d, July 2024) flagged a real friction. The multi-day package system locked his bookings to specific boards regardless of wind that day, "not specified on their website". When he asked to switch, the comms felt unpleasant. He acknowledged the equipment was "very good" but recommends renting by the hour instead of packages if you're sensitive to that. This is one outlier in 195 reviews — but it's a specific, actionable warning if you tend to want flexibility.`
+      `Honest minpunt: one 2-star review (July 2024) flagged a real friction. The multi-day package system locked bookings to specific boards regardless of wind that day, "not specified on their website". When the reviewer asked to switch, the comms felt unpleasant. They acknowledged the equipment was "very good" but recommended renting by the hour instead of packages if you want flexibility. This is one outlier in 195 reviews — but it's a specific, actionable warning if you tend to want flexibility.`
     ],
     lagen: [
       {
@@ -1440,7 +1440,7 @@ const WAVEBASE_DATA = [
           { kop: "Offerings (own site + magazine feature)", tekst: `Small owner-run windsurf + wing foil center at the south end of Kouremenos. Owners Christos + Maria teach personally. Windsurfing, wing foiling, wind foiling, tandem windsurfing, SUP — all levels. Fanatic boards + Duotone sails/wings + RRD foils, refreshed regularly. Equipment storage. Rescue boat on standby. Open daily 10:00-20:00.` },
           { kop: "The constants (2023-2025 reviews)", tekst: `Warm welcome and equipment quality recur across recent reviews. "Brand new Duotone hardware" (2024). "Plenty to choose from, you could swap and change as much as you wanted" (Sep 2023). "10 out of 10 from me" (Sep 2023). "Old-school spirit — generosity, helping others, sharing happiness" (May 2025).` },
           { kop: "Pioneer status", tekst: `Among the first in Greece to introduce windsurf foiling; pioneers of wing-foiling teaching since 2019 (per their own site and UK Windsurf magazine feature).` },
-          { kop: "Honest minpunt (Jul 2024 review)", tekst: `Philippe d (2-star) flagged rigid package bookings — multi-day deals lock you to specific boards regardless of wind that day, "not specified on their website". He felt the host comms came across as unfriendly when re-negotiating. He acknowledged the equipment was "very good". If you want flexibility, rent by the hour rather than booking a package upfront.` }
+          { kop: "Honest minpunt (Jul 2024 review)", tekst: `A 2-star reviewer flagged rigid package bookings — multi-day deals lock you to specific boards regardless of wind that day, "not specified on their website". They felt the host comms came across as unfriendly when re-negotiating. They acknowledged the equipment was "very good". If you want flexibility, rent by the hour rather than booking a package upfront.` }
         ]
       }
     ],
@@ -1497,7 +1497,7 @@ const WAVEBASE_DATA = [
         bron: "🟡 MOSTLY SOLID, thinner recent window — freak-surf.com + TripAdvisor 4.9/5 (62 reviews total, only 2 within the last 4 years) + Boards Windsurfing + Greeka",
         inhoud: [
           { kop: "Offerings (own site + listings)", tekst: `Established windsurf + wing foil station on Kouremenos, running since 2004. Owner Hannes; staff names appearing in reviews include Aga + Pawel. Multi-language teaching (GR/DE/EN/FR/IT). JP Australia boards + NeilPryde sails. Showers, water fountain, sun beds, volleyball, mountain bike rental, afternoon yoga. Trees for shade.` },
-          { kop: "The constants (recent reviews)", tekst: `Apr 2025 (Heinz M, third year visiting): "absolutely satisfied with the excellent and courteous service. Aga and Pawel try very hard". Aug 2024 (litenluring): "Perfect flat water spot, well equipped rental with top gear, and super service".` },
+          { kop: "The constants (recent reviews)", tekst: `Apr 2025 reviewer (third-year returning guest): "absolutely satisfied with the excellent and courteous service. Aga and Pawel try very hard". Aug 2024 reviewer: "Perfect flat water spot, well equipped rental with top gear, and super service".` },
           { kop: "Honest sourcing gap", tekst: `Only 2 of 62 TripAdvisor reviews are within the last 4 years. Most enthusiastic reviews ("windy 28 of 30 days", "best windsurfing base I've been in my life", "Hannes is the best") are 2019-2020 — outside the window. Hannes still responds personally to reviews on TripAdvisor (most recent owner response visible).` },
           { kop: "Sister station", tekst: `Same brand operates a windsurf station in Dakhla, Morocco (per their own site). If you've sailed Crete with them, the Dakhla setup is from the same operator.` },
           { kop: "Honest minpunt", tekst: `Older reviewer (Aug 2020) flagged "wind gaps and gusts" — that's the bay character, not Freak's fault. No specific negatives surface in the 2024-2025 reviews.` }
@@ -1658,12 +1658,12 @@ const WAVEBASE_DATA = [
       "Strong recent reviews: 10 Booking reviews 2023-2025 (mostly 9.0-10.0). TripAdvisor 4.5/5 over 19 reviews; #2 of 16 condos in Palekastro.",
       "Ownership in transition: an Aug-2023 Booking review still named host Kostas; a Jun-2025 TripAdvisor review reported he had died and his daughter + Marianthi & Michalis had taken over.",
       "Practical bonus: on-site windsurf and kitesurf gear storage (per the property site) — useful if you fly in with your own kit.",
-      "Honest minpunten from 2024-2025 Booking reviews: AC noise (Maria, Sep 2024), WiFi reliability (Rees), air circulation (Shamai)."
+      "Honest minpunten from 2024-2025 Booking reviews: AC noise (Sep 2024), WiFi reliability, air circulation."
     ],
     verhaal: [
-      `Flamingo Apartments is a family-run accommodation in the small hamlet of Agathia, between Palekastro center and Kouremenos beach. Recent Booking reviews paint a quiet, garden-and-views picture. Giorgio (Aug 2023, 9.0): "Location in the silent village of Agathia where the only sound is cicadas... the great view on the o[live trees]". Mark (UK, 2024, 9.0): "exceptionally clean, and functional, great view from balcony. Hotel owner was so welcoming". Mireia (Spain, 2024, 10): "The owners were so sweet and nice".`,
+      `Flamingo Apartments is a family-run accommodation in the small hamlet of Agathia, between Palekastro center and Kouremenos beach. Recent Booking reviews paint a quiet, garden-and-views picture. An Aug 2023 reviewer (score 9.0): "Location in the silent village of Agathia where the only sound is cicadas... the great view on the olive trees". A 2024 UK reviewer (9.0): "exceptionally clean, and functional, great view from balcony. Hotel owner was so welcoming". A 2024 Spanish reviewer (10): "The owners were so sweet and nice".`,
       `On hosts and ownership transition: an Aug 2023 Booking reviewer wrote "Kostas is a great host!" — but a Jun 2025 TripAdvisor reviewer reported "After the sad death of Kostas, his daughter and the couple Marianthi and Michalis have taken over. The standard remains impeccably high". So the transition is recent; Kostas — repeatedly described as the heart of the place in older reviews — was alive at least into mid-2023. The newer team is now operating.`,
-      `Honest minpunten from 2024-2025 Booking reviews: Maria (Sep 2024) flagged "het geluid van de airco" — AC noise — as her one negative. Rees (UK, 8.0 score): "The WiFi was a bit problematic, especially getting the right code". Shamai (Israel, 8.0): air circulation issue. None are dealbreakers but they're real recurring practical points. Insider tip from a TripAdvisor reviewer: rooms 1-3 on the first floor have sea views toward Chiona; other rooms face a secluded garden.`
+      `Honest minpunten from 2024-2025 Booking reviews: a Sep 2024 reviewer flagged "het geluid van de airco" — AC noise — as their one negative. A UK 8.0 reviewer: "The WiFi was a bit problematic, especially getting the right code". A 2024 8.0 reviewer flagged air circulation. None are dealbreakers but they're real recurring practical points. Insider tip from a 2025 TripAdvisor reviewer: rooms 1-3 on the first floor have sea views toward Chiona; other rooms face a secluded garden.`
     ],
     lagen: [
       {
@@ -1679,9 +1679,9 @@ const WAVEBASE_DATA = [
         bron: "🟢 SOLID with recent coverage — Booking.com (10 reviews 2023-2025) + TripAdvisor 4.5/5 (19 reviews) + own site",
         inhoud: [
           { kop: "Offerings", tekst: `Family-run apartments (5-bed) and studios (3-bed) in Agathia hamlet, 7 rooms. Each: kitchenette, AC, fridge, balcony or veranda. Free WiFi, free parking. Pet-friendly. Bar/lounge on site. Languages: EN/GR/PL/RO.` },
-          { kop: "The constants (recent reviews 2023-2025)", tekst: `Owners "sweet and nice" (Mireia, 2024); rooms "exceptionally clean, great view from balcony" (Mark, 2024). Quiet hamlet with "only sound is cicadas" (Giorgio, Aug 2023). Welcoming hosts cited repeatedly.` },
-          { kop: "Ownership transition (recent)", tekst: `Aug-2023 Booking reviewer Stelios: "Kostas is a great host!" Jun-2025 TripAdvisor reviewer: "After the sad death of Kostas, his daughter and the couple Marianthi and Michalis have taken over. The standard remains impeccably high." Transition occurred 2023-2025.` },
-          { kop: "Honest minpunten (recent reviews)", tekst: `AC noise (Maria, Sep 2024). WiFi reliability — "getting the right code" (Rees, 2024). Air circulation (Shamai, 2024). All are practical pain-points, none dealbreakers.` },
+          { kop: "The constants (recent reviews 2023-2025)", tekst: `Owners "sweet and nice" (2024 reviewer); rooms "exceptionally clean, great view from balcony" (2024 reviewer). Quiet hamlet with "only sound is cicadas" (Aug 2023 reviewer). Welcoming hosts cited repeatedly.` },
+          { kop: "Ownership transition (recent)", tekst: `Aug 2023 Booking reviewer: "Kostas is a great host!" Jun 2025 TripAdvisor reviewer: "After the sad death of Kostas, his daughter and the couple Marianthi and Michalis have taken over. The standard remains impeccably high." Transition occurred 2023-2025.` },
+          { kop: "Honest minpunten (recent reviews)", tekst: `AC noise (Sep 2024 review). WiFi reliability — "getting the right code" (2024 review). Air circulation (2024 review). All are practical pain-points, none dealbreakers.` },
           { kop: "Insider tip", tekst: `Rooms 1-3 on the first floor have sea-view balconies toward Chiona; other rooms face a sheltered garden (TripAdvisor reviewer tip).` }
         ]
       }
@@ -1711,20 +1711,20 @@ const WAVEBASE_DATA = [
       verhuur: "Not on site — windsurf/wing/kite at the centers on Kouremenos beach.",
       lessen: "Not on site — book through one of the centers on Kouremenos.",
       rating: "Strong recent signal: 10+ Booking reviews 2023-2026 (most 9.0-10.0). TripAdvisor 4.7/5 over 23 reviews (17 excellent, 6 good, 0 negative readable). Sub-scores 4.4-4.6. Bron-strength: 🟢 SOLID with recent coverage.",
-      sfeer: "Recurring 2022+ themes: \"felt like home\", \"end of the world feel\" (secluded), gracious hosts. Returning-guest pattern alive in 2025 (\"stayed last year, decided to return this year\" — Maaike, Aug 2025).",
+      sfeer: "Recurring 2022+ themes: \"felt like home\", \"end of the world feel\" (secluded), gracious hosts. Returning-guest pattern alive in 2025 (one Aug 2025 reviewer: \"stayed last year, decided to return this year\").",
       activiteiten: "Walking/drive: Palekastro (2-3 km), Vai (10 min drive per Aug 2024 review), Chiona, Itanos, Toplou Monastery, Zakros Gorge."
     },
     samenvatting: [
-      "Seven units (five apartments + two rooms) on the hillside above Kouremenos, family-owned since Yorgo & Amalia Katsikalakis (former San Franciscans) opened it.",
+      "Seven units (five apartments + two rooms) on the hillside above Kouremenos, family-owned since the original founders Yorgo & Amalia Katsikalakis opened it.",
       "Strong recent reviews: Booking has 10+ reviews from 2023-2026 (most 9.0-10.0). TripAdvisor 4.7/5 over 23 reviews overall.",
-      "Returning-guest pattern still active in the 4-year window: an Aug-2025 reviewer wrote \"stayed last year, decided to return this year\".",
+      "Returning-guest pattern still active in the 4-year window: one Aug 2025 reviewer wrote \"stayed last year, decided to return this year\".",
       "The view is the pitch: every unit has its own balcony over Kouremenos windsurf bay (recurring across 2023-2026 reviews).",
-      "Honest fine print: ownership may be in transition — Amalia + Yorgo still named in a Jul-2023 Booking review; a 2025 TripAdvisor reviewer described a hand-over to manageress Virginie + husband Manolis."
+      "Honest fine print: ownership may be in transition — Amalia + Yorgo still named in a Jul 2023 Booking review; a 2025 TripAdvisor reviewer described a hand-over to manageress Virginie + husband Manolis."
     ],
     verhaal: [
-      `Villa Amalia is one of the best-sourced Greek stays in this guide. Recent Booking reviews run through January 2026; across 2022-2026 the picture is consistent: gracious hosts, balcony view of the bay, "felt like home" (Georgios, Aug 2024), "absolutely beautiful... view from all units is fantastic" (Sabine, Jan 2025), "personable, hospitable and gracious hosts" (Sabine, Apr 2024). One returning guest (Maaike, Aug 2025) wrote: "stayed last year, decided to return this year as well".`,
-      `On hosts and ownership: the founders Yorgo & Amalia Katsikalakis — former San Franciscans — are still being named in Booking reviews through July 2023 ("Amalia and Yorgo are perfect hosts!" — Albano). A 2025 TripAdvisor reviewer however described "the new manageress Virginie, and her husband Manolis, a professional photographer" taking over, with the standard "impeccably high". So there has been a management transition in the recent window; both names may currently appear on site.`,
-      `Honest minpunten from recent reviews: Karsten (Sept 2025) scored 9.0 and described the location as "end of the world feel" — positive in his eyes (secluded), but a vibe-warning for guests who want bustle. The remote hillside means a drive to the beach. Pre-2022 reviewers flagged summer heat (paid AC at €5/day) and mosquitoes — neither contradicted in newer reviews, but neither specifically confirmed.`
+      `Villa Amalia is one of the best-sourced Greek stays in this guide. Recent Booking reviews run through January 2026; across 2022-2026 the picture is consistent: gracious hosts, balcony view of the bay, "felt like home" (Aug 2024), "absolutely beautiful... view from all units is fantastic" (Jan 2025), "personable, hospitable and gracious hosts" (Apr 2024). One returning guest (Aug 2025): "stayed last year, decided to return this year as well".`,
+      `On hosts and ownership: the founders Yorgo & Amalia Katsikalakis are still being named in Booking reviews through July 2023 ("Amalia and Yorgo are perfect hosts!"). A 2025 TripAdvisor reviewer however described "the new manageress Virginie, and her husband Manolis, a professional photographer" taking over, with the standard "impeccably high". So there has been a management transition in the recent window; both names may currently appear on site.`,
+      `Honest minpunten from recent reviews: a Sept 2025 reviewer scored 9.0 and described the location as "end of the world feel" — positive in their eyes (secluded), but a vibe-warning for guests who want bustle. The remote hillside means a drive to the beach. Pre-2022 reviewers flagged summer heat (paid AC at €5/day) and mosquitoes — neither contradicted in newer reviews, but neither specifically confirmed.`
     ],
     lagen: [
       {
@@ -1741,8 +1741,8 @@ const WAVEBASE_DATA = [
         inhoud: [
           { kop: "What it is (offerings)", tekst: `Family-owned hillside villa with 5 apartments + 2 rooms. Each unit: private balcony, kitchenette, AC, fridge. Free parking, free WiFi, BBQ area, mosquito nets, sun terrace.` },
           { kop: "The constants (recent reviews)", tekst: `View from balcony cited in nearly every 2023-2026 review. Hosts named warmly — Amalia + Yorgo still in 2023 Booking reviews; Virginie + Manolis described in a 2025 TripAdvisor review as new management. Welcome arrivals and BBQ garden recur.` },
-          { kop: "Who stays here", tekst: `Returning guests common ("stayed last year, decided to return" — Aug 2025). Couples and small families wanting a panoramic perch above the bay. Multilingual: English, Greek.` },
-          { kop: "Honest minpunten", tekst: `"End of the world feel" (Karsten, Sept 2025, score 9.0) — secluded location won't suit everyone. ~2 km drive down to the beach. Older reviews flagged summer heat (paid AC) and mosquitoes; not contradicted in newer reviews but not specifically confirmed.` }
+          { kop: "Who stays here", tekst: `Returning guests common (one Aug 2025 reviewer: "stayed last year, decided to return"). Couples and small families wanting a panoramic perch above the bay. Multilingual: English, Greek.` },
+          { kop: "Honest minpunten", tekst: `"End of the world feel" (Sept 2025 review, score 9.0) — secluded location won't suit everyone. ~2 km drive down to the beach. Older reviews flagged summer heat (paid AC) and mosquitoes; not contradicted in newer reviews but not specifically confirmed.` }
         ]
       }
     ],
