@@ -1235,8 +1235,8 @@ const WAVEBASE_DATA = [
     tagline: "A remote freestyle-windsurf spot at the far-NE tip of Crete — ~15 km past Palaikastro, past Vai, towards Cape Sidero.",
     levels: ["intermediate", "advanced"],
     goodMonths: [5,6,7,8,9,10],
-    coords: [35.3050, 26.2900],
-    coordsLabel: "Approximate — Tenda is a remote rocky bay between Vai (~7 km south) and Cape Sidero (OSM [35.316, 26.311]), ~15 km from Palaikastro. No OSM POI exists for the bay; the point sits on the Kavo Sidero peninsula.",
+    coords: [35.2867921, 26.2888294],
+    coordsLabel: "Verified via Google Maps pin (LDW). Remote rocky bay between Vai (~7 km south) and Cape Sidero, ~15 km from Palaikastro.",
     photo: "",
     samenvatting: [
       "A remote rocky bay at the far north-east tip of Crete — 15 km from Palaikastro, 7 km past Vai.",
@@ -1326,56 +1326,10 @@ const WAVEBASE_DATA = [
     nietIdeaalAls: "You're anything less than confidently advanced in real wave conditions — this spot has hurt people."
   },
 
-  {
-    id: "sitia-bay",
-    type: "spot",
-    country: "Greece",
-    sports: ["wind"],
-    name: "Sitia Beach (urban)",
-    town: "Sitia",
-    tagline: "Sitia town's long urban beach — not a windsurf destination, but a low-stakes flat-water session if you happen to be in town.",
-    levels: ["beginner"],
-    goodMonths: [5,6,7,8,9,10],
-    coords: [35.2036, 26.1103],
-    coordsLabel: "OSM-verified central point of Sitia Beach on the town seafront.",
-    photo: "",
-    samenvatting: [
-      "Sitia town's long urban swimming beach — NOT listed in the Crete windsurf guides as a destination spot.",
-      "Sheltered urban bay, generally weaker wind than Kouremenos.",
-      "Useful only as a low-stakes option if you're staying in Sitia town for other reasons.",
-      "Bron-strength: 🔴 UNVERIFIED as a windsurf spot — listed here as an honest \"if you're in town\" fallback, not a destination."
-    ],
-    verhaal: [
-      `Honesty first: Sitia Beach is not a windsurf destination. The cretanbeaches.com windsurf guide for east Crete doesn't list it as a spot — only Kouremenos, Tenda, Eligas and Faneromeni get serious mention. If you came to Crete to windsurf, you drive to Kouremenos (40 min east) or Faneromeni (15 min west).`,
-      `What it is: Sitia town's long urban beach on the seafront. Swimmable, walkable, tavernas a step away. On a windy afternoon, the bay is sheltered and the water is flatter — fine if you've got an inflatable board, an hour to kill before dinner, and no expectations.`,
-      `Source caveat: I couldn't find this listed as a windsurf spot in any guide. It's here because the town beach exists, the wind sometimes blows here too, and you might be staying nearby. Treat it as "is there wind today and is the beach windy too" rather than a destination.`
-    ],
-    lagen: [
-      {
-        titel: "What we actually know",
-        bron: "🔴 UNVERIFIED as a windsurf spot — no Crete wind guide lists it. The beach itself is OSM-verified on Sitia's seafront.",
-        inhoud: [
-          { kop: "The beach", tekst: `Long urban swimming beach on Sitia's seafront. Sheltered bay, weaker wind than the open coast.` },
-          { kop: "Why it's here", tekst: `Honest fallback if you're staying in Sitia town and don't want to drive. Not a destination.` }
-        ]
-      }
-    ],
-    condities: {
-      golftype: "Sheltered urban bay, flat water",
-      golfhoogte: "Flat to small chop",
-      wind: "N/NNW meltemi, weaker than the open coast",
-      water: "~19–25 °C in season",
-      drukte: { niveau: "gemiddeld", tekst: "Urban swimming beach — busy with swimmers and walkers, not windsurfers." }
-    },
-    buurt: {
-      eten: "Plenty — Sitia's seafront has tavernas, bakeries and supermarkets.",
-      parking: "Along the seafront.",
-      verhuur: "No dedicated windsurf rental on site."
-    },
-    vergelijking: null,
-    ideaalVoor: "Visitors already in Sitia town who want any low-effort water time.",
-    nietIdeaalAls: "You came to Crete to windsurf — drive to Kouremenos or Faneromeni instead."
-  },
+  /* Note: a "Sitia Beach (urban)" entry was removed at LDW's call — no
+     Crete windsurf guide lists it as a spot, so an "if you're in town"
+     framing didn't justify keeping it. The town beach exists, just not
+     as a destination. */
 
   {
     id: "xerokampos",
