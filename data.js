@@ -1226,52 +1226,52 @@ const WAVEBASE_DATA = [
   },
 
   {
-    id: "tenta",
+    id: "tenda",
     type: "spot",
     country: "Greece",
-    sports: ["wind", "kite"],
-    name: "Tenta Beach",
+    sports: ["wind"],
+    name: "Tenda Beach",
     town: "Palaikastro",
-    tagline: "Kouremenos's stronger, gustier neighbour — 1 km north, less crowded, for experienced sailors.",
+    tagline: "A remote freestyle-windsurf spot at the far-NE tip of Crete — ~15 km past Palaikastro, past Vai, towards Cape Sidero.",
     levels: ["intermediate", "advanced"],
     goodMonths: [5,6,7,8,9,10],
-    coords: [35.222, 26.272],
-    coordsLabel: "Approximate — Tenta is the next bay north of Kouremenos. Navigate to 'Tenta Beach, Palaikastro'.",
+    coords: [35.295, 26.265],
+    coordsLabel: "Approximate — Tenda is a remote rocky bay roughly 15 km from Palaikastro and 7 km past Vai, near Cape Sidero. Navigate to 'Tenda Beach, Kavo Sidero'.",
     photo: "",
     samenvatting: [
-      "Small bay just north of Kouremenos — same meltemi but stronger and gustier (acceleration zone).",
-      "Wind 1–2 Bft above Kouremenos on the same day; chop builds faster.",
-      "Used as the advanced overflow when Kouremenos is crowded — no schools on the beach.",
-      "Bron-strength: 🟢 SOLID — Windfinder, local school sites & east-Crete wind guides agree on the pattern."
+      "A remote rocky bay at the far north-east tip of Crete — 15 km from Palaikastro, 7 km past Vai.",
+      "Known among windsurfers as a freestyle spot — exposed to the meltemi, with both flat and wavy patches.",
+      "No schools, no rental, no facilities — sailors travel here from Kouremenos when they want this kind of water.",
+      "Bron-strength: 🟢 SOLID — crete-today, cretanbeaches.com & east-Crete wind guides all describe the same remote freestyle bay."
     ],
     verhaal: [
-      `Tenta is the bay just north of Kouremenos — about 1 km up the coast — and it gets the same meltemi, but stronger and gustier. The headland between the two bays acts as an acceleration zone, so on a 5 Bft day at Kouremenos, Tenta is often 6–7 Bft. The flip side: less consistent, more gusty.`,
-      `There are no schools on the beach. Sailors who already know what they're doing rig at Kouremenos and walk or drive over when it's blowing too hard at the main bay, or when they want quieter water.`
+      `Tenda is not the neighbour of Kouremenos — it's a separate destination at the far north-eastern tip of Crete, about 15 km from Palaikastro and 7 km past the Vai palm beach, on the road towards Cape Sidero. A remote rocky area, much quieter than Kouremenos, with the meltemi blowing straight in.`,
+      `Among windsurfers it's known mainly as a freestyle spot — the west-facing bay (the one actually called Tenda) catches the wind and the chop, while the adjacent east bay (Eligas) tends to stay flatter. No schools, no rental, no taverna: you bring your own gear and drive out from Palaikastro or Kouremenos for the day.`
     ],
     lagen: [
       {
         titel: "The wind",
-        bron: "Windfinder + east-Crete wind guides (local school sites cross-reference)",
+        bron: "crete-today + cretanbeaches.com + east-Crete wind guides",
         inhoud: [
-          { kop: "Pattern", tekst: `Same meltemi NNW–N as Kouremenos, but the headland accelerates the flow: typically 1–2 Bft stronger and gustier. Best for experienced sailors.` }
+          { kop: "Pattern", tekst: `Exposed to the meltemi (N/NW) — same wind window as Kouremenos but in a remote, less-sheltered setting. The bay structure offers both wavy (Tenda) and flat (Eligas) options for freestyle sailors.` }
         ]
       }
     ],
     condities: {
-      golftype: "Small open bay, side-shore wind",
-      golfhoogte: "Choppy — more developed than Kouremenos on the same day",
-      wind: "NNW–N meltemi, ~5–8 Bft, gusty",
+      golftype: "Remote rocky bay — Tenda side wavy, Eligas side flatter",
+      golfhoogte: "Choppy on strong meltemi days; flatter on the east side",
+      wind: "N/NW meltemi, similar window to Kouremenos",
       water: "~19–25 °C in season",
-      drukte: { niveau: "rustig", tekst: "Quieter than Kouremenos — no schools, mostly intermediate/advanced overflow." }
+      drukte: { niveau: "rustig", tekst: "Almost empty — remote, no infrastructure." }
     },
     buurt: {
-      eten: "Nothing on the beach itself — back to Palaikastro village for food.",
+      eten: "Nothing on the spot — pack your own; tavernas back in Palaikastro village (~15 km).",
       parking: "Informal along the access track.",
-      verhuur: "No rental on site — rig at Kouremenos and move over."
+      verhuur: "Nothing on site — bring your own gear (or rig at Kouremenos and drive)."
     },
     vergelijking: null,
-    ideaalVoor: "Experienced windsurfers/kiters wanting more wind and quieter water than Kouremenos.",
-    nietIdeaalAls: "You're learning — no schools, stronger and gustier wind."
+    ideaalVoor: "Experienced freestyle windsurfers with their own gear, looking for a remote, quiet alternative to Kouremenos.",
+    nietIdeaalAls: "You're learning, you don't have your own gear, or you want anything resembling infrastructure."
   },
 
   {
@@ -1534,55 +1534,56 @@ const WAVEBASE_DATA = [
     sports: ["wind", "wing", "kite"],
     name: "Akti Villas",
     town: "Palaikastro",
-    tagline: "Modern apartment-style villas a short drive from Kouremenos — strong reviews, more comfort than the beachfront options.",
+    tagline: "Apartment-style villas right on Kouremenos beach — 30 m from the water, surrounded by olive trees.",
     levels: ["beginner", "intermediate", "advanced"],
     goodMonths: [5,6,7,8,9,10],
-    coords: [35.198, 26.265],
-    coordsLabel: "Approximate — Akti Villas is between Palaikastro village and Kouremenos beach.",
+    coords: [35.208, 26.269],
+    coordsLabel: "Approximate — Akti Villas is on Kouremenos beach (~2 km from Palaikastro village, 30 m from the sea per their own site).",
     photo: "",
+    bookingUrl: "https://www.akti-villas.gr/",
     verblijf: {
-      eten: "Apartments with kitchens; tavernas in Palaikastro village and a small one on Kouremenos beach.",
-      afstandSpot: "~2 km / ~5 min drive to Kouremenos beach.",
+      eten: "Apartments with kitchens; small beach taverna nearby; tavernas in Palaikastro village (~2 km inland).",
+      afstandSpot: "On Kouremenos beach — 30 m from the water per their own site. Walk to the schools.",
       verhuur: "Not on site — windsurf/wing/kite gear at the three schools on Kouremenos beach.",
       lessen: "Not on site — book through Surf Club Kouremenos / Freak Surf / Gone Surfing.",
-      rating: "TripAdvisor 4.4/5 (multiple readable reviews); also listed on Booking.com. Bron-strength: 🟢 SOLID.",
+      rating: "TripAdvisor 4.4/5 (multiple readable reviews); listed on east-Crete regional accommodation guides. Booking direct via akti-villas.gr (no Booking.com listing). Bron-strength: 🟢 SOLID.",
       sfeer: "Comfortable and quiet — couples, families, independent travellers; not a surf camp.",
       activiteiten: "Wind sports first; same regional side trips (Vai, Zakros gorge, Sitia, Toplou Monastery)."
     },
     samenvatting: [
-      "Modern villas/apartments ~2 km from Kouremenos — more comfort than the beachfront options.",
-      "Strong, consistent reviews on TripAdvisor (4.4/5) and Booking.",
-      "Not a surf camp — kitchens, quiet, family-friendly.",
-      "Wind/wing/kite happens at the three schools on Kouremenos beach.",
-      "Bron-strength: 🟢 SOLID — at least two independent sources."
+      "Apartment-style villas on Kouremenos beach itself — 30 m from the water (per their own site).",
+      "Consistent reviews on TripAdvisor (4.4/5) and across east-Crete accommodation guides.",
+      "Not on Booking.com — book direct via akti-villas.gr.",
+      "Not a surf camp — kitchens, quiet, family-friendly; wind/wing/kite via the three schools on the beach.",
+      "Bron-strength: 🟢 SOLID — own site + TripAdvisor + regional guides agree."
     ],
     verhaal: [
-      `Akti Villas sits between Palaikastro village and Kouremenos beach — a short drive to the wind, but with more comfort and quiet than the beachfront studios. Reviews across TripAdvisor (4.4/5) and Booking are consistent: clean modern apartments, friendly hosts, well-equipped kitchens. It's the option for visitors who want a base, not a camp.`,
-      `The wind side of the trip happens elsewhere — you drive the 2 km to Kouremenos and rig at one of the schools. For people travelling as a couple or with family who want a quiet evening after the afternoon session, this is the strongest mid-range option I could verify.`,
-      `Honest: not a windsurf-specific stay. If you want the social camp atmosphere with shared dinners and group sessions, this isn't it.`
+      `Akti Villas sits right on Kouremenos beach — 30 m from the water by their own description, surrounded by olive groves. The address is "Palekastro-Kouremenos, 72300 Sitia". Reviews across TripAdvisor (4.4/5) and the regional east-Crete accommodation sites are consistent: clean modern apartments, friendly hosts, well-equipped kitchens.`,
+      `It's not a surf camp — no in-house lessons, no shared dinners. The wind side happens at one of the three schools on the same beach (Surf Club Kouremenos, Freak Surf, Gone Surfing). What you get is comfort and quiet, on the bay.`,
+      `Honest fine print: Akti Villas is not listed on Booking.com — booking is direct via their own site (akti-villas.gr) or by phone. So an automatic Booking link would land on the wrong place.`
     ],
     lagen: [
       {
         titel: "The wind — Kouremenos region",
         bron: "Windfinder, Beach-Inspector, school sites + LDW's first-hand visit",
         inhoud: [
-          { kop: "High season · Jun–Sep", tekst: `Side-shore meltemi NNW–N nearly every afternoon, ~4–7 Bft. ~2 km drive to the launch.` }
+          { kop: "High season · Jun–Sep", tekst: `Side-shore meltemi NNW–N nearly every afternoon, ~4–7 Bft. Walk from the apartments to the launch.` }
         ]
       },
       {
         titel: "The stay — Akti Villas",
-        bron: "🟢 SOLID — TripAdvisor 4.4/5 (multiple readable reviews) + Booking listing",
+        bron: "🟢 SOLID — akti-villas.gr (own site) + TripAdvisor 4.4/5 + east-Crete accommodation guides",
         inhoud: [
-          { kop: "What it is", tekst: `Modern apartment-style villas between Palaikastro village and Kouremenos beach. Kitchens, private bathrooms, quiet.` },
-          { kop: "The constants", tekst: `Cleanliness and host friendliness come up consistently. Good value for the comfort level.` },
+          { kop: "What it is", tekst: `Apartment-style villas on Kouremenos beach, 30 m from the water. Kitchens, private bathrooms, quiet.` },
+          { kop: "The constants", tekst: `Cleanliness and host friendliness come up consistently across sources. Good value for the comfort level.` },
           { kop: "Who stays here", tekst: `Couples, families, independent travellers — not a camp crowd.` },
-          { kop: "Weak spots", tekst: `Not on the beach — you drive to the spot. No on-site lessons or rental.` }
+          { kop: "Booking", tekst: `Direct via akti-villas.gr — not listed on Booking.com.` }
         ]
       }
     ],
     vergelijking: null,
-    ideaalVoor: "Independent travellers (couples / small families / pairs of friends) who want comfort and quiet near the wind.",
-    nietIdeaalAls: "You want a full surf-camp setup, or you want to be able to walk to the beach in two minutes."
+    ideaalVoor: "Independent travellers (couples / small families / pairs of friends) who want comfort, quiet, and walking distance to the wind.",
+    nietIdeaalAls: "You want a full surf-camp setup with in-house lessons and shared dinners."
   },
 
   {
