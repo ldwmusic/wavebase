@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="512" height="512">
+  <rect width="512" height="512" fill="#3f6f7d"/>
+  <path d="M0 280 C 64 220, 128 220, 192 280 C 256 340, 320 340, 384 280 C 448 220, 480 220, 512 250 L 512 512 L 0 512 Z" fill="#f6f1e7"/>
+  <path d="M0 360 C 64 310, 128 310, 192 360 C 256 410, 320 410, 384 360 C 448 310, 480 310, 512 340 L 512 512 L 0 512 Z" fill="#bd6242"/>
+  <text x="256" y="170" text-anchor="middle" font-family="Georgia, serif" font-size="120" font-weight="600" fill="#f6f1e7" font-style="italic">W</text>
+</svg>

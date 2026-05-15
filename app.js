@@ -24,6 +24,12 @@ function updateNav() {
     const n = WaveBaseAccount.getCompare().length;
     cmp.textContent = n ? `Compare (${n})` : "Compare";
   }
+  // also sync the mobile bottom tab bar's compare count
+  const cmpTab = document.querySelector('.mobile-tabbar a[data-tab="compare"] .tab-label');
+  if (cmpTab) {
+    const n = WaveBaseAccount.getCompare().length;
+    cmpTab.textContent = n ? `Compare (${n})` : "Compare";
+  }
 }
 
 /* ---- card ---- */
@@ -741,10 +747,53 @@ function initDestinations() {
   });
 }
 
+/* ---- mobile bottom tab bar (Discover / Map / Compare / Me) ---- */
+function initMobileTabbar() {
+  if (document.querySelector(".mobile-tabbar")) return;
+
+  const path = window.location.pathname;
+  const route =
+    /kaart\.html$/.test(path) ? "map" :
+    /compare\.html$/.test(path) ? "compare" :
+    /account\.html$/.test(path) ? "me" :
+    "discover";
+
+  const ico = {
+    discover: '<svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><polygon points="16,8 13,14 8,16 11,10"/></svg>',
+    map: '<svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 1 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>',
+    compare: '<svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="17 1 21 5 17 9"/><path d="M3 11V9a4 4 0 0 1 4-4h14"/><polyline points="7 23 3 19 7 15"/><path d="M21 13v2a4 4 0 0 1-4 4H3"/></svg>',
+    me: '<svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>'
+  };
+  const tabs = [
+    { route: "discover", href: "index.html", label: "Discover" },
+    { route: "map", href: "kaart.html", label: "Map" },
+    { route: "compare", href: "compare.html", label: "Compare" },
+    { route: "me", href: "account.html", label: "Me" }
+  ];
+
+  const html = tabs.map(t =>
+    `<a href="${t.href}" class="tab${t.route === route ? ' active' : ''}" data-tab="${t.route}" aria-label="${t.label}">${ico[t.route]}<span class="tab-label">${t.label}</span></a>`
+  ).join("");
+
+  const nav = document.createElement("nav");
+  nav.className = "mobile-tabbar";
+  nav.setAttribute("aria-label", "Main navigation");
+  nav.innerHTML = html;
+  document.body.appendChild(nav);
+
+  // sync the compare count if items already exist
+  const cmpLabel = nav.querySelector('a[data-tab="compare"] .tab-label');
+  if (cmpLabel && typeof WaveBaseAccount !== "undefined") {
+    const n = WaveBaseAccount.getCompare().length;
+    if (n) cmpLabel.textContent = `Compare (${n})`;
+  }
+}
+
 /* ---- router ---- */
 document.addEventListener("DOMContentLoaded", () => {
   updateNav();
   initDestinations();
+  initMobileTabbar();
   if (document.getElementById("results")) initIndex();
   if (document.getElementById("detail-root")) initSpot();
   if (document.getElementById("map")) initMap();
