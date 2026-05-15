@@ -481,35 +481,40 @@ table.cal td.host { color: var(--clay); }
 .result-section.collapsed .section-body { display: none; }
 .result-section.collapsed .section-toggle { margin-bottom: 8px; }
 
-/* Sticky chip jumper above sections */
+/* Sticky chip jumper above sections — mirrors the sport-pill visual language */
 .section-jumper {
   display: flex;
   flex-wrap: wrap;
   gap: 8px;
-  padding: 12px 0;
-  margin: 4px 0 24px;
-  background: var(--paper);
+  padding: 14px 0;
+  margin: 4px 0 20px;
+  background: var(--cream);
   position: sticky;
   top: 0;
   z-index: 50;
-  border-bottom: 1px solid var(--sand);
+  justify-content: center;
 }
 .jumper-chip {
   display: inline-flex;
   align-items: center;
   gap: 8px;
-  padding: 7px 14px;
-  background: var(--cream);
+  padding: 9px 18px;
+  background: var(--paper);
   border: 1px solid var(--sand);
   border-radius: 999px;
   font-family: 'DM Sans', sans-serif;
   font-size: 14px;
-  font-weight: 500;
+  font-weight: 600;
   color: var(--ink);
   text-decoration: none;
-  transition: background 0.15s, border-color 0.15s, transform 0.05s;
+  cursor: pointer;
+  transition: background 0.15s ease, color 0.15s ease, border-color 0.15s ease, transform 0.05s;
 }
-.jumper-chip:hover { background: var(--sand); border-color: var(--sand-deep); }
+.jumper-chip:hover {
+  background: var(--sea-soft);
+  border-color: #cde0e3;
+  color: var(--sea);
+}
 .jumper-chip:active { transform: scale(0.97); }
 .jumper-count {
   display: inline-block;
@@ -520,6 +525,14 @@ table.cal td.host { color: var(--clay); }
   font-size: 12px;
   font-weight: 600;
   line-height: 1.5;
+  transition: background 0.15s ease, color 0.15s ease;
+}
+.jumper-chip:hover .jumper-count {
+  background: rgba(63, 111, 125, 0.18);
+  color: var(--sea);
+}
+@media (max-width: 620px) {
+  .jumper-chip { font-size: 13px; padding: 8px 14px; }
 }
 /* On mobile the site header is sticky too — offset the jumper underneath it */
 @media (max-width: 620px) {
