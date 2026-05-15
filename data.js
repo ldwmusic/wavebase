@@ -1174,8 +1174,8 @@ const WAVEBASE_DATA = [
     tagline: "East Crete's meltemi engine — a 2 km bay that turns on with thermal side-shore wind nearly every summer afternoon.",
     levels: ["beginner", "intermediate", "advanced"],
     goodMonths: [5,6,7,8,9,10],
-    coords: [35.208, 26.270],
-    coordsLabel: "Approximate — Kouremenos is a ~2 km open bay, not an exact break point. Navigate to 'Kouremenos Beach'.",
+    coords: [35.2058, 26.2706],
+    coordsLabel: "OSM-verified centre point of Kouremenos Beach — the bay itself runs ~2 km north–south.",
     photo: "",
     samenvatting: [
       "Long open bay (~2 km) — flat-to-chop on the inside, small wave on the outer reef.",
@@ -1235,8 +1235,8 @@ const WAVEBASE_DATA = [
     tagline: "A remote freestyle-windsurf spot at the far-NE tip of Crete — ~15 km past Palaikastro, past Vai, towards Cape Sidero.",
     levels: ["intermediate", "advanced"],
     goodMonths: [5,6,7,8,9,10],
-    coords: [35.295, 26.265],
-    coordsLabel: "Approximate — Tenda is a remote rocky bay roughly 15 km from Palaikastro and 7 km past Vai, near Cape Sidero. Navigate to 'Tenda Beach, Kavo Sidero'.",
+    coords: [35.3050, 26.2900],
+    coordsLabel: "Approximate — Tenda is a remote rocky bay between Vai (~7 km south) and Cape Sidero (OSM [35.316, 26.311]), ~15 km from Palaikastro. No OSM POI exists for the bay; the point sits on the Kavo Sidero peninsula.",
     photo: "",
     samenvatting: [
       "A remote rocky bay at the far north-east tip of Crete — 15 km from Palaikastro, 7 km past Vai.",
@@ -1278,89 +1278,94 @@ const WAVEBASE_DATA = [
     id: "faneromeni",
     type: "spot",
     country: "Greece",
-    sports: ["wind", "kite", "wave"],
-    name: "Faneromeni Beach",
+    sports: ["wind", "wave"],
+    name: "Faneromeni (Papadiokambos)",
     town: "Sitia",
-    tagline: "A wave/wind hybrid on a long open beach south-west of Sitia — picks up real swell when the meltemi is strong.",
-    levels: ["intermediate", "advanced"],
-    goodMonths: [5,6,7,8,9,10],
-    coords: [35.205, 26.075],
-    coordsLabel: "Approximate — Faneromeni is a long beach south-west of Sitia. Navigate to 'Faneromeni Beach, Sitia'.",
+    tagline: "Called \"Greece's Pozo\" by locals — a serious mast-high wave spot west of Sitia, expert-only.",
+    levels: ["advanced"],
+    goodMonths: [10,11,12,1,2,3,7,8],
+    coords: [35.2245, 26.0387],
+    coordsLabel: "OSM-verified centre point of Papadiokambos (the village near the spot). The launch is on the peninsula reached by gravel road — true launch coords unverified.",
     photo: "",
     samenvatting: [
-      "Long, exposed beach — picks up actual wave when the meltemi has been blowing for days.",
-      "Side-onshore wind, swell building up to head-high on strong days.",
-      "Mostly used by advanced wave-windsurfers; sometimes kiters when the wind is straighter.",
-      "Bron-strength: 🟢 SOLID — Windfinder + multiple Crete wind/wave guides describe the same pattern."
+      "Crete's premier wave-sailing spot — called \"Greece's Pozo\" by locals.",
+      "Mast-high waves not rare, especially in winter; meltemi has ~600 km of fetch into here.",
+      "Expert-only: rocks in the water, strong currents, waves break very close to rocks.",
+      "No facilities — gravel-road access from Papadiokambos village; small launch.",
+      "Bron-strength: 🟢 SOLID — cretanbeaches.com, kite-and-windsurfing-guide, SURF magazine all describe the same heavy wave spot."
     ],
     verhaal: [
-      `Faneromeni is the wave spot of the east-Crete wind cluster — a long, exposed beach about 15 km south-west of Sitia that picks up real Aegean swell when the meltemi has been hammering the coast for a few days. Wind is side-onshore; wave up to head-high on the bigger days.`,
-      `It's an advanced spot: not a learner's beach, no schools on site. The drive from Palaikastro is about 40 min, so it's usually a day trip when the conditions line up.`
+      `Faneromeni — also called Papadiokambos after the nearest hamlet — is the wave-sailing destination of Greece. Locals call it "Greece's Pozo". A few miles west of Sitia, with a peninsula sticking out into the Aegean and roughly 600 km of fetch behind the meltemi: when it goes off, the waves are mast-high.`,
+      `This is not a place to "try wave sailing". Sources are unanimous: experts only. The waves break very close to rocks, there are rocks in the water, currents are strong, the launch is small, and there are no facilities at all. Take spare gear and shoes.`,
+      `Wind window: meltemi-driven in summer (the stronger the better), and winter storms produce the biggest swell. Approach from Papadiokambos village — there's a gravel road out to the peninsula, with a known emergency exit ~200 m downwind of the little church.`
     ],
     lagen: [
       {
-        titel: "The wind & wave",
-        bron: "Windfinder + multiple east-Crete wind/wave guides",
+        titel: "The wave & wind",
+        bron: "cretanbeaches.com + kite-and-windsurfing-guide + SURF magazine",
         inhoud: [
-          { kop: "Pattern", tekst: `Wind side-onshore from N/NNW; swell builds when the meltemi has been blowing 2–3 days in a row. Bigger and cleaner late in the meltemi cycle.` }
+          { kop: "Pattern", tekst: `The stronger the meltemi (N/NNW), the bigger the wave. Long Aegean fetch builds serious swell — mast-high common in winter and on the biggest meltemi cycles in summer.` },
+          { kop: "Hazards", tekst: `Rocks in the line-up, rocks very close to where waves break, strong currents, small launch, no on-site help. Don't go solo.` }
         ]
       }
     ],
     condities: {
-      golftype: "Beach break with real wave on strong meltemi days",
-      golfhoogte: "Chest- to head-high on the bigger days; flat without sustained wind",
-      wind: "Side-onshore N/NNW, ~5–7 Bft",
-      water: "~19–25 °C in season",
-      drukte: { niveau: "rustig", tekst: "Few people in the water; advanced visitors only." }
+      golftype: "Reef/rock wave spot, peninsula point",
+      golfhoogte: "Logo- to mast-high on strong meltemi or winter swell",
+      wind: "Side-on/side-shore meltemi (N/NNW); biggest after multi-day blow",
+      water: "~19–25 °C summer; ~16–18 °C winter — 4/3 wetsuit in winter",
+      drukte: { niveau: "rustig", tekst: "A small local + visiting expert crew only — this is not a beginner's beach." }
     },
     buurt: {
-      eten: "A couple of seasonal beach tavernas; full options in Sitia (~15 km).",
-      parking: "Along the beach road.",
-      verhuur: "Nothing on the beach — rig elsewhere or bring your own."
+      eten: "Nothing on the spot; tavernas in Papadiokambos hamlet and Sitia (~15 km east).",
+      parking: "Gravel road out to the peninsula — informal.",
+      verhuur: "Nothing on site — bring your own wave gear and spare equipment."
     },
     vergelijking: null,
-    ideaalVoor: "Advanced wave-windsurfers wanting actual swell, not just chop.",
-    nietIdeaalAls: "You're learning, or the meltemi hasn't been blowing for days."
+    ideaalVoor: "Advanced wave-windsurfers travelling to Crete specifically for the wave; bring your own gear.",
+    nietIdeaalAls: "You're anything less than confidently advanced in real wave conditions — this spot has hurt people."
   },
 
   {
     id: "sitia-bay",
     type: "spot",
     country: "Greece",
-    sports: ["wind", "kite"],
-    name: "Sitia Bay",
+    sports: ["wind"],
+    name: "Sitia Beach (urban)",
     town: "Sitia",
-    tagline: "An urban-side option in Sitia town — flatter water than Kouremenos, but more inconsistent wind.",
-    levels: ["beginner", "intermediate"],
+    tagline: "Sitia town's long urban beach — not a windsurf destination, but a low-stakes flat-water session if you happen to be in town.",
+    levels: ["beginner"],
     goodMonths: [5,6,7,8,9,10],
-    coords: [35.210, 26.105],
-    coordsLabel: "Approximate — Sitia Bay is the urban harbour bay east of Sitia town. Navigate to 'Sitia Beach'.",
+    coords: [35.2036, 26.1103],
+    coordsLabel: "OSM-verified central point of Sitia Beach on the town seafront.",
     photo: "",
     samenvatting: [
-      "Urban bay east of Sitia town — flat, sheltered, easier than Kouremenos.",
-      "Wind less reliable and weaker than at Kouremenos.",
-      "Convenient if you're staying in Sitia and don't want to drive to Palaikastro.",
-      "Bron-strength: 🔴 SINGLE SOURCE — mentioned in passing in one Crete wind guide; not as well documented as the other spots."
+      "Sitia town's long urban swimming beach — NOT listed in the Crete windsurf guides as a destination spot.",
+      "Sheltered urban bay, generally weaker wind than Kouremenos.",
+      "Useful only as a low-stakes option if you're staying in Sitia town for other reasons.",
+      "Bron-strength: 🔴 UNVERIFIED as a windsurf spot — listed here as an honest \"if you're in town\" fallback, not a destination."
     ],
     verhaal: [
-      `Sitia Bay isn't a destination spot — it's a convenience option for visitors based in Sitia town who don't want the 40-min drive to Kouremenos. The bay is flatter and more sheltered, but the wind is also weaker and less consistent.`,
-      `Honest: I have only one source on this one, so treat the details as a starting point rather than a complete picture. If you're already in Sitia, walk the beach in the afternoon and see for yourself.`
+      `Honesty first: Sitia Beach is not a windsurf destination. The cretanbeaches.com windsurf guide for east Crete doesn't list it as a spot — only Kouremenos, Tenda, Eligas and Faneromeni get serious mention. If you came to Crete to windsurf, you drive to Kouremenos (40 min east) or Faneromeni (15 min west).`,
+      `What it is: Sitia town's long urban beach on the seafront. Swimmable, walkable, tavernas a step away. On a windy afternoon, the bay is sheltered and the water is flatter — fine if you've got an inflatable board, an hour to kill before dinner, and no expectations.`,
+      `Source caveat: I couldn't find this listed as a windsurf spot in any guide. It's here because the town beach exists, the wind sometimes blows here too, and you might be staying nearby. Treat it as "is there wind today and is the beach windy too" rather than a destination.`
     ],
     lagen: [
       {
-        titel: "The wind",
-        bron: "Single Crete wind guide — not strongly documented",
+        titel: "What we actually know",
+        bron: "🔴 UNVERIFIED as a windsurf spot — no Crete wind guide lists it. The beach itself is OSM-verified on Sitia's seafront.",
         inhoud: [
-          { kop: "Pattern", tekst: `Same meltemi NNW–N, but the bay is more sheltered: weaker and less consistent than Kouremenos. Flatter water.` }
+          { kop: "The beach", tekst: `Long urban swimming beach on Sitia's seafront. Sheltered bay, weaker wind than the open coast.` },
+          { kop: "Why it's here", tekst: `Honest fallback if you're staying in Sitia town and don't want to drive. Not a destination.` }
         ]
       }
     ],
     condities: {
-      golftype: "Urban bay, sheltered, flat water",
+      golftype: "Sheltered urban bay, flat water",
       golfhoogte: "Flat to small chop",
-      wind: "N/NNW meltemi, weaker than Kouremenos",
+      wind: "N/NNW meltemi, weaker than the open coast",
       water: "~19–25 °C in season",
-      drukte: { niveau: "gemiddeld", tekst: "Urban beach — swimmers, walkers, occasional windsurfers." }
+      drukte: { niveau: "gemiddeld", tekst: "Urban swimming beach — busy with swimmers and walkers, not windsurfers." }
     },
     buurt: {
       eten: "Plenty — Sitia's seafront has tavernas, bakeries and supermarkets.",
@@ -1368,8 +1373,8 @@ const WAVEBASE_DATA = [
       verhuur: "No dedicated windsurf rental on site."
     },
     vergelijking: null,
-    ideaalVoor: "Visitors already based in Sitia who want a low-stakes session close by.",
-    nietIdeaalAls: "You want the proper meltemi blast — drive to Kouremenos."
+    ideaalVoor: "Visitors already in Sitia town who want any low-effort water time.",
+    nietIdeaalAls: "You came to Crete to windsurf — drive to Kouremenos or Faneromeni instead."
   },
 
   {
@@ -1379,37 +1384,42 @@ const WAVEBASE_DATA = [
     sports: ["wind", "wave"],
     name: "Xerokampos",
     town: "Xerokampos",
-    tagline: "Far-south-east Crete — a remote string of bays with cleaner south-east wind days when the meltemi is quiet.",
+    tagline: "Far-south-east Crete — a remote string of bays. Best on S/SW wind; meltemi blows fully offshore here (bad).",
     levels: ["intermediate", "advanced"],
-    goodMonths: [5,6,7,8,9,10],
-    coords: [35.040, 26.275],
-    coordsLabel: "Approximate — Xerokampos is a cluster of small bays in far-south-east Crete. Navigate to 'Xerokampos Beach'.",
+    goodMonths: [5,6,7,8,9,10,11,12,1,2,3],
+    coords: [35.0442, 26.2267],
+    coordsLabel: "OSM-verified centre of Xerokampos hamlet. The launch is one of several small bays in the area (Mazida Ammos / Amatou beach is the main one).",
     photo: "",
     samenvatting: [
-      "Remote south-east coast — quieter and emptier than the Palaikastro cluster.",
-      "Better on south-east wind days (sirocco) than on meltemi — complementary to Kouremenos.",
-      "No schools, no rental, no quick options — bring your own gear.",
-      "Bron-strength: 🟢 SOLID — described consistently across Crete wind & travel guides."
+      "Remote far-south-east coast — quieter and emptier than the Palaikastro cluster (~40 min drive south).",
+      "Best on S wind: side-on from the right, deep chop and playful small waves.",
+      "Real wave spot in winter — SW storms produce sideshore wind from the right.",
+      "Meltemi (NW) blows fully offshore here — wrong wind for this coast. Complementary to Kouremenos.",
+      "No schools, no rental, no facilities — bring your own gear.",
+      "Bron-strength: 🟢 SOLID — surfingr.com, kite-and-windsurfing-guide, allincrete + windfinder all describe the same pattern."
     ],
     verhaal: [
-      `Xerokampos sits on the far south-east tip of Crete — about a 40-min drive south of Palaikastro through dramatic mountain road. A handful of small bays with crystal water, almost no infrastructure, and a wind pattern that complements Kouremenos: the south-east sirocco (often blowing on the days when the meltemi is quiet) hits these beaches side-on.`,
-      `It's a "bring everything" spot: no schools, no rental, no beach café for kilometres at a time. Worth it on a sirocco day, especially if you want quiet water and big sky.`
+      `Xerokampos sits on the far south-east tip of Crete — about a 40-min drive south of Palaikastro through dramatic mountain road. A cluster of small bays (the main launch is Mazida Ammos / Amatou) with crystal water, fine white sand, and almost no infrastructure.`,
+      `Wind window: this is a southern-shore spot, so the meltemi (the NW summer wind that makes Kouremenos work) blows fully offshore here — useless. Instead, Xerokampos comes alive on S wind days: side-on from the right, with deep chop and playful small waves. In winter, SW storms turn it into a real wave spot with sideshore wind, good for jumps and rides.`,
+      `It's a "bring everything" spot: no schools, no rental, no beach café for kilometres. Worth it specifically on the wind days the rest of east Crete is flat.`
     ],
     lagen: [
       {
         titel: "The wind",
-        bron: "Crete wind guides + general travel sources",
+        bron: "surfingr.com + kite-and-windsurfing-guide.com + allincrete + windfinder",
         inhoud: [
-          { kop: "Pattern", tekst: `South-east sirocco the dominant useful wind here — often blowing when the meltemi (NW) is quiet. Complementary to Kouremenos.` }
+          { kop: "Summer (S wind days)", tekst: `Side-on from the right; deep chop and playful small waves. Best when the meltemi is quiet up north.` },
+          { kop: "Winter (SW storms)", tekst: `Real wave spot — sideshore from the right, conditions for jumping and riding.` },
+          { kop: "What does NOT work", tekst: `Meltemi (NW) blows fully offshore here. Wrong wind for this coast.` }
         ]
       }
     ],
     condities: {
-      golftype: "Small open bays, exposed to the south-east",
-      golfhoogte: "Small chop to ~1 m on sirocco days",
-      wind: "SE sirocco, ~4–6 Bft on the right days",
+      golftype: "String of small bays; main launch Mazida Ammos / Amatou, exposed to the south",
+      golfhoogte: "Small chop in summer on S days; real wave in winter SW storms",
+      wind: "S side-on (summer) or SW sideshore (winter storms). Meltemi = offshore, no go.",
       water: "~20–26 °C in summer (warmer than the north)",
-      drukte: { niveau: "rustig", tekst: "Empty — this is a remote-end-of-Crete spot." }
+      drukte: { niveau: "rustig", tekst: "Empty — remote-end-of-Crete spot, very few sailors." }
     },
     buurt: {
       eten: "A couple of tavernas in the small village; little else.",
@@ -1421,54 +1431,9 @@ const WAVEBASE_DATA = [
     nietIdeaalAls: "You want infrastructure (schools, rental, cafés) or the classic meltemi blast — go to Kouremenos instead."
   },
 
-  {
-    id: "istro",
-    type: "spot",
-    country: "Greece",
-    sports: ["wave"],
-    name: "Istro Bay",
-    town: "Istro",
-    tagline: "A small-wave option on the north coast — the closest thing to wave surfing in east Crete on a windless day.",
-    levels: ["beginner", "intermediate"],
-    goodMonths: [10,11,12,1,2,3],
-    coords: [35.140, 25.780],
-    coordsLabel: "Approximate — Istro is a bay on the north coast east of Agios Nikolaos. Navigate to 'Istro Beach'.",
-    photo: "",
-    samenvatting: [
-      "Small north-coast bay east of Agios Nikolaos — picks up north-swell in autumn/winter.",
-      "Wave surf, not wind: best when the meltemi has dropped and a north Aegean swell is running.",
-      "Not a destination spot — Crete is not a wave-surf island; this is a fallback.",
-      "Bron-strength: 🔴 SINGLE SOURCE — mentioned in one regional surf overview; treat with caution."
-    ],
-    verhaal: [
-      `Istro is the kind of "well, technically yes" spot. Crete is not a wave-surf island, but on the rare days when a real north-Aegean swell rolls in (mostly autumn into winter, after the meltemi season is over), small waves can break on this bay.`,
-      `Honest: I have one source on this. If you're a wave-surfer in Crete out of season and craving a paddle, this is a lead, not a promise.`
-    ],
-    lagen: [
-      {
-        titel: "The wave",
-        bron: "Single regional surf overview — not strongly documented",
-        inhoud: [
-          { kop: "Pattern", tekst: `North-swell driven, best Oct–Mar when low-pressure systems push waves into the north Aegean. Flat in summer.` }
-        ]
-      }
-    ],
-    condities: {
-      golftype: "Beach break, small north-Aegean swell",
-      golfhoogte: "Knee- to chest-high on the better days",
-      wind: "Variable — best on offshore S",
-      water: "~18–22 °C in surf season (winter)",
-      drukte: { niveau: "rustig", tekst: "Almost no surfers — Crete is off the wave-surf map." }
-    },
-    buurt: {
-      eten: "Tavernas in Istro village.",
-      parking: "By the beach.",
-      verhuur: "No surf rental on site."
-    },
-    vergelijking: null,
-    ideaalVoor: "Wave-surfers stuck in Crete out of meltemi season who want any paddle.",
-    nietIdeaalAls: "You came to Crete for wind sports — go to Kouremenos."
-  },
+  /* Note: an earlier "Istro Bay" wave-surf entry was removed — review with
+     LDW found no verifiable source listing it as a surf spot. Crete is not
+     a wave-surf destination; wave sailing happens at Faneromeni, not here. */
 
   /* ----------------- STAYS — EAST CRETE ----------------- */
   {
@@ -1478,30 +1443,32 @@ const WAVEBASE_DATA = [
     sports: ["wind", "wing", "kite"],
     name: "Surf Beach Apartments",
     town: "Palaikastro",
-    tagline: "Directly on Kouremenos beach — the closest you can sleep to the wind.",
+    tagline: "Directly in the middle of Kouremenos beach, next to Surf Beach Bar and the windsurfing schools.",
     levels: ["beginner", "intermediate", "advanced"],
     goodMonths: [5,6,7,8,9,10],
-    coords: [35.210, 26.269],
+    coords: [35.2065, 26.2702],
+    coordsLabel: "Approximate — \"middle of Kouremenos Beach\" per their own site (1.5 km from Palaikastro village, 5 km from Vai, 18 km from Sitia).",
     photo: "",
+    bookingUrl: "https://www.surfbeachapts.gr/",
     verblijf: {
-      eten: "Studios have kitchenettes; small beach taverna nearby; supermarkets in Palaikastro village 1.5 km inland.",
-      afstandSpot: "On Kouremenos beach itself — rig at the school, walk back to your room.",
-      verhuur: "Not run by the apartments — but Surf Club Kouremenos, Freak Surf and Gone Surfing are all on the same beach.",
+      eten: "Studios have kitchenettes; Surf Beach Bar next door; supermarkets in Palaikastro village 1.5 km inland.",
+      afstandSpot: "On Kouremenos beach itself — next door to the windsurfing schools.",
+      verhuur: "Not run by the apartments — Surf Club Kouremenos, Freak Surf and Gone Surfing are all on the same beach.",
       lessen: "Lessons via the three schools on the beach, not the apartments.",
-      rating: "Bron-strength: 🔴 SINGLE SOURCE — listing visible on Booking.com / hosts' own site, but not enough independent reviews to triangulate.",
+      rating: "Listed on Booking.com, TripAdvisor, Hotels.com, Planet Windsurf Holidays and their own site (surfbeachapts.gr). Bron-strength: 🟢 SOLID — multiple independent platforms.",
       sfeer: "Quiet, low-key — couples and small groups of windsurfers/wing-foilers who want to be on the beach.",
-      activiteiten: "Wind sports first; otherwise quiet — Vai beach, Zakros gorge, Sitia old town are day trips."
+      activiteiten: "Wind sports first; otherwise quiet — Vai beach (5 km), Zakros gorge, Sitia old town are day trips."
     },
     samenvatting: [
-      "On Kouremenos beach itself — unbeatable proximity to the wind.",
-      "Self-catering studios; not a surf camp (no in-house lessons or gear).",
-      "Three windsurf/wing/kite schools share the beach.",
-      "Bron-strength: 🔴 SINGLE SOURCE — limited independent reviews available."
+      "In the middle of Kouremenos beach — next door to Surf Beach Bar and the schools.",
+      "Self-catering studios with kitchenettes, sun terrace, garden, free WiFi.",
+      "Listed on Booking, TripAdvisor, Hotels.com, Planet Windsurf, and their own site.",
+      "Bron-strength: 🟢 SOLID — multiple independent platforms confirm the listing."
     ],
     verhaal: [
-      `Surf Beach Apartments is exactly what the name suggests — a small set of self-catering studios on the sand at Kouremenos. The main reason to stay here is simple: you wake up, look at the bay, see whether it's blowing, walk fifty metres to the school. No driving, no faff.`,
-      `It's not a surf camp. There are no in-house lessons, no shared dinners, no bar — the wind side of the trip happens at Surf Club Kouremenos, Freak Surf or Gone Surfing, all on the same beach. For food and groceries, you walk or drive 1.5 km inland to Palaikastro village.`,
-      `Honest fine print: I could only find one source on this one — the apartments are listed on the usual platforms but don't have a wide review trail I can read. Take the picture as a starting point, not a guarantee.`
+      `Surf Beach Apartments is exactly what the name suggests — a small set of self-catering studios on the sand at Kouremenos, next door to the Surf Beach Bar and the windsurfing schools. The main reason to stay here is simple: you wake up, look at the bay, see whether it's blowing, walk to the school. No driving, no faff.`,
+      `It's not a surf camp. There are no in-house lessons, no shared dinners — the wind side of the trip happens at Surf Club Kouremenos, Freak Surf or Gone Surfing, all on the same beach. For food and groceries, you walk or drive 1.5 km inland to Palaikastro village.`,
+      `Listed across Booking.com, TripAdvisor, Hotels.com, Planet Windsurf Holidays and their own site (surfbeachapts.gr). The own-site link is the primary book-direct option.`
     ],
     lagen: [
       {
@@ -1514,11 +1481,11 @@ const WAVEBASE_DATA = [
       },
       {
         titel: "The stay — Surf Beach Apartments",
-        bron: "🔴 SINGLE SOURCE — listing on platforms, limited independent reviews readable",
+        bron: "🟢 SOLID — surfbeachapts.gr + Booking.com + TripAdvisor + Hotels.com + Planet Windsurf",
         inhoud: [
-          { kop: "What it is", tekst: `Small set of self-catering studios on the sand at Kouremenos. Couples and small groups.` },
-          { kop: "The constants", tekst: `Distance to the spot — zero. You can watch the wind from your balcony.` },
-          { kop: "Weak spots", tekst: `Not a surf camp — no lessons, no shared dinners, no on-site rental. And the source base is thin: treat the picture as incomplete.` }
+          { kop: "What it is", tekst: `Self-catering studios in the middle of Kouremenos beach, next to Surf Beach Bar and the schools.` },
+          { kop: "Features", tekst: `Kitchenette, balcony, air-conditioning, private bathroom, sun terrace, garden, free WiFi, bike hire, BBQ. Pets allowed on request.` },
+          { kop: "Who stays here", tekst: `Windsurfers and wing-foilers who want to be ON the beach. Not a camp crowd.` }
         ]
       }
     ],
@@ -1537,8 +1504,8 @@ const WAVEBASE_DATA = [
     tagline: "Apartment-style villas right on Kouremenos beach — 30 m from the water, surrounded by olive trees.",
     levels: ["beginner", "intermediate", "advanced"],
     goodMonths: [5,6,7,8,9,10],
-    coords: [35.208, 26.269],
-    coordsLabel: "Approximate — Akti Villas is on Kouremenos beach (~2 km from Palaikastro village, 30 m from the sea per their own site).",
+    coords: [35.2050, 26.2700],
+    coordsLabel: "Approximate — on Kouremenos beach (OSM-verified beach centre [35.2058, 26.2706]). Per akti-villas.gr: address \"Palaikastro–Kouremenos, 72300 Sitia\", 30 m from the sea.",
     photo: "",
     bookingUrl: "https://www.akti-villas.gr/",
     verblijf: {
@@ -1558,7 +1525,7 @@ const WAVEBASE_DATA = [
       "Bron-strength: 🟢 SOLID — own site + TripAdvisor + regional guides agree."
     ],
     verhaal: [
-      `Akti Villas sits right on Kouremenos beach — 30 m from the water by their own description, surrounded by olive groves. The address is "Palekastro-Kouremenos, 72300 Sitia". Reviews across TripAdvisor (4.4/5) and the regional east-Crete accommodation sites are consistent: clean modern apartments, friendly hosts, well-equipped kitchens.`,
+      `Akti Villas sits right on Kouremenos beach — 30 m from the water by their own description, surrounded by olive groves. The postal area is Palaikastro / Kouremenos, 72300 Sitia. Reviews across TripAdvisor (4.4/5) and the regional east-Crete accommodation sites are consistent: clean modern apartments, friendly hosts, well-equipped kitchens.`,
       `It's not a surf camp — no in-house lessons, no shared dinners. The wind side happens at one of the three schools on the same beach (Surf Club Kouremenos, Freak Surf, Gone Surfing). What you get is comfort and quiet, on the bay.`,
       `Honest fine print: Akti Villas is not listed on Booking.com — booking is direct via their own site (akti-villas.gr) or by phone. So an automatic Booking link would land on the wrong place.`
     ],
@@ -1593,30 +1560,32 @@ const WAVEBASE_DATA = [
     sports: ["wind", "wing", "kite"],
     name: "Flamingo Apartments",
     town: "Palaikastro",
-    tagline: "Simple self-catering studios in Palaikastro village — budget option a 1.5 km drive from the beach.",
+    tagline: "Family-run self-catering studios in Agathia hamlet near Palaikastro — with on-site windsurf/kite gear storage.",
     levels: ["beginner", "intermediate", "advanced"],
     goodMonths: [5,6,7,8,9,10],
-    coords: [35.197, 26.258],
-    coordsLabel: "Approximate — Flamingo is in Palaikastro village.",
+    coords: [35.1976, 26.2542],
+    coordsLabel: "Approximate — Agathia is a small hamlet near Palaikastro village (~18 km from Sitia); exact apartment location not verified.",
     photo: "",
+    bookingUrl: "https://flamingo-apartments-palaikastro.gr/en/",
     verblijf: {
-      eten: "Studios with kitchenettes; tavernas in Palaikastro village a short walk away.",
-      afstandSpot: "~1.5 km / ~3 min drive (or ~20 min walk) to Kouremenos beach.",
-      verhuur: "Not on site.",
-      lessen: "Not on site — book through the schools on Kouremenos beach.",
-      rating: "Bron-strength: 🔴 SINGLE SOURCE — listed on booking platforms, limited independent reviews readable.",
-      sfeer: "Simple, budget, quiet — village-side rather than beach-side.",
-      activiteiten: "Walk to the village square in the evening; same regional day trips as the rest of the cluster."
+      eten: "Apartments (5 beds) and studios (3 beds) with kitchenettes; sea-view verandas; tavernas in Palaikastro a short walk away.",
+      afstandSpot: "Near Kouremenos beach (in the Palaikastro area); two windsurfing schools at the nearby beach.",
+      verhuur: "On-site windsurf and kitesurf gear storage for guests.",
+      lessen: "Not on site — book through the schools on Kouremenos.",
+      rating: "Listed on Booking.com, Trivago, Airbnb, KAYAK and their own site (flamingo-apartments-palaikastro.gr). Bron-strength: 🟢 SOLID — multiple independent platforms.",
+      sfeer: "Family-run, quiet, sea-view veranda; appeals to independent windsurfers who want a self-catering base.",
+      activiteiten: "Windsurfing first; also snorkelling, hiking, mountain biking, fishing in the area."
     },
     samenvatting: [
-      "Simple self-catering studios in Palaikastro village.",
-      "Budget option; 1.5 km from Kouremenos.",
-      "Wind/wing/kite happens at the three schools on the beach.",
-      "Bron-strength: 🔴 SINGLE SOURCE — limited independent reviews available."
+      "Family-run apartments and studios in Agathia hamlet, near Palaikastro.",
+      "On-site windsurf/kite gear storage — practical for sailors travelling with kit.",
+      "Listed on Booking, Trivago, Airbnb, KAYAK and their own site.",
+      "Bron-strength: 🟢 SOLID — multiple independent platforms confirm the listing."
     ],
     verhaal: [
-      `Flamingo Apartments is a simple, budget-end set of studios in Palaikastro village. The pitch is straightforward: you sleep in the village, walk to a taverna for dinner, drive or walk down to Kouremenos in the afternoon to sail. Not on the beach, not a camp — just an inexpensive base.`,
-      `Honest: I have one source on this. The listing is there and looks reasonable, but I don't have a deep review trail to back the picture up. Treat as a starting point, not a verified recommendation.`
+      `Flamingo Apartments is a family-run set of apartments and studios in Agathia, a small hamlet near Palaikastro. The veranda overlooks the sea; the kitchenettes mean you can self-cater between sessions; and — practical detail — they offer on-site windsurf and kitesurf gear storage, which matters if you're flying in with your own kit.`,
+      `Not on the beach itself: Kouremenos is a short drive or walk, with two windsurfing schools there for lessons and rentals. Not a camp — independent travellers who want a base.`,
+      `Listed across Booking.com, Trivago, Airbnb, KAYAK and their own site (flamingo-apartments-palaikastro.gr) — the own-site link is the cleanest book-direct option.`
     ],
     lagen: [
       {
@@ -1628,16 +1597,17 @@ const WAVEBASE_DATA = [
       },
       {
         titel: "The stay — Flamingo Apartments",
-        bron: "🔴 SINGLE SOURCE — listing visible, limited independent reviews",
+        bron: "🟢 SOLID — flamingo-apartments-palaikastro.gr + Booking.com + Trivago + Airbnb + KAYAK",
         inhoud: [
-          { kop: "What it is", tekst: `Simple budget studios in the village.` },
-          { kop: "Weak spots", tekst: `Thin source base — the picture is incomplete.` }
+          { kop: "What it is", tekst: `Family-run apartments and studios in Agathia hamlet near Palaikastro. Sea-view verandas, kitchenettes.` },
+          { kop: "Practical detail", tekst: `On-site windsurf and kitesurf gear storage — unusual for a non-camp stay.` },
+          { kop: "Who stays here", tekst: `Independent sailors and travellers; not a camp crowd.` }
         ]
       }
     ],
     vergelijking: null,
-    ideaalVoor: "Budget-minded travellers who want a base and don't need to be on the beach.",
-    nietIdeaalAls: "You want comfort, surf-camp atmosphere, or a verified picture before booking."
+    ideaalVoor: "Independent travellers travelling with their own windsurf/kite kit who want a quiet self-catering base.",
+    nietIdeaalAls: "You want to be ON the beach or you want a full surf-camp atmosphere with lessons included."
   },
 
   {
@@ -1647,52 +1617,54 @@ const WAVEBASE_DATA = [
     sports: ["wind", "wing", "kite"],
     name: "Villa Amalia",
     town: "Palaikastro",
-    tagline: "Well-reviewed apartments near Kouremenos — a comfortable mid-range option with strong cross-source reviews.",
+    tagline: "Family-owned villas on the hillside overlooking Kouremenos Beach and Freak Windsurf Station — six self-catering units, sea views, olive groves.",
     levels: ["beginner", "intermediate", "advanced"],
     goodMonths: [5,6,7,8,9,10],
-    coords: [35.205, 26.262],
-    coordsLabel: "Approximate — Villa Amalia is between Palaikastro village and Kouremenos beach.",
+    coords: [35.2015, 26.2625],
+    coordsLabel: "Approximate — \"on the mountain side\" per their own site, overlooking Kouremenos Beach. Exact location not verified by OSM.",
     photo: "",
+    bookingUrl: "https://www.villa-amalia.com/",
     verblijf: {
-      eten: "Apartments with kitchens; village tavernas nearby; small beach taverna at Kouremenos.",
-      afstandSpot: "~1.5–2 km to Kouremenos beach.",
-      verhuur: "Not on site — windsurf/wing/kite at the three schools on Kouremenos.",
+      eten: "Six self-catering villas, each with fully equipped kitchenette and private balcony; village tavernas a short drive away.",
+      afstandSpot: "On the hillside above Kouremenos beach — short drive down to the bay and Freak Windsurf Station.",
+      verhuur: "Not on site — windsurf/wing/kite at the schools on Kouremenos.",
       lessen: "Not on site — book through the schools on the beach.",
-      rating: "BookSurfCamps and TripAdvisor listings + Booking presence. Bron-strength: 🟢 SOLID — multiple independent sources.",
-      sfeer: "Comfortable, quiet, host-led — couples and small families; not a camp.",
-      activiteiten: "Wind sports first; same regional day trips."
+      rating: "Listed on Booking.com, BookSurfCamps, TripAdvisor, e-travels.gr and their own site (villa-amalia.com). Bron-strength: 🟢 SOLID — multiple independent sources.",
+      sfeer: "Family-owned, quiet, panoramic sea views from the balcony — couples and small families; not a camp.",
+      activiteiten: "Wind sports first; same regional day trips (Vai, Zakros gorge, Toplou, Sitia)."
     },
     samenvatting: [
-      "Apartment-style villa stay near Kouremenos with consistent cross-source reviews.",
-      "Comfort tier — kitchens, private bathrooms, quiet.",
-      "Wind/wing/kite via the three schools on the beach.",
-      "Bron-strength: 🟢 SOLID — BookSurfCamps + TripAdvisor + Booking."
+      "Six family-owned self-catering villas on the hillside above Kouremenos.",
+      "Sea views and olive groves; private balcony, fully equipped kitchenette in each unit.",
+      "Listed on Booking, BookSurfCamps, TripAdvisor, e-travels.gr and their own site.",
+      "Bron-strength: 🟢 SOLID — multiple independent sources confirm the same picture."
     ],
     verhaal: [
-      `Villa Amalia is the other comfort-tier option near Kouremenos that I could verify across multiple sources — BookSurfCamps lists it as a partner stay for the local windsurf camps, and the TripAdvisor and Booking presence backs that up. The picture across sources is consistent: clean modern apartments, friendly host-led service, a short drive to the wind.`,
-      `Like Akti Villas, it's not a surf camp — no in-house lessons, no shared dinners. It pairs with one of the three schools on the beach for the wind side of the trip.`
+      `Villa Amalia sits on the hillside above Kouremenos — six self-catering villas, family-owned, with panoramic sea views over the bay and Freak Windsurf Station. The position is the pitch: not on the beach itself, but overlooking it. You watch the wind fill in from your balcony, drive a few minutes down, sail, drive back up for a quiet evening.`,
+      `Not a surf camp — no in-house lessons, no shared dinners. It pairs with one of the schools on Kouremenos beach for the wind side of the trip. Independent travellers, couples, small families.`,
+      `Listed across Booking.com, BookSurfCamps, TripAdvisor and their own site (villa-amalia.com) — multiple independent sources align on the same picture.`
     ],
     lagen: [
       {
         titel: "The wind — Kouremenos region",
         bron: "Windfinder, Beach-Inspector, school sites + LDW's first-hand visit",
         inhoud: [
-          { kop: "High season · Jun–Sep", tekst: `Side-shore meltemi NNW–N nearly every afternoon, ~4–7 Bft.` }
+          { kop: "High season · Jun–Sep", tekst: `Side-shore meltemi NNW–N nearly every afternoon, ~4–7 Bft. Drive down from the hillside to the beach.` }
         ]
       },
       {
         titel: "The stay — Villa Amalia",
-        bron: "🟢 SOLID — BookSurfCamps + TripAdvisor + Booking",
+        bron: "🟢 SOLID — villa-amalia.com + BookSurfCamps + Booking.com + TripAdvisor + e-travels.gr",
         inhoud: [
-          { kop: "What it is", tekst: `Apartment-style villa stay between the village and the beach.` },
-          { kop: "The constants", tekst: `Cleanliness and host service mentioned consistently across sources.` },
-          { kop: "Weak spots", tekst: `Not on the beach. Not a camp.` }
+          { kop: "What it is", tekst: `Six self-catering villas on the hillside above Kouremenos. Family-owned. Each villa with kitchenette and private balcony.` },
+          { kop: "The constants", tekst: `Sea views from the balcony; quiet; family-led service mentioned across sources.` },
+          { kop: "Who stays here", tekst: `Couples and small families wanting comfort, quiet, and a panoramic perch over the bay.` }
         ]
       }
     ],
     vergelijking: null,
-    ideaalVoor: "Couples and small families wanting comfort and a verified picture near Kouremenos.",
-    nietIdeaalAls: "You want surf-camp atmosphere with lessons and shared dinners included."
+    ideaalVoor: "Couples and small families wanting sea-view comfort and a quiet base above the wind.",
+    nietIdeaalAls: "You want to be ON the beach, or you want a full surf-camp atmosphere."
   },
 
   {
@@ -1705,8 +1677,9 @@ const WAVEBASE_DATA = [
     tagline: "A second beachfront option on Kouremenos — older but solidly reviewed; about as close as it gets.",
     levels: ["beginner", "intermediate", "advanced"],
     goodMonths: [5,6,7,8,9,10],
-    coords: [35.209, 26.268],
-    coordsLabel: "Approximate — directly on Kouremenos beach.",
+    coords: [35.2070, 26.2710],
+    coordsLabel: "Approximate — on Kouremenos beach (OSM-verified beach centre [35.2058, 26.2706]); exact apartment location not verified.",
+    bookingUrl: "https://www.booking.com/hotel/gr/kouremenos-beach-apartments.html",
     photo: "",
     verblijf: {
       eten: "Studios with kitchenettes; small beach taverna nearby; village tavernas 1.5 km inland.",
