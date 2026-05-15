@@ -1400,8 +1400,8 @@ const WAVEBASE_DATA = [
     tagline: "Small, owner-run windsurf + wing foil centre on Kouremenos — pioneers of wing-foiling teaching in Greece (since 2019).",
     levels: ["beginner", "intermediate", "advanced"],
     goodMonths: [5,6,7,8,9,10],
-    coords: [35.2055, 26.2715],
-    coordsLabel: "Approximate — on Kouremenos beach; exact pin not yet verified.",
+    coords: [35.207305, 26.2690837],
+    coordsLabel: "Verified via Google Maps pin (LDW). Right on Kouremenos beach.",
     photo: "",
     bookingUrl: "https://gonesurfing.gr/",
     diensten: {
@@ -1450,8 +1450,8 @@ const WAVEBASE_DATA = [
     tagline: "Established Kouremenos station — running since 2004; full beach setup, bikes, yoga, sister station in Dakhla.",
     levels: ["beginner", "intermediate", "advanced"],
     goodMonths: [5,6,7,8,9,10],
-    coords: [35.2075, 26.2700],
-    coordsLabel: "Approximate — on Kouremenos beach (searchable as \"Freak Windsurf & Bike Center\" on Google Maps); exact pin not yet verified.",
+    coords: [35.206098, 26.269993],
+    coordsLabel: "Verified via Google Maps pin (LDW). Right on Kouremenos beach; also signposted as \"Freak Windsurf & Bike Center\" on Google Maps.",
     photo: "",
     bookingUrl: "https://www.freak-surf.com/crete/",
     diensten: {
