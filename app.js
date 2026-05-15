@@ -193,14 +193,16 @@ function wireViewToggle(container) {
   });
 }
 
-/* ---- sport scope (wave / wind / kite / wing) — 'live' is derived from data ---- */
+/* ---- sport scope (all / wave / wind / kite / wing) — 'live' is derived from data ---- */
 const WAVEBASE_SPORTS = [
+  { key: "all",  label: "All"  },
   { key: "wave", label: "Wave" },
   { key: "wind", label: "Wind" },
   { key: "kite", label: "Kite" },
   { key: "wing", label: "Wing" }
 ];
 function sportIsLive(key) {
+  if (key === "all") return true;
   if (typeof WAVEBASE_DATA === "undefined") return key === "wave";
   return WAVEBASE_DATA.some(e => entrySports(e).includes(key));
 }
@@ -208,7 +210,7 @@ function getSportPref() {
   const params = new URLSearchParams(window.location.search);
   const fromUrl = params.get("sport");
   if (fromUrl) return fromUrl;
-  return localStorage.getItem("wavebase_sport_pref") || "wave";
+  return localStorage.getItem("wavebase_sport_pref") || "all";
 }
 function setSportPref(sport) {
   localStorage.setItem("wavebase_sport_pref", sport);
@@ -230,7 +232,7 @@ function wireSportPills(container) {
     btn.addEventListener("click", () => {
       setSportPref(btn.dataset.sport);
       const url = new URL(window.location.href);
-      if (btn.dataset.sport === "wave") url.searchParams.delete("sport");
+      if (btn.dataset.sport === "all") url.searchParams.delete("sport");
       else url.searchParams.set("sport", btn.dataset.sport);
       window.history.replaceState(null, "", url.toString());
       runSearch();
@@ -277,7 +279,7 @@ function runSearch() {
   const qEl   = document.getElementById("f-search");
   const query = qEl ? qEl.value.trim() : "";
   const results = document.getElementById("results");
-  const longSport = { wave: "Wave surfing", wind: "Windsurfing", kite: "Kitesurfing", wing: "Wing foiling" };
+  const longSport = { all: "All surf sports", wave: "Wave surfing", wind: "Windsurfing", kite: "Kitesurfing", wing: "Wing foiling" };
 
   // keep URL in sync — country + filters + sport + free-text query — so links are shareable AND back-navigation restores the state
   const url = new URL(window.location.href);
@@ -289,7 +291,7 @@ function runSearch() {
   setParam("level", level, level === "all");
   setParam("type", type, type === "all");
   setParam("month", month, month === "all");
-  setParam("sport", sport, sport === "wave");
+  setParam("sport", sport, sport === "all");
   setParam("q", query, !query);
   window.history.replaceState(null, "", url.toString());
 
@@ -311,7 +313,7 @@ function runSearch() {
   if (query) {
     const matches = WAVEBASE_DATA.filter(e => {
       if (!searchMatch(e, query)) return false;
-      if (!entrySports(e).includes(sport)) return false;
+      if (sport !== "all" && !entrySports(e).includes(sport)) return false;
       const okL = level === "all" || e.levels.includes(level);
       const okM = month === "all" || e.goodMonths.includes(parseInt(month, 10));
       const okT = type === "all" || e.type === type;
@@ -343,7 +345,7 @@ function runSearch() {
 
   // Data-driven: filter entries by country (with default) and sport (with default)
   const liveCountrySportEntries = WAVEBASE_DATA.filter(e =>
-    entryCountry(e) === country && entrySports(e).includes(sport)
+    entryCountry(e) === country && (sport === "all" || entrySports(e).includes(sport))
   );
 
   // No entries for this country×sport combo → COMING SOON with smart hints
@@ -639,10 +641,10 @@ function initSpot() {
   const saved = WaveBaseAccount.isSaved(e.id);
   const comparing = WaveBaseAccount.isComparing(e.id);
 
-  const backCountry = entryCountry(e);
-  const backSports = entrySports(e);
-  const backSport = backSports.includes("wave") ? "wave" : backSports[0];
-  const backHref = `index.html?country=${encodeURIComponent(backCountry)}` + (backSport !== "wave" ? `&sport=${backSport}` : "");
+  // Back link defaults to the entry's country on "All" sport — keeps the fallback
+  // welcoming. history.back() restores the specific sport state when the user
+  // came from inside the site (handled by the click listener further down).
+  const backHref = `index.html?country=${encodeURIComponent(entryCountry(e))}`;
   root.innerHTML = `
     <a class="backlink" href="${backHref}">&larr; Back to all places</a>
     <div class="detail-photo ${e.type}${e.photo ? " has-photo" : ""}"${e.photo ? ` style="background-image:url('${e.photo}')"` : ""}>
