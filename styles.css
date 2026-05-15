@@ -256,7 +256,7 @@ a:hover { text-decoration: underline; }
 }
 .card .thumb.spot { background: linear-gradient(150deg, #4a7c8c, #2f5360); }
 .card .thumb.stay { background: linear-gradient(150deg, #cd7e5b, #9c4f30); }
-.card .thumb.centre { background: linear-gradient(150deg, #e8b969, #b78029); }
+.card .thumb.center { background: linear-gradient(150deg, #e8b969, #b78029); }
 .card .thumb::after {
   content: "";
   position: absolute;
@@ -633,7 +633,7 @@ table.cal td.host { color: var(--clay); }
 .map-filters .dot { width: 14px; height: 14px; border-radius: 999px; display: inline-block; }
 .map-filters .dot.spot { background: var(--sea); }
 .map-filters .dot.stay { background: var(--clay); }
-.map-filters .dot.centre { background: var(--amber); }
+.map-filters .dot.center { background: var(--amber); }
 #map {
   height: 540px; border-radius: var(--radius);
   border: 1px solid var(--sand); box-shadow: var(--shadow-sm);
@@ -751,7 +751,7 @@ table.cal td.host { color: var(--clay); }
 }
 .detail-photo.spot { background: linear-gradient(150deg, #4a7c8c, #2f5360); }
 .detail-photo.stay { background: linear-gradient(150deg, #cd7e5b, #9c4f30); }
-.detail-photo.centre { background: linear-gradient(150deg, #e8b969, #b78029); }
+.detail-photo.center { background: linear-gradient(150deg, #e8b969, #b78029); }
 .detail-photo.has-photo { background-size: cover; background-position: center; }
 .photo-placeholder {
   font-size: 12px; letter-spacing: 0.1em; text-transform: uppercase;
@@ -786,7 +786,7 @@ table.cal td.host { color: var(--clay); }
 }
 .cmp-col .thumb.spot { background: linear-gradient(150deg, #4a7c8c, #2f5360); }
 .cmp-col .thumb.stay { background: linear-gradient(150deg, #cd7e5b, #9c4f30); }
-.cmp-col .thumb.centre { background: linear-gradient(150deg, #e8b969, #b78029); }
+.cmp-col .thumb.center { background: linear-gradient(150deg, #e8b969, #b78029); }
 .cmp-col .thumb.has-photo { background-size: cover; background-position: center; }
 .cmp-col .thumb .badge {
   position: absolute; top: 12px; left: 12px;
@@ -833,7 +833,7 @@ table.cal td.host { color: var(--clay); }
 }
 .trip-pin.spot { background: var(--sea); }
 .trip-pin.stay { background: var(--clay); }
-.trip-pin.centre { background: var(--amber); }
+.trip-pin.center { background: var(--amber); }
 
 /* town panel — on the detail page */
 .town-panel {

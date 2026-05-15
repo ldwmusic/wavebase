@@ -9,12 +9,12 @@ function bookingHref(e) {
 }
 function typeLabel(t) {
   if (t === "spot") return "Surf spot";
-  if (t === "centre") return "Surf centre";
+  if (t === "center") return "Surf center";
   return "Stay";
 }
 function typeColor(t) {
   if (t === "spot") return "#3f6f7d";    // teal — surf spots
-  if (t === "centre") return "#e0a447";  // amber — surf centres
+  if (t === "center") return "#e0a447";  // amber — surf centers
   return "#bd6242";                       // orange — stays
 }
 function crowdLabel(n) { return { rustig: "Quiet", gemiddeld: "Moderate", druk: "Busy" }[n] || n; }
@@ -240,16 +240,16 @@ function wireSportPills(container) {
   });
 }
 
-/* Render the spots/centres/stays sections + sticky jumper bar shared between
+/* Render the spots/centers/stays sections + sticky jumper bar shared between
    country-picker mode and free-text search mode. Returns the HTML string. */
 function renderResultsSections(matches, gridClass) {
   if (!matches.length) return "";
   const spots   = matches.filter(e => e.type === "spot");
-  const centres = matches.filter(e => e.type === "centre");
+  const centers = matches.filter(e => e.type === "center");
   const stays   = matches.filter(e => e.type === "stay");
   const sections = [
     { key: "spots",   label: "Surf spots",   items: spots   },
-    { key: "centres", label: "Surf centres", items: centres },
+    { key: "centers", label: "Surf centers", items: centers },
     { key: "stays",   label: "Stays",        items: stays   }
   ].filter(s => s.items.length);
   let html = "";
@@ -587,7 +587,7 @@ function dienstenHTML(d) {
     `<div class="cond-item"><span class="cond-label">${k}</span><span class="cond-val">${val || "—"}</span></div>`
   ).join("");
   return `<section class="condities">
-    <h2>The centre at a glance</h2>
+    <h2>The center at a glance</h2>
     <div class="cond-grid verblijf-grid">${items}</div>
   </section>`;
 }
@@ -657,7 +657,7 @@ function initSpot() {
       ${e.coordsLabel ? `<p class="coords-note">About the location: ${e.coordsLabel}</p>` : ""}
       <div class="detail-actions">
         ${e.type === "stay" ? `<a class="btn btn-book" href="${bookingHref(e)}" target="_blank" rel="noopener">Book now ↗</a>` : ""}
-        ${e.type === "centre" && e.bookingUrl ? `<a class="btn btn-book" href="${e.bookingUrl}" target="_blank" rel="noopener">Visit website ↗</a>` : ""}
+        ${e.type === "center" && e.bookingUrl ? `<a class="btn btn-book" href="${e.bookingUrl}" target="_blank" rel="noopener">Visit website ↗</a>` : ""}
         <button class="btn ghost ${saved ? "on" : ""}" id="save-toggle">${saved ? "♥ Saved" : "♡ Save this place"}</button>
         <button class="btn ghost ${comparing ? "on" : ""}" id="compare-toggle">${comparing ? "✓ In compare" : "+ Compare"}</button>
         <select id="trip-select">${tripOptionsHTML()}</select>
@@ -752,7 +752,7 @@ function initMap() {
     attribution: "&copy; OpenStreetMap contributors", maxZoom: 19
   }).addTo(map);
 
-  const layers = { spot: L.layerGroup(), stay: L.layerGroup(), centre: L.layerGroup() };
+  const layers = { spot: L.layerGroup(), stay: L.layerGroup(), center: L.layerGroup() };
   const allCoords = [];
   WAVEBASE_DATA.forEach(e => {
     if (!e.coords || !layers[e.type]) return;
@@ -767,7 +767,7 @@ function initMap() {
   });
   layers.spot.addTo(map);
   layers.stay.addTo(map);
-  layers.centre.addTo(map);
+  layers.center.addTo(map);
   if (allCoords.length) map.fitBounds(allCoords, { padding: [30, 30] });
 
   document.getElementById("t-spot").addEventListener("change", function () {
@@ -776,10 +776,10 @@ function initMap() {
   document.getElementById("t-stay").addEventListener("change", function () {
     if (this.checked) layers.stay.addTo(map); else map.removeLayer(layers.stay);
   });
-  const tCentre = document.getElementById("t-centre");
-  if (tCentre) {
-    tCentre.addEventListener("change", function () {
-      if (this.checked) layers.centre.addTo(map); else map.removeLayer(layers.centre);
+  const tCenter = document.getElementById("t-center");
+  if (tCenter) {
+    tCenter.addEventListener("change", function () {
+      if (this.checked) layers.center.addTo(map); else map.removeLayer(layers.center);
     });
   }
 }
@@ -973,7 +973,7 @@ function compareKeyPoints(e) {
       ["Water", c.water || "—"]
     ];
   }
-  if (e.type === "centre") {
+  if (e.type === "center") {
     const d = e.diensten || {};
     return [
       ["Lessons", d.lessen || "—"],

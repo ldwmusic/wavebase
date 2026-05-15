@@ -220,7 +220,7 @@ const WAVEBASE_DATA = [
         titel: "The surf — spot & region",
         bron: "Area data and surf guides — not from the stay's reviews",
         inhoud: [
-          { kop: "Location", tekst: `In the centre of Taghazout, ~200 m from the village beach. Hash Point is a short walk; Panorama, Anchor Point, Mysteries and La Source are all within walking distance or a quick shuttle. Same regional pattern: winter bigger and more consistent, summer smaller and softer.` }
+          { kop: "Location", tekst: `In the center of Taghazout, ~200 m from the village beach. Hash Point is a short walk; Panorama, Anchor Point, Mysteries and La Source are all within walking distance or a quick shuttle. Same regional pattern: winter bigger and more consistent, summer smaller and softer.` }
         ]
       },
       {
@@ -628,7 +628,7 @@ const WAVEBASE_DATA = [
     buurt: {
       eten: "Cafés and shops in Aourir, close by.",
       parking: "Informal along the N1.",
-      verhuur: "Via Tamraght/Aourir, ~10 min from the village centre."
+      verhuur: "Via Tamraght/Aourir, ~10 min from the village center."
     },
     vergelijking: null,
     ideaalVoor: "Intermediates and seasoned beginners who want to practise calmly.",
@@ -1175,28 +1175,28 @@ const WAVEBASE_DATA = [
     levels: ["beginner", "intermediate", "advanced"],
     goodMonths: [5,6,7,8,9,10],
     coords: [35.2058, 26.2706],
-    coordsLabel: "OSM-verified centre point of Kouremenos Beach — the bay itself runs ~2 km north–south.",
+    coordsLabel: "OSM-verified center point of Kouremenos Beach — the bay itself runs ~2 km north–south.",
     photo: "",
     samenvatting: [
       "Long open bay (~2 km) — flat-to-chop on the inside, small wave on the outer reef.",
       "Side-shore meltemi wind (NNW–N) almost every summer afternoon, 4–7 Bft typical.",
-      "Three windsurf/wing/kite centres on the beach (Surf Club Kouremenos, Freak Surf, Gone Surfing).",
+      "Three windsurf/wing/kite centers on the beach (Surf Club Kouremenos, Freak Surf, Gone Surfing).",
       "Beginner-friendly inside, more swell + chop the further out you go.",
-      "Bron-strength: 🟢 SOLID — multiple guides (Windfinder, Beach-Inspector, centre sites) + LDW's first-hand visit."
+      "Bron-strength: 🟢 SOLID — multiple guides (Windfinder, Beach-Inspector, center sites) + LDW's first-hand visit."
     ],
     verhaal: [
       `Kouremenos is the reason windsurfers and wing-foilers come to far-east Crete. A ~2 km open bay facing east, framed by hills that funnel the meltemi (the summer NW thermal wind) straight along the coast as side-shore. From about June into September it blows almost every afternoon — strong enough for advanced sailors, manageable enough on the inside that beginners can learn here too.`,
-      `The bay is shallow on the inside (flat to small chop, perfect for learning), with more swell building up further out. The three centres on the beach — Surf Club Kouremenos, Freak Surf and Gone Surfing — all teach windsurfing and wing foiling; rentals run alongside the lessons.`,
+      `The bay is shallow on the inside (flat to small chop, perfect for learning), with more swell building up further out. The three centers on the beach — Surf Club Kouremenos, Freak Surf and Gone Surfing — all teach windsurfing and wing foiling; rentals run alongside the lessons.`,
       `LDW went windsurfing here. The honest fine print: in the morning the wind can be flaky — Kouremenos is an afternoon spot. And the village (Palekastro) is 1.5 km inland — not on the beach itself.`
     ],
     lagen: [
       {
         titel: "The wind & water",
-        bron: "Windfinder, Beach-Inspector & centre sites — cross-checked with LDW's first-hand visit",
+        bron: "Windfinder, Beach-Inspector & center sites — cross-checked with LDW's first-hand visit",
         inhoud: [
           { kop: "High season · Jun–Sep", tekst: `Meltemi side-shore from the NNW–N nearly every afternoon, ~4–7 Bft. July–August the most reliable; June and September a touch lighter. Mornings often calm — this is an afternoon spot.` },
           { kop: "Shoulder · May & Oct", tekst: `Wind less reliable but still some good days; warmer water by late May.` },
-          { kop: "Winter · Nov–Apr", tekst: `Cold and unstable — centres are closed.` }
+          { kop: "Winter · Nov–Apr", tekst: `Cold and unstable — centers are closed.` }
         ]
       },
       {
@@ -1213,7 +1213,7 @@ const WAVEBASE_DATA = [
       golfhoogte: "Flat on the inside; ~0.5–1.5 m chop/wave further out on strong meltemi days",
       wind: "Side-shore NNW–N (meltemi), ~4–7 Bft, mostly afternoons",
       water: "~19–25 °C in season; shorty or 3/2 May–Oct",
-      drukte: { niveau: "gemiddeld", tekst: "Three centres share the beach; the bay is long enough to spread out, but the inside near the centres is the busiest." }
+      drukte: { niveau: "gemiddeld", tekst: "Three centers share the beach; the bay is long enough to spread out, but the inside near the centers is the busiest." }
     },
     buurt: {
       eten: "A small beach taverna at the bay; more tavernas in Palekastro village 1.5 km inland.",
@@ -1241,12 +1241,12 @@ const WAVEBASE_DATA = [
     samenvatting: [
       "A remote rocky bay at the far north-east tip of Crete — 15 km from Palekastro, 7 km past Vai.",
       "Known among windsurfers as a freestyle spot — exposed to the meltemi, with both flat and wavy patches.",
-      "No centres, no rental, no facilities — sailors travel here from Kouremenos when they want this kind of water.",
+      "No centers, no rental, no facilities — sailors travel here from Kouremenos when they want this kind of water.",
       "Bron-strength: 🟢 SOLID — crete-today, cretanbeaches.com & east-Crete wind guides all describe the same remote freestyle bay."
     ],
     verhaal: [
       `Tenda is not the neighbour of Kouremenos — it's a separate destination at the far north-eastern tip of Crete, about 15 km from Palekastro and 7 km past the Vai palm beach, on the road towards Cape Sidero. A remote rocky area, much quieter than Kouremenos, with the meltemi blowing straight in.`,
-      `Among windsurfers it's known mainly as a freestyle spot — the west-facing bay (the one actually called Tenda) catches the wind and the chop, while the adjacent east bay (Eligas) tends to stay flatter. No centres, no rental, no taverna: you bring your own gear and drive out from Palekastro or Kouremenos for the day.`
+      `Among windsurfers it's known mainly as a freestyle spot — the west-facing bay (the one actually called Tenda) catches the wind and the chop, while the adjacent east bay (Eligas) tends to stay flatter. No centers, no rental, no taverna: you bring your own gear and drive out from Palekastro or Kouremenos for the day.`
     ],
     lagen: [
       {
@@ -1349,13 +1349,13 @@ const WAVEBASE_DATA = [
       "Best on S wind: side-on from the right, deep chop and playful small waves.",
       "Real wave spot in winter — SW storms produce sideshore wind from the right.",
       "Meltemi (NW) blows fully offshore here — wrong wind for this coast. Complementary to Kouremenos.",
-      "No centres, no rental, no facilities — bring your own gear.",
+      "No centers, no rental, no facilities — bring your own gear.",
       "Bron-strength: 🟢 SOLID — surfingr.com, kite-and-windsurfing-guide, allincrete + windfinder all describe the same pattern."
     ],
     verhaal: [
       `Xerokampos sits on the far south-east tip of Crete — about a 40-min drive south of Palekastro through dramatic mountain road. A cluster of small bays (the main launch is Mazida Ammos / Amatou) with crystal water, fine white sand, and almost no infrastructure.`,
       `Wind window: this is a southern-shore spot, so the meltemi (the NW summer wind that makes Kouremenos work) blows fully offshore here — useless. Instead, Xerokampos comes alive on S wind days: side-on from the right, with deep chop and playful small waves. In winter, SW storms turn it into a real wave spot with sideshore wind, good for jumps and rides.`,
-      `It's a "bring everything" spot: no centres, no rental, no beach café for kilometres. Worth it specifically on the wind days the rest of east Crete is flat.`
+      `It's a "bring everything" spot: no centers, no rental, no beach café for kilometres. Worth it specifically on the wind days the rest of east Crete is flat.`
     ],
     lagen: [
       {
@@ -1382,7 +1382,7 @@ const WAVEBASE_DATA = [
     },
     vergelijking: null,
     ideaalVoor: "Experienced sailors with their own gear who want quiet water and a different wind angle.",
-    nietIdeaalAls: "You want infrastructure (centres, rental, cafés) or the classic meltemi blast — go to Kouremenos instead."
+    nietIdeaalAls: "You want infrastructure (centers, rental, cafés) or the classic meltemi blast — go to Kouremenos instead."
   },
 
   /* Note: an earlier "Istro Bay" wave-surf entry was removed — review with
@@ -1392,12 +1392,12 @@ const WAVEBASE_DATA = [
   /* ----------------- SURF CENTRES — EAST CRETE ----------------- */
   {
     id: "gone-surfing",
-    type: "centre",
+    type: "center",
     country: "Greece",
     sports: ["wind", "wing"],
     name: "Gone Surfing Crete",
     town: "Palekastro",
-    tagline: "Christos and Maria's owner-run boutique centre — TripAdvisor 4.9/5 over 195 reviews, pioneers of wing-foiling teaching in Greece since 2019.",
+    tagline: "Christos and Maria's owner-run boutique center — TripAdvisor 4.9/5 over 195 reviews, pioneers of wing-foiling teaching in Greece since 2019.",
     levels: ["beginner", "intermediate", "advanced"],
     goodMonths: [5,6,7,8,9,10],
     coords: [35.207305, 26.2690837],
@@ -1409,50 +1409,49 @@ const WAVEBASE_DATA = [
       rental: "Windsurf, wing foil, SUP. \"Plenty to chose from, in fact you could swap and change as much as you wanted\" (2023 reviewer). Range of foil types, board sizes and wing sizes.",
       brands: "Fanatic boards + Duotone sails and wings — \"brand new\" per multiple 2024 reviewers; also some RRD foils. Replaced regularly.",
       faciliteiten: "Equipment storage; rescue boat on standby (reviewers specifically call this out — \"so you feel safe on the water\"). Open daily 10:00–20:00.",
-      team: "Owners Christos + Maria (couple, run the centre personally). Named across nearly every review. French-speaking seasonal staff often mentioned. \"Old-school spirit — generosity, helping others, sharing happiness\" (May 2025 reviewer).",
+      team: "Owners Christos + Maria (couple, run the center personally). Named across nearly every review. French-speaking seasonal staff often mentioned. \"Old-school spirit — generosity, helping others, sharing happiness\" (May 2025 reviewer).",
       contact: "+30 6941427787 · gonesurfingcrete@gmail.com · gonesurfing.gr"
     },
     samenvatting: [
-      "Owner-run boutique centre at the south end of Kouremenos — \"at the end of the road\".",
+      "Owner-run boutique center at the south end of Kouremenos — \"at the end of the road\".",
       "TripAdvisor 4.9/5 over 195 reviews (#1 of 3 activities in Palekastro): 183 excellent, 7 good, 2 average, 3 poor, 0 terrible.",
       "Pioneers of wing-foiling teaching in Greece since 2019; Fanatic + Duotone (and RRD foil) kit refreshed regularly.",
       "Safety on point: rescue boat ready, instructor on the water during sessions.",
       "Honest minpunt: one 2-star review (July 2024) flagged the package-booking system as rigid — multi-day packages lock you to specific boards, and the reviewer felt the host comms came across as unfriendly when re-negotiating. Bron-strength: 🟢 SOLID."
     ],
     verhaal: [
-      `Gone Surfing is the owner-run centre at the south end of Kouremenos beach, run by Christos and Maria. The TripAdvisor signal is exceptional: 4.9/5 over 195 reviews, ranked #1 of 3 activities in Palekastro. Distribution: 183 excellent, 7 good, just 5 reviews below "good" out of 195.`,
+      `Gone Surfing is the owner-run center at the south end of Kouremenos beach, run by Christos and Maria. The TripAdvisor signal is exceptional: 4.9/5 over 195 reviews, ranked #1 of 3 activities in Palekastro. Distribution: 183 excellent, 7 good, just 5 reviews below "good" out of 195.`,
       `What recurs across reviews: warm welcome, "brand new" Fanatic/Duotone gear, the rescue boat watching over sessions, a "family" atmosphere. A French reviewer in 2025 calls it "an old-school spirit — where generosity, helping others, and sharing happiness are at the core of everything they do". Another notes "10 out of 10 from me" with the option to "swap and change [boards] as much as you wanted". The wind on Kouremenos itself is described as "reliable from 7:00 to 24:00 — no guessing, no waiting".`,
       `Honest minpunt: one 2-star review (Philippe d, July 2024) flagged a real friction. The multi-day package system locked his bookings to specific boards regardless of wind that day, "not specified on their website". When he asked to switch, the comms felt unpleasant. He acknowledged the equipment was "very good" but recommends renting by the hour instead of packages if you're sensitive to that. This is one outlier in 195 reviews — but it's a specific, actionable warning if you tend to want flexibility.`
     ],
     lagen: [
       {
         titel: "The wind & water — Kouremenos region",
-        bron: "Centre site + TripAdvisor reviews + LDW first-hand visit",
+        bron: "Center site + TripAdvisor reviews + LDW first-hand visit",
         inhoud: [
           { kop: "Reliability", tekst: `Per a 2025 reviewer: "wind is reliable from 7:00 to 24:00 — no guessing, no waiting". Side-shore meltemi NNW–N nearly every summer afternoon, ~4–7 Bft.` },
           { kop: "Safety", tekst: `Rescue boat on standby during sessions. A 2023 review notes: "They keep an eye on you and have a rescue boat ready, so you feel safe on the water". Not a spot for absolute beginners on big-wind days.` }
         ]
       },
       {
-        titel: "The centre — Gone Surfing",
-        bron: "🟢 SOLID — gonesurfing.gr + TripAdvisor 4.9/5 (195 reviews) + UK Windsurf magazine feature",
+        titel: "The center — Gone Surfing",
+        bron: "🟢 SOLID with strong recent coverage — gonesurfing.gr + TripAdvisor 4.9/5 (195 reviews, 8+ within last 4 years) + UK Windsurf magazine feature",
         inhoud: [
-          { kop: "What it is", tekst: `Small owner-run windsurf + wing foil centre at the south end of Kouremenos. Owners Christos + Maria teach personally.` },
-          { kop: "Lessons", tekst: `Windsurfing, wing foiling, wind foiling, tandem windsurfing, SUP — beginners through advanced.` },
-          { kop: "Rental", tekst: `Fanatic boards + Duotone sails/wings + RRD foils. "Plenty to choose from, you could swap and change as much as you wanted" (2023 reviewer).` },
-          { kop: "Pioneer status", tekst: `Among the first in Greece to introduce windsurf foiling; pioneers of wing-foiling teaching since 2019.` },
-          { kop: "Honest minpunt", tekst: `One 2-star review (Jul 2024) flagged rigid package bookings (boards locked for multi-day deals; not stated on the website). If you want flexibility, rent by the hour rather than booking a package upfront.` }
+          { kop: "Offerings (own site + magazine feature)", tekst: `Small owner-run windsurf + wing foil center at the south end of Kouremenos. Owners Christos + Maria teach personally. Windsurfing, wing foiling, wind foiling, tandem windsurfing, SUP — all levels. Fanatic boards + Duotone sails/wings + RRD foils, refreshed regularly. Equipment storage. Rescue boat on standby. Open daily 10:00-20:00.` },
+          { kop: "The constants (2023-2025 reviews)", tekst: `Warm welcome and equipment quality recur across recent reviews. "Brand new Duotone hardware" (2024). "Plenty to choose from, you could swap and change as much as you wanted" (Sep 2023). "10 out of 10 from me" (Sep 2023). "Old-school spirit — generosity, helping others, sharing happiness" (May 2025).` },
+          { kop: "Pioneer status", tekst: `Among the first in Greece to introduce windsurf foiling; pioneers of wing-foiling teaching since 2019 (per their own site and UK Windsurf magazine feature).` },
+          { kop: "Honest minpunt (Jul 2024 review)", tekst: `Philippe d (2-star) flagged rigid package bookings — multi-day deals lock you to specific boards regardless of wind that day, "not specified on their website". He felt the host comms came across as unfriendly when re-negotiating. He acknowledged the equipment was "very good". If you want flexibility, rent by the hour rather than booking a package upfront.` }
         ]
       }
     ],
     vergelijking: null,
-    ideaalVoor: "Wing-foilers and windsurfers wanting quality teaching, current foil gear and an intimate owner-run centre; people who like a small \"know us by name\" vibe.",
+    ideaalVoor: "Wing-foilers and windsurfers wanting quality teaching, current foil gear and an intimate owner-run center; people who like a small \"know us by name\" vibe.",
     nietIdeaalAls: "You want maximum booking flexibility on multi-day packages (rent by the hour instead), or you want a big-station infrastructure (food, sun beds, bikes — go to Freak Surf for that)."
   },
 
   {
     id: "freak-surf",
-    type: "centre",
+    type: "center",
     country: "Greece",
     sports: ["wind", "wing"],
     name: "Freak Surf (Freak Windsurf Station)",
@@ -1487,27 +1486,27 @@ const WAVEBASE_DATA = [
     lagen: [
       {
         titel: "The wind & water — Kouremenos region",
-        bron: "Centre site + TripAdvisor reviews",
+        bron: "Center site + TripAdvisor reviews",
         inhoud: [
-          { kop: "Reliability", tekst: `A Polish reviewer in 2020: "windy 28 days during a 30-day stay" with wind 18–40 knots. Side-shore meltemi NNW–N afternoons; "outstanding wind and spacious sailing conditions throughout the season" per the centre's own pitch.` },
+          { kop: "Reliability", tekst: `A Polish reviewer in 2020: "windy 28 days during a 30-day stay" with wind 18–40 knots. Side-shore meltemi NNW–N afternoons; "outstanding wind and spacious sailing conditions throughout the season" per the center's own pitch.` },
           { kop: "Safety", tekst: `Jet ski + motorboat rescue on standby (visible in traveler photos). One staff member always on baywatch. Reviewers explicitly call out feeling safe.` }
         ]
       },
       {
-        titel: "The centre — Freak Surf",
-        bron: "🟢 SOLID — freak-surf.com + TripAdvisor 4.9/5 (62 reviews) + Boards Windsurfing + Greeka",
+        titel: "The center — Freak Surf",
+        bron: "🟡 MOSTLY SOLID, thinner recent window — freak-surf.com + TripAdvisor 4.9/5 (62 reviews total, only 2 within the last 4 years) + Boards Windsurfing + Greeka",
         inhoud: [
-          { kop: "What it is", tekst: `Established windsurf + wing foil station on Kouremenos. Running since 2004. Owner Hannes; staff names appearing in reviews: Aga, Pawel. Multi-language teaching (GR/DE/EN/FR/IT).` },
-          { kop: "Beach setup", tekst: `Beach amenities far beyond the basics: showers, sun beds, volleyball, mountain bike rental, afternoon yoga. Trees for shade. Evening entertainment.` },
-          { kop: "Gear", tekst: `JP Australia boards + NeilPryde sails; sails refreshed every year ("selected and new sails every year, the same boards" — 2020 reviewer). Wing foil setups current.` },
-          { kop: "Sister station", tekst: `Same brand operates a windsurf station in Dakhla, Morocco. If you've sailed Crete with them, the Dakhla setup is from the same operator.` },
-          { kop: "Honest minpunt", tekst: `One 4-star reviewer (2020) flagged "wind gaps and gusts" at the spot itself — that's the bay, not Freak. The 1 average + 1 poor review in the 62-review distribution aren't visible in the readable subset.` }
+          { kop: "Offerings (own site + listings)", tekst: `Established windsurf + wing foil station on Kouremenos, running since 2004. Owner Hannes; staff names appearing in reviews include Aga + Pawel. Multi-language teaching (GR/DE/EN/FR/IT). JP Australia boards + NeilPryde sails. Showers, water fountain, sun beds, volleyball, mountain bike rental, afternoon yoga. Trees for shade.` },
+          { kop: "The constants (recent reviews)", tekst: `Apr 2025 (Heinz M, third year visiting): "absolutely satisfied with the excellent and courteous service. Aga and Pawel try very hard". Aug 2024 (litenluring): "Perfect flat water spot, well equipped rental with top gear, and super service".` },
+          { kop: "Honest sourcing gap", tekst: `Only 2 of 62 TripAdvisor reviews are within the last 4 years. Most enthusiastic reviews ("windy 28 of 30 days", "best windsurfing base I've been in my life", "Hannes is the best") are 2019-2020 — outside the window. Hannes still responds personally to reviews on TripAdvisor (most recent owner response visible).` },
+          { kop: "Sister station", tekst: `Same brand operates a windsurf station in Dakhla, Morocco (per their own site). If you've sailed Crete with them, the Dakhla setup is from the same operator.` },
+          { kop: "Honest minpunt", tekst: `Older reviewer (Aug 2020) flagged "wind gaps and gusts" — that's the bay character, not Freak's fault. No specific negatives surface in the 2024-2025 reviews.` }
         ]
       }
     ],
     vergelijking: null,
     ideaalVoor: "Sailors wanting a full-service beach station with infrastructure (showers, food, sun beds, bikes, yoga, evening entertainment) and a wide multilingual team. Families and groups bringing non-sailing companions.",
-    nietIdeaalAls: "You want a quiet, small, owner-run centre — go to Gone Surfing instead."
+    nietIdeaalAls: "You want a quiet, small, owner-run center — go to Gone Surfing instead."
   },
 
   /* ----------------- STAYS — EAST CRETE ----------------- */
@@ -1518,7 +1517,7 @@ const WAVEBASE_DATA = [
     sports: ["wind", "wing", "kite"],
     name: "Surf Beach Apartments",
     town: "Palekastro",
-    tagline: "Directly in the middle of Kouremenos beach, next to Surf Beach Bar and the windsurf centres.",
+    tagline: "Directly in the middle of Kouremenos beach, next to Surf Beach Bar and the windsurf centers.",
     levels: ["beginner", "intermediate", "advanced"],
     goodMonths: [5,6,7,8,9,10],
     coords: [35.205648, 26.269349],
@@ -1527,42 +1526,42 @@ const WAVEBASE_DATA = [
     bookingUrl: "https://www.surfbeachapts.gr/",
     verblijf: {
       eten: "Self-catering studios with kitchenettes. Surf Beach Bar next door for breakfast/snacks; village supermarkets 1.5 km inland in Palekastro. Sun beds and BBQ facilities on site.",
-      afstandSpot: "Zero — middle of Kouremenos beach, next door to the windsurf centres. Walk in your wetsuit.",
-      verhuur: "Not run by the apartments — windsurf/wing/kite at the centres on the same beach (Gone Surfing, Freak Surf).",
-      lessen: "Not on site — via one of the centres on the beach.",
+      afstandSpot: "Zero — middle of Kouremenos beach, next door to the windsurf centers. Walk in your wetsuit.",
+      verhuur: "Not run by the apartments — windsurf/wing/kite at the centers on the same beach (Gone Surfing, Freak Surf).",
+      lessen: "Not on site — via one of the centers on the beach.",
       rating: "Booking.com 9.1/10 \"Fantastisch\" over 30 reviews. Also listed on TripAdvisor, Hotels.com, Planet Windsurf Holidays and their own site (surfbeachapts.gr). Bron-strength: 🟢 SOLID.",
       sfeer: "Low-key, windsurfer/wing-foiler crowd. Not a camp — independent travellers who want to wake up to the wind.",
       activiteiten: "Wind sports first; bike rental on site; Vai (5 km), Zakros gorge, Sitia old town in day-trip range."
     },
     samenvatting: [
-      "Middle of Kouremenos beach — next door to Surf Beach Bar and the windsurf centres.",
+      "Middle of Kouremenos beach — next door to Surf Beach Bar and the windsurf centers.",
       "Booking.com 9.1/10 \"Fantastisch\" over 30 reviews — the strongest Booking score among the cluster.",
       "Self-catering studios with kitchenette, AC, private bathroom, balcony. Sun terrace, garden, free WiFi.",
       "Pet-friendly; bike hire and BBQ on site.",
       "Listed across Booking, TripAdvisor, Hotels.com, Planet Windsurf. Bron-strength: 🟢 SOLID."
     ],
     verhaal: [
-      `Surf Beach Apartments is exactly what the name promises — self-catering studios in the middle of Kouremenos beach, next door to the Surf Beach Bar and the windsurf centres. The pitch is simple: you wake up, look at the bay, see whether it's blowing, walk to the centre. No driving, no faff. Booking.com rates it 9.1/10 \"Fantastisch\" across 30 reviews — the highest Booking score of any stay in our Kouremenos cluster.`,
-      `What you get: kitchenette, AC, private bathroom, balcony; the property has a sun terrace, garden, beach access, free WiFi, bike hire, BBQ. Pets allowed on request. Per the operator's site they describe their own location as "at the centre of Kouremenos Beach next to Surf Beach Bar and windsurfing schools" — 1.5 km from Palekastro village, 5 km from Vai, 18 km from Sitia.`,
-      `Honest fine print: this is not a camp. There are no in-house lessons or shared dinners — the wind side of the trip happens at one of the centres on the beach (Gone Surfing or Freak Surf). For food and groceries, the village is a short walk or drive inland. Bookable via Booking.com, Planet Windsurf Holidays, Hotels.com or direct via surfbeachapts.gr.`
+      `Surf Beach Apartments is exactly what the name promises — self-catering studios in the middle of Kouremenos beach, next door to the Surf Beach Bar and the windsurf centers. Booking.com rates it **9.1/10 "Fantastisch" across 30 reviews** — that's the strongest aggregate Booking score of any stay in this Kouremenos cluster, and Booking's score weights recent reviews more heavily, so the rating reflects current operation.`,
+      `Offerings (per the property's own site and listings): kitchenette, AC, private bathroom, balcony in each studio; sun terrace, garden, beach access, free WiFi, bike hire, BBQ. Pets allowed on request. Location per their own description: "at the center of Kouremenos Beach next to Surf Beach Bar and windsurfing schools" — 1.5 km from Palekastro village, 5 km from Vai, 18 km from Sitia.`,
+      `Honest fine print: we have the aggregate Booking score (9.1/30, fresh) but didn't read individual recent review texts in detail for this entry — so the picture of the experience is "consistently strong" rather than thematically distinct. This is not a surf camp: no in-house lessons or shared dinners; the wind side of the trip happens at one of the centers on the beach (Gone Surfing or Freak Surf). For food and groceries, the village is a short walk or drive inland.`
     ],
     lagen: [
       {
         titel: "The wind — Kouremenos region",
-        bron: "Windfinder, Beach-Inspector, centre sites + LDW's first-hand visit",
+        bron: "Windfinder, Beach-Inspector, center sites + LDW's first-hand visit",
         inhoud: [
           { kop: "High season · Jun–Sep", tekst: `Side-shore meltemi NNW–N nearly every afternoon, ~4–7 Bft. July–August the most reliable.` },
           { kop: "Mornings", tekst: `Often calm — Kouremenos is an afternoon spot.` },
-          { kop: "Zero distance to the launch", tekst: `Of the five Kouremenos-area stays, this is the one with the most-direct on-beach access — walk to the centre in a wetsuit.` }
+          { kop: "Zero distance to the launch", tekst: `Of the five Kouremenos-area stays, this is the one with the most-direct on-beach access — walk to the center in a wetsuit.` }
         ]
       },
       {
         titel: "The stay — Surf Beach Apartments",
-        bron: "🟢 SOLID — Booking.com 9.1/10 (30 reviews) + surfbeachapts.gr + TripAdvisor + Hotels.com + Planet Windsurf",
+        bron: "🟢 SOLID aggregate-fresh — Booking.com 9.1/10 (30 reviews, recent-weighted) + surfbeachapts.gr + TripAdvisor + Hotels.com + Planet Windsurf",
         inhoud: [
-          { kop: "What it is", tekst: `Self-catering studios in the middle of Kouremenos beach, next to Surf Beach Bar. AC, kitchenette, balcony, private bathroom.` },
-          { kop: "Property features", tekst: `Sun terrace, garden, BBQ, bike hire, free WiFi, free parking. Pets allowed on request. Children's facilities available.` },
-          { kop: "The Booking score", tekst: `9.1/10 over 30 reviews is the strongest Booking score in the cluster — categorised as "Fantastisch" (Fantastic).` },
+          { kop: "Offerings", tekst: `Self-catering studios in the middle of Kouremenos beach. AC, kitchenette, balcony, private bathroom. Sun terrace, garden, BBQ, bike hire, free WiFi, free parking. Pets allowed on request. Children's facilities available.` },
+          { kop: "The Booking signal", tekst: `9.1/10 over 30 reviews — strongest Booking score in the cluster, categorised as "Fantastisch". Booking weights recent reviews more heavily, so this score reflects current operation.` },
+          { kop: "What we didn't do", tekst: `For this entry we relied on the aggregate Booking score rather than reading individual recent review texts. The picture is "consistently strong" without specific themes — fewer texture details than for Villa Amalia or Flamingo.` },
           { kop: "Who stays here", tekst: `Windsurfers, wing-foilers and independent travellers who want ON-the-beach access without a camp atmosphere.` }
         ]
       }
@@ -1587,49 +1586,48 @@ const WAVEBASE_DATA = [
     photo: "",
     bookingUrl: "https://www.akti-villas.gr/",
     verblijf: {
-      eten: "Self-catering — fully equipped kitchens in each villa; small beach tavernas nearby; more in Palekastro village (~2 km inland).",
-      afstandSpot: "20–30 m to the sand (per the property description and a 2013 reviewer's specific note); steps to the windsurf centres.",
-      verhuur: "Not on site — windsurf/wing/kite gear at the centres on Kouremenos beach (Gone Surfing, Freak Surf).",
-      lessen: "Not on site — book through one of the centres on the beach.",
-      rating: "TripAdvisor 4.4/5 over 10 reviews (7 excellent, 2 good, 1 terrible). Sub-scores: Cleanliness 5.0, Location 4.8, Value 4.8, Service 4.1, Rooms 3.8, Sleep Quality 3.7. Not on Booking.com — book direct via akti-villas.gr. Bron-strength: 🟢 SOLID.",
-      sfeer: "Quiet, owner-led — couples and families. The villa #1 has the best view; pool overlooks the windsurf bay.",
-      activiteiten: "Wind sports first; same regional side trips (Vai 5 km, Erimoupolis, Itanos, Vai palm beach, Toplou Monastery)."
+      eten: "Self-catering — fully equipped kitchens in each villa (per the property's own site); small beach tavernas nearby; more in Palekastro village (~2 km inland).",
+      afstandSpot: "30 m to the sand per akti-villas.gr; steps to the windsurf centers.",
+      verhuur: "Not on site — windsurf/wing/kite gear at the centers on Kouremenos beach (Gone Surfing, Freak Surf).",
+      lessen: "Not on site — book through one of the centers on the beach.",
+      rating: "TripAdvisor 4.4/5 over 10 reviews — but ALL reviews are from 2013-2017, pre-pandemic. No verifiable reviews from the last 4 years. Sub-scores (legacy): Cleanliness 5.0, Location 4.8, Value 4.8, Rooms 3.8, Sleep Quality 3.7. Not on Booking.com. Bron-strength: 🔴 STALE — current operation unverified; treat below picture as historical.",
+      sfeer: "Per the property's own site: \"a quiet and picturesque area in Kouremenos\", olive groves, family-friendly. Current vibe unverified — review trail stalled in 2017.",
+      activiteiten: "Wind sports first; regional side trips per the property's own description (Vai 5 km, Erimoupolis, Itanos, Toplou Monastery)."
     },
     samenvatting: [
-      "Five small self-catering villas on Kouremenos beach with a swimming pool that looks out over the windsurf bay.",
-      "TripAdvisor 4.4/5 over 10 reviews — strong on cleanliness (5.0/5), location (4.8) and value (4.8).",
-      "Daily cleaning service; \"well furnished\", \"well equipped\" kitchens recur across reviewers.",
-      "Insider tip from a reviewer: \"Villa N°1 has the best view; 2 and 3 have a view on the swimming pool\".",
-      "Book direct via akti-villas.gr — not listed on Booking.com. Bron-strength: 🟢 SOLID."
+      "Small villa cluster on Kouremenos beach with a swimming pool overlooking the windsurf bay (per the property's own site).",
+      "⚠️ Review trail is stale: 10 TripAdvisor reviews, ALL from 2013-2017, none in the last 4 years. The 4.4/5 average is historical.",
+      "On Google Maps now signposted as \"Hotel Coast Village\" at the same address — possibly under different management since the older review window.",
+      "Not on Booking.com — booking is direct via akti-villas.gr or by phone.",
+      "Bron-strength: 🔴 STALE — included as a known property with location verified by LDW's pin, but current experience unverified."
     ],
     verhaal: [
-      `Akti Villas is a small five-villa cluster on the sand at Kouremenos, 20–30 m from the water with a swimming pool that overlooks the windsurf bay. The picture is consistent across TripAdvisor's 10 reviews and the regional east-Crete accommodation guides: clean, well-equipped, modestly built, friendly owners. Cleanliness gets a perfect 5.0/5 sub-score; location and value both score 4.8.`,
-      `Reviewers describe a "very nice beachfront villa with swimming pool", "brand new lux furniture" and "daily cleaning". Sub-scores for Rooms (3.8) and Sleep Quality (3.7) sit lower — likely reflecting that the apartments are simple rather than boutique, and beachfront in summer means you hear the bay. The single 1-star review (May 2017) is about a booking-process complaint with the host on a same-day reservation, not the property quality.`,
-      `Heads up: on Google Maps the building is currently signposted as "Hotel Coast Village" at this address — same place, just a different signboard since the page was created. Booking is direct via akti-villas.gr or by phone; there is no Booking.com listing, so generic booking links go to the wrong place.`
+      `Akti Villas is on Kouremenos beach — that part is verifiable: LDW pinned the location, the property's own site describes "30 metres from the beach" in "a quiet and picturesque area in Kouremenos". It is the most poorly-sourced of the five Greek stays in this guide and we owe you full honesty about that.`,
+      `The TripAdvisor review trail is 10 reviews, all between 2013 and May 2017 — nothing in the last 4 years. Those old reviews described a small villa cluster (5 units), well-equipped kitchens, a swimming pool overlooking the windsurf bay, daily cleaning, and consistent praise for cleanliness (5.0/5 sub-score). The 1-star outlier in that older trail was a booking-process complaint, not the property. But nine years is a long time. Furniture, ownership, even the property name on Google Maps ("Hotel Coast Village" now) may have changed since.`,
+      `Why we still include it: the location is verified and the property is operating (the own site is current, akti-villas.gr resolves and has 2024-style content). What we cannot do is tell you what staying there actually feels like in 2024-2026 — there are no recent guest voices to read. If you book, you'd be one of the first reviewers in years; treat it as an unknown that probably resembles its older description.`
     ],
     lagen: [
       {
         titel: "The wind — Kouremenos region",
-        bron: "Windfinder, Beach-Inspector, centre sites + LDW's first-hand visit",
+        bron: "Windfinder, Beach-Inspector, center sites + LDW's first-hand visit",
         inhoud: [
-          { kop: "High season · Jun–Sep", tekst: `Side-shore meltemi NNW–N nearly every afternoon, ~4–7 Bft. Walk from the villas to the launch.` },
-          { kop: "View from the pool", tekst: `Reviewers specifically call out the swimming pool's view of the windsurf bay — a draw for non-sailing partners who want to watch.` }
+          { kop: "High season · Jun–Sep", tekst: `Side-shore meltemi NNW–N nearly every afternoon, ~4–7 Bft. Walk from the villas to the launch.` }
         ]
       },
       {
-        titel: "The stay — Akti Villas",
-        bron: "🟢 SOLID — akti-villas.gr + TripAdvisor 4.4/5 (10 reviews) + east-Crete accommodation guides",
+        titel: "The stay — Akti Villas (older sources only)",
+        bron: "🔴 STALE — akti-villas.gr (own site, current) + TripAdvisor 4.4/5 (10 reviews, all 2013–2017) + east-Crete accommodation guides",
         inhoud: [
-          { kop: "What it is", tekst: `Five self-catering villas on Kouremenos beach. Swimming pool with bay view. Fully equipped kitchens, daily cleaning service. "Brand new lux furniture" per a returning reviewer.` },
-          { kop: "The constants", tekst: `Cleanliness scores 5.0/5; reviewers repeatedly note "very clean", "well equipped" and "friendly owners". Walking distance to several affordable restaurants.` },
-          { kop: "Weak spots", tekst: `Rooms (3.8) and Sleep Quality (3.7) are the lowest sub-scores — apartments are simple/modest rather than boutique. The one 1-star review (out of 10) is about a last-minute booking response, not the property.` },
-          { kop: "Insider tip", tekst: `Villa N°1 has the best sea view; villas 2 and 3 face the pool. Booking is direct via akti-villas.gr — no Booking.com listing.` }
+          { kop: "Offerings (from the own site)", tekst: `Five self-catering villas on Kouremenos beach. Swimming pool. Fully equipped kitchens. 30 m to the sea. Olive-grove setting.` },
+          { kop: "What older reviews said (2013–2017)", tekst: `Cleanliness 5.0/5, Location 4.8, Value 4.8 across 10 reviews. "Brand new lux furniture", daily cleaning, friendly owners. Rooms (3.8) and Sleep Quality (3.7) the weaker sub-scores even then.` },
+          { kop: "Why this is shaky", tekst: `Last review is May 2017 — nine years ago. The property is now signposted as "Hotel Coast Village" on Google Maps. Ownership or operation may have changed; we have no recent guest voices to confirm.` },
+          { kop: "Booking", tekst: `Direct via akti-villas.gr — not listed on Booking.com.` }
         ]
       }
     ],
     vergelijking: null,
-    ideaalVoor: "Couples and small families who want a self-catering villa on the beach with a pool that watches the windsurf bay.",
-    nietIdeaalAls: "You want boutique-level finishings, a surf camp with in-house lessons, or a guaranteed quiet bedroom in high season."
+    ideaalVoor: "Travellers willing to take a chance on a property with a great location but no recent review trail — and who want to book direct rather than via a platform.",
+    nietIdeaalAls: "You want the picture grounded in recent guest experience — choose Villa Amalia, Surf Beach Apartments or Flamingo instead, each with 2022+ review coverage."
   },
 
   {
@@ -1639,7 +1637,7 @@ const WAVEBASE_DATA = [
     sports: ["wind", "wing", "kite"],
     name: "Flamingo Apartments",
     town: "Palekastro",
-    tagline: "Family-run apartments in Agathia hamlet — the original host Kostas† is gone, but daughter + Marianthi & Michalis keep the standard \"impeccably high\".",
+    tagline: "Family-run apartments in Agathia hamlet — \"the only sound is cicadas\" (2024 Booking reviewer); on-site gear storage for surf trips.",
     levels: ["beginner", "intermediate", "advanced"],
     goodMonths: [5,6,7,8,9,10],
     coords: [35.1962405, 26.2638173],
@@ -1647,30 +1645,30 @@ const WAVEBASE_DATA = [
     photo: "",
     bookingUrl: "https://flamingo-apartments-palaikastro.gr/en/",
     verblijf: {
-      eten: "Self-catering apartments + studios with full kitchenettes. Welcome arrivals: tea/coffee, bottled water, cakes/ice cream/fruit during the day. Breakfast can be delivered to the apartment (per a Polish reviewer). Tavernas in Palekastro 12 min walk; restaurants \"round the corner\".",
-      afstandSpot: "Near Kouremenos beach (a short drive); Chiona beach ~1–2 km. Rooms 1–3 (first floor) have sea-view balconies looking toward Chiona.",
-      verhuur: "On-site windsurf and kitesurf gear storage. Bicycle rental and car hire arranged.",
-      lessen: "Not on site — book through one of the centres on Kouremenos.",
-      rating: "TripAdvisor 4.5/5 over 19 reviews (13 excellent, 4 good, 1 average, 1 poor, 0 terrible) — #2 of 16 condos in Palekastro. Sub-scores: Cleanliness 5.0, Value 4.9, Service 4.8, Rooms 4.7, Location 4.7, Sleep Quality 4.6. Listed on Booking, Trivago, Airbnb, KAYAK and their own site. Bron-strength: 🟢 SOLID.",
-      sfeer: "Family-run, warm. Original owner Kostas was repeatedly described as \"a dream\" and \"the manager... is proud of his team\". After his death (per a June 2025 review), his daughter and the couple Marianthi & Michalis took over — the standard \"remains impeccably high\". 3-star Giata.",
-      activiteiten: "Walking distance to Palekastro centre (10–12 min); short drive to Chiona, Vai, the Minoan settlement. Bicycle rental on site. Pet-friendly."
+      eten: "Self-catering apartments + studios with full kitchenettes (per the property site). Tavernas, mini-market and supermarket nearby; Palekastro center ~12 min walk.",
+      afstandSpot: "Near Kouremenos beach (a short drive); Chiona beach ~1–2 km. Rooms 1–3 (first floor) have sea-view balconies toward Chiona per a 2025 TripAdvisor insider tip.",
+      verhuur: "On-site windsurf and kitesurf gear storage (per the property site). Bicycle rental and car hire arranged.",
+      lessen: "Not on site — book through one of the centers on Kouremenos.",
+      rating: "Strong recent signal: 10 Booking reviews 2023-2025 (mostly 9.0-10.0). TripAdvisor 4.5/5 over 19 reviews (13 excellent, 4 good, 1 average, 1 poor) — #2 of 16 condos in Palekastro. TripAdvisor sub-scores: Cleanliness 5.0, Value 4.9, Service 4.8, Rooms 4.7. Bron-strength: 🟢 SOLID with recent coverage.",
+      sfeer: "Quiet hamlet, family-run. Aug-2023 Booking reviewer: \"Kostas is a great host!\" — but a Jun-2025 TripAdvisor review reported Kostas had died and a daughter + Marianthi & Michalis had taken over; standard \"remains impeccably high\". 3-star Giata.",
+      activiteiten: "Walking distance to Palekastro center (10–12 min); short drive to Chiona, Vai, the Minoan settlement. Bicycle rental on site. Pet-friendly."
     },
     samenvatting: [
-      "Family-run apartments in Agathia hamlet, between Palekastro centre and Kouremenos beach.",
-      "TripAdvisor 4.5/5 over 19 reviews — ranked #2 of 16 condos in Palekastro. Cleanliness scores a perfect 5.0; Value 4.9.",
-      "Hosts: original owner Kostas died; succession to his daughter + Marianthi & Michalis. Per a June 2025 reviewer the standard \"remains impeccably high\".",
-      "Practical bonus: on-site windsurf and kitesurf gear storage, bicycle rental, multilingual team (EN/GR/PL/RO).",
-      "Insider tip from a reviewer: \"For great views of the sea, try rooms 1–3\"; other rooms face a secluded garden. Bron-strength: 🟢 SOLID."
+      "Family-run apartments in Agathia hamlet — between Palekastro village and Kouremenos beach, in the olive groves.",
+      "Strong recent reviews: 10 Booking reviews 2023-2025 (mostly 9.0-10.0). TripAdvisor 4.5/5 over 19 reviews; #2 of 16 condos in Palekastro.",
+      "Ownership in transition: an Aug-2023 Booking review still named host Kostas; a Jun-2025 TripAdvisor review reported he had died and his daughter + Marianthi & Michalis had taken over.",
+      "Practical bonus: on-site windsurf and kitesurf gear storage (per the property site) — useful if you fly in with your own kit.",
+      "Honest minpunten from 2024-2025 Booking reviews: AC noise (Maria, Sep 2024), WiFi reliability (Rees), air circulation (Shamai)."
     ],
     verhaal: [
-      `Flamingo Apartments is a family-run accommodation in the small hamlet of Agathia, between Palekastro centre and Kouremenos beach. Across 19 TripAdvisor reviews (4.5/5, #2 of 16 condos in Palekastro), the picture is unusually consistent: 13 excellent, 4 good, sub-scores all 4.6–5.0. Cleanliness gets a perfect 5.0.`,
-      `The hosts are the recurring theme. Reviewers from 2013–2019 repeatedly named Kostas as the heart of the place: "a dream", "high standards and is proud of his team". His helpers Katharine, Ilios, Corina and others get named warmly too. A June 2025 reviewer reports: "After the sad death of Kostas, his daughter and the couple Marianthi and Michalis have taken over. The standard remains impeccably high and friendly without being interfering." That continuity is what holds the rating up.`,
-      `Practical details that recur: welcome arrivals (tea/coffee, water, cakes), daily housekeeping with fresh linens, well-equipped kitchen, AC, breakfast on request. On-site windsurf and kitesurf gear storage — unusual for a non-camp stay; useful if you fly in with your own kit. Insider tip from a reviewer: rooms 1–3 on the first floor get sea views toward Chiona; other rooms face a secluded garden. Honest minpunt: the 1 average + 1 poor in the 19-review distribution (not visible in the readable subset). Multilingual team (English, Greek, Polish, Romanian).`
+      `Flamingo Apartments is a family-run accommodation in the small hamlet of Agathia, between Palekastro center and Kouremenos beach. Recent Booking reviews paint a quiet, garden-and-views picture. Giorgio (Aug 2023, 9.0): "Location in the silent village of Agathia where the only sound is cicadas... the great view on the o[live trees]". Mark (UK, 2024, 9.0): "exceptionally clean, and functional, great view from balcony. Hotel owner was so welcoming". Mireia (Spain, 2024, 10): "The owners were so sweet and nice".`,
+      `On hosts and ownership transition: an Aug 2023 Booking reviewer wrote "Kostas is a great host!" — but a Jun 2025 TripAdvisor reviewer reported "After the sad death of Kostas, his daughter and the couple Marianthi and Michalis have taken over. The standard remains impeccably high". So the transition is recent; Kostas — repeatedly described as the heart of the place in older reviews — was alive at least into mid-2023. The newer team is now operating.`,
+      `Honest minpunten from 2024-2025 Booking reviews: Maria (Sep 2024) flagged "het geluid van de airco" — AC noise — as her one negative. Rees (UK, 8.0 score): "The WiFi was a bit problematic, especially getting the right code". Shamai (Israel, 8.0): air circulation issue. None are dealbreakers but they're real recurring practical points. Insider tip from a TripAdvisor reviewer: rooms 1-3 on the first floor have sea views toward Chiona; other rooms face a secluded garden.`
     ],
     lagen: [
       {
         titel: "The wind — Kouremenos region",
-        bron: "Windfinder, Beach-Inspector, centre sites + LDW's first-hand visit",
+        bron: "Windfinder, Beach-Inspector, center sites + LDW's first-hand visit",
         inhoud: [
           { kop: "High season · Jun–Sep", tekst: `Side-shore meltemi NNW–N nearly every afternoon, ~4–7 Bft. Drive ~2–3 km from Agathia to Kouremenos beach.` },
           { kop: "Why the location works", tekst: `Equidistant between Palekastro village (walkable for groceries and tavernas) and the wind. Plus on-site gear storage and bicycle rental.` }
@@ -1678,12 +1676,13 @@ const WAVEBASE_DATA = [
       },
       {
         titel: "The stay — Flamingo Apartments",
-        bron: "🟢 SOLID — TripAdvisor 4.5/5 (19 reviews) + Booking.com + Trivago + Airbnb + KAYAK + own site",
+        bron: "🟢 SOLID with recent coverage — Booking.com (10 reviews 2023-2025) + TripAdvisor 4.5/5 (19 reviews) + own site",
         inhoud: [
-          { kop: "What it is", tekst: `Family-run apartments (5-bed) and studios (3-bed) in Agathia hamlet. 7 rooms total. Each unit: kitchenette, AC, fridge, balcony or veranda. Free WiFi, free parking. Pet-friendly. Bar/lounge on site.` },
-          { kop: "The constants", tekst: `Cleanliness 5.0 across reviewers; daily housekeeping; warm welcome (tea, water, cakes, ice cream during the day). Hosts named by guests across many years.` },
-          { kop: "Ownership succession", tekst: `Founder Kostas died; daughter and couple Marianthi + Michalis took over. Per a June 2025 review the standard \"remains impeccably high\".` },
-          { kop: "Insider tip", tekst: `Rooms 1–3 on the first floor have sea-view balconies toward Chiona; other rooms have a sheltered garden view.` }
+          { kop: "Offerings", tekst: `Family-run apartments (5-bed) and studios (3-bed) in Agathia hamlet, 7 rooms. Each: kitchenette, AC, fridge, balcony or veranda. Free WiFi, free parking. Pet-friendly. Bar/lounge on site. Languages: EN/GR/PL/RO.` },
+          { kop: "The constants (recent reviews 2023-2025)", tekst: `Owners "sweet and nice" (Mireia, 2024); rooms "exceptionally clean, great view from balcony" (Mark, 2024). Quiet hamlet with "only sound is cicadas" (Giorgio, Aug 2023). Welcoming hosts cited repeatedly.` },
+          { kop: "Ownership transition (recent)", tekst: `Aug-2023 Booking reviewer Stelios: "Kostas is a great host!" Jun-2025 TripAdvisor reviewer: "After the sad death of Kostas, his daughter and the couple Marianthi and Michalis have taken over. The standard remains impeccably high." Transition occurred 2023-2025.` },
+          { kop: "Honest minpunten (recent reviews)", tekst: `AC noise (Maria, Sep 2024). WiFi reliability — "getting the right code" (Rees, 2024). Air circulation (Shamai, 2024). All are practical pain-points, none dealbreakers.` },
+          { kop: "Insider tip", tekst: `Rooms 1-3 on the first floor have sea-view balconies toward Chiona; other rooms face a sheltered garden (TripAdvisor reviewer tip).` }
         ]
       }
     ],
@@ -1707,30 +1706,30 @@ const WAVEBASE_DATA = [
     photo: "",
     bookingUrl: "https://www.villa-amalia.com/",
     verblijf: {
-      eten: "Self-catering: five apartments + two rooms with fully equipped kitchenettes. Welcome arrivals: basic kitchen stock (salt, oil, herbs); fresh fruit. Local taverna picks shared by the hosts.",
-      afstandSpot: "~2 km on the hillside above Kouremenos beach — short drive down. A reviewer notes \"15 minutes drive from Vai\" and \"easily reach the beaches of Kouremenos and Chiona\".",
-      verhuur: "Not on site — windsurf/wing/kite at the centres on Kouremenos beach.",
-      lessen: "Not on site — book through one of the centres on Kouremenos.",
-      rating: "TripAdvisor 4.7/5 over 23 reviews (17 excellent, 6 good, 0 average, 0 poor, 0 terrible — every readable review is positive). Sub-scores all 4.4–4.6. Listed on Booking.com (€60–86/night), BookSurfCamps, TripAdvisor, e-travels.gr and their own site. Bron-strength: 🟢 SOLID.",
-      sfeer: "Family-owned, returning-guest crowd. Reviewers come back \"third time this year\", \"every year\". Garden with BBQ, fishpond, flower beds; sunset terrace.",
-      activiteiten: "Walking distance to Palekastro village (2–3 km), drive to Vai (10 min), Chiona, Itanos, Toplou Monastery, Zakros Gorge."
+      eten: "Self-catering: five apartments + two rooms with fully equipped kitchenettes (per the property's own site). Multiple 2022+ Booking reviewers cite the garden, BBQ area and welcome arrivals.",
+      afstandSpot: "~2 km from Kouremenos beach on the hillside — short drive down. 10 min drive to Vai (per a 2024 reviewer).",
+      verhuur: "Not on site — windsurf/wing/kite at the centers on Kouremenos beach.",
+      lessen: "Not on site — book through one of the centers on Kouremenos.",
+      rating: "Strong recent signal: 10+ Booking reviews 2023-2026 (most 9.0-10.0). TripAdvisor 4.7/5 over 23 reviews (17 excellent, 6 good, 0 negative readable). Sub-scores 4.4-4.6. Bron-strength: 🟢 SOLID with recent coverage.",
+      sfeer: "Recurring 2022+ themes: \"felt like home\", \"end of the world feel\" (secluded), gracious hosts. Returning-guest pattern alive in 2025 (\"stayed last year, decided to return this year\" — Maaike, Aug 2025).",
+      activiteiten: "Walking/drive: Palekastro (2-3 km), Vai (10 min drive per Aug 2024 review), Chiona, Itanos, Toplou Monastery, Zakros Gorge."
     },
     samenvatting: [
-      "Seven units (five apartments + two rooms) on the hillside above Kouremenos, family-owned since the original Yorgo & Amalia Katsikalakis (former San Franciscans) opened it.",
-      "TripAdvisor 4.7/5 over 23 reviews — 17 excellent, 6 good, zero negative readable reviews.",
-      "Reviewers keep coming back: one returned a \"third time this year\"; another \"intended a couple of nights but stayed more than a week\".",
-      "The view is the pitch: every villa has its own private balcony over Kouremenos windsurf bay. Garden, BBQ, sunset terrace.",
-      "Honest minpunt: summer heat needs AC (€5/day per a 2016 reviewer); mosquitoes in season. Bron-strength: 🟢 SOLID."
+      "Seven units (five apartments + two rooms) on the hillside above Kouremenos, family-owned since Yorgo & Amalia Katsikalakis (former San Franciscans) opened it.",
+      "Strong recent reviews: Booking has 10+ reviews from 2023-2026 (most 9.0-10.0). TripAdvisor 4.7/5 over 23 reviews overall.",
+      "Returning-guest pattern still active in the 4-year window: an Aug-2025 reviewer wrote \"stayed last year, decided to return this year\".",
+      "The view is the pitch: every unit has its own balcony over Kouremenos windsurf bay (recurring across 2023-2026 reviews).",
+      "Honest fine print: ownership may be in transition — Amalia + Yorgo still named in a Jul-2023 Booking review; a 2025 TripAdvisor reviewer described a hand-over to manageress Virginie + husband Manolis."
     ],
     verhaal: [
-      `Villa Amalia is the kind of place where reviewers describe finding it as "paradise" — and then come back. Family-owned, on the hillside above Kouremenos beach, with seven self-catering units (five apartments + two rooms) each with its own balcony over the windsurf bay. The TripAdvisor distribution is striking: 17 excellent, 6 good, zero negative across 23 reviews.`,
-      `Ownership has a history. The founders Yorgo & Amalia Katsikalakis — former San Franciscans — built it up; reviewers call them out by name through to 2019. A 2025 reviewer notes a handover to "the new manageress Virginie, and her husband Manolis, a professional photographer", who also run an artisan shop called Terra Elaia in Palekastro centre. The standard, per the 2025 review, "remains impeccably high".`,
-      `Reviewers consistently mention: the breathtaking view ("we found paradise"), well-equipped kitchens (one notes the welcome arrivals stock of salt, oil and herbs), daily cleaning during the week, and a stunning garden with BBQ and a fishpond where groups of 10 can dine. Honest fine print: the apartments get hot in summer (one reviewer paid €5/day for AC); mosquitoes too. A 2016 reviewer also flagged a minor friction with key handover on arrival before the stay turned excellent.`
+      `Villa Amalia is one of the best-sourced Greek stays in this guide. Recent Booking reviews run through January 2026; across 2022-2026 the picture is consistent: gracious hosts, balcony view of the bay, "felt like home" (Georgios, Aug 2024), "absolutely beautiful... view from all units is fantastic" (Sabine, Jan 2025), "personable, hospitable and gracious hosts" (Sabine, Apr 2024). One returning guest (Maaike, Aug 2025) wrote: "stayed last year, decided to return this year as well".`,
+      `On hosts and ownership: the founders Yorgo & Amalia Katsikalakis — former San Franciscans — are still being named in Booking reviews through July 2023 ("Amalia and Yorgo are perfect hosts!" — Albano). A 2025 TripAdvisor reviewer however described "the new manageress Virginie, and her husband Manolis, a professional photographer" taking over, with the standard "impeccably high". So there has been a management transition in the recent window; both names may currently appear on site.`,
+      `Honest minpunten from recent reviews: Karsten (Sept 2025) scored 9.0 and described the location as "end of the world feel" — positive in his eyes (secluded), but a vibe-warning for guests who want bustle. The remote hillside means a drive to the beach. Pre-2022 reviewers flagged summer heat (paid AC at €5/day) and mosquitoes — neither contradicted in newer reviews, but neither specifically confirmed.`
     ],
     lagen: [
       {
         titel: "The wind — Kouremenos region",
-        bron: "Windfinder, Beach-Inspector, centre sites + LDW's first-hand visit",
+        bron: "Windfinder, Beach-Inspector, center sites + LDW's first-hand visit",
         inhoud: [
           { kop: "High season · Jun–Sep", tekst: `Side-shore meltemi NNW–N nearly every afternoon, ~4–7 Bft. Drive ~2 km down from the hillside to the beach.` },
           { kop: "Hillside view", tekst: `Per reviewers: each balcony overlooks the windsurf bay — you watch the wind fill in before driving down. Especially valued by non-sailing partners.` }
@@ -1738,18 +1737,18 @@ const WAVEBASE_DATA = [
       },
       {
         titel: "The stay — Villa Amalia",
-        bron: "🟢 SOLID — TripAdvisor 4.7/5 (23 reviews) + Booking.com + BookSurfCamps + villa-amalia.com + e-travels.gr",
+        bron: "🟢 SOLID with recent coverage — Booking.com (10+ reviews, 2023-2026) + TripAdvisor 4.7/5 (23 reviews) + BookSurfCamps + villa-amalia.com",
         inhoud: [
-          { kop: "What it is", tekst: `Family-owned hillside villa with five apartments + two rooms. Each unit has a private balcony, kitchenette, AC, fridge. Free parking, free WiFi, BBQ area, mosquito nets, sun terrace.` },
-          { kop: "The constants", tekst: `The view from the balcony is mentioned in nearly every review. Owners are praised by name (Yorgo, Amalia; now Virginie & Manolis). Welcome stock in the kitchen on arrival. Daily/weekly cleaning included.` },
-          { kop: "Who stays here", tekst: `Returning guests are unusually common ("third time", "every year"). Couples and small families wanting comfort, quiet, and a panoramic perch above the bay. Multilingual: English, Greek.` },
-          { kop: "Weak spots", tekst: `Summer heat in the apartments — AC is paid extra (€5/day per a 2016 review). Mosquitoes despite window screens. One older 2013 review flagged a small bathroom; a 2018 review gave Service 3/5 (against an otherwise 4.4 sub-score).` }
+          { kop: "What it is (offerings)", tekst: `Family-owned hillside villa with 5 apartments + 2 rooms. Each unit: private balcony, kitchenette, AC, fridge. Free parking, free WiFi, BBQ area, mosquito nets, sun terrace.` },
+          { kop: "The constants (recent reviews)", tekst: `View from balcony cited in nearly every 2023-2026 review. Hosts named warmly — Amalia + Yorgo still in 2023 Booking reviews; Virginie + Manolis described in a 2025 TripAdvisor review as new management. Welcome arrivals and BBQ garden recur.` },
+          { kop: "Who stays here", tekst: `Returning guests common ("stayed last year, decided to return" — Aug 2025). Couples and small families wanting a panoramic perch above the bay. Multilingual: English, Greek.` },
+          { kop: "Honest minpunten", tekst: `"End of the world feel" (Karsten, Sept 2025, score 9.0) — secluded location won't suit everyone. ~2 km drive down to the beach. Older reviews flagged summer heat (paid AC) and mosquitoes; not contradicted in newer reviews but not specifically confirmed.` }
         ]
       }
     ],
     vergelijking: null,
-    ideaalVoor: "Couples and small families wanting comfort, sea-view balconies, and the kind of hosts who get you bottles of raki and arrange fresh fish from the family.",
-    nietIdeaalAls: "You want to be ON the beach (it's a 2 km drive down), or you want a full surf-camp atmosphere with shared dinners."
+    ideaalVoor: "Couples and small families wanting comfort, sea-view balconies and a quiet hillside perch above the bay. People who like a returning-guest atmosphere with named hosts.",
+    nietIdeaalAls: "You want to be ON the beach (it's a 2 km drive down), or you find a remote setting isolating rather than charming."
   },
 
   {
@@ -1763,53 +1762,53 @@ const WAVEBASE_DATA = [
     levels: ["beginner", "intermediate", "advanced"],
     goodMonths: [5,6,7,8,9,10],
     coords: [35.211978, 26.2674592],
-    coordsLabel: "Verified via Google Maps pin. At the north end of Kouremenos beach (~700 m north of the bay centre).",
+    coordsLabel: "Verified via Google Maps pin. At the north end of Kouremenos beach (~700 m north of the bay center).",
     bookingUrl: "https://www.booking.com/hotel/gr/kouremenos-beach-apartments.html",
     photo: "",
     verblijf: {
-      eten: "Self-catering studios with kitchenettes. Outdoor grill / fireplace on site. Beach taverna nearby; village restaurants 2–2.5 km inland in Palekastro.",
-      afstandSpot: "~70 m to the water on Kouremenos beach (per a 2021 reviewer); walking distance to the windsurf centres.",
-      verhuur: "Not on site — windsurf/wing/kite at the centres on the same beach.",
-      lessen: "Not on site — book through the centres.",
-      rating: "TripAdvisor 4.0/5 over 8 reviews (3 excellent, 4 good, 0 average, 0 poor, 1 terrible). Sub-scores: Location 5.0, Cleanliness 4.5, Sleep Quality 4.3, Value 4.0, Rooms 3.8, Service 3.6. Booking.com listed (€71–99/night). Bron-strength: 🟢 SOLID.",
-      sfeer: "Quiet, older-style, owner-run. The host duo (Nikos Hatzidakis + Katerina) also operate Rousolakos Apartments — set back from the sea, with a secluded swimming pool, closer to Chiona beach.",
+      eten: "Self-catering studios with kitchenettes (\"full equipment kitchen, modern\" per a May 2026 reviewer). Outdoor grill / fireplace on site. Beach taverna nearby; village restaurants 2–2.5 km inland.",
+      afstandSpot: "On Kouremenos beach. A Sep 2023 reviewer: \"2 minuten lopen naar prachtig strand\" (2 min walk to a beautiful beach). The property is in the olive yard right behind the sand.",
+      verhuur: "Not on site — windsurf/wing/kite at the centers on the same beach.",
+      lessen: "Not on site — book through the centers.",
+      rating: "4 recent Booking reviews (Sep 2023–May 2026), positive: \"location was awesome, hosts were lovely\" (Jul 2025), \"excellent apartment with full equipment kitchen, modern\" (May 2026). TripAdvisor 4.0/5 over 8 older reviews (newest 2021). Sub-scores (TA): Location 5.0, Cleanliness 4.5, Sleep Quality 4.3. Bron-strength: 🟢 SOLID with recent Booking coverage.",
+      sfeer: "Quiet, owner-run, terrace \"out of the wind with sun/shade spot\" (Sep 2023 reviewer). Hosts described as \"lovely\" (Jul 2025). The same owners run Rousolakos Apartments (set back, with pool, near Chiona).",
       activiteiten: "Wind sports first; ancient Minoan town of Rousolakos nearby; Vai, Toplou Monastery, Kato Zakros Gorge in day-trip range."
     },
     samenvatting: [
-      "Owner-run beachfront studios at the north end of Kouremenos bay — ~70 m to the water.",
-      "TripAdvisor 4.0/5 over 8 reviews — Location scores a perfect 5.0; Cleanliness 4.5; Service 3.6 is the weakest dimension.",
-      "Hosts Nikos Hatzidakis + Katerina also run Rousolakos Apartments nearby (set back from sea, with secluded pool, near Chiona beach).",
-      "Pet-friendly; outdoor grill/fireplace; free parking and WiFi.",
-      "Honest minpunt: smaller review base than the others (8 reviews) and a 1-star outlier; sub-score for Rooms (3.8) suggests a simple older build. Bron-strength: 🟢 SOLID."
+      "Owner-run beachfront studios on Kouremenos bay, set in an olive yard.",
+      "Recent Booking signal: 4 reviews 2023-2026, positive — \"hosts were lovely\", \"completely perfect\" (Jul 2025), kitchen described as \"modern\" (May 2026).",
+      "TripAdvisor 4.0/5 over 8 older reviews; Location sub-score 5.0; legacy 1-star outlier in the distribution.",
+      "Hosts Nikos Hatzidakis + Katerina also run Rousolakos Apartments nearby (set back, with secluded pool, near Chiona beach).",
+      "Honest minpunten: thin recent review base (4 reviews in 4 years); one 2025 reviewer flagged \"comfort on the bed\" as a low point."
     ],
     verhaal: [
-      `Kouremenos Beach Apartments is one of two accommodations run by the same owner pair — Nikos Hatzidakis and Katerina. The 8 TripAdvisor reviews lean positive (3 excellent + 4 good vs 1 terrible), with Location at a perfect 5.0/5, Cleanliness at 4.5, and a single weak dimension: Service at 3.6.`,
-      `The standout review is from a 2013 returning guest who had stayed "every year since 2005" and described Nikos as "one of the most reliable people I have ever met". The same review explains the dual offering: Kouremenos Beach Apartments sit right on the sand at the north end of the bay; the same hosts also run Rousolakos Apartments further back, with a secluded swimming pool and easy access to Chiona beach and the ancient Minoan settlement.`,
-      `Reviewers note: ~70 m to the water, outdoor grill, peaceful, walkable to Palekastro (2–2.5 km). The 1-star review pulls the average down but the longer-trail signal is solid. Booking.com has the listing; €71–99/night.`
+      `Kouremenos Beach Apartments is owner-run by Nikos Hatzidakis and Katerina. The 4-year-window data is thinner than for Villa Amalia or Flamingo — 4 Booking reviews 2023-2026 — but consistent. A Jul 2025 reviewer: "Location was awesome, hosts were lovely, everything was completely perfect for us!" A May 2026 reviewer: "Excellent apartment with full equipment kitchen, modern".`,
+      `The 2026 "modern" descriptor is worth noting — older TripAdvisor reviews (8 reviews, newest 2021) had given Rooms a 3.8/5 sub-score, suggesting a simple build. The 2026 review's wording suggests the apartments have been refreshed since. Location consistently praised (5.0/5 on TripAdvisor); a Sep 2023 reviewer specifically liked the terrace "out of the wind with sun/shade spot" and the "2 min walk" to the beach.`,
+      `On the owners: a long-time returning visitor (2013 TripAdvisor review, outside our 4-year window) wrote that Nikos was "one of the most reliable people I have ever met" and described the dual offering — Kouremenos Beach Apartments on the bay PLUS Rousolakos Apartments set back from the sea with a secluded swimming pool, near Chiona beach and the ancient Minoan settlement. The host warmth still echoes in 2025 reviews ("hosts were lovely"). Honest minpunt from an Oct 2025 reviewer: bed comfort flagged as a low point.`
     ],
     lagen: [
       {
         titel: "The wind — Kouremenos region",
-        bron: "Windfinder, Beach-Inspector, centre sites + LDW's first-hand visit",
+        bron: "Windfinder, Beach-Inspector, center sites + LDW's first-hand visit",
         inhoud: [
-          { kop: "High season · Jun–Sep", tekst: `Side-shore meltemi NNW–N nearly every afternoon, ~4–7 Bft. North end of bay — closest to the wind direction's funnel.` },
-          { kop: "Location bonus", tekst: `Location sub-score of 5.0/5 on TripAdvisor — multiple reviewers single it out as the best part of the stay.` }
+          { kop: "High season · Jun–Sep", tekst: `Side-shore meltemi NNW–N nearly every afternoon, ~4–7 Bft. Beach is steps from the property.` },
+          { kop: "On the beach", tekst: `\"2 min walk to beautiful beach\" (Sep 2023 reviewer). \"Mooi terras uit de wind\" — terrace sheltered from the wind, with sun/shade options.` }
         ]
       },
       {
         titel: "The stay — Kouremenos Beach Apartments",
-        bron: "🟢 SOLID — TripAdvisor 4.0/5 (8 reviews) + Booking.com listing",
+        bron: "🟢 SOLID with recent coverage — Booking.com (4 reviews 2023-2026) + TripAdvisor 4.0/5 (8 older reviews)",
         inhoud: [
-          { kop: "What it is", tekst: `Owner-run beachfront studios at the north end of Kouremenos bay. Two ~30 m² apartments described in the listing; 5 rooms total. Kitchenettes, AC, fridge, outdoor grill.` },
-          { kop: "The owners", tekst: `Nikos Hatzidakis and Katerina. Per a long-time returning reviewer, Nikos visits the apartments personally and is "easily contactable if any help is needed". Both speak English.` },
-          { kop: "Sister property: Rousolakos", tekst: `Same owners also run Rousolakos Apartments nearby — set back from the sea with a secluded pool, close to Chiona beach and the Minoan ruins. Different vibe, same hosts.` },
-          { kop: "Weak spots", tekst: `Smaller review base (8 reviews); Service sub-score 3.6 is the lowest; Rooms 3.8 reflects an older simple build. One 1-star outlier in the distribution.` }
+          { kop: "Offerings", tekst: `Owner-run beachfront studios in an olive yard. Kitchenettes (described \"modern\" in a May 2026 review), AC, fridge, outdoor grill. Pet-friendly. Free parking, free WiFi.` },
+          { kop: "The owners (recent + historic)", tekst: `Nikos Hatzidakis and Katerina. Recent reviewers describe hosts as "lovely" (Jul 2025). The 2013 review (outside our window) called Nikos "one of the most reliable people I have ever met".` },
+          { kop: "Sister property: Rousolakos", tekst: `Same owners run Rousolakos Apartments nearby — set back with a secluded pool, near Chiona beach and the Minoan ruins. Different vibe, same hosts.` },
+          { kop: "Honest minpunten", tekst: `Thin recent review base (4 in 4 years). One Oct 2025 reviewer flagged "comfort on the bed" as the low point. Older TripAdvisor reviews had Service at 3.6 and Rooms at 3.8 — the 2026 "modern" descriptor suggests at least some refresh.` }
         ]
       }
     ],
     vergelijking: null,
-    ideaalVoor: "Sailors who want to be at the north end of the bay (closest to the wind funnel) with a beach grill and a hands-on host; people open to the sister Rousolakos option if they want a pool.",
-    nietIdeaalAls: "You want modern build / boutique finish, or you need the deeper review base that Surf Beach (Booking 9.1/30) and Flamingo (4.5/19) give you."
+    ideaalVoor: "Sailors who want to be on the bay with a beach grill and hands-on owners; people open to the sister Rousolakos option if they want a pool.",
+    nietIdeaalAls: "You want the deepest recent review base in the cluster — choose Surf Beach (Booking 9.1/30), Flamingo (4.5/19) or Villa Amalia (10+ recent Booking) for stronger sourcing."
   }
 ];
 
