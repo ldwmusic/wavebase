@@ -91,9 +91,42 @@ function findCountry(name) {
   return null;
 }
 
-function townStripHTML() {
+/* Backward-compatible accessors — older Morocco entries lack country/sports fields */
+function entryCountry(e) { return e.country || "Morocco"; }
+function entrySports(e)  { return e.sports  || ["wave"]; }
+
+/* Derive live country×sport combos from the actual data, so COMING SOON copy
+   updates automatically as new countries/sports get content. */
+function getLiveCombos() {
+  const map = {};
+  WAVEBASE_DATA.forEach(e => {
+    const c = entryCountry(e);
+    if (!map[c]) map[c] = new Set();
+    entrySports(e).forEach(s => map[c].add(s));
+  });
+  return Object.keys(map).map(country => {
+    const dest = findCountry(country);
+    return { country, flag: dest ? dest.flag : "", sports: Array.from(map[country]) };
+  });
+}
+
+/* Friendly country headings: known clusters spelled out, others just the country name */
+function countryHeading(country) {
+  const map = {
+    "Morocco": "Tamraght & Taghazout, Morocco",
+    "Greece":  "East Crete, Greece"
+  };
+  return map[country] || country;
+}
+
+function townStripHTML(country) {
   if (typeof WAVEBASE_TOWNS === "undefined") return "";
-  const cards = Object.keys(WAVEBASE_TOWNS).map(name => {
+  const names = Object.keys(WAVEBASE_TOWNS).filter(name => {
+    const t = WAVEBASE_TOWNS[name];
+    return !country || (t.country || "Morocco") === country;
+  });
+  if (!names.length) return "";
+  const cards = names.map(name => {
     const t = WAVEBASE_TOWNS[name];
     return `<div class="town-card">
       <h3>${t.naam}</h3>
@@ -132,13 +165,17 @@ function wireViewToggle(container) {
   });
 }
 
-/* ---- sport scope (wave / wind / kite / wing) — wave is live, rest 'soon' ---- */
+/* ---- sport scope (wave / wind / kite / wing) — 'live' is derived from data ---- */
 const WAVEBASE_SPORTS = [
-  { key: "wave", label: "Wave", live: true },
+  { key: "wave", label: "Wave" },
   { key: "wind", label: "Wind" },
   { key: "kite", label: "Kite" },
   { key: "wing", label: "Wing" }
 ];
+function sportIsLive(key) {
+  if (typeof WAVEBASE_DATA === "undefined") return key === "wave";
+  return WAVEBASE_DATA.some(e => entrySports(e).includes(key));
+}
 function getSportPref() {
   const params = new URLSearchParams(window.location.search);
   const fromUrl = params.get("sport");
@@ -154,9 +191,10 @@ function sportLabel(key) {
 }
 function sportPillsHTML(active) {
   return `<div class="sport-pills" role="tablist" aria-label="Surf sport">
-    ${WAVEBASE_SPORTS.map(s =>
-      `<button class="sport-pill ${s.key === active ? "active" : ""}${s.live ? "" : " soon"}" data-sport="${s.key}" role="tab" aria-selected="${s.key === active}">${s.label}${s.live ? "" : ' <span class="soon-tag">soon</span>'}</button>`
-    ).join("")}
+    ${WAVEBASE_SPORTS.map(s => {
+      const live = sportIsLive(s.key);
+      return `<button class="sport-pill ${s.key === active ? "active" : ""}${live ? "" : " soon"}" data-sport="${s.key}" role="tab" aria-selected="${s.key === active}">${s.label}${live ? "" : ' <span class="soon-tag">soon</span>'}</button>`;
+    }).join("")}
   </div>`;
 }
 function wireSportPills(container) {
@@ -201,40 +239,57 @@ function runSearch() {
     btn.setAttribute("aria-selected", isActive ? "true" : "false");
   });
 
-  // sport other than wave → straight to COMING SOON (with or without country)
-  if (sport !== "wave") {
-    const dest = country ? findCountry(country) : null;
-    const flag = dest ? dest.flag : "";
-    const title = country ? `${longSport[sport]} in ${country}` : longSport[sport];
-    results.innerHTML = `<section class="coming-soon">
-      ${flag ? `<div class="coming-flag">${flag}</div>` : ""}
-      <h2>Coming soon</h2>
-      <p><strong>${title}</strong> is on its way. Wave surfing in Morocco is the live sport &amp; region for now — wind, kite and wing follow.</p>
-    </section>`;
-    return;
-  }
-
-  // wave + no country yet
+  // no country yet → ask the user to pick one
   if (!country) {
     results.innerHTML = `<div class="empty"><strong>Pick a country to begin.</strong><br>
       Use the &ldquo;Where?&rdquo; picker above, or open the Destinations menu in the header.</div>`;
     return;
   }
 
-  // wave + non-Morocco country → COMING SOON
-  if (country !== "Morocco") {
+  // Data-driven: filter entries by country (with default) and sport (with default)
+  const liveCountrySportEntries = WAVEBASE_DATA.filter(e =>
+    entryCountry(e) === country && entrySports(e).includes(sport)
+  );
+
+  // No entries for this country×sport combo → COMING SOON with smart hints
+  if (liveCountrySportEntries.length === 0) {
     const dest = findCountry(country);
     const flag = dest ? dest.flag : "";
+    const title = `${longSport[sport]} in ${country}`;
+
+    // What is live for this country (other sports)?
+    const combos = getLiveCombos();
+    const thisCountry = combos.find(c => c.country === country);
+    const otherSportsHere = thisCountry ? thisCountry.sports.filter(s => s !== sport) : [];
+
+    // What countries are live for this sport?
+    const otherCountriesForSport = combos
+      .filter(c => c.country !== country && c.sports.includes(sport))
+      .map(c => `${c.flag} ${c.country}`);
+
+    let hint = "";
+    if (otherSportsHere.length) {
+      const list = otherSportsHere.map(s => longSport[s]).join(", ");
+      hint += `<p>In <strong>${country}</strong>, <strong>${list}</strong> is already live — switch the sport pill above.</p>`;
+    }
+    if (otherCountriesForSport.length) {
+      hint += `<p>For <strong>${longSport[sport]}</strong>, live countries: ${otherCountriesForSport.join(" &middot; ")}.</p>`;
+    }
+    if (!hint) {
+      hint = `<p>WaveBase is rolling out worldwide and across all surf sports — more is on its way.</p>`;
+    }
+
     results.innerHTML = `<section class="coming-soon">
-      <div class="coming-flag">${flag}</div>
+      ${flag ? `<div class="coming-flag">${flag}</div>` : ""}
       <h2>Coming soon</h2>
-      <p><strong>${country}</strong> is on its way. WaveBase is rolling out worldwide — Morocco is the live region for now.</p>
+      <p><strong>${title}</strong> is on its way.</p>
+      ${hint}
     </section>`;
     return;
   }
 
-  // wave + Morocco — apply the other filters and render the real content
-  const matches = WAVEBASE_DATA.filter(e => {
+  // Apply the secondary filters (level / month / type) inside the country×sport set
+  const matches = liveCountrySportEntries.filter(e => {
     const okL = level === "all" || e.levels.includes(level);
     const okM = month === "all" || e.goodMonths.includes(parseInt(month, 10));
     const okT = type === "all" || e.type === type;
@@ -243,16 +298,17 @@ function runSearch() {
 
   const pref = getViewPref();
   const gridClass = pref === "list" ? "grid list-view" : "grid";
+  const heading = countryHeading(country);
   let html = "";
 
   if (matches.length === 0) {
-    html += `<div class="results-head"><h2>Tamraght &amp; Taghazout, Morocco</h2></div>`;
-    html += townStripHTML();
+    html += `<div class="results-head"><h2>${heading}</h2></div>`;
+    html += townStripHTML(country);
     html += `<div class="empty"><strong>Nothing's a perfect match here.</strong><br>
-      The quick-and-dirty only covers Tamraght &amp; Taghazout for now. Try loosening a filter.</div>`;
+      Try loosening a filter — the live region only has so many entries for now.</div>`;
   } else {
-    html += `<div class="results-head"><h2>Tamraght &amp; Taghazout, Morocco</h2>${viewToggleHTML(pref)}</div>`;
-    html += townStripHTML();
+    html += `<div class="results-head"><h2>${heading}</h2>${viewToggleHTML(pref)}</div>`;
+    html += townStripHTML(country);
     const spots = matches.filter(e => e.type === "spot");
     const stays = matches.filter(e => e.type === "stay");
     if (spots.length) {
@@ -433,8 +489,12 @@ function initSpot() {
   const saved = WaveBaseAccount.isSaved(e.id);
   const comparing = WaveBaseAccount.isComparing(e.id);
 
+  const backCountry = entryCountry(e);
+  const backSports = entrySports(e);
+  const backSport = backSports.includes("wave") ? "wave" : backSports[0];
+  const backHref = `index.html?country=${encodeURIComponent(backCountry)}` + (backSport !== "wave" ? `&sport=${backSport}` : "");
   root.innerHTML = `
-    <a class="backlink" href="index.html?country=Morocco">&larr; Back to all places</a>
+    <a class="backlink" href="${backHref}">&larr; Back to all places</a>
     <div class="detail-photo ${e.type}${e.photo ? " has-photo" : ""}"${e.photo ? ` style="background-image:url('${e.photo}')"` : ""}>
       ${e.photo ? "" : `<span class="photo-placeholder">Photo coming soon</span>`}
     </div>
@@ -519,8 +579,8 @@ function initSpot() {
     this.value = "";
   });
 
-  // back link: if the user came from inside the site, use history.back() to restore their previous state
-  // (the href is the fallback for direct loads — points to Morocco since all live content is there)
+  // back link: if the user came from inside the site, use history.back() to restore their previous state.
+  // The href fallback (set above) points to this entry's country + sport.
   const back = root.querySelector(".backlink");
   if (back) {
     back.addEventListener("click", ev => {
