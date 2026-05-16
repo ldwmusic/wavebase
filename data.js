@@ -397,7 +397,7 @@ const WAVEBASE_DATA = [
       bottom:     "Sand",
       windDir:    "Trade winds — offshore in mornings, side-shore in afternoons",
       crowd:      "high",
-      source:     "Wave: Windguru GFS-Wave 16km archive (Taghazout id 549853, Apr 2025–May 2026). Wind/gust: Open-Meteo historical GFS at Taghazout 30.55N -9.73W (daytime 10–18h, same period). Water temp: Morocco Atlantic coast climatology.",
+      source:     "Wave: Windguru GFS-Wave 16km archive (Taghazout id 549853, Apr 2025–May 2026). Wind/gust/air: Open-Meteo historical GFS at 30.5469,-9.7256 (daytime 10–18h, 2021-05-16–2026-05-16, 5-year avg, shared across the cluster). Water temp: Morocco Atlantic coast climatology.",
       periods: [
         { name: "Peak winter swell", months: [11, 12, 1, 2],  inSeason: true,
           waveM: [1.5, 3.0], waterC: [16, 18] },
@@ -408,9 +408,11 @@ const WAVEBASE_DATA = [
       ],
       // J     F     M     A     M     J     J     A     S     O     N     D
       monthlyWindKn:
-        [8, 6, 8, 8, 9, 8, 7, 6, 6, 6, 6, 6],
+        
+        [6, 7, 8, 8, 8, 8, 6, 6, 6, 6, 6, 5],
       monthlyGustKn:
-        [19, 15, 20, 19, 20, 18, 17, 15, 15, 14, 14, 15],
+        
+        [16, 17, 18, 19, 20, 20, 17, 16, 17, 16, 15, 14],
       
       
       monthlyWaveM:
@@ -420,7 +422,8 @@ const WAVEBASE_DATA = [
       monthlySwellProb:
         [0.81, 0.89, 0.90, 0.78, 0.72, 0.70, 0.87, 0.58, 0.77, 0.42, 0.70, 0.97],
       monthlyAirC:
-        [19, 19, 20, 21, 22, 23, 24, 25, 25, 24, 22, 20],
+        
+        [20, 21, 21, 24, 25, 26, 31, 31, 28, 27, 24, 21],
       
 
       monthlyWaterC:
@@ -481,7 +484,7 @@ const WAVEBASE_DATA = [
       bottom:     "Sand (A-frame peaks over sand bottom)",
       windDir:    "Trade winds — offshore in mornings, side-shore in afternoons",
       crowd:      "high",
-      source:     "Wave: Windguru GFS-Wave 16km archive (Taghazout id 549853, Apr 2025–May 2026). Wind/gust: Open-Meteo historical GFS at Taghazout 30.55N -9.73W (daytime 10–18h, same period). Water temp: Morocco Atlantic coast climatology.",
+      source:     "Wave: Windguru GFS-Wave 16km archive (Taghazout id 549853, Apr 2025–May 2026). Wind/gust/air: Open-Meteo historical GFS at 30.5469,-9.7256 (daytime 10–18h, 2021-05-16–2026-05-16, 5-year avg, shared across the cluster). Water temp: Morocco Atlantic coast climatology.",
       periods: [
         { name: "Peak winter swell", months: [11, 12, 1, 2],  inSeason: true,
           waveM: [1.5, 3.0], waterC: [16, 18] },
@@ -492,9 +495,11 @@ const WAVEBASE_DATA = [
       ],
       // J     F     M     A     M     J     J     A     S     O     N     D
       monthlyWindKn:
-        [8, 6, 8, 8, 9, 8, 7, 6, 6, 6, 6, 6],
+        
+        [6, 7, 8, 8, 8, 8, 6, 6, 6, 6, 6, 5],
       monthlyGustKn:
-        [19, 15, 20, 19, 20, 18, 17, 15, 15, 14, 14, 15],
+        
+        [16, 17, 18, 19, 20, 20, 17, 16, 17, 16, 15, 14],
       
       
       monthlyWaveM:
@@ -504,7 +509,8 @@ const WAVEBASE_DATA = [
       monthlySwellProb:
         [0.81, 0.89, 0.90, 0.78, 0.72, 0.70, 0.87, 0.58, 0.77, 0.42, 0.70, 0.97],
       monthlyAirC:
-        [19, 19, 20, 21, 22, 23, 24, 25, 25, 24, 22, 20],
+        
+        [20, 21, 21, 24, 25, 26, 31, 31, 28, 27, 24, 21],
       
 
       monthlyWaterC:
@@ -565,7 +571,7 @@ const WAVEBASE_DATA = [
       bottom:     "Flat reef (shallow slab) — advanced only",
       windDir:    "Trade winds — offshore in mornings, side-shore in afternoons",
       crowd:      "low",
-      source:     "Wave: Windguru GFS-Wave 16km archive (Taghazout id 549853, Apr 2025–May 2026). Wind/gust: Open-Meteo historical GFS at Taghazout 30.55N -9.73W (daytime 10–18h, same period). Water temp: Morocco Atlantic coast climatology.",
+      source:     "Wave: Windguru GFS-Wave 16km archive (Taghazout id 549853, Apr 2025–May 2026). Wind/gust/air: Open-Meteo historical GFS at 30.5469,-9.7256 (daytime 10–18h, 2021-05-16–2026-05-16, 5-year avg, shared across the cluster). Water temp: Morocco Atlantic coast climatology.",
       periods: [
         { name: "Peak winter swell", months: [11, 12, 1, 2],  inSeason: true,
           waveM: [1.5, 3.0], waterC: [16, 18] },
@@ -576,9 +582,11 @@ const WAVEBASE_DATA = [
       ],
       // J     F     M     A     M     J     J     A     S     O     N     D
       monthlyWindKn:
-        [8, 6, 8, 8, 9, 8, 7, 6, 6, 6, 6, 6],
+        
+        [6, 7, 8, 8, 8, 8, 6, 6, 6, 6, 6, 5],
       monthlyGustKn:
-        [19, 15, 20, 19, 20, 18, 17, 15, 15, 14, 14, 15],
+        
+        [16, 17, 18, 19, 20, 20, 17, 16, 17, 16, 15, 14],
       
       
       monthlyWaveM:
@@ -588,7 +596,8 @@ const WAVEBASE_DATA = [
       monthlySwellProb:
         [0.81, 0.89, 0.90, 0.78, 0.72, 0.70, 0.87, 0.58, 0.77, 0.42, 0.70, 0.97],
       monthlyAirC:
-        [19, 19, 20, 21, 22, 23, 24, 25, 25, 24, 22, 20],
+        
+        [20, 21, 21, 24, 25, 26, 31, 31, 28, 27, 24, 21],
       
 
       monthlyWaterC:
@@ -649,7 +658,7 @@ const WAVEBASE_DATA = [
       bottom:     "Sand and rock (point break)",
       windDir:    "Trade winds — offshore in mornings, side-shore in afternoons",
       crowd:      "high",
-      source:     "Wave: Windguru GFS-Wave 16km archive (Taghazout id 549853, Apr 2025–May 2026). Wind/gust: Open-Meteo historical GFS at Taghazout 30.55N -9.73W (daytime 10–18h, same period). Water temp: Morocco Atlantic coast climatology.",
+      source:     "Wave: Windguru GFS-Wave 16km archive (Taghazout id 549853, Apr 2025–May 2026). Wind/gust/air: Open-Meteo historical GFS at 30.5469,-9.7256 (daytime 10–18h, 2021-05-16–2026-05-16, 5-year avg, shared across the cluster). Water temp: Morocco Atlantic coast climatology.",
       periods: [
         { name: "Peak winter swell", months: [11, 12, 1, 2],  inSeason: true,
           waveM: [1.5, 3.0], waterC: [16, 18] },
@@ -660,9 +669,11 @@ const WAVEBASE_DATA = [
       ],
       // J     F     M     A     M     J     J     A     S     O     N     D
       monthlyWindKn:
-        [8, 6, 8, 8, 9, 8, 7, 6, 6, 6, 6, 6],
+        
+        [6, 7, 8, 8, 8, 8, 6, 6, 6, 6, 6, 5],
       monthlyGustKn:
-        [19, 15, 20, 19, 20, 18, 17, 15, 15, 14, 14, 15],
+        
+        [16, 17, 18, 19, 20, 20, 17, 16, 17, 16, 15, 14],
       
       
       monthlyWaveM:
@@ -672,7 +683,8 @@ const WAVEBASE_DATA = [
       monthlySwellProb:
         [0.81, 0.89, 0.90, 0.78, 0.72, 0.70, 0.87, 0.58, 0.77, 0.42, 0.70, 0.97],
       monthlyAirC:
-        [19, 19, 20, 21, 22, 23, 24, 25, 25, 24, 22, 20],
+        
+        [20, 21, 21, 24, 25, 26, 31, 31, 28, 27, 24, 21],
       
 
       monthlyWaterC:
@@ -733,7 +745,7 @@ const WAVEBASE_DATA = [
       bottom:     "Sand (very sheltered)",
       windDir:    "Trade winds — offshore in mornings, side-shore in afternoons",
       crowd:      "high",
-      source:     "Wave: Windguru GFS-Wave 16km archive (Taghazout id 549853, Apr 2025–May 2026). Wind/gust: Open-Meteo historical GFS at Taghazout 30.55N -9.73W (daytime 10–18h, same period). Water temp: Morocco Atlantic coast climatology.",
+      source:     "Wave: Windguru GFS-Wave 16km archive (Taghazout id 549853, Apr 2025–May 2026). Wind/gust/air: Open-Meteo historical GFS at 30.5469,-9.7256 (daytime 10–18h, 2021-05-16–2026-05-16, 5-year avg, shared across the cluster). Water temp: Morocco Atlantic coast climatology.",
       periods: [
         { name: "Peak winter swell", months: [11, 12, 1, 2],  inSeason: true,
           waveM: [1.5, 3.0], waterC: [16, 18] },
@@ -744,9 +756,11 @@ const WAVEBASE_DATA = [
       ],
       // J     F     M     A     M     J     J     A     S     O     N     D
       monthlyWindKn:
-        [8, 6, 8, 8, 9, 8, 7, 6, 6, 6, 6, 6],
+        
+        [6, 7, 8, 8, 8, 8, 6, 6, 6, 6, 6, 5],
       monthlyGustKn:
-        [19, 15, 20, 19, 20, 18, 17, 15, 15, 14, 14, 15],
+        
+        [16, 17, 18, 19, 20, 20, 17, 16, 17, 16, 15, 14],
       
       
       monthlyWaveM:
@@ -756,7 +770,8 @@ const WAVEBASE_DATA = [
       monthlySwellProb:
         [0.81, 0.89, 0.90, 0.78, 0.72, 0.70, 0.87, 0.58, 0.77, 0.42, 0.70, 0.97],
       monthlyAirC:
-        [19, 19, 20, 21, 22, 23, 24, 25, 25, 24, 22, 20],
+        
+        [20, 21, 21, 24, 25, 26, 31, 31, 28, 27, 24, 21],
       
 
       monthlyWaterC:
@@ -817,7 +832,7 @@ const WAVEBASE_DATA = [
       bottom:     "Deep reef (behaves like beach break)",
       windDir:    "Trade winds — offshore in mornings, side-shore in afternoons",
       crowd:      "low",
-      source:     "Wave: Windguru GFS-Wave 16km archive (Taghazout id 549853, Apr 2025–May 2026). Wind/gust: Open-Meteo historical GFS at Taghazout 30.55N -9.73W (daytime 10–18h, same period). Water temp: Morocco Atlantic coast climatology.",
+      source:     "Wave: Windguru GFS-Wave 16km archive (Taghazout id 549853, Apr 2025–May 2026). Wind/gust/air: Open-Meteo historical GFS at 30.5469,-9.7256 (daytime 10–18h, 2021-05-16–2026-05-16, 5-year avg, shared across the cluster). Water temp: Morocco Atlantic coast climatology.",
       periods: [
         { name: "Peak winter swell", months: [11, 12, 1, 2],  inSeason: true,
           waveM: [1.5, 3.0], waterC: [16, 18] },
@@ -828,9 +843,11 @@ const WAVEBASE_DATA = [
       ],
       // J     F     M     A     M     J     J     A     S     O     N     D
       monthlyWindKn:
-        [8, 6, 8, 8, 9, 8, 7, 6, 6, 6, 6, 6],
+        
+        [6, 7, 8, 8, 8, 8, 6, 6, 6, 6, 6, 5],
       monthlyGustKn:
-        [19, 15, 20, 19, 20, 18, 17, 15, 15, 14, 14, 15],
+        
+        [16, 17, 18, 19, 20, 20, 17, 16, 17, 16, 15, 14],
       
       
       monthlyWaveM:
@@ -840,7 +857,8 @@ const WAVEBASE_DATA = [
       monthlySwellProb:
         [0.81, 0.89, 0.90, 0.78, 0.72, 0.70, 0.87, 0.58, 0.77, 0.42, 0.70, 0.97],
       monthlyAirC:
-        [19, 19, 20, 21, 22, 23, 24, 25, 25, 24, 22, 20],
+        
+        [20, 21, 21, 24, 25, 26, 31, 31, 28, 27, 24, 21],
       
 
       monthlyWaterC:
@@ -901,7 +919,7 @@ const WAVEBASE_DATA = [
       bottom:     "Reef (left-hand, pitching)",
       windDir:    "Trade winds — offshore in mornings, side-shore in afternoons",
       crowd:      "low",
-      source:     "Wave: Windguru GFS-Wave 16km archive (Taghazout id 549853, Apr 2025–May 2026). Wind/gust: Open-Meteo historical GFS at Taghazout 30.55N -9.73W (daytime 10–18h, same period). Water temp: Morocco Atlantic coast climatology.",
+      source:     "Wave: Windguru GFS-Wave 16km archive (Taghazout id 549853, Apr 2025–May 2026). Wind/gust/air: Open-Meteo historical GFS at 30.5469,-9.7256 (daytime 10–18h, 2021-05-16–2026-05-16, 5-year avg, shared across the cluster). Water temp: Morocco Atlantic coast climatology.",
       periods: [
         { name: "Peak winter swell", months: [11, 12, 1, 2],  inSeason: true,
           waveM: [1.5, 3.0], waterC: [16, 18] },
@@ -912,9 +930,11 @@ const WAVEBASE_DATA = [
       ],
       // J     F     M     A     M     J     J     A     S     O     N     D
       monthlyWindKn:
-        [8, 6, 8, 8, 9, 8, 7, 6, 6, 6, 6, 6],
+        
+        [6, 7, 8, 8, 8, 8, 6, 6, 6, 6, 6, 5],
       monthlyGustKn:
-        [19, 15, 20, 19, 20, 18, 17, 15, 15, 14, 14, 15],
+        
+        [16, 17, 18, 19, 20, 20, 17, 16, 17, 16, 15, 14],
       
       
       monthlyWaveM:
@@ -924,7 +944,8 @@ const WAVEBASE_DATA = [
       monthlySwellProb:
         [0.81, 0.89, 0.90, 0.78, 0.72, 0.70, 0.87, 0.58, 0.77, 0.42, 0.70, 0.97],
       monthlyAirC:
-        [19, 19, 20, 21, 22, 23, 24, 25, 25, 24, 22, 20],
+        
+        [20, 21, 21, 24, 25, 26, 31, 31, 28, 27, 24, 21],
       
 
       monthlyWaterC:
@@ -986,7 +1007,7 @@ const WAVEBASE_DATA = [
       bottom:     "Sand with some rocks",
       windDir:    "Trade winds — offshore in mornings, side-shore in afternoons",
       crowd:      "moderate",
-      source:     "Wave: Windguru GFS-Wave 16km archive (Taghazout id 549853, Apr 2025–May 2026). Wind/gust: Open-Meteo historical GFS at Taghazout 30.55N -9.73W (daytime 10–18h, same period). Water temp: Morocco Atlantic coast climatology.",
+      source:     "Wave: Windguru GFS-Wave 16km archive (Taghazout id 549853, Apr 2025–May 2026). Wind/gust/air: Open-Meteo historical GFS at 30.5469,-9.7256 (daytime 10–18h, 2021-05-16–2026-05-16, 5-year avg, shared across the cluster). Water temp: Morocco Atlantic coast climatology.",
       periods: [
         { name: "Peak winter swell", months: [11, 12, 1, 2],  inSeason: true,
           waveM: [1.5, 3.0], waterC: [16, 18] },
@@ -997,9 +1018,11 @@ const WAVEBASE_DATA = [
       ],
       // J     F     M     A     M     J     J     A     S     O     N     D
       monthlyWindKn:
-        [8, 6, 8, 8, 9, 8, 7, 6, 6, 6, 6, 6],
+        
+        [6, 7, 8, 8, 8, 8, 6, 6, 6, 6, 6, 5],
       monthlyGustKn:
-        [19, 15, 20, 19, 20, 18, 17, 15, 15, 14, 14, 15],
+        
+        [16, 17, 18, 19, 20, 20, 17, 16, 17, 16, 15, 14],
       
       
       monthlyWaveM:
@@ -1009,7 +1032,8 @@ const WAVEBASE_DATA = [
       monthlySwellProb:
         [0.81, 0.89, 0.90, 0.78, 0.72, 0.70, 0.87, 0.58, 0.77, 0.42, 0.70, 0.97],
       monthlyAirC:
-        [19, 19, 20, 21, 22, 23, 24, 25, 25, 24, 22, 20],
+        
+        [20, 21, 21, 24, 25, 26, 31, 31, 28, 27, 24, 21],
       
 
       monthlyWaterC:
@@ -1070,7 +1094,7 @@ const WAVEBASE_DATA = [
       bottom:     "Sand-and-reef sandbar (A-frame peaks)",
       windDir:    "Trade winds — offshore in mornings, side-shore in afternoons",
       crowd:      "moderate",
-      source:     "Wave: Windguru GFS-Wave 16km archive (Taghazout id 549853, Apr 2025–May 2026). Wind/gust: Open-Meteo historical GFS at Taghazout 30.55N -9.73W (daytime 10–18h, same period). Water temp: Morocco Atlantic coast climatology.",
+      source:     "Wave: Windguru GFS-Wave 16km archive (Taghazout id 549853, Apr 2025–May 2026). Wind/gust/air: Open-Meteo historical GFS at 30.5469,-9.7256 (daytime 10–18h, 2021-05-16–2026-05-16, 5-year avg, shared across the cluster). Water temp: Morocco Atlantic coast climatology.",
       periods: [
         { name: "Peak winter swell", months: [11, 12, 1, 2],  inSeason: true,
           waveM: [1.5, 3.0], waterC: [16, 18] },
@@ -1081,9 +1105,11 @@ const WAVEBASE_DATA = [
       ],
       // J     F     M     A     M     J     J     A     S     O     N     D
       monthlyWindKn:
-        [8, 6, 8, 8, 9, 8, 7, 6, 6, 6, 6, 6],
+        
+        [6, 7, 8, 8, 8, 8, 6, 6, 6, 6, 6, 5],
       monthlyGustKn:
-        [19, 15, 20, 19, 20, 18, 17, 15, 15, 14, 14, 15],
+        
+        [16, 17, 18, 19, 20, 20, 17, 16, 17, 16, 15, 14],
       
       
       monthlyWaveM:
@@ -1093,7 +1119,8 @@ const WAVEBASE_DATA = [
       monthlySwellProb:
         [0.81, 0.89, 0.90, 0.78, 0.72, 0.70, 0.87, 0.58, 0.77, 0.42, 0.70, 0.97],
       monthlyAirC:
-        [19, 19, 20, 21, 22, 23, 24, 25, 25, 24, 22, 20],
+        
+        [20, 21, 21, 24, 25, 26, 31, 31, 28, 27, 24, 21],
       
 
       monthlyWaterC:
@@ -1155,7 +1182,7 @@ const WAVEBASE_DATA = [
       bottom:     "Sand and rock (right-hand point)",
       windDir:    "Trade winds — offshore in mornings, side-shore in afternoons",
       crowd:      "high",
-      source:     "Wave: Windguru GFS-Wave 16km archive (Taghazout id 549853, Apr 2025–May 2026). Wind/gust: Open-Meteo historical GFS at Taghazout 30.55N -9.73W (daytime 10–18h, same period). Water temp: Morocco Atlantic coast climatology.",
+      source:     "Wave: Windguru GFS-Wave 16km archive (Taghazout id 549853, Apr 2025–May 2026). Wind/gust/air: Open-Meteo historical GFS at 30.5469,-9.7256 (daytime 10–18h, 2021-05-16–2026-05-16, 5-year avg, shared across the cluster). Water temp: Morocco Atlantic coast climatology.",
       periods: [
         { name: "Peak winter swell", months: [11, 12, 1, 2],  inSeason: true,
           waveM: [1.5, 3.0], waterC: [16, 18] },
@@ -1166,9 +1193,11 @@ const WAVEBASE_DATA = [
       ],
       // J     F     M     A     M     J     J     A     S     O     N     D
       monthlyWindKn:
-        [8, 6, 8, 8, 9, 8, 7, 6, 6, 6, 6, 6],
+        
+        [6, 7, 8, 8, 8, 8, 6, 6, 6, 6, 6, 5],
       monthlyGustKn:
-        [19, 15, 20, 19, 20, 18, 17, 15, 15, 14, 14, 15],
+        
+        [16, 17, 18, 19, 20, 20, 17, 16, 17, 16, 15, 14],
       
       
       monthlyWaveM:
@@ -1178,7 +1207,8 @@ const WAVEBASE_DATA = [
       monthlySwellProb:
         [0.81, 0.89, 0.90, 0.78, 0.72, 0.70, 0.87, 0.58, 0.77, 0.42, 0.70, 0.97],
       monthlyAirC:
-        [19, 19, 20, 21, 22, 23, 24, 25, 25, 24, 22, 20],
+        
+        [20, 21, 21, 24, 25, 26, 31, 31, 28, 27, 24, 21],
       
 
       monthlyWaterC:
@@ -1239,7 +1269,7 @@ const WAVEBASE_DATA = [
       bottom:     "Sand and rock (point break)",
       windDir:    "Trade winds — offshore in mornings, side-shore in afternoons",
       crowd:      "high",
-      source:     "Wave: Windguru GFS-Wave 16km archive (Taghazout id 549853, Apr 2025–May 2026). Wind/gust: Open-Meteo historical GFS at Taghazout 30.55N -9.73W (daytime 10–18h, same period). Water temp: Morocco Atlantic coast climatology.",
+      source:     "Wave: Windguru GFS-Wave 16km archive (Taghazout id 549853, Apr 2025–May 2026). Wind/gust/air: Open-Meteo historical GFS at 30.5469,-9.7256 (daytime 10–18h, 2021-05-16–2026-05-16, 5-year avg, shared across the cluster). Water temp: Morocco Atlantic coast climatology.",
       periods: [
         { name: "Peak winter swell", months: [11, 12, 1, 2],  inSeason: true,
           waveM: [1.5, 3.0], waterC: [16, 18] },
@@ -1250,9 +1280,11 @@ const WAVEBASE_DATA = [
       ],
       // J     F     M     A     M     J     J     A     S     O     N     D
       monthlyWindKn:
-        [8, 6, 8, 8, 9, 8, 7, 6, 6, 6, 6, 6],
+        
+        [6, 7, 8, 8, 8, 8, 6, 6, 6, 6, 6, 5],
       monthlyGustKn:
-        [19, 15, 20, 19, 20, 18, 17, 15, 15, 14, 14, 15],
+        
+        [16, 17, 18, 19, 20, 20, 17, 16, 17, 16, 15, 14],
       
       
       monthlyWaveM:
@@ -1262,7 +1294,8 @@ const WAVEBASE_DATA = [
       monthlySwellProb:
         [0.81, 0.89, 0.90, 0.78, 0.72, 0.70, 0.87, 0.58, 0.77, 0.42, 0.70, 0.97],
       monthlyAirC:
-        [19, 19, 20, 21, 22, 23, 24, 25, 25, 24, 22, 20],
+        
+        [20, 21, 21, 24, 25, 26, 31, 31, 28, 27, 24, 21],
       
 
       monthlyWaterC:
@@ -1324,7 +1357,7 @@ const WAVEBASE_DATA = [
       bottom:     "Sand and rock (point + beach mix)",
       windDir:    "Trade winds — offshore in mornings, side-shore in afternoons",
       crowd:      "moderate",
-      source:     "Wave: Windguru GFS-Wave 16km archive (Taghazout id 549853, Apr 2025–May 2026). Wind/gust: Open-Meteo historical GFS at Taghazout 30.55N -9.73W (daytime 10–18h, same period). Water temp: Morocco Atlantic coast climatology.",
+      source:     "Wave: Windguru GFS-Wave 16km archive (Taghazout id 549853, Apr 2025–May 2026). Wind/gust/air: Open-Meteo historical GFS at 30.5469,-9.7256 (daytime 10–18h, 2021-05-16–2026-05-16, 5-year avg, shared across the cluster). Water temp: Morocco Atlantic coast climatology.",
       periods: [
         { name: "Peak winter swell", months: [11, 12, 1, 2],  inSeason: true,
           waveM: [1.5, 3.0], waterC: [16, 18] },
@@ -1335,9 +1368,11 @@ const WAVEBASE_DATA = [
       ],
       // J     F     M     A     M     J     J     A     S     O     N     D
       monthlyWindKn:
-        [8, 6, 8, 8, 9, 8, 7, 6, 6, 6, 6, 6],
+        
+        [6, 7, 8, 8, 8, 8, 6, 6, 6, 6, 6, 5],
       monthlyGustKn:
-        [19, 15, 20, 19, 20, 18, 17, 15, 15, 14, 14, 15],
+        
+        [16, 17, 18, 19, 20, 20, 17, 16, 17, 16, 15, 14],
       
       
       monthlyWaveM:
@@ -1347,7 +1382,8 @@ const WAVEBASE_DATA = [
       monthlySwellProb:
         [0.81, 0.89, 0.90, 0.78, 0.72, 0.70, 0.87, 0.58, 0.77, 0.42, 0.70, 0.97],
       monthlyAirC:
-        [19, 19, 20, 21, 22, 23, 24, 25, 25, 24, 22, 20],
+        
+        [20, 21, 21, 24, 25, 26, 31, 31, 28, 27, 24, 21],
       
 
       monthlyWaterC:
@@ -1408,7 +1444,7 @@ const WAVEBASE_DATA = [
       bottom:     "Reef plateau + sand",
       windDir:    "Trade winds — offshore in mornings, side-shore in afternoons",
       crowd:      "moderate",
-      source:     "Wave: Windguru GFS-Wave 16km archive (Taghazout id 549853, Apr 2025–May 2026). Wind/gust: Open-Meteo historical GFS at Taghazout 30.55N -9.73W (daytime 10–18h, same period). Water temp: Morocco Atlantic coast climatology.",
+      source:     "Wave: Windguru GFS-Wave 16km archive (Taghazout id 549853, Apr 2025–May 2026). Wind/gust/air: Open-Meteo historical GFS at 30.5469,-9.7256 (daytime 10–18h, 2021-05-16–2026-05-16, 5-year avg, shared across the cluster). Water temp: Morocco Atlantic coast climatology.",
       periods: [
         { name: "Peak winter swell", months: [11, 12, 1, 2],  inSeason: true,
           waveM: [1.5, 3.0], waterC: [16, 18] },
@@ -1419,9 +1455,11 @@ const WAVEBASE_DATA = [
       ],
       // J     F     M     A     M     J     J     A     S     O     N     D
       monthlyWindKn:
-        [8, 6, 8, 8, 9, 8, 7, 6, 6, 6, 6, 6],
+        
+        [6, 7, 8, 8, 8, 8, 6, 6, 6, 6, 6, 5],
       monthlyGustKn:
-        [19, 15, 20, 19, 20, 18, 17, 15, 15, 14, 14, 15],
+        
+        [16, 17, 18, 19, 20, 20, 17, 16, 17, 16, 15, 14],
       
       
       monthlyWaveM:
@@ -1431,7 +1469,8 @@ const WAVEBASE_DATA = [
       monthlySwellProb:
         [0.81, 0.89, 0.90, 0.78, 0.72, 0.70, 0.87, 0.58, 0.77, 0.42, 0.70, 0.97],
       monthlyAirC:
-        [19, 19, 20, 21, 22, 23, 24, 25, 25, 24, 22, 20],
+        
+        [20, 21, 21, 24, 25, 26, 31, 31, 28, 27, 24, 21],
       
 
       monthlyWaterC:
@@ -1492,7 +1531,7 @@ const WAVEBASE_DATA = [
       bottom:     "Hard rock reef (A-frames)",
       windDir:    "Trade winds — offshore in mornings, side-shore in afternoons",
       crowd:      "moderate",
-      source:     "Wave: Windguru GFS-Wave 16km archive (Taghazout id 549853, Apr 2025–May 2026). Wind/gust: Open-Meteo historical GFS at Taghazout 30.55N -9.73W (daytime 10–18h, same period). Water temp: Morocco Atlantic coast climatology.",
+      source:     "Wave: Windguru GFS-Wave 16km archive (Taghazout id 549853, Apr 2025–May 2026). Wind/gust/air: Open-Meteo historical GFS at 30.5469,-9.7256 (daytime 10–18h, 2021-05-16–2026-05-16, 5-year avg, shared across the cluster). Water temp: Morocco Atlantic coast climatology.",
       periods: [
         { name: "Peak winter swell", months: [11, 12, 1, 2],  inSeason: true,
           waveM: [1.5, 3.0], waterC: [16, 18] },
@@ -1503,9 +1542,11 @@ const WAVEBASE_DATA = [
       ],
       // J     F     M     A     M     J     J     A     S     O     N     D
       monthlyWindKn:
-        [8, 6, 8, 8, 9, 8, 7, 6, 6, 6, 6, 6],
+        
+        [6, 7, 8, 8, 8, 8, 6, 6, 6, 6, 6, 5],
       monthlyGustKn:
-        [19, 15, 20, 19, 20, 18, 17, 15, 15, 14, 14, 15],
+        
+        [16, 17, 18, 19, 20, 20, 17, 16, 17, 16, 15, 14],
       
       
       monthlyWaveM:
@@ -1515,7 +1556,8 @@ const WAVEBASE_DATA = [
       monthlySwellProb:
         [0.81, 0.89, 0.90, 0.78, 0.72, 0.70, 0.87, 0.58, 0.77, 0.42, 0.70, 0.97],
       monthlyAirC:
-        [19, 19, 20, 21, 22, 23, 24, 25, 25, 24, 22, 20],
+        
+        [20, 21, 21, 24, 25, 26, 31, 31, 28, 27, 24, 21],
       
 
       monthlyWaterC:
@@ -1577,7 +1619,7 @@ const WAVEBASE_DATA = [
       bottom:     "Flat reef / rock (long right point)",
       windDir:    "Trade winds — offshore in mornings, side-shore in afternoons",
       crowd:      "low",
-      source:     "Wave: Windguru GFS-Wave 16km archive (Taghazout id 549853, Apr 2025–May 2026). Wind/gust: Open-Meteo historical GFS at Taghazout 30.55N -9.73W (daytime 10–18h, same period). Water temp: Morocco Atlantic coast climatology.",
+      source:     "Wave: Windguru GFS-Wave 16km archive (Taghazout id 549853, Apr 2025–May 2026). Wind/gust/air: Open-Meteo historical GFS at 30.5469,-9.7256 (daytime 10–18h, 2021-05-16–2026-05-16, 5-year avg, shared across the cluster). Water temp: Morocco Atlantic coast climatology.",
       periods: [
         { name: "Peak winter swell", months: [11, 12, 1, 2],  inSeason: true,
           waveM: [1.5, 3.0], waterC: [16, 18] },
@@ -1588,9 +1630,11 @@ const WAVEBASE_DATA = [
       ],
       // J     F     M     A     M     J     J     A     S     O     N     D
       monthlyWindKn:
-        [8, 6, 8, 8, 9, 8, 7, 6, 6, 6, 6, 6],
+        
+        [6, 7, 8, 8, 8, 8, 6, 6, 6, 6, 6, 5],
       monthlyGustKn:
-        [19, 15, 20, 19, 20, 18, 17, 15, 15, 14, 14, 15],
+        
+        [16, 17, 18, 19, 20, 20, 17, 16, 17, 16, 15, 14],
       
       
       monthlyWaveM:
@@ -1600,7 +1644,8 @@ const WAVEBASE_DATA = [
       monthlySwellProb:
         [0.81, 0.89, 0.90, 0.78, 0.72, 0.70, 0.87, 0.58, 0.77, 0.42, 0.70, 0.97],
       monthlyAirC:
-        [19, 19, 20, 21, 22, 23, 24, 25, 25, 24, 22, 20],
+        
+        [20, 21, 21, 24, 25, 26, 31, 31, 28, 27, 24, 21],
       
 
       monthlyWaterC:
@@ -1661,7 +1706,7 @@ const WAVEBASE_DATA = [
       bottom:     "Rock and boulders (reef, right)",
       windDir:    "Trade winds — offshore in mornings, side-shore in afternoons",
       crowd:      "low",
-      source:     "Wave: Windguru GFS-Wave 16km archive (Taghazout id 549853, Apr 2025–May 2026). Wind/gust: Open-Meteo historical GFS at Taghazout 30.55N -9.73W (daytime 10–18h, same period). Water temp: Morocco Atlantic coast climatology.",
+      source:     "Wave: Windguru GFS-Wave 16km archive (Taghazout id 549853, Apr 2025–May 2026). Wind/gust/air: Open-Meteo historical GFS at 30.5469,-9.7256 (daytime 10–18h, 2021-05-16–2026-05-16, 5-year avg, shared across the cluster). Water temp: Morocco Atlantic coast climatology.",
       periods: [
         { name: "Peak winter swell", months: [11, 12, 1, 2],  inSeason: true,
           waveM: [1.5, 3.0], waterC: [16, 18] },
@@ -1672,9 +1717,11 @@ const WAVEBASE_DATA = [
       ],
       // J     F     M     A     M     J     J     A     S     O     N     D
       monthlyWindKn:
-        [8, 6, 8, 8, 9, 8, 7, 6, 6, 6, 6, 6],
+        
+        [6, 7, 8, 8, 8, 8, 6, 6, 6, 6, 6, 5],
       monthlyGustKn:
-        [19, 15, 20, 19, 20, 18, 17, 15, 15, 14, 14, 15],
+        
+        [16, 17, 18, 19, 20, 20, 17, 16, 17, 16, 15, 14],
       
       
       monthlyWaveM:
@@ -1684,7 +1731,8 @@ const WAVEBASE_DATA = [
       monthlySwellProb:
         [0.81, 0.89, 0.90, 0.78, 0.72, 0.70, 0.87, 0.58, 0.77, 0.42, 0.70, 0.97],
       monthlyAirC:
-        [19, 19, 20, 21, 22, 23, 24, 25, 25, 24, 22, 20],
+        
+        [20, 21, 21, 24, 25, 26, 31, 31, 28, 27, 24, 21],
       
 
       monthlyWaterC:
@@ -1746,7 +1794,7 @@ const WAVEBASE_DATA = [
       bottom:     "Sand (soft rollers)",
       windDir:    "Trade winds — offshore in mornings, side-shore in afternoons",
       crowd:      "high",
-      source:     "Wave: Windguru GFS-Wave 16km archive (Taghazout id 549853, Apr 2025–May 2026). Wind/gust: Open-Meteo historical GFS at Taghazout 30.55N -9.73W (daytime 10–18h, same period). Water temp: Morocco Atlantic coast climatology.",
+      source:     "Wave: Windguru GFS-Wave 16km archive (Taghazout id 549853, Apr 2025–May 2026). Wind/gust/air: Open-Meteo historical GFS at 30.5469,-9.7256 (daytime 10–18h, 2021-05-16–2026-05-16, 5-year avg, shared across the cluster). Water temp: Morocco Atlantic coast climatology.",
       periods: [
         { name: "Peak winter swell", months: [11, 12, 1, 2],  inSeason: true,
           waveM: [1.5, 3.0], waterC: [16, 18] },
@@ -1757,9 +1805,11 @@ const WAVEBASE_DATA = [
       ],
       // J     F     M     A     M     J     J     A     S     O     N     D
       monthlyWindKn:
-        [8, 6, 8, 8, 9, 8, 7, 6, 6, 6, 6, 6],
+        
+        [6, 7, 8, 8, 8, 8, 6, 6, 6, 6, 6, 5],
       monthlyGustKn:
-        [19, 15, 20, 19, 20, 18, 17, 15, 15, 14, 14, 15],
+        
+        [16, 17, 18, 19, 20, 20, 17, 16, 17, 16, 15, 14],
       
       
       monthlyWaveM:
@@ -1769,7 +1819,8 @@ const WAVEBASE_DATA = [
       monthlySwellProb:
         [0.81, 0.89, 0.90, 0.78, 0.72, 0.70, 0.87, 0.58, 0.77, 0.42, 0.70, 0.97],
       monthlyAirC:
-        [19, 19, 20, 21, 22, 23, 24, 25, 25, 24, 22, 20],
+        
+        [20, 21, 21, 24, 25, 26, 31, 31, 28, 27, 24, 21],
       
 
       monthlyWaterC:
@@ -1854,7 +1905,7 @@ const WAVEBASE_DATA = [
       waveType:   "Flat inside · small wave on outer reef",
       bottom:     "Sand · rocky reef at the north end",
       crowd:      "moderate",
-      source:     "Wind/gust/reliability: Windguru GFS 13km archive (Kouremenos id 49261), daytime 10–18h, Apr 2025–May 2026. Water temp: East Crete Mediterranean climatology.",
+      source:     "Wind/gust/air: Open-Meteo historical GFS at 35.2058,26.2706 (daytime 10–18h, 2021-05-16–2026-05-16, 5-year avg). Water temp: East Crete Mediterranean climatology.",
       periods: [
         { name: "Peak",     months: [7, 8],     inSeason: true,
           windKn: [20, 28], waterC: [23, 25], waveM: [0.5, 1.5] },
@@ -1871,12 +1922,15 @@ const WAVEBASE_DATA = [
         [0.52, 0.46, 0.55, 0.29, 0.26, 0.60, 0.42, 0.55, 0.53, 0.10, 0.13, 0.29],
       // Per-month avg wind in knots — weighted from Windguru Bft distribution.
       monthlyWindKn:
-        [16, 14, 16, 12, 12, 18, 15, 17, 18, 9, 11, 13],
+        
+        [11, 12, 12, 11, 11, 14, 16, 13, 13, 11, 10, 10],
       // Per-month sea-water temperature in °C — typical East Crete coastal values.
       monthlyGustKn:
-        [19, 18, 17, 14, 14, 23, 17, 19, 20, 11, 12, 15],
+        
+        [23, 25, 25, 24, 25, 29, 34, 29, 28, 25, 22, 21],
       monthlyAirC:
-        [15, 16, 15, 18, 21, 25, 28, 27, 25, 22, 20, 16],
+        
+        [15, 15, 16, 19, 23, 27, 29, 29, 27, 23, 20, 17],
       
 
       monthlyWaterC:
@@ -1937,7 +1991,7 @@ const WAVEBASE_DATA = [
       waveType:   "Choppy on Tenda side · flatter on Eligas side",
       bottom:     "Rocky bay",
       crowd:      "low",
-      source:     "Wind/gust/reliability: Windguru GFS 13km archive (Tenda Bay id 49260), daytime 10–18h, Apr 2025–May 2026. Water temp: East Crete Mediterranean climatology.",
+      source:     "Wind/gust/air: Open-Meteo historical GFS at 35.2868,26.2888 (daytime 10–18h, 2021-05-16–2026-05-16, 5-year avg). Water temp: East Crete Mediterranean climatology.",
       periods: [
         { name: "Peak",     months: [7, 8],     inSeason: true,
           windKn: [18, 28], waterC: [23, 25], waveM: [0.5, 1.5] },
@@ -1952,11 +2006,14 @@ const WAVEBASE_DATA = [
       monthlyWindProb:
         [0.48, 0.39, 0.52, 0.31, 0.28, 0.63, 0.45, 0.55, 0.50, 0.10, 0.13, 0.29],
       monthlyWindKn:
-        [16, 14, 16, 13, 12, 19, 15, 17, 18, 9, 11, 14],
+        
+        [11, 12, 12, 11, 11, 14, 16, 13, 13, 11, 10, 10],
       monthlyGustKn:
-        [19, 17, 17, 15, 15, 24, 19, 20, 21, 10, 12, 15],
+        
+        [23, 25, 25, 24, 25, 29, 34, 29, 28, 25, 22, 21],
       monthlyAirC:
-        [15, 16, 15, 17, 20, 24, 26, 26, 24, 22, 20, 16],
+        
+        [16, 15, 17, 20, 23, 28, 30, 30, 27, 24, 21, 17],
       
 
       monthlyWaterC:
@@ -2020,7 +2077,7 @@ const WAVEBASE_DATA = [
       waveType:   "Reef peninsula point — logo to mast-high on strong meltemi or winter swell",
       bottom:     "Rocks in the line-up and surface (hazardous launch)",
       crowd:      "low",
-      source:     "Wind/gust/reliability: Windguru GFS 13km archive (Faneromeni id 49259), daytime 10–18h, Apr 2025–May 2026. Water temp: East Crete Mediterranean climatology.",
+      source:     "Wind/gust/air: Open-Meteo historical GFS at 35.2253,26.0400 (daytime 10–18h, 2021-05-16–2026-05-16, 5-year avg). Water temp: East Crete Mediterranean climatology.",
       // Year-round operational (no centers to close) but emphasis split:
       // summer = sailable meltemi, winter = bigger storm swell for wave.
       periods: [
@@ -2037,11 +2094,14 @@ const WAVEBASE_DATA = [
       monthlyWindProb:
         [0.39, 0.32, 0.35, 0.20, 0.17, 0.33, 0.19, 0.32, 0.50, 0.03, 0.07, 0.26],
       monthlyWindKn:
-        [14, 13, 15, 11, 11, 16, 13, 15, 16, 8, 9, 12],
+        
+        [8, 9, 9, 7, 7, 9, 10, 9, 9, 8, 7, 8],
       monthlyGustKn:
-        [18, 16, 16, 13, 13, 20, 16, 17, 18, 10, 11, 13],
+        
+        [20, 23, 22, 19, 20, 23, 26, 24, 23, 20, 19, 19],
       monthlyAirC:
-        [14, 15, 14, 17, 20, 23, 26, 25, 24, 21, 19, 16],
+        
+        [15, 15, 16, 20, 24, 27, 30, 30, 27, 23, 20, 17],
       
 
       monthlyWaterC:
@@ -2112,9 +2172,9 @@ const WAVEBASE_DATA = [
       waveType:   "Open bays — small chop in summer S days, real wave in winter SW storms",
       bottom:     "Fine white sand",
       crowd:      "low",
-      // No Windguru station at Xerokampos itself. Numbers come from Ierapetra
-      // (~50 km west, same south-coast meltemi-shadow climate). Honest proxy.
-      source:     "Wind/gust/reliability: Windguru GFS 13km archive (Ierapetra id 49264 — ~50 km west, same south-coast pattern), daytime 10–18h, Apr 2025–May 2026. Water temp: East Crete Mediterranean climatology.",
+      // Open-Meteo accepts any lat/lon, so this now uses Xerokampos' own
+      // coordinates — no more Ierapetra proxy needed.
+      source:     "Wind/gust/air: Open-Meteo historical GFS at 35.0362,26.2195 (daytime 10–18h, 2021-05-16–2026-05-16, 5-year avg). Water temp: East Crete Mediterranean climatology.",
       // Inverted-season spot: summer = quiet, winter = best (storms).
       periods: [
         { name: "Storm season", months: [11, 12, 1, 2, 3],  inSeason: true,
@@ -2128,12 +2188,15 @@ const WAVEBASE_DATA = [
       monthlyWindProb:
         [0.35, 0.18, 0.03, 0.09, 0.06, 0.13, 0.06, 0.00, 0.07, 0.10, 0.03, 0.10],
       monthlyWindKn:
-        [14, 13, 8, 8, 8, 7, 7, 7, 7, 9, 8, 8],
+        
+        [10, 11, 10, 9, 9, 10, 12, 10, 10, 10, 9, 9],
       // South-coast Crete water — ~1-2°C warmer year-round than north coast.
       monthlyGustKn:
-        [16, 16, 10, 10, 9, 11, 9, 9, 9, 10, 9, 10],
+        
+        [23, 25, 24, 21, 22, 25, 29, 24, 24, 23, 22, 21],
       monthlyAirC:
-        [14, 15, 14, 18, 20, 27, 29, 28, 26, 22, 20, 16],
+        
+        [15, 15, 17, 20, 24, 30, 32, 32, 28, 24, 21, 17],
       
 
       monthlyWaterC:
