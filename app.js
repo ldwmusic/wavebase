@@ -314,9 +314,11 @@ function monthlyChartHTML(e) {
   const userMonth = userSelectedMonth();
   const monthLabels = ["J","F","M","A","M","J","J","A","S","O","N","D"];
 
-  // Two charts side-by-side:
-  //   primary = wind (bar=avg kn, overlay=gust kn) or wave height
-  //   secondary = temperature (bar=water °C, overlay=air °C)
+  // Wave-type spots get a primary wave-height chart; wind-type spots have
+  // no primary chart (avg wind / gust info is surfaced in the at-a-glance
+  // facts above). All spots get the temperature chart.
+  //   temperature chart: bar = daytime air °C (the value most surfers
+  //   intuitively expect to be highest); overlay line = sea water °C.
   if (stats && Array.isArray(stats.monthlyWaterC)) {
     const chartType = stats.chartType || (Array.isArray(stats.monthlyWindKn) ? "wind" : null);
     let primaryChart = null;
@@ -335,49 +337,45 @@ function monthlyChartHTML(e) {
           return `${monthLabels[i]}: ${v} m${sp}`;
         }
       });
-    } else if (chartType === "wind" && Array.isArray(stats.monthlyWindKn)) {
-      primaryChart = buildSingleMetricChart(stats.monthlyWindKn, {
-        stats, userMonth, monthLabels,
-        label: "Wind",
-        sublabel: "daytime 10–18h, knots (line = gust)",
-        unit: " kn", maxValue: 30, axisTicks: ["30 kn", "15 kn", "0"],
-        colorClass: "color-wind",
-        overlayArr: Array.isArray(stats.monthlyGustKn) ? stats.monthlyGustKn : null,
-        tooltipFor: (mn, v, gk) => {
-          const i = mn - 1;
-          const tag = gk != null ? ` · gust ${gk} kn` : "";
-          return `${monthLabels[i]}: avg ${v} kn${tag}`;
-        }
-      });
     }
 
-    if (primaryChart) {
-      const waterChart = buildSingleMetricChart(stats.monthlyWaterC, {
-        stats, userMonth, monthLabels,
-        label: "Temperature",
-        sublabel: "°C — bar = sea water, line = daytime air",
-        unit: " °C", maxValue: 35, axisTicks: ["35°", "20°", "0°"],
-        colorClass: "color-water",
-        overlayArr: Array.isArray(stats.monthlyAirC) ? stats.monthlyAirC : null,
-        tooltipFor: (mn, v, air) => {
-          const i = mn - 1;
-          const tag = air != null ? ` · air ${air}°C` : "";
-          return `${monthLabels[i]}: water ${v}°C${tag}`;
+    // Temperature chart always renders (whenever water data exists).
+    const hasAir = Array.isArray(stats.monthlyAirC);
+    const tempMetric = hasAir ? stats.monthlyAirC : stats.monthlyWaterC;
+    const tempOverlay = hasAir ? stats.monthlyWaterC : null;
+    const tempSublabel = hasAir
+      ? "°C — bar = daytime air, line = sea water"
+      : "°C — sea water";
+    const tempChart = buildSingleMetricChart(tempMetric, {
+      stats, userMonth, monthLabels,
+      label: "Temperature",
+      sublabel: tempSublabel,
+      unit: " °C", maxValue: 35, axisTicks: ["35°", "20°", "0°"],
+      colorClass: "color-water",
+      overlayArr: tempOverlay,
+      tooltipFor: (mn, v, ov) => {
+        const i = mn - 1;
+        if (hasAir) {
+          const w = stats.monthlyWaterC[i];
+          return `${monthLabels[i]}: air ${v}°C · water ${w}°C`;
         }
-      });
+        return `${monthLabels[i]}: water ${v}°C`;
+      }
+    });
 
-      const hasOffSeason = stats.periods && stats.periods.some(p => p.inSeason === false);
-      const notes = [];
-      if (hasOffSeason) notes.push("Dimmed bars = off-season (centers closed).");
-      if (stats.source) notes.push(`Source: ${stats.source}.`);
-      const chartNote = notes.length
-        ? `<p class="chart-note">${notes.join(" ")}</p>` : "";
+    const hasOffSeason = stats.periods && stats.periods.some(p => p.inSeason === false);
+    const notes = [];
+    if (hasOffSeason) notes.push("Dimmed bars = off-season (centers closed).");
+    if (stats.source) notes.push(`Source: ${stats.source}.`);
+    const chartNote = notes.length
+      ? `<p class="chart-note">${notes.join(" ")}</p>` : "";
 
-      return `<div class="monthly-chart split">
-        <div class="chart-pair">${primaryChart}${waterChart}</div>
-        ${chartNote}
-      </div>`;
-    }
+    const charts = primaryChart ? `${primaryChart}${tempChart}` : tempChart;
+    const wrapClass = primaryChart ? "monthly-chart split" : "monthly-chart single";
+    return `<div class="${wrapClass}">
+      <div class="chart-pair">${charts}</div>
+      ${chartNote}
+    </div>`;
   }
 
   // Fallback: binary "good months" (entries without monthly arrays yet)

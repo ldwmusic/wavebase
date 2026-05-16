@@ -825,6 +825,11 @@ table.cal td.host { color: var(--clay); }
   grid-template-columns: 1fr 1fr;
   gap: 24px;
 }
+/* Single chart layout — used when there's only the temp chart (wind-type spots
+   no longer render a primary chart). Caps width so it doesn't stretch full. */
+.monthly-chart.single .chart-pair {
+  max-width: 480px;
+}
 .single-chart h3 {
   font-size: 12px; font-weight: 700; letter-spacing: 0.1em;
   text-transform: uppercase; color: var(--ink-soft); margin-bottom: 12px;
