@@ -26,7 +26,10 @@ const WaveBaseAccount = (function () {
         boardType: p.boardType || "",
         travelStyle: p.travelStyle || "",
         tripIntent: p.tripIntent || "",
-        homeCountry: p.homeCountry || ""
+        homeCountry: p.homeCountry || "",
+        surfType: Array.isArray(p.surfType) ? p.surfType : [],
+        discipline: Array.isArray(p.discipline) ? p.discipline : [],
+        howDidYouFindUs: p.howDidYouFindUs || ""
       },
       saved: s.saved || [],
       compare: s.compare || [],
@@ -48,7 +51,10 @@ const WaveBaseAccount = (function () {
         boardType: p.boardType || "",
         travelStyle: p.travelStyle || "",
         tripIntent: p.tripIntent || "",
-        homeCountry: (p.homeCountry || "").trim()
+        homeCountry: (p.homeCountry || "").trim(),
+        surfType: Array.isArray(p.surfType) ? p.surfType : [],
+        discipline: Array.isArray(p.discipline) ? p.discipline : [],
+        howDidYouFindUs: p.howDidYouFindUs || ""
       };
       write(s);
     },

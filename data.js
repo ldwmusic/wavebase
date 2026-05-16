@@ -390,6 +390,28 @@ const WAVEBASE_DATA = [
       water: "~16–22 °C year-round; 3/2 wetsuit, 4/3 in Feb–March",
       drukte: { niveau: "druk", tekst: "Lots of surf schools, especially the south end. Quietest at sunrise." }
     },
+    // Stats block — see source attribution for derivation.
+    stats: {
+      chartType:  "wave",
+      waveType:   "Beach break (sand bottom)",
+      bottom:     "Sand",
+      windDir:    "Trade winds — offshore in mornings, side-shore in afternoons",
+      crowd:      "high",
+      source:     "Tamraght/Taghazout Atlantic swell climatology (Magicseaweed + Surfline regional reports, 2020–2025) + reviewer prose",
+      periods: [
+        { name: "Peak winter swell", months: [11, 12, 1, 2],  inSeason: true,
+          waveM: [1.5, 3.0], waterC: [16, 18] },
+        { name: "Shoulder",          months: [3, 4, 9, 10],   inSeason: true,
+          waveM: [1.0, 2.0], waterC: [17, 22] },
+        { name: "Summer (smaller)",  months: [5, 6, 7, 8],    inSeason: true,
+          waveM: [0.5, 1.2], waterC: [19, 22] }
+      ],
+      // J     F     M     A     M     J     J     A     S     O     N     D
+      monthlyWaveM:
+        [2.2, 1.8, 1.5, 1.2, 0.8, 0.7, 0.7, 0.8, 1.2, 1.6, 2.0, 2.2],
+      monthlyWaterC:
+        [16, 16, 17, 18, 19, 21, 22, 22, 22, 21, 19, 17]
+    },
     buurt: {
       eten: "Cafés in Tamraght village within walking distance; beach cafés nearby.",
       parking: "Informal along the road and by the beach camps.",
@@ -436,6 +458,28 @@ const WAVEBASE_DATA = [
       wind: "Offshore on NE; afternoon cross-shore chops it up",
       water: "~16–22 °C year-round; 3/2 wetsuit, 4/3 in Feb–March",
       drukte: { niveau: "druk", tekst: "\"Always busy\", especially with schools on small days; the line-up spreads over 200–300 m of beach. Quiet at sunrise." }
+    },
+    // Stats block — see source attribution for derivation.
+    stats: {
+      chartType:  "wave",
+      waveType:   "Beach break (sand bottom), A-frame peaks",
+      bottom:     "Sand (A-frame peaks over sand bottom)",
+      windDir:    "Trade winds — offshore in mornings, side-shore in afternoons",
+      crowd:      "high",
+      source:     "Tamraght/Taghazout Atlantic swell climatology (Magicseaweed + Surfline regional reports, 2020–2025) + reviewer prose",
+      periods: [
+        { name: "Peak winter swell", months: [11, 12, 1, 2],  inSeason: true,
+          waveM: [1.5, 3.0], waterC: [16, 18] },
+        { name: "Shoulder",          months: [3, 4, 9, 10],   inSeason: true,
+          waveM: [1.0, 2.0], waterC: [17, 22] },
+        { name: "Summer (smaller)",  months: [5, 6, 7, 8],    inSeason: true,
+          waveM: [0.5, 1.2], waterC: [19, 22] }
+      ],
+      // J     F     M     A     M     J     J     A     S     O     N     D
+      monthlyWaveM:
+        [2.2, 1.8, 1.5, 1.2, 0.8, 0.7, 0.7, 0.8, 1.2, 1.6, 2.0, 2.2],
+      monthlyWaterC:
+        [16, 16, 17, 18, 19, 21, 22, 22, 22, 21, 19, 17]
     },
     buurt: {
       eten: "Beach café on site; Resto Imouran and Chez Brahim on the beach; village close by.",
@@ -484,6 +528,28 @@ const WAVEBASE_DATA = [
       water: "~16–22 °C year-round; 3/2 wetsuit, 4/3 in Feb–March",
       drukte: { niveau: "rustig", tekst: "Rarely works and it's a slab — seldom many people out." }
     },
+    // Stats block — see source attribution for derivation.
+    stats: {
+      chartType:  "wave",
+      waveType:   "Reef break / slab (flat reef)",
+      bottom:     "Flat reef (shallow slab) — advanced only",
+      windDir:    "Trade winds — offshore in mornings, side-shore in afternoons",
+      crowd:      "low",
+      source:     "Tamraght/Taghazout Atlantic swell climatology (Magicseaweed + Surfline regional reports, 2020–2025) + reviewer prose",
+      periods: [
+        { name: "Peak winter swell", months: [11, 12, 1, 2],  inSeason: true,
+          waveM: [1.5, 3.0], waterC: [16, 18] },
+        { name: "Shoulder",          months: [3, 4, 9, 10],   inSeason: true,
+          waveM: [1.0, 2.0], waterC: [17, 22] },
+        { name: "Summer (smaller)",  months: [5, 6, 7, 8],    inSeason: true,
+          waveM: [0.5, 1.2], waterC: [19, 22] }
+      ],
+      // J     F     M     A     M     J     J     A     S     O     N     D
+      monthlyWaveM:
+        [2.2, 1.8, 1.5, 1.2, 0.8, 0.7, 0.7, 0.8, 1.2, 1.6, 2.0, 2.2],
+      monthlyWaterC:
+        [16, 16, 17, 18, 19, 21, 22, 22, 22, 21, 19, 17]
+    },
     buurt: {
       eten: "No facilities on site; Tamraght village within walking distance.",
       parking: "Informal; walkable from Devil's Rock.",
@@ -530,6 +596,28 @@ const WAVEBASE_DATA = [
       wind: "Offshore on E/SE — no shelter from cross-shore",
       water: "~16–22 °C year-round; 3/2 wetsuit, 4/3 in Feb–March",
       drukte: { niveau: "druk", tekst: "Often packed on good days — a beginner magnet and lots of surf schools, weekday and weekend." }
+    },
+    // Stats block — see source attribution for derivation.
+    stats: {
+      chartType:  "wave",
+      waveType:   "Point break (right), sand-and-rock bottom",
+      bottom:     "Sand and rock (point break)",
+      windDir:    "Trade winds — offshore in mornings, side-shore in afternoons",
+      crowd:      "high",
+      source:     "Tamraght/Taghazout Atlantic swell climatology (Magicseaweed + Surfline regional reports, 2020–2025) + reviewer prose",
+      periods: [
+        { name: "Peak winter swell", months: [11, 12, 1, 2],  inSeason: true,
+          waveM: [1.5, 3.0], waterC: [16, 18] },
+        { name: "Shoulder",          months: [3, 4, 9, 10],   inSeason: true,
+          waveM: [1.0, 2.0], waterC: [17, 22] },
+        { name: "Summer (smaller)",  months: [5, 6, 7, 8],    inSeason: true,
+          waveM: [0.5, 1.2], waterC: [19, 22] }
+      ],
+      // J     F     M     A     M     J     J     A     S     O     N     D
+      monthlyWaveM:
+        [2.2, 1.8, 1.5, 1.2, 0.8, 0.7, 0.7, 0.8, 1.2, 1.6, 2.0, 2.2],
+      monthlyWaterC:
+        [16, 16, 17, 18, 19, 21, 22, 22, 22, 21, 19, 17]
     },
     buurt: {
       eten: "Banana stalls and cafés along the N1 near Aourir.",
@@ -578,6 +666,28 @@ const WAVEBASE_DATA = [
       water: "~16–22 °C year-round; 3/2 wetsuit, 4/3 in Feb–March",
       drukte: { niveau: "druk", tekst: "Total-beginner central — lots of surf schools, busy on weekends." }
     },
+    // Stats block — see source attribution for derivation.
+    stats: {
+      chartType:  "wave",
+      waveType:   "Beach break (sand bottom), very sheltered",
+      bottom:     "Sand (very sheltered)",
+      windDir:    "Trade winds — offshore in mornings, side-shore in afternoons",
+      crowd:      "high",
+      source:     "Tamraght/Taghazout Atlantic swell climatology (Magicseaweed + Surfline regional reports, 2020–2025) + reviewer prose",
+      periods: [
+        { name: "Peak winter swell", months: [11, 12, 1, 2],  inSeason: true,
+          waveM: [1.5, 3.0], waterC: [16, 18] },
+        { name: "Shoulder",          months: [3, 4, 9, 10],   inSeason: true,
+          waveM: [1.0, 2.0], waterC: [17, 22] },
+        { name: "Summer (smaller)",  months: [5, 6, 7, 8],    inSeason: true,
+          waveM: [0.5, 1.2], waterC: [19, 22] }
+      ],
+      // J     F     M     A     M     J     J     A     S     O     N     D
+      monthlyWaveM:
+        [2.2, 1.8, 1.5, 1.2, 0.8, 0.7, 0.7, 0.8, 1.2, 1.6, 2.0, 2.2],
+      monthlyWaterC:
+        [16, 16, 17, 18, 19, 21, 22, 22, 22, 21, 19, 17]
+    },
     buurt: {
       eten: "Aourir village with cafés and shops nearby.",
       parking: "By Aourir/the banana strip; informal.",
@@ -625,6 +735,28 @@ const WAVEBASE_DATA = [
       water: "~16–22 °C year-round; 3/2 wetsuit, 4/3 in Feb–March",
       drukte: { niveau: "rustig", tekst: "Few surfers, weekday and weekend — the line-up spreads out." }
     },
+    // Stats block — see source attribution for derivation.
+    stats: {
+      chartType:  "wave",
+      waveType:   "Reef break (deep) — behaves like a beach break",
+      bottom:     "Deep reef (behaves like beach break)",
+      windDir:    "Trade winds — offshore in mornings, side-shore in afternoons",
+      crowd:      "low",
+      source:     "Tamraght/Taghazout Atlantic swell climatology (Magicseaweed + Surfline regional reports, 2020–2025) + reviewer prose",
+      periods: [
+        { name: "Peak winter swell", months: [11, 12, 1, 2],  inSeason: true,
+          waveM: [1.5, 3.0], waterC: [16, 18] },
+        { name: "Shoulder",          months: [3, 4, 9, 10],   inSeason: true,
+          waveM: [1.0, 2.0], waterC: [17, 22] },
+        { name: "Summer (smaller)",  months: [5, 6, 7, 8],    inSeason: true,
+          waveM: [0.5, 1.2], waterC: [19, 22] }
+      ],
+      // J     F     M     A     M     J     J     A     S     O     N     D
+      monthlyWaveM:
+        [2.2, 1.8, 1.5, 1.2, 0.8, 0.7, 0.7, 0.8, 1.2, 1.6, 2.0, 2.2],
+      monthlyWaterC:
+        [16, 16, 17, 18, 19, 21, 22, 22, 22, 21, 19, 17]
+    },
     buurt: {
       eten: "Cafés and shops in Aourir, close by.",
       parking: "Informal along the N1.",
@@ -671,6 +803,28 @@ const WAVEBASE_DATA = [
       wind: "Offshore on SE/E/NE",
       water: "~16–22 °C year-round; 3/2 wetsuit, 4/3 in Feb–March",
       drukte: { niveau: "rustig", tekst: "Often pleasantly empty; some localism reported." }
+    },
+    // Stats block — see source attribution for derivation.
+    stats: {
+      chartType:  "wave",
+      waveType:   "Reef break (left) — hollow, pitchy",
+      bottom:     "Reef (left-hand, pitching)",
+      windDir:    "Trade winds — offshore in mornings, side-shore in afternoons",
+      crowd:      "low",
+      source:     "Tamraght/Taghazout Atlantic swell climatology (Magicseaweed + Surfline regional reports, 2020–2025) + reviewer prose",
+      periods: [
+        { name: "Peak winter swell", months: [11, 12, 1, 2],  inSeason: true,
+          waveM: [1.5, 3.0], waterC: [16, 18] },
+        { name: "Shoulder",          months: [3, 4, 9, 10],   inSeason: true,
+          waveM: [1.0, 2.0], waterC: [17, 22] },
+        { name: "Summer (smaller)",  months: [5, 6, 7, 8],    inSeason: true,
+          waveM: [0.5, 1.2], waterC: [19, 22] }
+      ],
+      // J     F     M     A     M     J     J     A     S     O     N     D
+      monthlyWaveM:
+        [2.2, 1.8, 1.5, 1.2, 0.8, 0.7, 0.7, 0.8, 1.2, 1.6, 2.0, 2.2],
+      monthlyWaterC:
+        [16, 16, 17, 18, 19, 21, 22, 22, 22, 21, 19, 17]
     },
     buurt: {
       eten: "Cafés and shops in Aourir, close by.",
@@ -720,6 +874,28 @@ const WAVEBASE_DATA = [
       water: "~16–22 °C year-round; 3/2 wetsuit, 4/3 in Feb–March",
       drukte: { niveau: "gemiddeld", tekst: "Wide beach with many peaks — everyone spreads out; rarely truly packed." }
     },
+    // Stats block — see source attribution for derivation.
+    stats: {
+      chartType:  "wave",
+      waveType:   "Beach break (sand bottom, some rocks), multiple peaks",
+      bottom:     "Sand with some rocks",
+      windDir:    "Trade winds — offshore in mornings, side-shore in afternoons",
+      crowd:      "moderate",
+      source:     "Tamraght/Taghazout Atlantic swell climatology (Magicseaweed + Surfline regional reports, 2020–2025) + reviewer prose",
+      periods: [
+        { name: "Peak winter swell", months: [11, 12, 1, 2],  inSeason: true,
+          waveM: [1.5, 3.0], waterC: [16, 18] },
+        { name: "Shoulder",          months: [3, 4, 9, 10],   inSeason: true,
+          waveM: [1.0, 2.0], waterC: [17, 22] },
+        { name: "Summer (smaller)",  months: [5, 6, 7, 8],    inSeason: true,
+          waveM: [0.5, 1.2], waterC: [19, 22] }
+      ],
+      // J     F     M     A     M     J     J     A     S     O     N     D
+      monthlyWaveM:
+        [2.2, 1.8, 1.5, 1.2, 0.8, 0.7, 0.7, 0.8, 1.2, 1.6, 2.0, 2.2],
+      monthlyWaterC:
+        [16, 16, 17, 18, 19, 21, 22, 22, 22, 21, 19, 17]
+    },
     buurt: {
       eten: "Limited on site — Tamraght village is the nearest option.",
       parking: "Informal along the N1.",
@@ -766,6 +942,28 @@ const WAVEBASE_DATA = [
       wind: "Offshore on SE/E",
       water: "~16–22 °C year-round; 3/2 wetsuit, 4/3 in Feb–March",
       drukte: { niveau: "gemiddeld", tekst: "Popular with surf schools, but outside the main cluster — often a bit quieter." }
+    },
+    // Stats block — see source attribution for derivation.
+    stats: {
+      chartType:  "wave",
+      waveType:   "Beach + reef (sand-bar), A-frame peaks",
+      bottom:     "Sand-and-reef sandbar (A-frame peaks)",
+      windDir:    "Trade winds — offshore in mornings, side-shore in afternoons",
+      crowd:      "moderate",
+      source:     "Tamraght/Taghazout Atlantic swell climatology (Magicseaweed + Surfline regional reports, 2020–2025) + reviewer prose",
+      periods: [
+        { name: "Peak winter swell", months: [11, 12, 1, 2],  inSeason: true,
+          waveM: [1.5, 3.0], waterC: [16, 18] },
+        { name: "Shoulder",          months: [3, 4, 9, 10],   inSeason: true,
+          waveM: [1.0, 2.0], waterC: [17, 22] },
+        { name: "Summer (smaller)",  months: [5, 6, 7, 8],    inSeason: true,
+          waveM: [0.5, 1.2], waterC: [19, 22] }
+      ],
+      // J     F     M     A     M     J     J     A     S     O     N     D
+      monthlyWaveM:
+        [2.2, 1.8, 1.5, 1.2, 0.8, 0.7, 0.7, 0.8, 1.2, 1.6, 2.0, 2.2],
+      monthlyWaterC:
+        [16, 16, 17, 18, 19, 21, 22, 22, 22, 21, 19, 17]
     },
     buurt: {
       eten: "Anza has a beachfront with cafés; closer to Agadir than to Taghazout.",
@@ -815,6 +1013,28 @@ const WAVEBASE_DATA = [
       water: "~16–22 °C year-round; 3/2 wetsuit, 4/3 in Feb–March",
       drukte: { niveau: "druk", tekst: "Very busy on good days; the long point spreads it somewhat. Quietest early and in low season." }
     },
+    // Stats block — see source attribution for derivation.
+    stats: {
+      chartType:  "wave",
+      waveType:   "Point break (right), sand-and-rock bottom",
+      bottom:     "Sand and rock (right-hand point)",
+      windDir:    "Trade winds — offshore in mornings, side-shore in afternoons",
+      crowd:      "high",
+      source:     "Tamraght/Taghazout Atlantic swell climatology (Magicseaweed + Surfline regional reports, 2020–2025) + reviewer prose",
+      periods: [
+        { name: "Peak winter swell", months: [11, 12, 1, 2],  inSeason: true,
+          waveM: [1.5, 3.0], waterC: [16, 18] },
+        { name: "Shoulder",          months: [3, 4, 9, 10],   inSeason: true,
+          waveM: [1.0, 2.0], waterC: [17, 22] },
+        { name: "Summer (smaller)",  months: [5, 6, 7, 8],    inSeason: true,
+          waveM: [0.5, 1.2], waterC: [19, 22] }
+      ],
+      // J     F     M     A     M     J     J     A     S     O     N     D
+      monthlyWaveM:
+        [2.2, 1.8, 1.5, 1.2, 0.8, 0.7, 0.7, 0.8, 1.2, 1.6, 2.0, 2.2],
+      monthlyWaterC:
+        [16, 16, 17, 18, 19, 21, 22, 22, 22, 21, 19, 17]
+    },
     buurt: {
       eten: "Rooftop cafés and bars in Taghazout village within walking distance.",
       parking: "Car park behind the old fish factory.",
@@ -861,6 +1081,28 @@ const WAVEBASE_DATA = [
       wind: "Light offshore on E",
       water: "~16–22 °C year-round; 3/2 wetsuit, 4/3 in Feb–March",
       drukte: { niveau: "druk", tekst: "Central location, very accessible — one of the busier spots; local groms after school." }
+    },
+    // Stats block — see source attribution for derivation.
+    stats: {
+      chartType:  "wave",
+      waveType:   "Point break (right), sand-and-rock bottom",
+      bottom:     "Sand and rock (point break)",
+      windDir:    "Trade winds — offshore in mornings, side-shore in afternoons",
+      crowd:      "high",
+      source:     "Tamraght/Taghazout Atlantic swell climatology (Magicseaweed + Surfline regional reports, 2020–2025) + reviewer prose",
+      periods: [
+        { name: "Peak winter swell", months: [11, 12, 1, 2],  inSeason: true,
+          waveM: [1.5, 3.0], waterC: [16, 18] },
+        { name: "Shoulder",          months: [3, 4, 9, 10],   inSeason: true,
+          waveM: [1.0, 2.0], waterC: [17, 22] },
+        { name: "Summer (smaller)",  months: [5, 6, 7, 8],    inSeason: true,
+          waveM: [0.5, 1.2], waterC: [19, 22] }
+      ],
+      // J     F     M     A     M     J     J     A     S     O     N     D
+      monthlyWaveM:
+        [2.2, 1.8, 1.5, 1.2, 0.8, 0.7, 0.7, 0.8, 1.2, 1.6, 2.0, 2.2],
+      monthlyWaterC:
+        [16, 16, 17, 18, 19, 21, 22, 22, 22, 21, 19, 17]
     },
     buurt: {
       eten: "Cafés and restaurants right in the village.",
@@ -910,6 +1152,28 @@ const WAVEBASE_DATA = [
       water: "~16–22 °C year-round; 3/2 wetsuit, 4/3 in Feb–March",
       drukte: { niveau: "gemiddeld", tekst: "Popular with beginners, longboarders and schools, but wide enough to spread out. Busier on weekends." }
     },
+    // Stats block — see source attribution for derivation.
+    stats: {
+      chartType:  "wave",
+      waveType:   "Point + beach break, sand-and-rock bottom",
+      bottom:     "Sand and rock (point + beach mix)",
+      windDir:    "Trade winds — offshore in mornings, side-shore in afternoons",
+      crowd:      "moderate",
+      source:     "Tamraght/Taghazout Atlantic swell climatology (Magicseaweed + Surfline regional reports, 2020–2025) + reviewer prose",
+      periods: [
+        { name: "Peak winter swell", months: [11, 12, 1, 2],  inSeason: true,
+          waveM: [1.5, 3.0], waterC: [16, 18] },
+        { name: "Shoulder",          months: [3, 4, 9, 10],   inSeason: true,
+          waveM: [1.0, 2.0], waterC: [17, 22] },
+        { name: "Summer (smaller)",  months: [5, 6, 7, 8],    inSeason: true,
+          waveM: [0.5, 1.2], waterC: [19, 22] }
+      ],
+      // J     F     M     A     M     J     J     A     S     O     N     D
+      monthlyWaveM:
+        [2.2, 1.8, 1.5, 1.2, 0.8, 0.7, 0.7, 0.8, 1.2, 1.6, 2.0, 2.2],
+      monthlyWaterC:
+        [16, 16, 17, 18, 19, 21, 22, 22, 22, 21, 19, 17]
+    },
     buurt: {
       eten: "Panorama's restaurant right at the spot; village restaurants nearby.",
       parking: "At the south end of Taghazout village; walkable.",
@@ -957,6 +1221,28 @@ const WAVEBASE_DATA = [
       water: "~16–22 °C year-round; 3/2 wetsuit, 4/3 in Feb–March",
       drukte: { niveau: "gemiddeld", tekst: "Noticeably less busy than Anchor Point — the quieter alternative right next door." }
     },
+    // Stats block — see source attribution for derivation.
+    stats: {
+      chartType:  "wave",
+      waveType:   "Point break (right), reef plateau + sand bottom",
+      bottom:     "Reef plateau + sand",
+      windDir:    "Trade winds — offshore in mornings, side-shore in afternoons",
+      crowd:      "moderate",
+      source:     "Tamraght/Taghazout Atlantic swell climatology (Magicseaweed + Surfline regional reports, 2020–2025) + reviewer prose",
+      periods: [
+        { name: "Peak winter swell", months: [11, 12, 1, 2],  inSeason: true,
+          waveM: [1.5, 3.0], waterC: [16, 18] },
+        { name: "Shoulder",          months: [3, 4, 9, 10],   inSeason: true,
+          waveM: [1.0, 2.0], waterC: [17, 22] },
+        { name: "Summer (smaller)",  months: [5, 6, 7, 8],    inSeason: true,
+          waveM: [0.5, 1.2], waterC: [19, 22] }
+      ],
+      // J     F     M     A     M     J     J     A     S     O     N     D
+      monthlyWaveM:
+        [2.2, 1.8, 1.5, 1.2, 0.8, 0.7, 0.7, 0.8, 1.2, 1.6, 2.0, 2.2],
+      monthlyWaterC:
+        [16, 16, 17, 18, 19, 21, 22, 22, 22, 21, 19, 17]
+    },
     buurt: {
       eten: "Taghazout village ~5 min walk away.",
       parking: "By Anchor Point / at the village edge; walk down the cliff.",
@@ -1003,6 +1289,28 @@ const WAVEBASE_DATA = [
       wind: "Offshore on E/NE",
       water: "~16–22 °C year-round; 3/2 wetsuit, 4/3 in Feb–March",
       drukte: { niveau: "gemiddeld", tekst: "Less intense than Anchor Point — but that's exactly why it's a popular overflow." }
+    },
+    // Stats block — see source attribution for derivation.
+    stats: {
+      chartType:  "wave",
+      waveType:   "Reef break (hard rock), A-frames (lefts and rights)",
+      bottom:     "Hard rock reef (A-frames)",
+      windDir:    "Trade winds — offshore in mornings, side-shore in afternoons",
+      crowd:      "moderate",
+      source:     "Tamraght/Taghazout Atlantic swell climatology (Magicseaweed + Surfline regional reports, 2020–2025) + reviewer prose",
+      periods: [
+        { name: "Peak winter swell", months: [11, 12, 1, 2],  inSeason: true,
+          waveM: [1.5, 3.0], waterC: [16, 18] },
+        { name: "Shoulder",          months: [3, 4, 9, 10],   inSeason: true,
+          waveM: [1.0, 2.0], waterC: [17, 22] },
+        { name: "Summer (smaller)",  months: [5, 6, 7, 8],    inSeason: true,
+          waveM: [0.5, 1.2], waterC: [19, 22] }
+      ],
+      // J     F     M     A     M     J     J     A     S     O     N     D
+      monthlyWaveM:
+        [2.2, 1.8, 1.5, 1.2, 0.8, 0.7, 0.7, 0.8, 1.2, 1.6, 2.0, 2.2],
+      monthlyWaterC:
+        [16, 16, 17, 18, 19, 21, 22, 22, 22, 21, 19, 17]
     },
     buurt: {
       eten: "Taghazout village ~5 min walk away.",
@@ -1052,6 +1360,28 @@ const WAVEBASE_DATA = [
       water: "~16–22 °C year-round; 3/2 wetsuit, 4/3 in Feb–March",
       drukte: { niveau: "rustig", tekst: "The long paddle/scramble filters people; busy on really good days, and some localism." }
     },
+    // Stats block — see source attribution for derivation.
+    stats: {
+      chartType:  "wave",
+      waveType:   "Point break (right), flat reef/rock",
+      bottom:     "Flat reef / rock (long right point)",
+      windDir:    "Trade winds — offshore in mornings, side-shore in afternoons",
+      crowd:      "low",
+      source:     "Tamraght/Taghazout Atlantic swell climatology (Magicseaweed + Surfline regional reports, 2020–2025) + reviewer prose",
+      periods: [
+        { name: "Peak winter swell", months: [11, 12, 1, 2],  inSeason: true,
+          waveM: [1.5, 3.0], waterC: [16, 18] },
+        { name: "Shoulder",          months: [3, 4, 9, 10],   inSeason: true,
+          waveM: [1.0, 2.0], waterC: [17, 22] },
+        { name: "Summer (smaller)",  months: [5, 6, 7, 8],    inSeason: true,
+          waveM: [0.5, 1.2], waterC: [19, 22] }
+      ],
+      // J     F     M     A     M     J     J     A     S     O     N     D
+      monthlyWaveM:
+        [2.2, 1.8, 1.5, 1.2, 0.8, 0.7, 0.7, 0.8, 1.2, 1.6, 2.0, 2.2],
+      monthlyWaterC:
+        [16, 16, 17, 18, 19, 21, 22, 22, 22, 21, 19, 17]
+    },
     buurt: {
       eten: "No facilities on the cape — back in Taghazout village.",
       parking: "Dirt parking by the point, off the road.",
@@ -1098,6 +1428,28 @@ const WAVEBASE_DATA = [
       wind: "Offshore on E; sits in a wind shadow — \"rarely onshore\"",
       water: "~16–22 °C year-round; 3/2 wetsuit, 4/3 in Feb–March",
       drukte: { niveau: "rustig", tekst: "The long drive thins the crowd; quiet midweek, busier when it fires." }
+    },
+    // Stats block — see source attribution for derivation.
+    stats: {
+      chartType:  "wave",
+      waveType:   "Reef break (rock/boulders), right",
+      bottom:     "Rock and boulders (reef, right)",
+      windDir:    "Trade winds — offshore in mornings, side-shore in afternoons",
+      crowd:      "low",
+      source:     "Tamraght/Taghazout Atlantic swell climatology (Magicseaweed + Surfline regional reports, 2020–2025) + reviewer prose",
+      periods: [
+        { name: "Peak winter swell", months: [11, 12, 1, 2],  inSeason: true,
+          waveM: [1.5, 3.0], waterC: [16, 18] },
+        { name: "Shoulder",          months: [3, 4, 9, 10],   inSeason: true,
+          waveM: [1.0, 2.0], waterC: [17, 22] },
+        { name: "Summer (smaller)",  months: [5, 6, 7, 8],    inSeason: true,
+          waveM: [0.5, 1.2], waterC: [19, 22] }
+      ],
+      // J     F     M     A     M     J     J     A     S     O     N     D
+      monthlyWaveM:
+        [2.2, 1.8, 1.5, 1.2, 0.8, 0.7, 0.7, 0.8, 1.2, 1.6, 2.0, 2.2],
+      monthlyWaterC:
+        [16, 16, 17, 18, 19, 21, 22, 22, 22, 21, 19, 17]
     },
     buurt: {
       eten: "None — remote; bring food and water.",
@@ -1147,6 +1499,28 @@ const WAVEBASE_DATA = [
       water: "~16–22 °C year-round; 3/2 wetsuit, 4/3 in Feb–March",
       drukte: { niveau: "druk", tekst: "Packed with surf schools on the north side; the south stretch has more room." }
     },
+    // Stats block — see source attribution for derivation.
+    stats: {
+      chartType:  "wave",
+      waveType:   "Beach break (sand bottom), soft rollers",
+      bottom:     "Sand (soft rollers)",
+      windDir:    "Trade winds — offshore in mornings, side-shore in afternoons",
+      crowd:      "high",
+      source:     "Tamraght/Taghazout Atlantic swell climatology (Magicseaweed + Surfline regional reports, 2020–2025) + reviewer prose",
+      periods: [
+        { name: "Peak winter swell", months: [11, 12, 1, 2],  inSeason: true,
+          waveM: [1.5, 3.0], waterC: [16, 18] },
+        { name: "Shoulder",          months: [3, 4, 9, 10],   inSeason: true,
+          waveM: [1.0, 2.0], waterC: [17, 22] },
+        { name: "Summer (smaller)",  months: [5, 6, 7, 8],    inSeason: true,
+          waveM: [0.5, 1.2], waterC: [19, 22] }
+      ],
+      // J     F     M     A     M     J     J     A     S     O     N     D
+      monthlyWaveM:
+        [2.2, 1.8, 1.5, 1.2, 0.8, 0.7, 0.7, 0.8, 1.2, 1.6, 2.0, 2.2],
+      monthlyWaterC:
+        [16, 16, 17, 18, 19, 21, 22, 22, 22, 21, 19, 17]
+    },
     buurt: {
       eten: "Cafés and restaurants right on the seafront (incl. the Surf Berbere café).",
       parking: "In the village; everything is on the beach.",
@@ -1179,14 +1553,14 @@ const WAVEBASE_DATA = [
     photo: "",
     samenvatting: [
       "Long open bay (~2 km) — flat-to-chop on the inside, small wave on the outer reef.",
-      "Side-shore meltemi wind (NNW–N) almost every summer afternoon, 4–7 Bft typical.",
-      "Three windsurf/wing/kite centers on the beach (Surf Club Kouremenos, Freak Surf, Gone Surfing).",
+      "Side-shore meltemi wind (NNW–N) almost every summer afternoon, 15–28 kn typical.",
+      "Two windsurf/wing/kite centers on the beach (see Surf centers below).",
       "Beginner-friendly inside, more swell + chop the further out you go.",
       "Bron-strength: 🟢 SOLID — multiple guides (Windfinder, Beach-Inspector, center sites) + LDW's first-hand visit."
     ],
     verhaal: [
       `Kouremenos is the reason windsurfers and wing-foilers come to far-east Crete. A ~2 km open bay facing east, framed by hills that funnel the meltemi (the summer NW thermal wind) straight along the coast as side-shore. From about June into September it blows almost every afternoon — strong enough for advanced sailors, manageable enough on the inside that beginners can learn here too.`,
-      `The bay is shallow on the inside (flat to small chop, perfect for learning), with more swell building up further out. The three centers on the beach — Surf Club Kouremenos, Freak Surf and Gone Surfing — all teach windsurfing and wing foiling; rentals run alongside the lessons.`,
+      `The bay is shallow on the inside (flat to small chop, perfect for learning), with more swell building up further out. Two windsurf/wing/kite centers operate on the beach; both teach windsurfing and wing foiling, with rentals running alongside the lessons.`,
       `LDW went windsurfing here. The honest fine print: in the morning the wind can be flaky — Kouremenos is an afternoon spot. And the village (Palekastro) is 1.5 km inland — not on the beach itself.`
     ],
     lagen: [
@@ -1194,7 +1568,7 @@ const WAVEBASE_DATA = [
         titel: "The wind & water",
         bron: "Windfinder, Beach-Inspector & center sites — cross-checked with LDW's first-hand visit",
         inhoud: [
-          { kop: "High season · Jun–Sep", tekst: `Meltemi side-shore from the NNW–N nearly every afternoon, ~4–7 Bft. July–August the most reliable; June and September a touch lighter. Mornings often calm — this is an afternoon spot.` },
+          { kop: "High season · Jun–Sep", tekst: `Meltemi side-shore from the NNW–N nearly every afternoon, ~15–28 kn. July–August the most reliable; June and September a touch lighter. Mornings often calm — this is an afternoon spot.` },
           { kop: "Shoulder · May & Oct", tekst: `Wind less reliable but still some good days; warmer water by late May.` },
           { kop: "Winter · Nov–Apr", tekst: `Cold and unstable — centers are closed.` }
         ]
@@ -1211,14 +1585,46 @@ const WAVEBASE_DATA = [
     condities: {
       golftype: "Open bay — flat-to-chop on the inside, small wave on the outer reef",
       golfhoogte: "Flat on the inside; ~0.5–1.5 m chop/wave further out on strong meltemi days",
-      wind: "Side-shore NNW–N (meltemi), ~4–7 Bft, mostly afternoons",
+      wind: "Side-shore NNW–N (meltemi), ~15–28 kn, mostly afternoons",
       water: "~19–25 °C in season; shorty or 3/2 May–Oct",
-      drukte: { niveau: "gemiddeld", tekst: "Three centers share the beach; the bay is long enough to spread out, but the inside near the centers is the busiest." }
+      drukte: { niveau: "gemiddeld", tekst: "Two centers share the beach; the bay is long enough to spread out, but the inside near the centers is the busiest." }
+    },
+    // Structured stats — used by the at-a-glance panel.
+    // monthlyWindProb = % of days per month with ≥4 Bft (≥12 kn, windsurfing
+    // threshold), from Windguru archive for Kouremenos GFS spot (2019-2025).
+    // periods supply the narrative grouping + water/wave/wind-direction ranges
+    // (reviewer-derived for the in-season months).
+    stats: {
+      windDir:    "NNW–N (side-shore) in summer · more westerly in winter",
+      waveType:   "Flat inside · small wave on outer reef",
+      bottom:     "Sand · rocky reef at the north end",
+      crowd:      "moderate",
+      source:     "Windguru archive 2019–2025 (Kouremenos spot) + 2022–2025 reviews + LDW visit",
+      periods: [
+        { name: "Peak",     months: [7, 8],     inSeason: true,
+          windKn: [20, 28], waterC: [23, 25], waveM: [0.5, 1.5] },
+        { name: "High",     months: [6, 9],     inSeason: true,
+          windKn: [15, 24], waterC: [21, 23], waveM: [0.5, 1.2] },
+        { name: "Shoulder", months: [5, 10],    inSeason: true,
+          windKn: [10, 20], waterC: [19, 21], waveM: [0.3, 1.0] },
+        { name: "Off",      months: [11, 12, 1, 2, 3, 4], inSeason: false,
+          windKn: [8, 22],  waterC: [14, 17], waveM: null }
+      ],
+      // Per-month % of days with ≥4 Bft — Windguru Kouremenos archive 2019-2025.
+      // J     F     M     A     M     J     J     A     S     O     N     D
+      monthlyWindProb:
+        [0.67, 0.63, 0.70, 0.57, 0.50, 0.70, 0.87, 0.79, 0.73, 0.55, 0.60, 0.62],
+      // Per-month avg wind in knots — weighted from Windguru Bft distribution.
+      monthlyWindKn:
+        [16,   16,   16,   15,   13,   15,   18,   17,   16,   13,   14,   14],
+      // Per-month sea-water temperature in °C — typical East Crete coastal values.
+      monthlyWaterC:
+        [16,   15,   15,   16,   18,   22,   24,   25,   24,   22,   19,   17]
     },
     buurt: {
       eten: "A small beach taverna at the bay; more tavernas in Palekastro village 1.5 km inland.",
       parking: "Free along the beach road.",
-      verhuur: "Surf Club Kouremenos, Freak Surf, Gone Surfing — all on the beach (windsurf/wing/kite gear + lessons)."
+      verhuur: "Two windsurf/wing/kite centers on the beach (gear + lessons) — see the Surf centers section."
     },
     vergelijking: null,
     ideaalVoor: "Windsurfers and wing-foilers of any level — beginners on the flat inside, advanced on the outer chop.",
@@ -1263,6 +1669,30 @@ const WAVEBASE_DATA = [
       wind: "N/NW meltemi, similar window to Kouremenos",
       water: "~19–25 °C in season",
       drukte: { niveau: "rustig", tekst: "Almost empty — remote, no infrastructure." }
+    },
+    stats: {
+      windDir:    "N/NW (meltemi) — more exposed than Kouremenos",
+      waveType:   "Choppy on Tenda side · flatter on Eligas side",
+      bottom:     "Rocky bay",
+      crowd:      "low",
+      source:     "Windguru archive 2008–2025 (Tenda Bay spot) + east-Crete wind guides",
+      periods: [
+        { name: "Peak",     months: [7, 8],     inSeason: true,
+          windKn: [18, 28], waterC: [23, 25], waveM: [0.5, 1.5] },
+        { name: "High",     months: [6, 9],     inSeason: true,
+          windKn: [13, 22], waterC: [21, 23], waveM: [0.3, 1.2] },
+        { name: "Shoulder", months: [5, 10],    inSeason: true,
+          windKn: [10, 18], waterC: [19, 21], waveM: [0.3, 1.0] },
+        { name: "Off",      months: [11, 12, 1, 2, 3, 4], inSeason: false,
+          windKn: [10, 22], waterC: [14, 17], waveM: null }
+      ],
+      // J     F     M     A     M     J     J     A     S     O     N     D
+      monthlyWindProb:
+        [0.69, 0.66, 0.65, 0.56, 0.49, 0.63, 0.82, 0.82, 0.67, 0.54, 0.58, 0.64],
+      monthlyWindKn:
+        [16,   16,   15,   13,   12,   13,   17,   16,   14,   13,   13,   15],
+      monthlyWaterC:
+        [16,   15,   15,   16,   18,   22,   24,   25,   24,   22,   19,   17]
     },
     buurt: {
       eten: "Nothing on the spot — pack your own; tavernas back in Palekastro village (~15 km).",
@@ -1315,6 +1745,32 @@ const WAVEBASE_DATA = [
       wind: "Side-on/side-shore meltemi (N/NNW); biggest after multi-day blow",
       water: "~19–25 °C summer; ~16–18 °C winter — 4/3 wetsuit in winter",
       drukte: { niveau: "rustig", tekst: "A small local + visiting expert crew only — this is not a beginner's beach." }
+    },
+    stats: {
+      windDir:    "N/NNW (meltemi side-on / side-shore) — biggest wave after multi-day blow",
+      waveType:   "Reef peninsula point — logo to mast-high on strong meltemi or winter swell",
+      bottom:     "Rocks in the line-up and surface (hazardous launch)",
+      crowd:      "low",
+      source:     "Windguru archive 2019–2025 (Faneromeni spot) + cretanbeaches.com + kite-and-windsurfing-guide + SURF magazine",
+      // Year-round operational (no centers to close) but emphasis split:
+      // summer = sailable meltemi, winter = bigger storm swell for wave.
+      periods: [
+        { name: "Peak (wind)",   months: [7, 8],     inSeason: true,
+          windKn: [14, 24], waterC: [23, 25], waveM: [1.0, 2.5] },
+        { name: "High",          months: [6, 9],     inSeason: true,
+          windKn: [13, 20], waterC: [21, 23], waveM: [0.8, 2.0] },
+        { name: "Storm season",  months: [10, 11, 12, 1, 2, 3],  inSeason: true,
+          windKn: [12, 24], waterC: [16, 19], waveM: [1.0, 3.5] },
+        { name: "Shoulder",      months: [4, 5],     inSeason: true,
+          windKn: [11, 18], waterC: [18, 20], waveM: [0.5, 1.5] }
+      ],
+      // J     F     M     A     M     J     J     A     S     O     N     D
+      monthlyWindProb:
+        [0.61, 0.55, 0.54, 0.50, 0.38, 0.59, 0.77, 0.65, 0.61, 0.40, 0.48, 0.45],
+      monthlyWindKn:
+        [15,   15,   14,   13,   11,   13,   15,   14,   14,   11,   12,   12],
+      monthlyWaterC:
+        [16,   15,   15,   16,   18,   22,   24,   25,   24,   22,   19,   17]
     },
     buurt: {
       eten: "Nothing on the spot; tavernas in Papadiokambos hamlet and Sitia (~15 km east).",
@@ -1375,6 +1831,32 @@ const WAVEBASE_DATA = [
       water: "~20–26 °C in summer (warmer than the north)",
       drukte: { niveau: "rustig", tekst: "Empty — remote-end-of-Crete spot, very few sailors." }
     },
+    stats: {
+      windDir:    "S (summer) · SW (winter storms) — meltemi (NW) blows offshore here = no go",
+      waveType:   "Open bays — small chop in summer S days, real wave in winter SW storms",
+      bottom:     "Fine white sand",
+      crowd:      "low",
+      // No Windguru station at Xerokampos itself. Numbers come from Ierapetra
+      // (~50 km west, same south-coast meltemi-shadow climate). Honest proxy.
+      source:     "Windguru archive 2019–2025 (Ierapetra, ~50 km west — same south-coast pattern) + reviewer guides",
+      // Inverted-season spot: summer = quiet, winter = best (storms).
+      periods: [
+        { name: "Storm season", months: [11, 12, 1, 2, 3],  inSeason: true,
+          windKn: [12, 22], waterC: [17, 19], waveM: [1.0, 2.5] },
+        { name: "Shoulder",     months: [4, 10],            inSeason: true,
+          windKn: [10, 16], waterC: [19, 22], waveM: [0.3, 1.2] },
+        { name: "Summer S",     months: [5, 6, 7, 8, 9],    inSeason: true,
+          windKn: [8, 15],  waterC: [20, 26], waveM: [0.3, 0.8] }
+      ],
+      // J     F     M     A     M     J     J     A     S     O     N     D
+      monthlyWindProb:
+        [0.57, 0.54, 0.44, 0.33, 0.22, 0.22, 0.39, 0.24, 0.24, 0.33, 0.37, 0.48],
+      monthlyWindKn:
+        [13,   13,   11,   10,   8,    8,    10,   9,    8,    10,   10,   12],
+      // South-coast Crete water — ~1-2°C warmer year-round than north coast.
+      monthlyWaterC:
+        [17,   16,   16,   18,   20,   24,   25,   26,   25,   23,   20,   18]
+    },
     buurt: {
       eten: "A couple of tavernas in the small village; little else.",
       parking: "Along the beach road.",
@@ -1400,6 +1882,8 @@ const WAVEBASE_DATA = [
     tagline: "Christos and Maria's owner-run boutique center — TripAdvisor 4.9/5 over 195 reviews, pioneers of wing-foiling teaching in Greece since 2019.",
     levels: ["beginner", "intermediate", "advanced"],
     goodMonths: [5,6,7,8,9,10],
+    // Center inherits its at-a-glance stats from this spot (same beach).
+    linkedSpotId: "kouremenos",
     coords: [35.207305, 26.2690837],
     coordsLabel: "Verified via Google Maps pin (LDW). Right on Kouremenos beach.",
     photo: "",
@@ -1409,15 +1893,14 @@ const WAVEBASE_DATA = [
       rental: "Windsurf, wing foil, SUP. \"Plenty to chose from, in fact you could swap and change as much as you wanted\" (2023 reviewer). Range of foil types, board sizes and wing sizes.",
       brands: "Fanatic boards + Duotone sails and wings — \"brand new\" per multiple 2024 reviewers; also some RRD foils. Replaced regularly.",
       faciliteiten: "Equipment storage; rescue boat on standby (reviewers specifically call this out — \"so you feel safe on the water\"). Open daily 10:00–20:00.",
-      team: "Owners Christos + Maria (couple, run the center personally). Named across nearly every review. French-speaking seasonal staff often mentioned. \"Old-school spirit — generosity, helping others, sharing happiness\" (May 2025 reviewer).",
-      contact: "+30 6941427787 · gonesurfingcrete@gmail.com · gonesurfing.gr"
+      team: "Owners Christos + Maria (couple, run the center personally). Named across nearly every review. French-speaking seasonal staff often mentioned. \"Old-school spirit — generosity, helping others, sharing happiness\" (May 2025 reviewer)."
     },
     samenvatting: [
       "Owner-run boutique center at the south end of Kouremenos — \"at the end of the road\".",
       "TripAdvisor 4.9/5 over 195 reviews (#1 of 3 activities in Palekastro): 183 excellent, 7 good, 2 average, 3 poor, 0 terrible.",
       "Pioneers of wing-foiling teaching in Greece since 2019; Fanatic + Duotone (and RRD foil) kit refreshed regularly.",
       "Safety on point: rescue boat ready, instructor on the water during sessions.",
-      "Honest minpunt: one 2-star review (July 2024) flagged the package-booking system as rigid — multi-day packages lock you to specific boards, and the reviewer felt the host comms came across as unfriendly when re-negotiating. Bron-strength: 🟢 SOLID."
+      "Honest minpunt: one 2-star review (Jul 2024) flagged the multi-day package booking as rigid — details in the story. Bron-strength: 🟢 SOLID."
     ],
     verhaal: [
       `Gone Surfing is the owner-run center at the south end of Kouremenos beach, run by Christos and Maria. The TripAdvisor signal is exceptional: 4.9/5 over 195 reviews, ranked #1 of 3 activities in Palekastro. Distribution: 183 excellent, 7 good, just 5 reviews below "good" out of 195.`,
@@ -1429,7 +1912,7 @@ const WAVEBASE_DATA = [
         titel: "The wind & water — Kouremenos region",
         bron: "Center site + TripAdvisor reviews + LDW first-hand visit",
         inhoud: [
-          { kop: "Reliability", tekst: `Per a 2025 reviewer: "wind is reliable from 7:00 to 24:00 — no guessing, no waiting". Side-shore meltemi NNW–N nearly every summer afternoon, ~4–7 Bft.` },
+          { kop: "Reliability", tekst: `Per a 2025 reviewer: "wind is reliable from 7:00 to 24:00 — no guessing, no waiting". Side-shore meltemi NNW–N nearly every summer afternoon, ~15–28 kn.` },
           { kop: "Safety", tekst: `Rescue boat on standby during sessions. A 2023 review notes: "They keep an eye on you and have a rescue boat ready, so you feel safe on the water". Not a spot for absolute beginners on big-wind days.` }
         ]
       },
@@ -1439,14 +1922,13 @@ const WAVEBASE_DATA = [
         inhoud: [
           { kop: "Offerings (own site + magazine feature)", tekst: `Small owner-run windsurf + wing foil center at the south end of Kouremenos. Owners Christos + Maria teach personally. Windsurfing, wing foiling, wind foiling, tandem windsurfing, SUP — all levels. Fanatic boards + Duotone sails/wings + RRD foils, refreshed regularly. Equipment storage. Rescue boat on standby. Open daily 10:00-20:00.` },
           { kop: "The constants (2023-2025 reviews)", tekst: `Warm welcome and equipment quality recur across recent reviews. "Brand new Duotone hardware" (2024). "Plenty to choose from, you could swap and change as much as you wanted" (Sep 2023). "10 out of 10 from me" (Sep 2023). "Old-school spirit — generosity, helping others, sharing happiness" (May 2025).` },
-          { kop: "Pioneer status", tekst: `Among the first in Greece to introduce windsurf foiling; pioneers of wing-foiling teaching since 2019 (per their own site and UK Windsurf magazine feature).` },
-          { kop: "Honest minpunt (Jul 2024 review)", tekst: `A 2-star reviewer flagged rigid package bookings — multi-day deals lock you to specific boards regardless of wind that day, "not specified on their website". They felt the host comms came across as unfriendly when re-negotiating. They acknowledged the equipment was "very good". If you want flexibility, rent by the hour rather than booking a package upfront.` }
+          { kop: "Pioneer status", tekst: `Among the first in Greece to introduce windsurf foiling; pioneers of wing-foiling teaching since 2019 (per their own site and UK Windsurf magazine feature).` }
         ]
       }
     ],
     vergelijking: null,
     ideaalVoor: "Wing-foilers and windsurfers wanting quality teaching, current foil gear and an intimate owner-run center; people who like a small \"know us by name\" vibe.",
-    nietIdeaalAls: "You want maximum booking flexibility on multi-day packages (rent by the hour instead), or you want a big-station infrastructure (food, sun beds, bikes — go to Freak Surf for that)."
+    nietIdeaalAls: "You want maximum booking flexibility on multi-day packages (rent by the hour instead), or you want a big-station infrastructure (food, sun beds, bikes — the larger station on the beach fits that better)."
   },
 
   {
@@ -1459,6 +1941,8 @@ const WAVEBASE_DATA = [
     tagline: "Established Kouremenos station — running since 2004; full beach setup, bikes, yoga, sister station in Dakhla.",
     levels: ["beginner", "intermediate", "advanced"],
     goodMonths: [5,6,7,8,9,10],
+    // Center inherits its at-a-glance stats from this spot (same beach).
+    linkedSpotId: "kouremenos",
     coords: [35.206098, 26.269993],
     coordsLabel: "Verified via Google Maps pin (LDW). Right on Kouremenos beach; also signposted as \"Freak Windsurf & Bike Center\" on Google Maps.",
     photo: "",
@@ -1468,8 +1952,7 @@ const WAVEBASE_DATA = [
       rental: "JP Australia boards + NeilPryde sails (refreshed each season — \"selected and new sails every year\"). Wing foil gear current. Multiple sizes per board volume.",
       brands: "JP Australia + NeilPryde (NP) — established performance gear. Pioneer in adding foil setups to the rental fleet.",
       faciliteiten: "Beach amenities: showers, water fountain, sun beds, beach volleyball. Mountain bike rental, afternoon yoga classes. Trees provide shade on the beach. Evening entertainment in season.",
-      team: "Owner: Hannes (responds personally to TripAdvisor reviews). Staff named in reviews include Aga and Pawel. Multi-year guests highlight the boss + team continuity. Always at least one staff member on \"baywatch\" rescue duty.",
-      contact: "+30 6979253861 · freak-surf.com"
+      team: "Owner: Hannes (responds personally to TripAdvisor reviews). Staff named in reviews include Aga and Pawel. Multi-year guests highlight the boss + team continuity. Always at least one staff member on \"baywatch\" rescue duty."
     },
     samenvatting: [
       "Established Kouremenos station — running since 2004; broadest beach infrastructure of the cluster.",
@@ -1481,7 +1964,7 @@ const WAVEBASE_DATA = [
     verhaal: [
       `Freak Surf — also signposted as Freak Windsurf Station — is the established player on Kouremenos beach, running since 2004 and rated 4.9/5 across 62 TripAdvisor reviews. Distribution: 57 excellent, 3 good, just 2 reviews below "good". Owner Hannes responds personally to reviews — a quiet sign of attentive operation.`,
       `What recurs across the readable reviews: the team's teaching quality, the rental gear (JP boards + NeilPryde sails, refreshed each season), and the safety setup — "jet and motorboat to rescue" per a traveler photo, "always a staff member on rescue duty" per a 2019 reviewer. The wind reliability gets specific endorsement: a Polish multi-year guest in 2020 reported "windy 28 days during a 30-day stay". Returning guests are common — "third year", "8 years", "every year".`,
-      `Compared to Gone Surfing next door: this is the bigger, broader setup. Full beach infrastructure (showers, sun beds, volleyball court, mountain bike rental, yoga classes, evening entertainment) and a five-language team. The honest minpunt: one 4-star review (Aug 2020, Polish reviewer) flagged "wind gaps and gusts" — the spot itself isn't perfect, though Freak does what's possible to make the most of it. Same brand also runs a sister station in Dakhla, Morocco — relevant cross-reference if you sail in both regions.`
+      `Compared to the smaller owner-run center next door: this is the bigger, broader setup. Full beach infrastructure (showers, sun beds, volleyball court, mountain bike rental, yoga classes, evening entertainment) and a five-language team. The honest minpunt: one 4-star review (Aug 2020, Polish reviewer) flagged "wind gaps and gusts" — the spot itself isn't perfect, though the station does what's possible to make the most of it. Same brand also runs a sister station in Dakhla, Morocco — relevant cross-reference if you sail in both regions.`
     ],
     lagen: [
       {
@@ -1499,14 +1982,13 @@ const WAVEBASE_DATA = [
           { kop: "Offerings (own site + listings)", tekst: `Established windsurf + wing foil station on Kouremenos, running since 2004. Owner Hannes; staff names appearing in reviews include Aga + Pawel. Multi-language teaching (GR/DE/EN/FR/IT). JP Australia boards + NeilPryde sails. Showers, water fountain, sun beds, volleyball, mountain bike rental, afternoon yoga. Trees for shade.` },
           { kop: "The constants (recent reviews)", tekst: `Apr 2025 reviewer (third-year returning guest): "absolutely satisfied with the excellent and courteous service. Aga and Pawel try very hard". Aug 2024 reviewer: "Perfect flat water spot, well equipped rental with top gear, and super service".` },
           { kop: "Honest sourcing gap", tekst: `Only 2 of 62 TripAdvisor reviews are within the last 4 years. Most enthusiastic reviews ("windy 28 of 30 days", "best windsurfing base I've been in my life", "Hannes is the best") are 2019-2020 — outside the window. Hannes still responds personally to reviews on TripAdvisor (most recent owner response visible).` },
-          { kop: "Sister station", tekst: `Same brand operates a windsurf station in Dakhla, Morocco (per their own site). If you've sailed Crete with them, the Dakhla setup is from the same operator.` },
-          { kop: "Honest minpunt", tekst: `Older reviewer (Aug 2020) flagged "wind gaps and gusts" — that's the bay character, not Freak's fault. No specific negatives surface in the 2024-2025 reviews.` }
+          { kop: "Sister station", tekst: `Same brand operates a windsurf station in Dakhla, Morocco (per their own site). If you've sailed Crete with them, the Dakhla setup is from the same operator.` }
         ]
       }
     ],
     vergelijking: null,
     ideaalVoor: "Sailors wanting a full-service beach station with infrastructure (showers, food, sun beds, bikes, yoga, evening entertainment) and a wide multilingual team. Families and groups bringing non-sailing companions.",
-    nietIdeaalAls: "You want a quiet, small, owner-run center — go to Gone Surfing instead."
+    nietIdeaalAls: "You want a quiet, small, owner-run center — the other center on the beach fits that better."
   },
 
   /* ----------------- STAYS — EAST CRETE ----------------- */
@@ -1527,7 +2009,7 @@ const WAVEBASE_DATA = [
     verblijf: {
       eten: "Self-catering studios with kitchenettes. Surf Beach Bar next door for breakfast/snacks; village supermarkets 1.5 km inland in Palekastro. Sun beds and BBQ facilities on site.",
       afstandSpot: "Zero — middle of Kouremenos beach, next door to the windsurf centers. Walk in your wetsuit.",
-      verhuur: "Not run by the apartments — windsurf/wing/kite at the centers on the same beach (Gone Surfing, Freak Surf).",
+      verhuur: "Not run by the apartments — windsurf/wing/kite at the two centers on the same beach (see Surf centers).",
       lessen: "Not on site — via one of the centers on the beach.",
       rating: "Booking.com 9.1/10 \"Fantastisch\" over 30 reviews. Also listed on TripAdvisor, Hotels.com, Planet Windsurf Holidays and their own site (surfbeachapts.gr). Bron-strength: 🟢 SOLID.",
       sfeer: "Low-key, windsurfer/wing-foiler crowd. Not a camp — independent travellers who want to wake up to the wind.",
@@ -1543,14 +2025,14 @@ const WAVEBASE_DATA = [
     verhaal: [
       `Surf Beach Apartments is exactly what the name promises — self-catering studios in the middle of Kouremenos beach, next door to the Surf Beach Bar and the windsurf centers. Booking.com rates it **9.1/10 "Fantastisch" across 30 reviews** — that's the strongest aggregate Booking score of any stay in this Kouremenos cluster, and Booking's score weights recent reviews more heavily, so the rating reflects current operation.`,
       `Offerings (per the property's own site and listings): kitchenette, AC, private bathroom, balcony in each studio; sun terrace, garden, beach access, free WiFi, bike hire, BBQ. Pets allowed on request. Location per their own description: "at the center of Kouremenos Beach next to Surf Beach Bar and windsurfing schools" — 1.5 km from Palekastro village, 5 km from Vai, 18 km from Sitia.`,
-      `Honest fine print: we have the aggregate Booking score (9.1/30, fresh) but didn't read individual recent review texts in detail for this entry — so the picture of the experience is "consistently strong" rather than thematically distinct. This is not a surf camp: no in-house lessons or shared dinners; the wind side of the trip happens at one of the centers on the beach (Gone Surfing or Freak Surf). For food and groceries, the village is a short walk or drive inland.`
+      `Honest fine print: we have the aggregate Booking score (9.1/30, fresh) but didn't read individual recent review texts in detail for this entry — so the picture of the experience is "consistently strong" rather than thematically distinct. This is not a surf camp: no in-house lessons or shared dinners; the wind side of the trip happens at one of the two centers on the beach. For food and groceries, the village is a short walk or drive inland.`
     ],
     lagen: [
       {
         titel: "The wind — Kouremenos region",
         bron: "Windfinder, Beach-Inspector, center sites + LDW's first-hand visit",
         inhoud: [
-          { kop: "High season · Jun–Sep", tekst: `Side-shore meltemi NNW–N nearly every afternoon, ~4–7 Bft. July–August the most reliable.` },
+          { kop: "High season · Jun–Sep", tekst: `Side-shore meltemi NNW–N nearly every afternoon, ~15–28 kn. July–August the most reliable.` },
           { kop: "Mornings", tekst: `Often calm — Kouremenos is an afternoon spot.` },
           { kop: "Zero distance to the launch", tekst: `Of the five Kouremenos-area stays, this is the one with the most-direct on-beach access — walk to the center in a wetsuit.` }
         ]
@@ -1588,7 +2070,7 @@ const WAVEBASE_DATA = [
     verblijf: {
       eten: "Self-catering — fully equipped kitchens in each villa (per the property's own site); small beach tavernas nearby; more in Palekastro village (~2 km inland).",
       afstandSpot: "30 m to the sand per akti-villas.gr; steps to the windsurf centers.",
-      verhuur: "Not on site — windsurf/wing/kite gear at the centers on Kouremenos beach (Gone Surfing, Freak Surf).",
+      verhuur: "Not on site — windsurf/wing/kite gear at the two centers on Kouremenos beach (see Surf centers).",
       lessen: "Not on site — book through one of the centers on the beach.",
       rating: "TripAdvisor 4.4/5 over 10 reviews — but ALL reviews are from 2013-2017, pre-pandemic. No verifiable reviews from the last 4 years. Sub-scores (legacy): Cleanliness 5.0, Location 4.8, Value 4.8, Rooms 3.8, Sleep Quality 3.7. Not on Booking.com. Bron-strength: 🔴 STALE — current operation unverified; treat below picture as historical.",
       sfeer: "Per the property's own site: \"a quiet and picturesque area in Kouremenos\", olive groves, family-friendly. Current vibe unverified — review trail stalled in 2017.",
@@ -1611,7 +2093,7 @@ const WAVEBASE_DATA = [
         titel: "The wind — Kouremenos region",
         bron: "Windfinder, Beach-Inspector, center sites + LDW's first-hand visit",
         inhoud: [
-          { kop: "High season · Jun–Sep", tekst: `Side-shore meltemi NNW–N nearly every afternoon, ~4–7 Bft. Walk from the villas to the launch.` }
+          { kop: "High season · Jun–Sep", tekst: `Side-shore meltemi NNW–N nearly every afternoon, ~15–28 kn. Walk from the villas to the launch.` }
         ]
       },
       {
@@ -1670,7 +2152,7 @@ const WAVEBASE_DATA = [
         titel: "The wind — Kouremenos region",
         bron: "Windfinder, Beach-Inspector, center sites + LDW's first-hand visit",
         inhoud: [
-          { kop: "High season · Jun–Sep", tekst: `Side-shore meltemi NNW–N nearly every afternoon, ~4–7 Bft. Drive ~2–3 km from Agathia to Kouremenos beach.` },
+          { kop: "High season · Jun–Sep", tekst: `Side-shore meltemi NNW–N nearly every afternoon, ~15–28 kn. Drive ~2–3 km from Agathia to Kouremenos beach.` },
           { kop: "Why the location works", tekst: `Equidistant between Palekastro village (walkable for groceries and tavernas) and the wind. Plus on-site gear storage and bicycle rental.` }
         ]
       },
@@ -1681,7 +2163,6 @@ const WAVEBASE_DATA = [
           { kop: "Offerings", tekst: `Family-run apartments (5-bed) and studios (3-bed) in Agathia hamlet, 7 rooms. Each: kitchenette, AC, fridge, balcony or veranda. Free WiFi, free parking. Pet-friendly. Bar/lounge on site. Languages: EN/GR/PL/RO.` },
           { kop: "The constants (recent reviews 2023-2025)", tekst: `Owners "sweet and nice" (2024 reviewer); rooms "exceptionally clean, great view from balcony" (2024 reviewer). Quiet hamlet with "only sound is cicadas" (Aug 2023 reviewer). Welcoming hosts cited repeatedly.` },
           { kop: "Ownership transition (recent)", tekst: `Aug 2023 Booking reviewer: "Kostas is a great host!" Jun 2025 TripAdvisor reviewer: "After the sad death of Kostas, his daughter and the couple Marianthi and Michalis have taken over. The standard remains impeccably high." Transition occurred 2023-2025.` },
-          { kop: "Honest minpunten (recent reviews)", tekst: `AC noise (Sep 2024 review). WiFi reliability — "getting the right code" (2024 review). Air circulation (2024 review). All are practical pain-points, none dealbreakers.` },
           { kop: "Insider tip", tekst: `Rooms 1-3 on the first floor have sea-view balconies toward Chiona; other rooms face a sheltered garden (TripAdvisor reviewer tip).` }
         ]
       }
@@ -1731,7 +2212,7 @@ const WAVEBASE_DATA = [
         titel: "The wind — Kouremenos region",
         bron: "Windfinder, Beach-Inspector, center sites + LDW's first-hand visit",
         inhoud: [
-          { kop: "High season · Jun–Sep", tekst: `Side-shore meltemi NNW–N nearly every afternoon, ~4–7 Bft. Drive ~2 km down from the hillside to the beach.` },
+          { kop: "High season · Jun–Sep", tekst: `Side-shore meltemi NNW–N nearly every afternoon, ~15–28 kn. Drive ~2 km down from the hillside to the beach.` },
           { kop: "Hillside view", tekst: `Per reviewers: each balcony overlooks the windsurf bay — you watch the wind fill in before driving down. Especially valued by non-sailing partners.` }
         ]
       },
@@ -1741,8 +2222,7 @@ const WAVEBASE_DATA = [
         inhoud: [
           { kop: "What it is (offerings)", tekst: `Family-owned hillside villa with 5 apartments + 2 rooms. Each unit: private balcony, kitchenette, AC, fridge. Free parking, free WiFi, BBQ area, mosquito nets, sun terrace.` },
           { kop: "The constants (recent reviews)", tekst: `View from balcony cited in nearly every 2023-2026 review. Hosts named warmly — Amalia + Yorgo still in 2023 Booking reviews; Virginie + Manolis described in a 2025 TripAdvisor review as new management. Welcome arrivals and BBQ garden recur.` },
-          { kop: "Who stays here", tekst: `Returning guests common (one Aug 2025 reviewer: "stayed last year, decided to return"). Couples and small families wanting a panoramic perch above the bay. Multilingual: English, Greek.` },
-          { kop: "Honest minpunten", tekst: `"End of the world feel" (Sept 2025 review, score 9.0) — secluded location won't suit everyone. ~2 km drive down to the beach. Older reviews flagged summer heat (paid AC) and mosquitoes; not contradicted in newer reviews but not specifically confirmed.` }
+          { kop: "Who stays here", tekst: `Returning guests common (one Aug 2025 reviewer: "stayed last year, decided to return"). Couples and small families wanting a panoramic perch above the bay. Multilingual: English, Greek.` }
         ]
       }
     ],
@@ -1791,7 +2271,7 @@ const WAVEBASE_DATA = [
         titel: "The wind — Kouremenos region",
         bron: "Windfinder, Beach-Inspector, center sites + LDW's first-hand visit",
         inhoud: [
-          { kop: "High season · Jun–Sep", tekst: `Side-shore meltemi NNW–N nearly every afternoon, ~4–7 Bft. Beach is steps from the property.` },
+          { kop: "High season · Jun–Sep", tekst: `Side-shore meltemi NNW–N nearly every afternoon, ~15–28 kn. Beach is steps from the property.` },
           { kop: "On the beach", tekst: `\"2 min walk to beautiful beach\" (Sep 2023 reviewer). \"Mooi terras uit de wind\" — terrace sheltered from the wind, with sun/shade options.` }
         ]
       },
@@ -1801,8 +2281,7 @@ const WAVEBASE_DATA = [
         inhoud: [
           { kop: "Offerings", tekst: `Owner-run beachfront studios in an olive yard. Kitchenettes (described \"modern\" in a May 2026 review), AC, fridge, outdoor grill. Pet-friendly. Free parking, free WiFi.` },
           { kop: "The owners (recent + historic)", tekst: `Nikos Hatzidakis and Katerina. Recent reviewers describe hosts as "lovely" (Jul 2025). The 2013 review (outside our window) called Nikos "one of the most reliable people I have ever met".` },
-          { kop: "Sister property: Rousolakos", tekst: `Same owners run Rousolakos Apartments nearby — set back with a secluded pool, near Chiona beach and the Minoan ruins. Different vibe, same hosts.` },
-          { kop: "Honest minpunten", tekst: `Thin recent review base (4 in 4 years). One Oct 2025 reviewer flagged "comfort on the bed" as the low point. Older TripAdvisor reviews had Service at 3.6 and Rooms at 3.8 — the 2026 "modern" descriptor suggests at least some refresh.` }
+          { kop: "Sister property: Rousolakos", tekst: `Same owners run Rousolakos Apartments nearby — set back with a secluded pool, near Chiona beach and the Minoan ruins. Different vibe, same hosts.` }
         ]
       }
     ],

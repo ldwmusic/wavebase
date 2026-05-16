@@ -24,7 +24,7 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600&family=DM+Sans:wght@400;500;600&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
-  <link rel="stylesheet" href="styles.css?v=33">
+  <link rel="stylesheet" href="styles.css?v=58">
 </head>
 <body>
 
@@ -48,9 +48,17 @@
         <p>Surf spots and stays on the map — Tamraght &amp; Taghazout in Morocco, and the east-Crete wind cluster (Kouremenos &amp; around) in Greece. Toggle the layers on or off.</p>
       </div>
       <div class="map-filters">
-        <label><input type="checkbox" id="t-spot" checked> <span class="dot spot"></span> Surf spots</label>
+        <span class="map-filter-label">Show:</span>
+        <label><input type="checkbox" id="t-spot" checked> <span class="dot spot"></span> Spots</label>
         <label><input type="checkbox" id="t-stay" checked> <span class="dot stay"></span> Stays</label>
-        <label><input type="checkbox" id="t-center" checked> <span class="dot center"></span> Surf centers</label>
+        <label><input type="checkbox" id="t-center" checked> <span class="dot center"></span> Centers</label>
+      </div>
+      <div class="map-filters map-filters-sports">
+        <span class="map-filter-label">Sports:</span>
+        <label><input type="checkbox" class="t-sport" data-sport="wave" checked> <span class="dot wave"></span> Surf</label>
+        <label><input type="checkbox" class="t-sport" data-sport="wind" checked> <span class="dot wind"></span> Windsurf</label>
+        <label><input type="checkbox" class="t-sport" data-sport="kite" checked> <span class="dot kite"></span> Kitesurf</label>
+        <label><input type="checkbox" class="t-sport" data-sport="wing" checked> <span class="dot wing"></span> Wingfoil</label>
       </div>
       <div id="map"></div>
     </section>
@@ -64,9 +72,9 @@
   </footer>
 
   <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
-  <script src="data.js?v=33"></script>
-  <script src="account.js?v=33"></script>
-  <script src="app.js?v=33"></script>
+  <script src="data.js?v=58"></script>
+  <script src="account.js?v=58"></script>
+  <script src="app.js?v=58"></script>
   <!-- Cloudflare Web Analytics --><script defer src='https://static.cloudflareinsights.com/beacon.min.js' data-cf-beacon='{"token": "62ad05eecbb8442ba571b2d4db28b8b5"}'></script><!-- End Cloudflare Web Analytics -->
 </body>
 </html>

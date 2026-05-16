@@ -290,7 +290,9 @@ a:hover { text-decoration: underline; }
   gap: 8px;
   white-space: nowrap;
 }
-.searcher select {
+.searcher select,
+.searcher input[type="text"],
+.searcher input[type="search"] {
   font-family: 'DM Sans', sans-serif;
   font-size: 16px;
   color: var(--sea);
@@ -301,7 +303,13 @@ a:hover { text-decoration: underline; }
   padding: 7px 12px;
   cursor: pointer;
 }
-.searcher select:focus { outline: 2px solid var(--sea); outline-offset: 1px; }
+.searcher input[type="text"]::placeholder,
+.searcher input[type="search"]::placeholder {
+  color: var(--sea); opacity: 0.55; font-weight: 500;
+}
+.searcher select:focus,
+.searcher input[type="text"]:focus,
+.searcher input[type="search"]:focus { outline: 2px solid var(--sea); outline-offset: 1px; }
 .searcher .actions {
   text-align: center;
   margin-top: 22px;
@@ -354,6 +362,7 @@ a:hover { text-decoration: underline; }
   display: flex;
   flex-direction: column;
   transition: transform 0.15s ease, box-shadow 0.2s ease;
+  cursor: pointer;
 }
 .card:hover { transform: translateY(-3px); box-shadow: var(--shadow); }
 .card a.card-link { color: inherit; text-decoration: none; display: flex; flex-direction: column; height: 100%; }
@@ -389,6 +398,17 @@ a:hover { text-decoration: underline; }
   border-radius: 999px;
   padding: 4px 12px;
 }
+.card .sport-icons {
+  position: absolute;
+  bottom: 32px; left: 12px;
+  z-index: 2;
+  display: flex;
+  gap: 4px;
+  color: #fffefb;
+  filter: drop-shadow(0 1px 2px rgba(0,0,0,0.25));
+}
+.card .sport-icon { display: inline-flex; }
+.card .sport-icon svg { width: 36px; height: 36px; display: block; }
 .card .body { padding: 18px 20px 22px; display: flex; flex-direction: column; gap: 8px; flex: 1; }
 .card .place {
   font-size: 13px;
@@ -673,6 +693,254 @@ table.cal td.host { color: var(--clay); }
   border-radius: var(--radius);
   padding: 24px 30px; margin-bottom: 22px;
 }
+
+/* ---- At-a-glance stats panel ---- */
+.at-a-glance {
+  background: var(--paper);
+  border: 1px solid var(--sand);
+  border-radius: var(--radius);
+  padding: 22px 28px 24px;
+  margin: 18px 0 22px;
+  box-shadow: var(--shadow-sm);
+}
+.at-a-glance h2 {
+  font-size: 15px; letter-spacing: 0.14em; text-transform: uppercase;
+  color: var(--ink-soft); margin-bottom: 14px;
+}
+.at-a-glance .stats-source {
+  margin: -8px 0 14px; font-size: 13px; color: var(--ink-soft); font-style: italic;
+}
+.stats-grid {
+  display: grid; grid-template-columns: 1fr; gap: 2px;
+  border-top: 1px solid var(--sand);
+}
+.stats-row {
+  display: grid;
+  grid-template-columns: 90px 1fr auto;
+  align-items: baseline;
+  gap: 16px;
+  padding: 12px 0;
+  border-bottom: 1px solid var(--sand);
+}
+.stats-label {
+  font-size: 14px; font-weight: 600; letter-spacing: 0.04em;
+  text-transform: uppercase; color: var(--ink-soft);
+}
+.stats-main {
+  font-family: 'DM Sans', sans-serif;
+  font-size: 17px; font-weight: 600; color: var(--ink);
+}
+.stats-main .muted { font-size: 14.5px; font-weight: 400; }
+.stats-note { font-size: 13.5px; color: var(--ink-soft); text-align: right; }
+
+.crowd-dots { display: inline-flex; gap: 5px; vertical-align: middle; }
+.crowd-dot {
+  width: 11px; height: 11px; border-radius: 50%;
+  background: var(--sand-deep);
+}
+.crowd-dot.on { background: var(--clay); }
+
+/* ---- Period comparison: Your month vs Best month ---- */
+.period-comparison {
+  display: grid; grid-template-columns: 1fr 1fr; gap: 14px;
+  margin-top: 18px;
+}
+.period-col {
+  background: var(--cream);
+  border: 1px solid var(--sand);
+  border-radius: 12px;
+  padding: 14px 16px;
+}
+.period-col.is-peak {
+  background: var(--sea-soft);
+  border-color: #cde0e3;
+}
+.period-head {
+  display: flex; justify-content: space-between; align-items: baseline;
+  gap: 8px; margin-bottom: 10px; padding-bottom: 8px;
+  border-bottom: 1px solid var(--sand-deep);
+}
+.period-col.is-peak .period-head { border-bottom-color: #cde0e3; }
+.period-tag {
+  font-size: 11px; font-weight: 700; letter-spacing: 0.1em;
+  text-transform: uppercase; color: var(--ink-soft);
+}
+.period-col.is-peak .period-tag { color: var(--sea); }
+.period-month { font-size: 13px; font-weight: 600; color: var(--ink); }
+.period-stat {
+  display: grid; grid-template-columns: 60px 1fr;
+  gap: 8px; align-items: baseline; padding: 6px 0;
+  font-size: 14px;
+}
+.period-stat-label {
+  font-size: 11px; font-weight: 700; letter-spacing: 0.08em;
+  text-transform: uppercase; color: var(--ink-soft);
+}
+.period-stat-val {
+  font-family: 'Fraunces', Georgia, serif;
+  font-size: 17px; color: var(--ink);
+}
+.period-stat-note {
+  grid-column: 2; font-size: 12px; color: var(--ink-soft);
+  margin-top: -2px;
+}
+.period-empty {
+  color: var(--ink-soft); font-style: italic; font-size: 14px;
+  padding: 8px 0;
+}
+
+/* highlight user's current month in the bar chart */
+.month-bar.is-user .month-bar-fill {
+  outline: 2px solid var(--clay); outline-offset: 1px;
+}
+.month-bar.is-user .month-bar-label { color: var(--clay); font-weight: 700; }
+
+/* ---- Monthly chart — paired wind & water bars per month ---- */
+.monthly-chart { margin-top: 22px; }
+.monthly-chart h3 {
+  font-size: 12px; font-weight: 700; letter-spacing: 0.1em;
+  text-transform: uppercase; color: var(--ink-soft); margin-bottom: 12px;
+}
+.monthly-chart h3 .muted {
+  font-weight: 500; text-transform: none; letter-spacing: 0; font-size: 11.5px;
+}
+.monthly-chart .chart-header {
+  display: flex; justify-content: space-between; align-items: baseline;
+  margin-bottom: 12px; gap: 12px; flex-wrap: wrap;
+}
+.monthly-chart .chart-header h3 { margin-bottom: 0; }
+.chart-legend {
+  display: flex; gap: 14px; font-size: 12px; color: var(--ink-soft);
+}
+.legend-dot {
+  display: inline-block; width: 10px; height: 10px; border-radius: 2px;
+  margin-right: 4px; vertical-align: middle;
+}
+.legend-dot.wind  { background: var(--sea); }
+.legend-dot.water { background: var(--clay); }
+
+/* Split charts — wind and water side-by-side */
+.monthly-chart.split .chart-pair {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 24px;
+}
+.single-chart h3 {
+  font-size: 12px; font-weight: 700; letter-spacing: 0.1em;
+  text-transform: uppercase; color: var(--ink-soft); margin-bottom: 12px;
+}
+.single-chart h3 .muted {
+  font-weight: 500; text-transform: none; letter-spacing: 0; font-size: 11.5px;
+}
+.single-chart .chart-body {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: 6px;
+}
+.single-chart .y-axis {
+  display: flex; flex-direction: column;
+  justify-content: space-between;
+  height: 90px;
+  font-size: 10.5px; color: var(--ink-soft); text-align: right;
+  min-width: 28px;
+  padding-bottom: 18px;  /* line up with bars area (chart-plot has month labels below) */
+}
+.single-chart .y-tick { line-height: 1; }
+.single-chart .chart-plot {
+  position: relative;
+}
+.single-chart .y-gridlines {
+  position: absolute; inset: 0 0 18px 0;
+  display: flex; flex-direction: column; justify-content: space-between;
+  pointer-events: none;
+}
+.single-chart .y-gridline {
+  border-top: 1px dashed var(--sand-deep);
+  opacity: 0.6;
+}
+.single-chart .month-bars {
+  height: 90px;
+  border-bottom: 1px solid var(--sand-deep);
+  position: relative; z-index: 1;
+  padding-bottom: 0;
+}
+/* Color overrides per chart */
+.month-bar.color-wind .month-bar-fill  { background: var(--sea); }
+.month-bar.color-water .month-bar-fill { background: var(--clay); }
+.month-bar.off-season .month-bar-fill { opacity: 0.45; }
+.month-bar.off-season .month-bar-label { color: var(--ink-soft); font-style: italic; }
+
+@media (max-width: 700px) {
+  .monthly-chart.split .chart-pair { grid-template-columns: 1fr; gap: 22px; }
+}
+.month-bars {
+  display: grid;
+  grid-template-columns: repeat(12, 1fr);
+  gap: 4px;
+  align-items: end;
+  height: 90px;
+  border-bottom: 1px solid var(--sand-deep);
+  padding-bottom: 2px;
+}
+.month-bar {
+  position: relative; display: flex; flex-direction: column;
+  align-items: center; justify-content: flex-end;
+  height: 100%;
+}
+.month-bar-fill {
+  width: 100%; border-radius: 4px 4px 0 0;
+  background: var(--sand);
+  height: 8%;
+  transition: background 0.15s ease, height 0.15s ease;
+}
+.month-bar.mid .month-bar-fill { background: #9fb8be; }
+.month-bar.on .month-bar-fill {
+  background: var(--sea);
+}
+.month-bar.off .month-bar-fill { background: var(--sand); }
+.month-bar.unknown .month-bar-fill {
+  background: repeating-linear-gradient(
+    -45deg,
+    var(--sand) 0 4px,
+    var(--sand-deep) 4px 8px
+  );
+  opacity: 0.7;
+}
+.month-bar.unknown .month-bar-label { color: var(--ink-soft); font-style: italic; }
+/* Off-season: data exists, but sport is not practiced (centers closed) */
+.month-bar.off-season .month-bar-fill { opacity: 0.45; }
+.month-bar.off-season .month-bar-label { color: var(--ink-soft); font-style: italic; }
+
+.chart-note {
+  margin-top: 10px; font-size: 12px; color: var(--ink-soft);
+  font-style: italic;
+}
+.month-bar-label {
+  font-size: 11px; font-weight: 600; color: var(--ink-soft);
+  margin-top: 4px;
+}
+.month-bar.on .month-bar-label { color: var(--sea); }
+.month-axis {
+  display: flex; justify-content: space-between;
+  font-size: 10.5px; color: var(--ink-soft);
+  margin-top: 4px; padding-right: 4px;
+}
+
+@media (max-width: 620px) {
+  .at-a-glance { padding: 18px 20px 20px; }
+  .stats-row { grid-template-columns: 80px 1fr auto; gap: 10px; padding: 10px 0; }
+  .stats-main { font-size: 19px; }
+  .stats-note { font-size: 12.5px; }
+  .month-bars { height: 56px; }
+  .period-comparison { grid-template-columns: 1fr; gap: 10px; }
+}
+
+.related-entries { margin: 32px 0 20px; }
+.related-entries h2 {
+  font-family: 'Fraunces', Georgia, serif; font-size: 28px;
+  margin-bottom: 6px;
+}
+.related-entries .form-note { margin-bottom: 14px; }
 .kort h2 {
   font-size: 15px; letter-spacing: 0.14em; text-transform: uppercase;
   color: var(--sea); margin-bottom: 12px;
@@ -712,6 +980,26 @@ table.cal td.host { color: var(--clay); }
   background: var(--cream); border: 1px solid var(--sand-deep);
   border-radius: 10px; padding: 9px 12px; min-width: 200px;
 }
+.profile-form .form-wide { flex-basis: 100%; }
+.profile-form .form-checkset {
+  display: flex; flex-direction: column; gap: 6px; margin: 0;
+}
+.profile-form .form-checkset-label {
+  font-size: 14px; font-weight: 600; color: var(--ink-soft);
+}
+.profile-form .form-checkset-label .muted { font-weight: 400; }
+.profile-form .form-checkset-options {
+  display: flex; flex-wrap: wrap; gap: 12px 24px;
+  background: var(--cream); border: 1px solid var(--sand-deep);
+  border-radius: 10px; padding: 10px 14px;
+}
+.profile-form .cb {
+  display: inline-flex; flex-direction: row; align-items: center; gap: 8px;
+  font-size: 15px; font-weight: 500; color: var(--ink);
+  cursor: pointer; user-select: none;
+}
+.profile-form .cb input { min-width: 0; width: auto; margin: 0; cursor: pointer; }
+.profile-form .form-checkset.hidden { display: none; }
 .trip-section-head {
   display: flex; justify-content: space-between; align-items: center;
   margin-bottom: 16px; flex-wrap: wrap; gap: 10px;
@@ -745,6 +1033,16 @@ table.cal td.host { color: var(--clay); }
 .map-filters .dot.spot { background: var(--sea); }
 .map-filters .dot.stay { background: var(--clay); }
 .map-filters .dot.center { background: var(--amber); }
+.map-filters .dot.wave { background: #3f6f7d; }
+.map-filters .dot.wind { background: #bd6242; }
+.map-filters .dot.kite { background: #e0a447; }
+.map-filters .dot.wing { background: #848a5f; }
+.map-filter-label {
+  font-size: 13px; font-weight: 600; color: var(--ink-soft);
+  text-transform: uppercase; letter-spacing: 0.06em;
+  align-self: center;
+}
+.map-filters-sports { margin-top: -6px; }
 #map {
   height: 540px; border-radius: var(--radius);
   border: 1px solid var(--sand); box-shadow: var(--shadow-sm);
@@ -904,6 +1202,12 @@ table.cal td.host { color: var(--clay); }
   font-size: 11px; font-weight: 600; letter-spacing: 0.04em; text-transform: uppercase;
   color: #fff; background: rgba(0,0,0,0.4); border-radius: 999px; padding: 3px 10px;
 }
+.cmp-col .thumb .sport-icons {
+  position: absolute; bottom: 10px; left: 12px;
+  display: flex; gap: 4px; color: #fffefb;
+  filter: drop-shadow(0 1px 2px rgba(0,0,0,0.25));
+}
+.cmp-col .thumb .sport-icon svg { width: 30px; height: 30px; display: block; }
 .cmp-body { padding: 16px 18px 18px; }
 .cmp-body .place {
   font-size: 12px; letter-spacing: 0.04em; text-transform: uppercase; color: var(--ink-soft);
@@ -976,11 +1280,16 @@ table.cal td.host { color: var(--clay); }
 }
 
 /* town intro strip — on the index page */
+.town-intro-section { margin: 0 0 34px; }
+.town-intro-h2 {
+  font-family: 'Fraunces', Georgia, serif;
+  font-size: 28px; margin: 0 0 14px;
+}
 .town-intro-strip {
   display: grid;
   grid-template-columns: 1fr 1fr;
   gap: 18px;
-  margin: 0 0 34px;
+  margin: 0;
 }
 .town-card {
   background: var(--paper);
@@ -1159,7 +1468,9 @@ table.cal td.host { color: var(--clay); }
 
   /* searcher — keep the "sentence" readable but tighter */
   .searcher .sentence { font-size: 17px; gap: 8px 6px; line-height: 1.8; }
-  .searcher select { font-size: 15px; padding: 6px 10px; }
+  .searcher select,
+  .searcher input[type="text"],
+  .searcher input[type="search"] { font-size: 15px; padding: 6px 10px; }
 
   /* detail-actions — Book now goes full-width, others tighter */
   .detail-actions { gap: 8px; }
@@ -1336,6 +1647,8 @@ table.cal td.host { color: var(--clay); }
 }
 .grid.list-view .card .save-btn { right: 10px; }
 .grid.list-view .card .compare-btn { right: 46px; }
+.grid.list-view .card .sport-icons { bottom: 10px; left: 10px; gap: 3px; }
+.grid.list-view .card .sport-icon svg { width: 28px; height: 28px; }
 .grid.list-view .card .body {
   flex: 1;
   padding: 14px 18px;

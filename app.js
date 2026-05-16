@@ -12,6 +12,19 @@ function typeLabel(t) {
   if (t === "center") return "Surf center";
   return "Stay";
 }
+// Build spot.html href; propagates current month filter so the chosen month
+// carries through to the detail page's "Your month vs Best month" panel.
+function spotHref(id) {
+  const m = new URLSearchParams(window.location.search).get("month");
+  return m && m !== "all" ? `spot.html?id=${id}&month=${m}` : `spot.html?id=${id}`;
+}
+// Shorter labels for the corner badge — fits the narrow list-view thumb.
+// The entity type is clear; the sport pictogram tells you the discipline.
+function typeBadge(t) {
+  if (t === "spot") return "Spot";
+  if (t === "center") return "Center";
+  return "Stay";
+}
 function typeColor(t) {
   if (t === "spot") return "#3f6f7d";    // teal — surf spots
   if (t === "center") return "#e0a447";  // amber — surf centers
@@ -41,15 +54,383 @@ function updateNav() {
   }
 }
 
+/* ---- sport pictograms (v9 — locked 2026-05-16) ---- */
+const WAVEBASE_SPORT_ICONS = {
+  wave: '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" fill="currentColor" aria-hidden="true"><path d="M50 14.8L46.77 15.97L45.5 17.15L44.59 18.32L43.86 19.49L43.25 20.67L42.73 21.84L42.29 23.01L41.91 24.19L41.57 25.36L41.28 26.53L41.02 27.71L40.79 28.88L40.59 30.05L40.42 31.23L40.27 32.4L40.14 33.57L40.03 34.75L39.94 35.92L39.86 37.09L39.79 38.27L39.74 39.44L39.7 40.61L39.67 41.79L39.64 42.96L39.62 44.13L39.61 45.31L39.61 46.48L39.6 47.65L39.6 48.83L39.6 50L39.6 51.17L39.6 52.35L39.61 53.52L39.61 54.69L39.62 55.87L39.64 57.04L39.67 58.21L39.7 59.39L39.74 60.56L39.79 61.73L39.86 62.91L39.94 64.08L40.03 65.25L40.14 66.43L40.27 67.6L40.42 68.77L40.59 69.95L40.79 71.12L41.02 72.29L41.28 73.47L41.57 74.64L41.91 75.81L42.29 76.99L42.73 78.16L43.25 79.33L43.86 80.51L44.59 81.68L45.5 82.85L46.77 84.03L50 85.2L50 85.2L53.23 84.03L54.5 82.85L55.41 81.68L56.14 80.51L56.75 79.33L57.27 78.16L57.71 76.99L58.09 75.81L58.43 74.64L58.72 73.47L58.98 72.29L59.21 71.12L59.41 69.95L59.58 68.77L59.73 67.6L59.86 66.43L59.97 65.25L60.06 64.08L60.14 62.91L60.21 61.73L60.26 60.56L60.3 59.39L60.33 58.21L60.36 57.04L60.38 55.87L60.39 54.69L60.39 53.52L60.4 52.35L60.4 51.17L60.4 50L60.4 48.83L60.4 47.65L60.39 46.48L60.39 45.31L60.38 44.13L60.36 42.96L60.33 41.79L60.3 40.61L60.26 39.44L60.21 38.27L60.14 37.09L60.06 35.92L59.97 34.75L59.86 33.57L59.73 32.4L59.58 31.23L59.41 30.05L59.21 28.88L58.98 27.71L58.72 26.53L58.43 25.36L58.09 24.19L57.71 23.01L57.27 21.84L56.75 20.67L56.14 19.49L55.41 18.32L54.5 17.15L53.23 15.97L50 14.8Z"/></svg>',
+  wind: '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" fill="currentColor" aria-hidden="true"><path d="M16 75.6L17.7 74.09L19.4 73.52L21.1 73.12L22.8 72.81L24.5 72.56L26.2 72.36L27.9 72.19L29.6 72.06L31.3 71.95L33 71.86L34.7 71.79L36.4 71.73L38.1 71.69L39.8 71.65L41.5 71.63L43.2 71.62L44.9 71.61L46.6 71.6L48.3 71.6L50 71.6L51.7 71.6L53.4 71.6L55.1 71.61L56.8 71.62L58.5 71.63L60.2 71.65L61.9 71.69L63.6 71.73L65.3 71.79L67 71.86L68.7 71.95L70.4 72.06L72.1 72.19L73.8 72.36L75.5 72.56L77.2 72.81L78.9 73.12L80.6 73.52L82.3 74.09L84 75.6L84 75.6L82.3 77.11L80.6 77.68L78.9 78.08L77.2 78.39L75.5 78.64L73.8 78.84L72.1 79.01L70.4 79.14L68.7 79.25L67 79.34L65.3 79.41L63.6 79.47L61.9 79.51L60.2 79.55L58.5 79.57L56.8 79.58L55.1 79.59L53.4 79.6L51.7 79.6L50 79.6L48.3 79.6L46.6 79.6L44.9 79.59L43.2 79.58L41.5 79.57L39.8 79.55L38.1 79.51L36.4 79.47L34.7 79.41L33 79.34L31.3 79.25L29.6 79.14L27.9 79.01L26.2 78.84L24.5 78.64L22.8 78.39L21.1 78.08L19.4 77.68L17.7 77.11L16 75.6Z"/><path d="M43.6 71.6L54 14L57.16 16.87L60.27 19.73L63.26 22.6L66.1 25.47L68.76 28.33L71.2 31.2L73.42 34.07L75.44 36.93L77.26 39.8L78.93 42.67L80.49 45.53L82 48.4L78.16 51.09L74.32 53.75L70.48 56.33L66.64 58.82L62.8 61.2L58.96 63.46L55.12 65.61L51.28 67.67L47.44 69.65Z"/></svg>',
+  kite: '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" fill="currentColor" aria-hidden="true"><g transform="rotate(-45 50 50)"><path d="M12 42L13.95 34.92L15.9 32.12L17.85 30.06L19.79 28.41L21.74 27.02L23.69 25.84L25.64 24.81L27.59 23.91L29.54 23.12L31.49 22.44L33.44 21.84L35.38 21.32L37.33 20.88L39.28 20.51L41.23 20.2L43.18 19.96L45.13 19.78L47.08 19.67L49.03 19.61L50.97 19.61L52.92 19.67L54.87 19.78L56.82 19.96L58.77 20.2L60.72 20.51L62.67 20.88L64.62 21.32L66.56 21.84L68.51 22.44L70.46 23.12L72.41 23.91L74.36 24.81L76.31 25.84L78.26 27.02L80.21 28.41L82.15 30.06L84.1 32.12L86.05 34.92L88 42L88 42L86.05 41.64L84.1 41.28L82.15 40.93L80.21 40.58L78.26 40.24L76.31 39.92L74.36 39.61L72.41 39.31L70.46 39.03L68.51 38.77L66.56 38.53L64.62 38.31L62.67 38.12L60.72 37.95L58.77 37.81L56.82 37.7L54.87 37.61L52.92 37.55L50.97 37.52L49.03 37.52L47.08 37.55L45.13 37.61L43.18 37.7L41.23 37.81L39.28 37.95L37.33 38.12L35.38 38.31L33.44 38.53L31.49 38.77L29.54 39.03L27.59 39.31L25.64 39.61L23.69 39.92L21.74 40.24L19.79 40.58L17.85 40.93L15.9 41.28L13.95 41.64L12 42Z"/><line x1="15.9" y1="32.12" x2="38" y2="80.4" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/><line x1="84.1" y1="32.12" x2="62" y2="80.4" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/><line x1="37.33" y1="20.88" x2="44" y2="80.4" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/><line x1="62.67" y1="20.88" x2="56" y2="80.4" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/><rect x="38" y="78.64" width="24" height="3.52" rx="1.44" ry="1.44"/></g></svg>',
+  wing: '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" fill="currentColor" aria-hidden="true"><path d="M12 29.2L14.53 28.46L17.07 27.75L19.6 27.05L22.13 26.38L24.67 25.73L27.2 25.11L29.73 24.52L32.27 23.95L34.8 23.42L37.33 22.92L39.87 22.46L42.4 22.04L44.93 21.68L47.47 21.38L50 21.2L52.53 21.38L55.07 21.68L57.6 22.04L60.13 22.46L62.67 22.92L65.2 23.42L67.73 23.95L70.27 24.52L72.8 25.11L75.33 25.73L77.87 26.38L80.4 27.05L82.93 27.75L85.47 28.46L88 29.2L88 29.2L85.47 30.16L82.93 31.09L80.4 31.99L77.87 32.86L75.33 33.7L72.8 34.51L70.27 35.29L67.73 36.02L65.2 36.72L62.67 37.37L60.13 37.97L57.6 38.51L55.07 38.98L52.53 39.37L50 39.6L47.47 39.37L44.93 38.98L42.4 38.51L39.87 37.97L37.33 37.37L34.8 36.72L32.27 36.02L29.73 35.29L27.2 34.51L24.67 33.7L22.13 32.86L19.6 31.99L17.07 31.09L14.53 30.16L12 29.2ZM40 33.6L40.04 33.29L40.16 33L40.35 32.75L40.6 32.56L40.89 32.44L41.2 32.4L58.8 32.4L59.11 32.44L59.4 32.56L59.65 32.75L59.84 33L59.96 33.29L60 33.6L60 33.6L59.96 33.91L59.84 34.2L59.65 34.45L59.4 34.64L59.11 34.76L58.8 34.8L41.2 34.8L40.89 34.76L40.6 34.64L40.35 34.45L40.16 34.2L40.04 33.91L40 33.6ZM41.6 29.2L43.2 29.2L43.2 32.4L41.6 32.4ZM56.8 29.2L58.4 29.2L58.4 32.4L56.8 32.4Z" fill-rule="evenodd"/><path d="M28 64.4L29.47 63.02L30.93 62.51L32.4 62.16L33.87 61.91L35.33 61.72L36.8 61.57L38.27 61.45L39.73 61.37L41.2 61.3L42.67 61.26L44.13 61.23L45.6 61.21L47.07 61.2L48.53 61.2L50 61.2L51.47 61.2L52.93 61.2L54.4 61.21L55.87 61.23L57.33 61.26L58.8 61.3L60.27 61.37L61.73 61.45L63.2 61.57L64.67 61.72L66.13 61.91L67.6 62.16L69.07 62.51L70.53 63.02L72 64.4L72 64.4L70.53 65.78L69.07 66.29L67.6 66.64L66.13 66.89L64.67 67.08L63.2 67.23L61.73 67.35L60.27 67.43L58.8 67.5L57.33 67.54L55.87 67.57L54.4 67.59L52.93 67.6L51.47 67.6L50 67.6L48.53 67.6L47.07 67.6L45.6 67.59L44.13 67.57L42.67 67.54L41.2 67.5L39.73 67.43L38.27 67.35L36.8 67.23L35.33 67.08L33.87 66.89L32.4 66.64L30.93 66.29L29.47 65.78L28 64.4Z"/><path d="M48.2 67.6L51.8 67.6L51.8 82L48.2 82Z"/><path d="M34 82L35.33 81.04L36.67 80.7L38 80.48L39.33 80.32L40.67 80.21L42 80.13L43.33 80.07L44.67 80.04L46 80.02L47.33 80L48.67 80L50 80L51.33 80L52.67 80L54 80.02L55.33 80.04L56.67 80.07L58 80.13L59.33 80.21L60.67 80.32L62 80.48L63.33 80.7L64.67 81.04L66 82L66 82L64.67 82.96L63.33 83.3L62 83.52L60.67 83.68L59.33 83.79L58 83.87L56.67 83.93L55.33 83.96L54 83.98L52.67 84L51.33 84L50 84L48.67 84L47.33 84L46 83.98L44.67 83.96L43.33 83.93L42 83.87L40.67 83.79L39.33 83.68L38 83.52L36.67 83.3L35.33 82.96L34 82Z"/></svg>'
+};
+
+const SPORT_LABEL = { wave: "Surf", wind: "Windsurf", kite: "Kitesurf", wing: "Wingfoil" };
+
+function sportIconsHTML(sports) {
+  if (!sports || !sports.length) return "";
+  const icons = sports
+    .filter(s => WAVEBASE_SPORT_ICONS[s])
+    .map(s => `<span class="sport-icon" title="${SPORT_LABEL[s] || s}">${WAVEBASE_SPORT_ICONS[s]}</span>`)
+    .join("");
+  return `<div class="sport-icons">${icons}</div>`;
+}
+
+/* At-a-glance stats panel — first numeric block on spot/center pages.
+   Spots store stats themselves; centers inherit from their linkedSpotId.
+   Stays don't show this block (they're not condition-bound).
+   Missing fields render as "—" rather than being invented. */
+function getStatsFor(e) {
+  if (e.type === "stay") return null;
+  if (e.stats) return e.stats;
+  if (e.linkedSpotId) {
+    const linked = WAVEBASE_DATA.find(x => x.id === e.linkedSpotId);
+    if (linked && linked.stats) return linked.stats;
+  }
+  return null;
+}
+
+function fmtRange(arr, unit) {
+  if (!arr || !arr.length) return "—";
+  if (arr.length === 1) return `${arr[0]} ${unit}`;
+  return `${arr[0]}–${arr[1]} ${unit}`;
+}
+
+function crowdLabelText(c) {
+  if (c === "low" || c === "laag")        return "low";
+  if (c === "moderate" || c === "gemiddeld") return "moderate";
+  if (c === "high" || c === "hoog")       return "high";
+  return c || "—";
+}
+
+function crowdDotsHTML(c) {
+  const map = { low: 1, laag: 1, moderate: 2, gemiddeld: 2, high: 3, hoog: 3 };
+  const n = map[c] || 0;
+  let html = "";
+  for (let i = 1; i <= 3; i++) {
+    html += `<span class="crowd-dot${i <= n ? " on" : ""}"></span>`;
+  }
+  return html;
+}
+
+const WAVEBASE_MONTH_LONG = ["", "Jan","Feb","Mar","Apr","May","Jun",
+  "Jul","Aug","Sep","Oct","Nov","Dec"];
+
+// Find which period contains a given month (1-12). Returns null if no match.
+function findPeriodForMonth(periods, month) {
+  if (!periods || !periods.length) return null;
+  return periods.find(p => Array.isArray(p.months) && p.months.includes(month)) || null;
+}
+
+// Average wind probability for a period — derived from monthlyWindProb where it
+// exists, falls back to period.windProb (legacy structure).
+function periodWindProb(period, monthlyWindProb) {
+  if (!period) return null;
+  if (Array.isArray(monthlyWindProb) && Array.isArray(period.months)) {
+    const vals = period.months
+      .map(m => monthlyWindProb[m - 1])
+      .filter(v => typeof v === "number");
+    if (vals.length) return vals.reduce((a, b) => a + b, 0) / vals.length;
+  }
+  return (typeof period.windProb === "number") ? period.windProb : null;
+}
+
+// Pick the "best" period — only in-season periods compete; highest wind first.
+function pickPeakPeriod(periods, monthlyWindProb) {
+  if (!periods || !periods.length) return null;
+  const inSeason = periods.filter(p => p.inSeason !== false);
+  const pool = inSeason.length ? inSeason : periods;
+  return [...pool].sort((a, b) => {
+    const pa = periodWindProb(a, monthlyWindProb) || 0;
+    const pb = periodWindProb(b, monthlyWindProb) || 0;
+    if (pb !== pa) return pb - pa;
+    return (b.months || []).length - (a.months || []).length;
+  })[0];
+}
+
+// What month should the panel highlight as "yours"?
+// Priority: ?month= URL param → today's month.
+function userSelectedMonth() {
+  const params = new URLSearchParams(window.location.search);
+  const m = parseInt(params.get("month"), 10);
+  if (m >= 1 && m <= 12) return m;
+  return new Date().getMonth() + 1;
+}
+
+function periodColumnHTML(period, label, monthLabel, isPeak, stats, targetMonth) {
+  if (!period) {
+    return `<div class="period-col">
+      <div class="period-head">
+        <span class="period-tag">${label}</span>
+        <span class="period-month">${monthLabel}</span>
+      </div>
+      <div class="period-empty">No reliable data for this month.</div>
+    </div>`;
+  }
+  // Prefer per-month value where we have monthly arrays — more precise than
+  // the period range. Falls back to period.windKn etc. when monthlies missing.
+  const m = targetMonth - 1;
+  const monthlyKn   = (stats && Array.isArray(stats.monthlyWindKn))   ? stats.monthlyWindKn[m]   : null;
+  const monthlyWat  = (stats && Array.isArray(stats.monthlyWaterC))   ? stats.monthlyWaterC[m]  : null;
+  const monthlyProb = (stats && Array.isArray(stats.monthlyWindProb)) ? stats.monthlyWindProb[m] : null;
+
+  const hasWindData = (typeof monthlyKn === "number") || period.windKn ||
+                      (typeof monthlyProb === "number");
+  const wind = (typeof monthlyKn === "number")
+    ? `~${monthlyKn} kn`
+    : (period.windKn ? fmtRange(period.windKn, "kn") : "—");
+  const offNote = period.inSeason === false ? " · centers closed" : "";
+  const probVal = (typeof monthlyProb === "number")
+    ? monthlyProb
+    : periodWindProb(period, stats && stats.monthlyWindProb);
+  const prob = (typeof probVal === "number")
+    ? `${Math.round(probVal * 100)}% wind days${offNote}`
+    : "";
+
+  const wave = period.waveM ? fmtRange(period.waveM, "m") : "—";
+  const water = (typeof monthlyWat === "number")
+    ? `${monthlyWat} °C`
+    : (period.waterC ? fmtRange(period.waterC, "°C") : "—");
+
+  const windRow = hasWindData ? `<div class="period-stat"><span class="period-stat-label">Wind</span>
+      <span class="period-stat-val">${wind}</span>
+      ${prob ? `<span class="period-stat-note">${prob}</span>` : ""}
+    </div>` : "";
+
+  return `<div class="period-col${isPeak ? " is-peak" : ""}">
+    <div class="period-head">
+      <span class="period-tag">${label}</span>
+      <span class="period-month">${monthLabel} · ${period.name}</span>
+    </div>
+    ${windRow}
+    <div class="period-stat"><span class="period-stat-label">Wave</span>
+      <span class="period-stat-val">${wave}</span></div>
+    <div class="period-stat"><span class="period-stat-label">Water</span>
+      <span class="period-stat-val">${water}</span></div>
+  </div>`;
+}
+
+function statsPanelHTML(e) {
+  const s = getStatsFor(e);
+  if (!s) return "";
+
+  const inherited = (e.type === "center" && e.linkedSpotId);
+  const inheritedNote = inherited
+    ? `<p class="stats-source">Conditions are for the beach this center sits on.</p>`
+    : "";
+
+  // Top "always" facts: wave character, wind direction, bottom, crowd
+  const topRows = [
+    { label: "Wave",     main: s.waveType || "—",  note: "" },
+    { label: "Bottom",   main: s.bottom   || "—",  note: "" },
+    { label: "Wind dir", main: s.windDir  || "—",  note: "" },
+    { label: "Crowd",
+      main: `<span class="crowd-dots">${crowdDotsHTML(s.crowd)}</span>`,
+      note: crowdLabelText(s.crowd) }
+  ];
+  const topFacts = `<div class="stats-grid">${topRows.map(r =>
+    `<div class="stats-row">
+      <span class="stats-label">${r.label}</span>
+      <span class="stats-main">${r.main}</span>
+      <span class="stats-note">${r.note}</span>
+    </div>`).join("")}</div>`;
+
+  // Period comparison
+  let periodComparison = "";
+  if (s.periods && s.periods.length) {
+    const userMonth = userSelectedMonth();
+    const userPeriod = findPeriodForMonth(s.periods, userMonth);
+    const peakPeriod = pickPeakPeriod(s.periods, s.monthlyWindProb);
+    const userIsPeak = userPeriod && peakPeriod && userPeriod.name === peakPeriod.name;
+    const userLabel = WAVEBASE_MONTH_LONG[userMonth];
+    // For "Best month" pick the single month inside the peak period with the
+    // highest probability — gives a sharper target month for the right column.
+    let peakMonth = peakPeriod && peakPeriod.months && peakPeriod.months[0];
+    if (peakPeriod && Array.isArray(s.monthlyWindProb)) {
+      peakMonth = peakPeriod.months.reduce((best, m) =>
+        (s.monthlyWindProb[m - 1] || 0) > (s.monthlyWindProb[best - 1] || 0) ? m : best,
+        peakPeriod.months[0]);
+    }
+    const peakLabel = (peakPeriod && peakPeriod.months || [])
+      .map(m => WAVEBASE_MONTH_LONG[m]).join("/");
+    periodComparison = `<div class="period-comparison">
+      ${periodColumnHTML(userPeriod, "Your month", userLabel, userIsPeak, s, userMonth)}
+      ${periodColumnHTML(peakPeriod, "Best month", peakLabel, true, s, peakMonth)}
+    </div>`;
+  }
+
+  return `<section class="at-a-glance">
+    <h2>At a glance</h2>
+    ${inheritedNote}
+    ${topFacts}
+    ${periodComparison}
+    ${monthlyChartHTML(e)}
+  </section>`;
+}
+
+function buildSingleMetricChart(metricArr, opts) {
+  // opts: { stats, userMonth, monthLabels, label, sublabel, unit, maxValue, axisTicks, colorClass }
+  // axisTicks = array of values to show on the Y axis (top → bottom).
+  const { stats, userMonth, monthLabels, label, sublabel, unit, maxValue, axisTicks, colorClass } = opts;
+  const bars = monthLabels.map((m, i) => {
+    const monthNum = i + 1;
+    const isUser = monthNum === userMonth;
+    const v = metricArr[i];
+    const period = findPeriodForMonth(stats.periods, monthNum);
+    const inSeason = !period || period.inSeason !== false;
+    const seasonClass = inSeason ? "in-season" : "off-season";
+    const pct = Math.max(2, Math.min(100, (v / maxValue) * 100));
+    return `<div class="month-bar ${colorClass} ${seasonClass}${isUser ? " is-user" : ""}" title="${m}: ${v}${unit}">
+      <span class="month-bar-fill" style="height: ${pct}%;"></span>
+      <span class="month-bar-label">${m}</span>
+    </div>`;
+  }).join("");
+  // Y-axis = labels on the left + dashed gridlines at each tick value.
+  const yAxis = `<div class="y-axis">${axisTicks.map(t =>
+    `<span class="y-tick">${t}</span>`).join("")}</div>`;
+  const gridlines = `<div class="y-gridlines" aria-hidden="true">${
+    axisTicks.map(() => `<span class="y-gridline"></span>`).join("")
+  }</div>`;
+  return `<div class="single-chart">
+    <h3>${label}${sublabel ? ` <span class="muted">— ${sublabel}</span>` : ""}</h3>
+    <div class="chart-body">
+      ${yAxis}
+      <div class="chart-plot">
+        ${gridlines}
+        <div class="month-bars">${bars}</div>
+      </div>
+    </div>
+  </div>`;
+}
+
+function monthlyChartHTML(e) {
+  const stats = getStatsFor(e);
+  const userMonth = userSelectedMonth();
+  const monthLabels = ["J","F","M","A","M","J","J","A","S","O","N","D"];
+
+  // Two separate charts side-by-side. Variant depends on chartType:
+  //   "wind" (default) — wind reliability % + water temp
+  //   "wave"           — wave height (m) + water temp
+  if (stats && Array.isArray(stats.monthlyWaterC)) {
+    const chartType = stats.chartType || (Array.isArray(stats.monthlyWindProb) || Array.isArray(stats.monthlyWindKn) ? "wind" : null);
+    let primaryChart = null;
+
+    if (chartType === "wave" && Array.isArray(stats.monthlyWaveM)) {
+      // Wave height per month — max 3 m covers Morocco peak winter swell.
+      primaryChart = buildSingleMetricChart(stats.monthlyWaveM, {
+        stats, userMonth, monthLabels,
+        label: "Wave height",
+        sublabel: "metres per month",
+        unit: " m", maxValue: 3, axisTicks: ["3 m", "1.5 m", "0"],
+        colorClass: "color-wind"  // reuse sea-blue for primary metric
+      });
+    } else if (chartType === "wind") {
+      if (Array.isArray(stats.monthlyWindProb)) {
+        primaryChart = buildSingleMetricChart(stats.monthlyWindProb.map(p => Math.round(p * 100)), {
+          stats, userMonth, monthLabels,
+          label: "Wind reliability",
+          sublabel: "% of days with enough wind",
+          unit: "%", maxValue: 100, axisTicks: ["100%", "50%", "0%"],
+          colorClass: "color-wind"
+        });
+      } else if (Array.isArray(stats.monthlyWindKn)) {
+        primaryChart = buildSingleMetricChart(stats.monthlyWindKn, {
+          stats, userMonth, monthLabels,
+          label: "Avg wind",
+          sublabel: "knots per month",
+          unit: " kn", maxValue: 30, axisTicks: ["30 kn", "15 kn", "0"],
+          colorClass: "color-wind"
+        });
+      }
+    }
+
+    if (primaryChart) {
+      const waterChart = buildSingleMetricChart(stats.monthlyWaterC, {
+        stats, userMonth, monthLabels,
+        label: "Water temperature",
+        sublabel: "°C per month",
+        unit: " °C", maxValue: 30, axisTicks: ["30°", "15°", "0°"],
+        colorClass: "color-water"
+      });
+
+      const hasOffSeason = stats.periods && stats.periods.some(p => p.inSeason === false);
+      const notes = [];
+      if (hasOffSeason) notes.push("Dimmed bars = off-season (centers closed).");
+      if (stats.source) notes.push(`Source: ${stats.source}.`);
+      const chartNote = notes.length
+        ? `<p class="chart-note">${notes.join(" ")}</p>` : "";
+
+      return `<div class="monthly-chart split">
+        <div class="chart-pair">${primaryChart}${waterChart}</div>
+        ${chartNote}
+      </div>`;
+    }
+  }
+
+  // Fallback: binary "good months" (entries without monthly arrays yet)
+  const good = new Set(Array.isArray(e.goodMonths) ? e.goodMonths : []);
+  if (!good.size) return "";
+  const bars = monthLabels.map((m, i) => {
+    const isGood = good.has(i + 1);
+    const isUser = (i + 1) === userMonth;
+    const height = isGood ? 100 : 25;
+    return `<div class="month-bar ${isGood ? "on" : "off"}${isUser ? " is-user" : ""}">
+      <span class="month-bar-fill" style="height: ${height}%;"></span>
+      <span class="month-bar-label">${m}</span>
+    </div>`;
+  }).join("");
+  return `<div class="monthly-chart">
+    <h3>Best months <span class="muted">— recommended months in sea-blue</span></h3>
+    <div class="month-bars">${bars}</div>
+  </div>`;
+}
+
+/* Connect-the-dots — every detail page shows the other entity types nearby
+   (in the same town). Keeps clicks inside WaveBase rather than leaking to
+   Google: see a stay → click the nearby center → click that center's website. */
+function nearbyEntriesHTML(currentEntry, targetType, labelPlural, labelSingular, intro) {
+  const matches = WAVEBASE_DATA.filter(c =>
+    c.type === targetType &&
+    c.id !== currentEntry.id &&
+    c.country === entryCountry(currentEntry) &&
+    c.town === currentEntry.town
+  );
+  if (!matches.length) return "";
+  const label = matches.length === 1 ? labelSingular : labelPlural;
+  return `<section class="related-entries">
+    <h2>${label} at ${escHTML(currentEntry.town)}</h2>
+    ${intro ? `<p class="muted form-note">${intro}</p>` : ""}
+    <div class="grid list-view">${matches.map(cardHTML).join("")}</div>
+  </section>`;
+}
+
+function relatedSectionsForDetail(e) {
+  if (e.type === "spot") {
+    return nearbyEntriesHTML(e, "center", "Centers", "Center",
+      "Two clicks away from the people who teach and rent here.");
+  }
+  if (e.type === "stay") {
+    return nearbyEntriesHTML(e, "center", "Centers", "Center",
+      "Where to take lessons or rent gear nearby.") +
+      nearbyEntriesHTML(e, "spot", "Spots", "Spot",
+        "The breaks and beaches within easy reach.");
+  }
+  if (e.type === "center") {
+    return nearbyEntriesHTML(e, "stay", "Stays", "Stay",
+      "Places to base yourself within easy reach.") +
+      nearbyEntriesHTML(e, "spot", "Spots", "Spot",
+        "The breaks and beaches you'll be sailing.");
+  }
+  return "";
+}
+
 /* ---- card ---- */
 function cardHTML(e) {
   const pills = e.levels.map(l => `<span class="pill">${cap(l)}</span>`).join("");
   const saved = WaveBaseAccount.isSaved(e.id);
   const comparing = WaveBaseAccount.isComparing(e.id);
   return `
-  <article class="card" data-href="spot.html?id=${e.id}">
+  <article class="card" data-href="${spotHref(e.id)}">
     <div class="thumb ${e.type}${e.photo ? " has-photo" : ""}"${thumbStyle(e)}>
-      <span class="badge">${typeLabel(e.type)}</span>
+      <span class="badge">${typeBadge(e.type)}</span>
+      ${e.type === "stay" ? "" : sportIconsHTML(entrySports(e))}
       <button class="compare-btn ${comparing ? "on" : ""}" data-compare="${e.id}" aria-label="Compare" title="${comparing ? "In your compare list" : "Add to compare"}">⇄</button>
       <button class="save-btn ${saved ? "on" : ""}" data-save="${e.id}" aria-label="Save" title="${saved ? "Saved" : "Save this place"}">${saved ? "♥" : "♡"}</button>
     </div>
@@ -161,12 +542,16 @@ function townStripHTML(country) {
       <p>${t.intro}</p>
       <div class="town-card-facts">
         <span><strong>What to do:</strong> ${t.teDoen}</span>
-        <span><strong>Getting there:</strong> ${t.afstand}</span>
-        <span><strong>Public transport:</strong> ${t.vervoer}</span>
       </div>
     </div>`;
   }).join("");
-  return `<div class="town-intro-strip">${cards}</div>`;
+  const heading = country
+    ? `The location in general: ${escHTML(country)}`
+    : "The location in general";
+  return `<section class="town-intro-section">
+    <h2 class="town-intro-h2">${heading}</h2>
+    <div class="town-intro-strip">${cards}</div>
+  </section>`;
 }
 
 /* ---- view preference (cards vs list), persisted in localStorage ---- */
@@ -447,19 +832,18 @@ function initIndex() {
     o.value = i; o.textContent = WAVEBASE_MONTHS[i];
     mSel.appendChild(o);
   }
-  // populate the country picker from WAVEBASE_DESTINATIONS, grouped by continent
-  const cSel = document.getElementById("f-country");
-  if (cSel && typeof WAVEBASE_DESTINATIONS !== "undefined") {
+  // populate the country picker — datalist gives native type-ahead autocomplete.
+  // option.value = bare country name (clean URLs + clean state). The "— soon" hint
+  // appears only in the suggestion display where the user picks.
+  const cDl = document.getElementById("f-country-list");
+  if (cDl && typeof WAVEBASE_DESTINATIONS !== "undefined") {
     WAVEBASE_DESTINATIONS.forEach(cont => {
-      const og = document.createElement("optgroup");
-      og.label = cont.continent;
       cont.countries.forEach(co => {
         const o = document.createElement("option");
         o.value = co.name;
-        o.textContent = `${co.flag}  ${co.name}` + (co.status === "live" ? "" : " — soon");
-        og.appendChild(o);
+        if (co.status !== "live") o.label = `${co.name} — soon`;
+        cDl.appendChild(o);
       });
-      cSel.appendChild(og);
     });
   }
   // pre-select all filters from URL params (country + level/type/month + free-text q) — supports deep links and back-navigation
@@ -652,8 +1036,7 @@ function dienstenHTML(d) {
     ["Rental", d.rental],
     ["Gear brands", d.brands],
     ["Facilities", d.faciliteiten],
-    ["Team & vibe", d.team],
-    ["Contact", d.contact]
+    ["Team & vibe", d.team]
   ];
   const items = rows.map(([k, val]) =>
     `<div class="cond-item"><span class="cond-label">${k}</span><span class="cond-val">${val || "—"}</span></div>`
@@ -738,6 +1121,8 @@ function initSpot() {
 
     ${e.coords ? `<div class="detail-map" id="detail-map"></div>` : ""}
 
+    ${statsPanelHTML(e)}
+
     <div class="kort">
       <h2>In short</h2>
       <ul>${samenvatting}</ul>
@@ -755,6 +1140,7 @@ function initSpot() {
     ${lagen}
     ${buurtHTML(e.buurt)}
     ${vergelijkingHTML(e.vergelijking)}
+    ${relatedSectionsForDetail(e)}
     ${townPanelHTML(e.town)}
 
     <section class="fit">
@@ -773,6 +1159,9 @@ function initSpot() {
       .addTo(m);
     m.setView(e.coords, 14);
   }
+
+  // Wire embedded entry cards in the connect-the-dots list-view sections
+  if (root.querySelector(".related-entries .grid")) wireCards(root);
 
   document.getElementById("save-toggle").addEventListener("click", function () {
     const on = WaveBaseAccount.toggleSave(e.id);
@@ -824,7 +1213,10 @@ function initMap() {
     attribution: "&copy; OpenStreetMap contributors", maxZoom: 19
   }).addTo(map);
 
+  // One layer per entity-type (for the type toggles), and per-marker entry refs
+  // (so the sport filter can hide individual markers within a layer).
   const layers = { spot: L.layerGroup(), stay: L.layerGroup(), center: L.layerGroup() };
+  const markerEntries = []; // [{marker, entry, layer}]
   const allCoords = [];
   WAVEBASE_DATA.forEach(e => {
     if (!e.coords || !layers[e.type]) return;
@@ -835,6 +1227,7 @@ function initMap() {
     const note = e.coordsLabel ? "<br><em>Approximate location</em>" : "";
     m.bindPopup(`<strong>${e.name}</strong><br>${typeLabel(e.type)} &middot; ${e.town}${note}<br>
       <a href="spot.html?id=${e.id}">See the analysis →</a>`);
+    markerEntries.push({ marker: m, entry: e, layer: layers[e.type] });
     m.addTo(layers[e.type]);
   });
   layers.spot.addTo(map);
@@ -842,18 +1235,50 @@ function initMap() {
   layers.center.addTo(map);
   if (allCoords.length) map.fitBounds(allCoords, { padding: [30, 30] });
 
-  document.getElementById("t-spot").addEventListener("change", function () {
-    if (this.checked) layers.spot.addTo(map); else map.removeLayer(layers.spot);
-  });
-  document.getElementById("t-stay").addEventListener("change", function () {
-    if (this.checked) layers.stay.addTo(map); else map.removeLayer(layers.stay);
-  });
-  const tCenter = document.getElementById("t-center");
-  if (tCenter) {
-    tCenter.addEventListener("change", function () {
-      if (this.checked) layers.center.addTo(map); else map.removeLayer(layers.center);
+  // ---- filter state ----
+  const typeState = { spot: true, stay: true, center: true };
+  const sportState = { wave: true, wind: true, kite: true, wing: true };
+
+  function applyFilters() {
+    // First, toggle the entity-type LayerGroups on/off (cheap when whole type is hidden)
+    ["spot", "stay", "center"].forEach(t => {
+      const on = typeState[t];
+      if (on) layers[t].addTo(map); else map.removeLayer(layers[t]);
+    });
+    // Then within visible layers, hide markers whose sports don't intersect with the
+    // active sport set. Stays have no real sport — always show them when type=stay is on.
+    markerEntries.forEach(({ marker, entry, layer }) => {
+      const typeOn = typeState[entry.type];
+      let sportOn = true;
+      if (entry.type === "spot" || entry.type === "center") {
+        const sports = entrySports(entry);
+        sportOn = sports.some(s => sportState[s]);
+      }
+      const shouldShow = typeOn && sportOn;
+      if (shouldShow) {
+        if (!layer.hasLayer(marker)) layer.addLayer(marker);
+      } else {
+        if (layer.hasLayer(marker)) layer.removeLayer(marker);
+      }
     });
   }
+
+  // Wire entity-type toggles
+  ["spot", "stay", "center"].forEach(t => {
+    const el = document.getElementById("t-" + t);
+    if (!el) return;
+    el.addEventListener("change", () => {
+      typeState[t] = el.checked;
+      applyFilters();
+    });
+  });
+  // Wire sport toggles
+  document.querySelectorAll(".t-sport").forEach(el => {
+    el.addEventListener("change", () => {
+      sportState[el.dataset.sport] = el.checked;
+      applyFilters();
+    });
+  });
 }
 
 /* ---- trip maps (account) — a roadtrip-style map per trip ---- */
@@ -904,6 +1329,24 @@ function renderAccount() {
   const boardOpts = opts(["Shortboard", "Longboard", "Funboard", "Fish", "Foamie", "Other"], p.boardType);
   const styleOpts = opts(["Solo", "Couple", "Friends", "Family"], p.travelStyle);
   const intentOpts = opts(["Pure surf", "Learn", "Progress", "Surf + chill"], p.tripIntent);
+  const foundOpts = opts(["Friend / word of mouth", "Social media", "Search engine", "Surf forum / community", "Press / article", "Other"], p.howDidYouFindUs);
+
+  const surfTypes = [
+    { key: "surfer",     label: "Surfer"     },
+    { key: "windsurfer", label: "Windsurfer" },
+    { key: "kitesurfer", label: "Kitesurfer" },
+    { key: "wingfoiler", label: "Wingfoiler" }
+  ];
+  const disciplines = [
+    { key: "freeride",  label: "Freeride"  },
+    { key: "wave",      label: "Wave"      },
+    { key: "freestyle", label: "Freestyle" },
+    { key: "slalom",    label: "Slalom"    }
+  ];
+  const showDiscipline = (p.surfType || []).some(t => t === "windsurfer" || t === "kitesurfer" || t === "wingfoiler");
+  const cb = (name, items, selected) => items.map(it =>
+    `<label class="cb"><input type="checkbox" name="${name}" value="${it.key}" ${selected.indexOf(it.key) !== -1 ? "checked" : ""}> ${it.label}</label>`
+  ).join("");
 
   const savedHTML = saved.length
     ? `<div class="grid">${saved.map(cardHTML).join("")}</div>`
@@ -943,11 +1386,20 @@ function renderAccount() {
         <label>Email<input type="email" id="p-email" value="${p.email || ""}" placeholder="you@example.com"></label>
         <label>Birth year<input type="number" id="p-birthyear" value="${p.birthYear || ""}" placeholder="1995" min="1920" max="2020"></label>
         <label>Home country<input type="text" id="p-country" value="${p.homeCountry || ""}" placeholder="e.g. Belgium"></label>
+        <div class="form-checkset form-wide" id="p-surftype-set">
+          <span class="form-checkset-label">What do you do? <span class="muted">(pick all that apply)</span></span>
+          <div class="form-checkset-options">${cb("surfType", surfTypes, p.surfType || [])}</div>
+        </div>
+        <div class="form-checkset form-wide ${showDiscipline ? "" : "hidden"}" id="p-discipline-set">
+          <span class="form-checkset-label">Discipline <span class="muted">(for wind / kite / wing)</span></span>
+          <div class="form-checkset-options">${cb("discipline", disciplines, p.discipline || [])}</div>
+        </div>
         <label>Surf level<select id="p-level"><option value="">—</option>${levelOpts}</select></label>
         <label>Years surfing<input type="number" id="p-years" value="${p.yearsSurfing || ""}" placeholder="3" min="0" max="80"></label>
         <label>Board<select id="p-board"><option value="">—</option>${boardOpts}</select></label>
         <label>Travel style<select id="p-style"><option value="">—</option>${styleOpts}</select></label>
         <label>What you want from a trip<select id="p-intent"><option value="">—</option>${intentOpts}</select></label>
+        <label class="form-wide">How did you find us?<select id="p-found"><option value="">—</option>${foundOpts}</select></label>
         <button class="btn" id="p-save">Save profile</button>
       </div>
     </section>
@@ -966,6 +1418,10 @@ function renderAccount() {
       ${tripsHTML}
     </section>`;
 
+  const readChecks = name => Array.from(
+    document.querySelectorAll(`input[name="${name}"]:checked`)
+  ).map(el => el.value);
+
   document.getElementById("p-save").addEventListener("click", () => {
     WaveBaseAccount.setProfile({
       name: document.getElementById("p-name").value,
@@ -976,10 +1432,22 @@ function renderAccount() {
       yearsSurfing: document.getElementById("p-years").value,
       boardType: document.getElementById("p-board").value,
       travelStyle: document.getElementById("p-style").value,
-      tripIntent: document.getElementById("p-intent").value
+      tripIntent: document.getElementById("p-intent").value,
+      surfType: readChecks("surfType"),
+      discipline: readChecks("discipline"),
+      howDidYouFindUs: document.getElementById("p-found").value
     });
     updateNav();
     alert("Profile saved.");
+  });
+
+  // Toggle discipline fieldset live when surfType selection changes
+  document.querySelectorAll('input[name="surfType"]').forEach(cbEl => {
+    cbEl.addEventListener("change", () => {
+      const picked = readChecks("surfType");
+      const show = picked.some(t => t === "windsurfer" || t === "kitesurfer" || t === "wingfoiler");
+      document.getElementById("p-discipline-set").classList.toggle("hidden", !show);
+    });
   });
   document.getElementById("new-trip").addEventListener("click", () => {
     const name = window.prompt("Name your new trip:");
@@ -1080,7 +1548,8 @@ function renderCompare() {
       v ? `<div class="cmp-row"><span class="cmp-k">${k}</span><span class="cmp-v">${v}</span></div>` : "").join("");
     return `<div class="cmp-col">
       <div class="thumb ${e.type}${e.photo ? " has-photo" : ""}"${thumbStyle(e)}>
-        <span class="badge">${typeLabel(e.type)}</span>
+        <span class="badge">${typeBadge(e.type)}</span>
+        ${e.type === "stay" ? "" : sportIconsHTML(entrySports(e))}
       </div>
       <div class="cmp-body">
         <div class="place">${e.town}</div>
