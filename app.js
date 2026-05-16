@@ -265,6 +265,51 @@ function statsPanelHTML(e) {
   </section>`;
 }
 
+// Two side-by-side bars per month — used for temperature (air vs water).
+function buildDualBarChart(opts) {
+  // { stats, userMonth, monthLabels, label, sublabel, unit, maxValue, axisTicks,
+  //   barA: { arr, label, colorClass }, barB: { arr, label, colorClass } }
+  const { stats, userMonth, monthLabels, label, sublabel, unit, maxValue, axisTicks, barA, barB } = opts;
+  const bars = monthLabels.map((m, i) => {
+    const monthNum = i + 1;
+    const isUser = monthNum === userMonth;
+    const period = findPeriodForMonth(stats.periods, monthNum);
+    const inSeason = !period || period.inSeason !== false;
+    const seasonClass = inSeason ? "in-season" : "off-season";
+    const va = barA.arr[i], vb = barB.arr[i];
+    const pctA = (va != null && !isNaN(va)) ? Math.max(2, Math.min(100, (va / maxValue) * 100)) : 0;
+    const pctB = (vb != null && !isNaN(vb)) ? Math.max(2, Math.min(100, (vb / maxValue) * 100)) : 0;
+    const tip = `${m}: ${barA.label} ${va}${unit} · ${barB.label} ${vb}${unit}`;
+    return `<div class="month-bar dual ${seasonClass}${isUser ? " is-user" : ""}" title="${tip}">
+      <span class="dual-bars">
+        <span class="dual-bar ${barA.colorClass}" style="height: ${pctA}%;"></span>
+        <span class="dual-bar ${barB.colorClass}" style="height: ${pctB}%;"></span>
+      </span>
+      <span class="month-bar-label">${m}</span>
+    </div>`;
+  }).join("");
+  const yAxis = `<div class="y-axis">${axisTicks.map(t =>
+    `<span class="y-tick">${t}</span>`).join("")}</div>`;
+  const gridlines = `<div class="y-gridlines" aria-hidden="true">${
+    axisTicks.map(() => `<span class="y-gridline"></span>`).join("")
+  }</div>`;
+  const legend = `<div class="chart-legend">
+    <span class="legend-item"><span class="legend-swatch ${barA.colorClass}"></span>${barA.label}</span>
+    <span class="legend-item"><span class="legend-swatch ${barB.colorClass}"></span>${barB.label}</span>
+  </div>`;
+  return `<div class="single-chart">
+    <h3>${label}${sublabel ? ` <span class="muted">— ${sublabel}</span>` : ""}</h3>
+    ${legend}
+    <div class="chart-body">
+      ${yAxis}
+      <div class="chart-plot">
+        ${gridlines}
+        <div class="month-bars">${bars}</div>
+      </div>
+    </div>
+  </div>`;
+}
+
 function buildSingleMetricChart(metricArr, opts) {
   // opts: { stats, userMonth, monthLabels, label, sublabel, unit, maxValue, axisTicks, colorClass, tooltipFor, overlayArr }
   // axisTicks = array of values to show on the Y axis (top → bottom).
@@ -339,29 +384,25 @@ function monthlyChartHTML(e) {
       });
     }
 
-    // Temperature chart always renders (whenever water data exists).
+    // Temperature chart always renders (whenever water data exists). When
+    // air-temp data is present, render as paired bars (air | water) per month.
     const hasAir = Array.isArray(stats.monthlyAirC);
-    const tempMetric = hasAir ? stats.monthlyAirC : stats.monthlyWaterC;
-    const tempOverlay = hasAir ? stats.monthlyWaterC : null;
-    const tempSublabel = hasAir
-      ? "°C — bar = daytime air, line = sea water"
-      : "°C — sea water";
-    const tempChart = buildSingleMetricChart(tempMetric, {
-      stats, userMonth, monthLabels,
-      label: "Temperature",
-      sublabel: tempSublabel,
-      unit: " °C", maxValue: 35, axisTicks: ["35°", "20°", "0°"],
-      colorClass: "color-water",
-      overlayArr: tempOverlay,
-      tooltipFor: (mn, v, ov) => {
-        const i = mn - 1;
-        if (hasAir) {
-          const w = stats.monthlyWaterC[i];
-          return `${monthLabels[i]}: air ${v}°C · water ${w}°C`;
-        }
-        return `${monthLabels[i]}: water ${v}°C`;
-      }
-    });
+    const tempChart = hasAir
+      ? buildDualBarChart({
+          stats, userMonth, monthLabels,
+          label: "Temperature",
+          sublabel: "°C per month — daytime air vs sea water",
+          unit: "°C", maxValue: 35, axisTicks: ["35°", "20°", "0°"],
+          barA: { arr: stats.monthlyAirC,   label: "Air",   colorClass: "color-air" },
+          barB: { arr: stats.monthlyWaterC, label: "Water", colorClass: "color-water" }
+        })
+      : buildSingleMetricChart(stats.monthlyWaterC, {
+          stats, userMonth, monthLabels,
+          label: "Temperature",
+          sublabel: "°C — sea water",
+          unit: " °C", maxValue: 35, axisTicks: ["35°", "20°", "0°"],
+          colorClass: "color-water"
+        });
 
     const hasOffSeason = stats.periods && stats.periods.some(p => p.inSeason === false);
     const notes = [];

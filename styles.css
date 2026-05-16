@@ -825,10 +825,10 @@ table.cal td.host { color: var(--clay); }
   grid-template-columns: 1fr 1fr;
   gap: 24px;
 }
-/* Single chart layout — used when there's only the temp chart (wind-type spots
-   no longer render a primary chart). Caps width so it doesn't stretch full. */
+/* Single chart layout — used when there's only the temp chart (wind-type
+   spots no longer render a primary chart). Takes the full container width. */
 .monthly-chart.single .chart-pair {
-  max-width: 480px;
+  display: block;
 }
 .single-chart h3 {
   font-size: 12px; font-weight: 700; letter-spacing: 0.1em;
@@ -882,6 +882,51 @@ table.cal td.host { color: var(--clay); }
 .month-bar.color-wind  .month-bar-overlay { background: #1f3d52; } /* deeper sea = gust */
 .month-bar.color-water .month-bar-overlay { background: #6e2e16; } /* deeper clay = air */
 .month-bar.off-season .month-bar-overlay  { opacity: 0.45; }
+
+/* Dual bars per month — used by the temperature chart (air | water). */
+.month-bar.dual { padding: 0; }
+.month-bar.dual .dual-bars {
+  display: flex;
+  flex-direction: row;
+  align-items: flex-end;
+  justify-content: center;
+  gap: 2px;
+  width: 100%;
+  flex: 1;
+  min-height: 0;
+}
+.month-bar.dual .dual-bar {
+  flex: 1;
+  border-radius: 3px 3px 0 0;
+  min-height: 2px;
+  transition: height 0.15s ease, background 0.15s ease;
+}
+.month-bar.dual .dual-bar.color-air   { background: var(--clay); } /* warm */
+.month-bar.dual .dual-bar.color-water { background: var(--sea); }  /* cool */
+.month-bar.dual.off-season .dual-bar  { opacity: 0.45; }
+.month-bar.dual.is-user {
+  /* keep the is-user highlight visible around the paired bars */
+  outline: 2px solid var(--clay);
+  outline-offset: 2px;
+  border-radius: 4px;
+}
+
+/* Inline legend above a chart — pairs a color swatch with its label. */
+.chart-legend {
+  display: flex; gap: 16px; align-items: center;
+  font-size: 11.5px; color: var(--ink-soft);
+  margin: -4px 0 10px 0;
+}
+.chart-legend .legend-item {
+  display: inline-flex; align-items: center; gap: 6px;
+}
+.chart-legend .legend-swatch {
+  display: inline-block;
+  width: 14px; height: 10px;
+  border-radius: 2px;
+}
+.chart-legend .legend-swatch.color-air   { background: var(--clay); }
+.chart-legend .legend-swatch.color-water { background: var(--sea); }
 .month-bar.off-season .month-bar-fill { opacity: 0.45; }
 .month-bar.off-season .month-bar-label { color: var(--ink-soft); font-style: italic; }
 
