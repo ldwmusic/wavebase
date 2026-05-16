@@ -168,21 +168,17 @@ function periodColumnHTML(period, label, monthLabel, isPeak, stats, targetMonth)
   // the period range. Falls back to period.windKn etc. when monthlies missing.
   const m = targetMonth - 1;
   const monthlyKn   = (stats && Array.isArray(stats.monthlyWindKn))   ? stats.monthlyWindKn[m]   : null;
-  const monthlyWat  = (stats && Array.isArray(stats.monthlyWaterC))   ? stats.monthlyWaterC[m]  : null;
-  const monthlyProb = (stats && Array.isArray(stats.monthlyWindProb)) ? stats.monthlyWindProb[m] : null;
+  const monthlyGust = (stats && Array.isArray(stats.monthlyGustKn))   ? stats.monthlyGustKn[m]   : null;
+  const monthlyWat  = (stats && Array.isArray(stats.monthlyWaterC))   ? stats.monthlyWaterC[m]   : null;
 
-  const hasWindData = (typeof monthlyKn === "number") || period.windKn ||
-                      (typeof monthlyProb === "number");
+  const hasWindData = (typeof monthlyKn === "number") || period.windKn;
   const wind = (typeof monthlyKn === "number")
     ? `~${monthlyKn} kn`
     : (period.windKn ? fmtRange(period.windKn, "kn") : "—");
   const offNote = period.inSeason === false ? " · centers closed" : "";
-  const probVal = (typeof monthlyProb === "number")
-    ? monthlyProb
-    : periodWindProb(period, stats && stats.monthlyWindProb);
-  const prob = (typeof probVal === "number")
-    ? `${Math.round(probVal * 100)}% wind days${offNote}`
-    : "";
+  const gustNote = (typeof monthlyGust === "number")
+    ? `gust ~${monthlyGust} kn${offNote}`
+    : (offNote ? offNote.replace(/^ · /, "") : "");
 
   const wave = period.waveM ? fmtRange(period.waveM, "m") : "—";
   const water = (typeof monthlyWat === "number")
@@ -191,7 +187,7 @@ function periodColumnHTML(period, label, monthLabel, isPeak, stats, targetMonth)
 
   const windRow = hasWindData ? `<div class="period-stat"><span class="period-stat-label">Wind</span>
       <span class="period-stat-val">${wind}</span>
-      ${prob ? `<span class="period-stat-note">${prob}</span>` : ""}
+      ${gustNote ? `<span class="period-stat-note">${gustNote}</span>` : ""}
     </div>` : "";
 
   return `<div class="period-col${isPeak ? " is-peak" : ""}">
