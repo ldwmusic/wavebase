@@ -266,9 +266,10 @@ function statsPanelHTML(e) {
 }
 
 function buildSingleMetricChart(metricArr, opts) {
-  // opts: { stats, userMonth, monthLabels, label, sublabel, unit, maxValue, axisTicks, colorClass }
+  // opts: { stats, userMonth, monthLabels, label, sublabel, unit, maxValue, axisTicks, colorClass, tooltipFor }
   // axisTicks = array of values to show on the Y axis (top → bottom).
-  const { stats, userMonth, monthLabels, label, sublabel, unit, maxValue, axisTicks, colorClass } = opts;
+  // tooltipFor(monthNum, value) → custom tooltip string (optional).
+  const { stats, userMonth, monthLabels, label, sublabel, unit, maxValue, axisTicks, colorClass, tooltipFor } = opts;
   const bars = monthLabels.map((m, i) => {
     const monthNum = i + 1;
     const isUser = monthNum === userMonth;
@@ -277,7 +278,8 @@ function buildSingleMetricChart(metricArr, opts) {
     const inSeason = !period || period.inSeason !== false;
     const seasonClass = inSeason ? "in-season" : "off-season";
     const pct = Math.max(2, Math.min(100, (v / maxValue) * 100));
-    return `<div class="month-bar ${colorClass} ${seasonClass}${isUser ? " is-user" : ""}" title="${m}: ${v}${unit}">
+    const tip = tooltipFor ? tooltipFor(monthNum, v) : `${m}: ${v}${unit}`;
+    return `<div class="month-bar ${colorClass} ${seasonClass}${isUser ? " is-user" : ""}" title="${tip}">
       <span class="month-bar-fill" style="height: ${pct}%;"></span>
       <span class="month-bar-label">${m}</span>
     </div>`;
@@ -317,26 +319,45 @@ function monthlyChartHTML(e) {
       primaryChart = buildSingleMetricChart(stats.monthlyWaveM, {
         stats, userMonth, monthLabels,
         label: "Wave height",
-        sublabel: "metres per month",
+        sublabel: "daytime avg, metres",
         unit: " m", maxValue: 3, axisTicks: ["3 m", "1.5 m", "0"],
-        colorClass: "color-wind"  // reuse sea-blue for primary metric
+        colorClass: "color-wind",  // reuse sea-blue for primary metric
+        tooltipFor: (mn, v) => {
+          const i = mn - 1;
+          const sp = Array.isArray(stats.monthlySwellProb)
+            ? ` · ${Math.round(stats.monthlySwellProb[i] * 100)}% days ≥1 m` : "";
+          return `${monthLabels[i]}: ${v} m${sp}`;
+        }
       });
     } else if (chartType === "wind") {
       if (Array.isArray(stats.monthlyWindProb)) {
         primaryChart = buildSingleMetricChart(stats.monthlyWindProb.map(p => Math.round(p * 100)), {
           stats, userMonth, monthLabels,
           label: "Wind reliability",
-          sublabel: "% of days with enough wind",
+          sublabel: "daytime 10–18h, % of days ≥12 kn",
           unit: "%", maxValue: 100, axisTicks: ["100%", "50%", "0%"],
-          colorClass: "color-wind"
+          colorClass: "color-wind",
+          tooltipFor: (mn, v) => {
+            const i = mn - 1;
+            const wk = Array.isArray(stats.monthlyWindKn) ? stats.monthlyWindKn[i] : null;
+            const gk = Array.isArray(stats.monthlyGustKn) ? stats.monthlyGustKn[i] : null;
+            const extras = wk != null
+              ? ` · avg ${wk} kn${gk != null ? ` (gust ${gk} kn)` : ""}` : "";
+            return `${monthLabels[i]}: ${v}% surf days${extras}`;
+          }
         });
       } else if (Array.isArray(stats.monthlyWindKn)) {
         primaryChart = buildSingleMetricChart(stats.monthlyWindKn, {
           stats, userMonth, monthLabels,
           label: "Avg wind",
-          sublabel: "knots per month",
+          sublabel: "daytime 10–18h, knots",
           unit: " kn", maxValue: 30, axisTicks: ["30 kn", "15 kn", "0"],
-          colorClass: "color-wind"
+          colorClass: "color-wind",
+          tooltipFor: (mn, v) => {
+            const i = mn - 1;
+            const gk = Array.isArray(stats.monthlyGustKn) ? stats.monthlyGustKn[i] : null;
+            return `${monthLabels[i]}: ${v} kn${gk != null ? ` (gust ${gk} kn)` : ""}`;
+          }
         });
       }
     }

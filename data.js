@@ -397,7 +397,7 @@ const WAVEBASE_DATA = [
       bottom:     "Sand",
       windDir:    "Trade winds — offshore in mornings, side-shore in afternoons",
       crowd:      "high",
-      source:     "Tamraght/Taghazout Atlantic swell climatology (Magicseaweed + Surfline regional reports, 2020–2025) + reviewer prose",
+      source:     "Windguru GFS-Wave 16km archive (Taghazout, id 549853 — Apr 2025–May 2026) + Morocco Atlantic coast water temp climatology",
       periods: [
         { name: "Peak winter swell", months: [11, 12, 1, 2],  inSeason: true,
           waveM: [1.5, 3.0], waterC: [16, 18] },
@@ -408,9 +408,14 @@ const WAVEBASE_DATA = [
       ],
       // J     F     M     A     M     J     J     A     S     O     N     D
       monthlyWaveM:
-        [2.2, 1.8, 1.5, 1.2, 0.8, 0.7, 0.7, 0.8, 1.2, 1.6, 2.0, 2.2],
+        
+        [1.7, 1.6, 1.5, 1.3, 1.1, 1.0, 1.1, 0.9, 1.0, 0.8, 1.2, 1.6],
+      monthlySwellProb:
+        [0.81, 0.89, 0.90, 0.78, 0.72, 0.70, 0.87, 0.58, 0.77, 0.42, 0.70, 0.97],
+
       monthlyWaterC:
-        [16, 16, 17, 18, 19, 21, 22, 22, 22, 21, 19, 17]
+        
+        [17, 17, 17, 18, 19, 20, 21, 22, 22, 21, 19, 18]
     },
     buurt: {
       eten: "Cafés in Tamraght village within walking distance; beach cafés nearby.",
@@ -466,7 +471,7 @@ const WAVEBASE_DATA = [
       bottom:     "Sand (A-frame peaks over sand bottom)",
       windDir:    "Trade winds — offshore in mornings, side-shore in afternoons",
       crowd:      "high",
-      source:     "Tamraght/Taghazout Atlantic swell climatology (Magicseaweed + Surfline regional reports, 2020–2025) + reviewer prose",
+      source:     "Windguru GFS-Wave 16km archive (Taghazout, id 549853 — Apr 2025–May 2026) + Morocco Atlantic coast water temp climatology",
       periods: [
         { name: "Peak winter swell", months: [11, 12, 1, 2],  inSeason: true,
           waveM: [1.5, 3.0], waterC: [16, 18] },
@@ -477,9 +482,14 @@ const WAVEBASE_DATA = [
       ],
       // J     F     M     A     M     J     J     A     S     O     N     D
       monthlyWaveM:
-        [2.2, 1.8, 1.5, 1.2, 0.8, 0.7, 0.7, 0.8, 1.2, 1.6, 2.0, 2.2],
+        
+        [1.7, 1.6, 1.5, 1.3, 1.1, 1.0, 1.1, 0.9, 1.0, 0.8, 1.2, 1.6],
+      monthlySwellProb:
+        [0.81, 0.89, 0.90, 0.78, 0.72, 0.70, 0.87, 0.58, 0.77, 0.42, 0.70, 0.97],
+
       monthlyWaterC:
-        [16, 16, 17, 18, 19, 21, 22, 22, 22, 21, 19, 17]
+        
+        [17, 17, 17, 18, 19, 20, 21, 22, 22, 21, 19, 18]
     },
     buurt: {
       eten: "Beach café on site; Resto Imouran and Chez Brahim on the beach; village close by.",
@@ -535,7 +545,7 @@ const WAVEBASE_DATA = [
       bottom:     "Flat reef (shallow slab) — advanced only",
       windDir:    "Trade winds — offshore in mornings, side-shore in afternoons",
       crowd:      "low",
-      source:     "Tamraght/Taghazout Atlantic swell climatology (Magicseaweed + Surfline regional reports, 2020–2025) + reviewer prose",
+      source:     "Windguru GFS-Wave 16km archive (Taghazout, id 549853 — Apr 2025–May 2026) + Morocco Atlantic coast water temp climatology",
       periods: [
         { name: "Peak winter swell", months: [11, 12, 1, 2],  inSeason: true,
           waveM: [1.5, 3.0], waterC: [16, 18] },
@@ -546,9 +556,14 @@ const WAVEBASE_DATA = [
       ],
       // J     F     M     A     M     J     J     A     S     O     N     D
       monthlyWaveM:
-        [2.2, 1.8, 1.5, 1.2, 0.8, 0.7, 0.7, 0.8, 1.2, 1.6, 2.0, 2.2],
+        
+        [1.7, 1.6, 1.5, 1.3, 1.1, 1.0, 1.1, 0.9, 1.0, 0.8, 1.2, 1.6],
+      monthlySwellProb:
+        [0.81, 0.89, 0.90, 0.78, 0.72, 0.70, 0.87, 0.58, 0.77, 0.42, 0.70, 0.97],
+
       monthlyWaterC:
-        [16, 16, 17, 18, 19, 21, 22, 22, 22, 21, 19, 17]
+        
+        [17, 17, 17, 18, 19, 20, 21, 22, 22, 21, 19, 18]
     },
     buurt: {
       eten: "No facilities on site; Tamraght village within walking distance.",
@@ -604,7 +619,7 @@ const WAVEBASE_DATA = [
       bottom:     "Sand and rock (point break)",
       windDir:    "Trade winds — offshore in mornings, side-shore in afternoons",
       crowd:      "high",
-      source:     "Tamraght/Taghazout Atlantic swell climatology (Magicseaweed + Surfline regional reports, 2020–2025) + reviewer prose",
+      source:     "Windguru GFS-Wave 16km archive (Taghazout, id 549853 — Apr 2025–May 2026) + Morocco Atlantic coast water temp climatology",
       periods: [
         { name: "Peak winter swell", months: [11, 12, 1, 2],  inSeason: true,
           waveM: [1.5, 3.0], waterC: [16, 18] },
@@ -615,9 +630,14 @@ const WAVEBASE_DATA = [
       ],
       // J     F     M     A     M     J     J     A     S     O     N     D
       monthlyWaveM:
-        [2.2, 1.8, 1.5, 1.2, 0.8, 0.7, 0.7, 0.8, 1.2, 1.6, 2.0, 2.2],
+        
+        [1.7, 1.6, 1.5, 1.3, 1.1, 1.0, 1.1, 0.9, 1.0, 0.8, 1.2, 1.6],
+      monthlySwellProb:
+        [0.81, 0.89, 0.90, 0.78, 0.72, 0.70, 0.87, 0.58, 0.77, 0.42, 0.70, 0.97],
+
       monthlyWaterC:
-        [16, 16, 17, 18, 19, 21, 22, 22, 22, 21, 19, 17]
+        
+        [17, 17, 17, 18, 19, 20, 21, 22, 22, 21, 19, 18]
     },
     buurt: {
       eten: "Banana stalls and cafés along the N1 near Aourir.",
@@ -673,7 +693,7 @@ const WAVEBASE_DATA = [
       bottom:     "Sand (very sheltered)",
       windDir:    "Trade winds — offshore in mornings, side-shore in afternoons",
       crowd:      "high",
-      source:     "Tamraght/Taghazout Atlantic swell climatology (Magicseaweed + Surfline regional reports, 2020–2025) + reviewer prose",
+      source:     "Windguru GFS-Wave 16km archive (Taghazout, id 549853 — Apr 2025–May 2026) + Morocco Atlantic coast water temp climatology",
       periods: [
         { name: "Peak winter swell", months: [11, 12, 1, 2],  inSeason: true,
           waveM: [1.5, 3.0], waterC: [16, 18] },
@@ -684,9 +704,14 @@ const WAVEBASE_DATA = [
       ],
       // J     F     M     A     M     J     J     A     S     O     N     D
       monthlyWaveM:
-        [2.2, 1.8, 1.5, 1.2, 0.8, 0.7, 0.7, 0.8, 1.2, 1.6, 2.0, 2.2],
+        
+        [1.7, 1.6, 1.5, 1.3, 1.1, 1.0, 1.1, 0.9, 1.0, 0.8, 1.2, 1.6],
+      monthlySwellProb:
+        [0.81, 0.89, 0.90, 0.78, 0.72, 0.70, 0.87, 0.58, 0.77, 0.42, 0.70, 0.97],
+
       monthlyWaterC:
-        [16, 16, 17, 18, 19, 21, 22, 22, 22, 21, 19, 17]
+        
+        [17, 17, 17, 18, 19, 20, 21, 22, 22, 21, 19, 18]
     },
     buurt: {
       eten: "Aourir village with cafés and shops nearby.",
@@ -742,7 +767,7 @@ const WAVEBASE_DATA = [
       bottom:     "Deep reef (behaves like beach break)",
       windDir:    "Trade winds — offshore in mornings, side-shore in afternoons",
       crowd:      "low",
-      source:     "Tamraght/Taghazout Atlantic swell climatology (Magicseaweed + Surfline regional reports, 2020–2025) + reviewer prose",
+      source:     "Windguru GFS-Wave 16km archive (Taghazout, id 549853 — Apr 2025–May 2026) + Morocco Atlantic coast water temp climatology",
       periods: [
         { name: "Peak winter swell", months: [11, 12, 1, 2],  inSeason: true,
           waveM: [1.5, 3.0], waterC: [16, 18] },
@@ -753,9 +778,14 @@ const WAVEBASE_DATA = [
       ],
       // J     F     M     A     M     J     J     A     S     O     N     D
       monthlyWaveM:
-        [2.2, 1.8, 1.5, 1.2, 0.8, 0.7, 0.7, 0.8, 1.2, 1.6, 2.0, 2.2],
+        
+        [1.7, 1.6, 1.5, 1.3, 1.1, 1.0, 1.1, 0.9, 1.0, 0.8, 1.2, 1.6],
+      monthlySwellProb:
+        [0.81, 0.89, 0.90, 0.78, 0.72, 0.70, 0.87, 0.58, 0.77, 0.42, 0.70, 0.97],
+
       monthlyWaterC:
-        [16, 16, 17, 18, 19, 21, 22, 22, 22, 21, 19, 17]
+        
+        [17, 17, 17, 18, 19, 20, 21, 22, 22, 21, 19, 18]
     },
     buurt: {
       eten: "Cafés and shops in Aourir, close by.",
@@ -811,7 +841,7 @@ const WAVEBASE_DATA = [
       bottom:     "Reef (left-hand, pitching)",
       windDir:    "Trade winds — offshore in mornings, side-shore in afternoons",
       crowd:      "low",
-      source:     "Tamraght/Taghazout Atlantic swell climatology (Magicseaweed + Surfline regional reports, 2020–2025) + reviewer prose",
+      source:     "Windguru GFS-Wave 16km archive (Taghazout, id 549853 — Apr 2025–May 2026) + Morocco Atlantic coast water temp climatology",
       periods: [
         { name: "Peak winter swell", months: [11, 12, 1, 2],  inSeason: true,
           waveM: [1.5, 3.0], waterC: [16, 18] },
@@ -822,9 +852,14 @@ const WAVEBASE_DATA = [
       ],
       // J     F     M     A     M     J     J     A     S     O     N     D
       monthlyWaveM:
-        [2.2, 1.8, 1.5, 1.2, 0.8, 0.7, 0.7, 0.8, 1.2, 1.6, 2.0, 2.2],
+        
+        [1.7, 1.6, 1.5, 1.3, 1.1, 1.0, 1.1, 0.9, 1.0, 0.8, 1.2, 1.6],
+      monthlySwellProb:
+        [0.81, 0.89, 0.90, 0.78, 0.72, 0.70, 0.87, 0.58, 0.77, 0.42, 0.70, 0.97],
+
       monthlyWaterC:
-        [16, 16, 17, 18, 19, 21, 22, 22, 22, 21, 19, 17]
+        
+        [17, 17, 17, 18, 19, 20, 21, 22, 22, 21, 19, 18]
     },
     buurt: {
       eten: "Cafés and shops in Aourir, close by.",
@@ -881,7 +916,7 @@ const WAVEBASE_DATA = [
       bottom:     "Sand with some rocks",
       windDir:    "Trade winds — offshore in mornings, side-shore in afternoons",
       crowd:      "moderate",
-      source:     "Tamraght/Taghazout Atlantic swell climatology (Magicseaweed + Surfline regional reports, 2020–2025) + reviewer prose",
+      source:     "Windguru GFS-Wave 16km archive (Taghazout, id 549853 — Apr 2025–May 2026) + Morocco Atlantic coast water temp climatology",
       periods: [
         { name: "Peak winter swell", months: [11, 12, 1, 2],  inSeason: true,
           waveM: [1.5, 3.0], waterC: [16, 18] },
@@ -892,9 +927,14 @@ const WAVEBASE_DATA = [
       ],
       // J     F     M     A     M     J     J     A     S     O     N     D
       monthlyWaveM:
-        [2.2, 1.8, 1.5, 1.2, 0.8, 0.7, 0.7, 0.8, 1.2, 1.6, 2.0, 2.2],
+        
+        [1.7, 1.6, 1.5, 1.3, 1.1, 1.0, 1.1, 0.9, 1.0, 0.8, 1.2, 1.6],
+      monthlySwellProb:
+        [0.81, 0.89, 0.90, 0.78, 0.72, 0.70, 0.87, 0.58, 0.77, 0.42, 0.70, 0.97],
+
       monthlyWaterC:
-        [16, 16, 17, 18, 19, 21, 22, 22, 22, 21, 19, 17]
+        
+        [17, 17, 17, 18, 19, 20, 21, 22, 22, 21, 19, 18]
     },
     buurt: {
       eten: "Limited on site — Tamraght village is the nearest option.",
@@ -950,7 +990,7 @@ const WAVEBASE_DATA = [
       bottom:     "Sand-and-reef sandbar (A-frame peaks)",
       windDir:    "Trade winds — offshore in mornings, side-shore in afternoons",
       crowd:      "moderate",
-      source:     "Tamraght/Taghazout Atlantic swell climatology (Magicseaweed + Surfline regional reports, 2020–2025) + reviewer prose",
+      source:     "Windguru GFS-Wave 16km archive (Taghazout, id 549853 — Apr 2025–May 2026) + Morocco Atlantic coast water temp climatology",
       periods: [
         { name: "Peak winter swell", months: [11, 12, 1, 2],  inSeason: true,
           waveM: [1.5, 3.0], waterC: [16, 18] },
@@ -961,9 +1001,14 @@ const WAVEBASE_DATA = [
       ],
       // J     F     M     A     M     J     J     A     S     O     N     D
       monthlyWaveM:
-        [2.2, 1.8, 1.5, 1.2, 0.8, 0.7, 0.7, 0.8, 1.2, 1.6, 2.0, 2.2],
+        
+        [1.7, 1.6, 1.5, 1.3, 1.1, 1.0, 1.1, 0.9, 1.0, 0.8, 1.2, 1.6],
+      monthlySwellProb:
+        [0.81, 0.89, 0.90, 0.78, 0.72, 0.70, 0.87, 0.58, 0.77, 0.42, 0.70, 0.97],
+
       monthlyWaterC:
-        [16, 16, 17, 18, 19, 21, 22, 22, 22, 21, 19, 17]
+        
+        [17, 17, 17, 18, 19, 20, 21, 22, 22, 21, 19, 18]
     },
     buurt: {
       eten: "Anza has a beachfront with cafés; closer to Agadir than to Taghazout.",
@@ -1020,7 +1065,7 @@ const WAVEBASE_DATA = [
       bottom:     "Sand and rock (right-hand point)",
       windDir:    "Trade winds — offshore in mornings, side-shore in afternoons",
       crowd:      "high",
-      source:     "Tamraght/Taghazout Atlantic swell climatology (Magicseaweed + Surfline regional reports, 2020–2025) + reviewer prose",
+      source:     "Windguru GFS-Wave 16km archive (Taghazout, id 549853 — Apr 2025–May 2026) + Morocco Atlantic coast water temp climatology",
       periods: [
         { name: "Peak winter swell", months: [11, 12, 1, 2],  inSeason: true,
           waveM: [1.5, 3.0], waterC: [16, 18] },
@@ -1031,9 +1076,14 @@ const WAVEBASE_DATA = [
       ],
       // J     F     M     A     M     J     J     A     S     O     N     D
       monthlyWaveM:
-        [2.2, 1.8, 1.5, 1.2, 0.8, 0.7, 0.7, 0.8, 1.2, 1.6, 2.0, 2.2],
+        
+        [1.7, 1.6, 1.5, 1.3, 1.1, 1.0, 1.1, 0.9, 1.0, 0.8, 1.2, 1.6],
+      monthlySwellProb:
+        [0.81, 0.89, 0.90, 0.78, 0.72, 0.70, 0.87, 0.58, 0.77, 0.42, 0.70, 0.97],
+
       monthlyWaterC:
-        [16, 16, 17, 18, 19, 21, 22, 22, 22, 21, 19, 17]
+        
+        [17, 17, 17, 18, 19, 20, 21, 22, 22, 21, 19, 18]
     },
     buurt: {
       eten: "Rooftop cafés and bars in Taghazout village within walking distance.",
@@ -1089,7 +1139,7 @@ const WAVEBASE_DATA = [
       bottom:     "Sand and rock (point break)",
       windDir:    "Trade winds — offshore in mornings, side-shore in afternoons",
       crowd:      "high",
-      source:     "Tamraght/Taghazout Atlantic swell climatology (Magicseaweed + Surfline regional reports, 2020–2025) + reviewer prose",
+      source:     "Windguru GFS-Wave 16km archive (Taghazout, id 549853 — Apr 2025–May 2026) + Morocco Atlantic coast water temp climatology",
       periods: [
         { name: "Peak winter swell", months: [11, 12, 1, 2],  inSeason: true,
           waveM: [1.5, 3.0], waterC: [16, 18] },
@@ -1100,9 +1150,14 @@ const WAVEBASE_DATA = [
       ],
       // J     F     M     A     M     J     J     A     S     O     N     D
       monthlyWaveM:
-        [2.2, 1.8, 1.5, 1.2, 0.8, 0.7, 0.7, 0.8, 1.2, 1.6, 2.0, 2.2],
+        
+        [1.7, 1.6, 1.5, 1.3, 1.1, 1.0, 1.1, 0.9, 1.0, 0.8, 1.2, 1.6],
+      monthlySwellProb:
+        [0.81, 0.89, 0.90, 0.78, 0.72, 0.70, 0.87, 0.58, 0.77, 0.42, 0.70, 0.97],
+
       monthlyWaterC:
-        [16, 16, 17, 18, 19, 21, 22, 22, 22, 21, 19, 17]
+        
+        [17, 17, 17, 18, 19, 20, 21, 22, 22, 21, 19, 18]
     },
     buurt: {
       eten: "Cafés and restaurants right in the village.",
@@ -1159,7 +1214,7 @@ const WAVEBASE_DATA = [
       bottom:     "Sand and rock (point + beach mix)",
       windDir:    "Trade winds — offshore in mornings, side-shore in afternoons",
       crowd:      "moderate",
-      source:     "Tamraght/Taghazout Atlantic swell climatology (Magicseaweed + Surfline regional reports, 2020–2025) + reviewer prose",
+      source:     "Windguru GFS-Wave 16km archive (Taghazout, id 549853 — Apr 2025–May 2026) + Morocco Atlantic coast water temp climatology",
       periods: [
         { name: "Peak winter swell", months: [11, 12, 1, 2],  inSeason: true,
           waveM: [1.5, 3.0], waterC: [16, 18] },
@@ -1170,9 +1225,14 @@ const WAVEBASE_DATA = [
       ],
       // J     F     M     A     M     J     J     A     S     O     N     D
       monthlyWaveM:
-        [2.2, 1.8, 1.5, 1.2, 0.8, 0.7, 0.7, 0.8, 1.2, 1.6, 2.0, 2.2],
+        
+        [1.7, 1.6, 1.5, 1.3, 1.1, 1.0, 1.1, 0.9, 1.0, 0.8, 1.2, 1.6],
+      monthlySwellProb:
+        [0.81, 0.89, 0.90, 0.78, 0.72, 0.70, 0.87, 0.58, 0.77, 0.42, 0.70, 0.97],
+
       monthlyWaterC:
-        [16, 16, 17, 18, 19, 21, 22, 22, 22, 21, 19, 17]
+        
+        [17, 17, 17, 18, 19, 20, 21, 22, 22, 21, 19, 18]
     },
     buurt: {
       eten: "Panorama's restaurant right at the spot; village restaurants nearby.",
@@ -1228,7 +1288,7 @@ const WAVEBASE_DATA = [
       bottom:     "Reef plateau + sand",
       windDir:    "Trade winds — offshore in mornings, side-shore in afternoons",
       crowd:      "moderate",
-      source:     "Tamraght/Taghazout Atlantic swell climatology (Magicseaweed + Surfline regional reports, 2020–2025) + reviewer prose",
+      source:     "Windguru GFS-Wave 16km archive (Taghazout, id 549853 — Apr 2025–May 2026) + Morocco Atlantic coast water temp climatology",
       periods: [
         { name: "Peak winter swell", months: [11, 12, 1, 2],  inSeason: true,
           waveM: [1.5, 3.0], waterC: [16, 18] },
@@ -1239,9 +1299,14 @@ const WAVEBASE_DATA = [
       ],
       // J     F     M     A     M     J     J     A     S     O     N     D
       monthlyWaveM:
-        [2.2, 1.8, 1.5, 1.2, 0.8, 0.7, 0.7, 0.8, 1.2, 1.6, 2.0, 2.2],
+        
+        [1.7, 1.6, 1.5, 1.3, 1.1, 1.0, 1.1, 0.9, 1.0, 0.8, 1.2, 1.6],
+      monthlySwellProb:
+        [0.81, 0.89, 0.90, 0.78, 0.72, 0.70, 0.87, 0.58, 0.77, 0.42, 0.70, 0.97],
+
       monthlyWaterC:
-        [16, 16, 17, 18, 19, 21, 22, 22, 22, 21, 19, 17]
+        
+        [17, 17, 17, 18, 19, 20, 21, 22, 22, 21, 19, 18]
     },
     buurt: {
       eten: "Taghazout village ~5 min walk away.",
@@ -1297,7 +1362,7 @@ const WAVEBASE_DATA = [
       bottom:     "Hard rock reef (A-frames)",
       windDir:    "Trade winds — offshore in mornings, side-shore in afternoons",
       crowd:      "moderate",
-      source:     "Tamraght/Taghazout Atlantic swell climatology (Magicseaweed + Surfline regional reports, 2020–2025) + reviewer prose",
+      source:     "Windguru GFS-Wave 16km archive (Taghazout, id 549853 — Apr 2025–May 2026) + Morocco Atlantic coast water temp climatology",
       periods: [
         { name: "Peak winter swell", months: [11, 12, 1, 2],  inSeason: true,
           waveM: [1.5, 3.0], waterC: [16, 18] },
@@ -1308,9 +1373,14 @@ const WAVEBASE_DATA = [
       ],
       // J     F     M     A     M     J     J     A     S     O     N     D
       monthlyWaveM:
-        [2.2, 1.8, 1.5, 1.2, 0.8, 0.7, 0.7, 0.8, 1.2, 1.6, 2.0, 2.2],
+        
+        [1.7, 1.6, 1.5, 1.3, 1.1, 1.0, 1.1, 0.9, 1.0, 0.8, 1.2, 1.6],
+      monthlySwellProb:
+        [0.81, 0.89, 0.90, 0.78, 0.72, 0.70, 0.87, 0.58, 0.77, 0.42, 0.70, 0.97],
+
       monthlyWaterC:
-        [16, 16, 17, 18, 19, 21, 22, 22, 22, 21, 19, 17]
+        
+        [17, 17, 17, 18, 19, 20, 21, 22, 22, 21, 19, 18]
     },
     buurt: {
       eten: "Taghazout village ~5 min walk away.",
@@ -1367,7 +1437,7 @@ const WAVEBASE_DATA = [
       bottom:     "Flat reef / rock (long right point)",
       windDir:    "Trade winds — offshore in mornings, side-shore in afternoons",
       crowd:      "low",
-      source:     "Tamraght/Taghazout Atlantic swell climatology (Magicseaweed + Surfline regional reports, 2020–2025) + reviewer prose",
+      source:     "Windguru GFS-Wave 16km archive (Taghazout, id 549853 — Apr 2025–May 2026) + Morocco Atlantic coast water temp climatology",
       periods: [
         { name: "Peak winter swell", months: [11, 12, 1, 2],  inSeason: true,
           waveM: [1.5, 3.0], waterC: [16, 18] },
@@ -1378,9 +1448,14 @@ const WAVEBASE_DATA = [
       ],
       // J     F     M     A     M     J     J     A     S     O     N     D
       monthlyWaveM:
-        [2.2, 1.8, 1.5, 1.2, 0.8, 0.7, 0.7, 0.8, 1.2, 1.6, 2.0, 2.2],
+        
+        [1.7, 1.6, 1.5, 1.3, 1.1, 1.0, 1.1, 0.9, 1.0, 0.8, 1.2, 1.6],
+      monthlySwellProb:
+        [0.81, 0.89, 0.90, 0.78, 0.72, 0.70, 0.87, 0.58, 0.77, 0.42, 0.70, 0.97],
+
       monthlyWaterC:
-        [16, 16, 17, 18, 19, 21, 22, 22, 22, 21, 19, 17]
+        
+        [17, 17, 17, 18, 19, 20, 21, 22, 22, 21, 19, 18]
     },
     buurt: {
       eten: "No facilities on the cape — back in Taghazout village.",
@@ -1436,7 +1511,7 @@ const WAVEBASE_DATA = [
       bottom:     "Rock and boulders (reef, right)",
       windDir:    "Trade winds — offshore in mornings, side-shore in afternoons",
       crowd:      "low",
-      source:     "Tamraght/Taghazout Atlantic swell climatology (Magicseaweed + Surfline regional reports, 2020–2025) + reviewer prose",
+      source:     "Windguru GFS-Wave 16km archive (Taghazout, id 549853 — Apr 2025–May 2026) + Morocco Atlantic coast water temp climatology",
       periods: [
         { name: "Peak winter swell", months: [11, 12, 1, 2],  inSeason: true,
           waveM: [1.5, 3.0], waterC: [16, 18] },
@@ -1447,9 +1522,14 @@ const WAVEBASE_DATA = [
       ],
       // J     F     M     A     M     J     J     A     S     O     N     D
       monthlyWaveM:
-        [2.2, 1.8, 1.5, 1.2, 0.8, 0.7, 0.7, 0.8, 1.2, 1.6, 2.0, 2.2],
+        
+        [1.7, 1.6, 1.5, 1.3, 1.1, 1.0, 1.1, 0.9, 1.0, 0.8, 1.2, 1.6],
+      monthlySwellProb:
+        [0.81, 0.89, 0.90, 0.78, 0.72, 0.70, 0.87, 0.58, 0.77, 0.42, 0.70, 0.97],
+
       monthlyWaterC:
-        [16, 16, 17, 18, 19, 21, 22, 22, 22, 21, 19, 17]
+        
+        [17, 17, 17, 18, 19, 20, 21, 22, 22, 21, 19, 18]
     },
     buurt: {
       eten: "None — remote; bring food and water.",
@@ -1506,7 +1586,7 @@ const WAVEBASE_DATA = [
       bottom:     "Sand (soft rollers)",
       windDir:    "Trade winds — offshore in mornings, side-shore in afternoons",
       crowd:      "high",
-      source:     "Tamraght/Taghazout Atlantic swell climatology (Magicseaweed + Surfline regional reports, 2020–2025) + reviewer prose",
+      source:     "Windguru GFS-Wave 16km archive (Taghazout, id 549853 — Apr 2025–May 2026) + Morocco Atlantic coast water temp climatology",
       periods: [
         { name: "Peak winter swell", months: [11, 12, 1, 2],  inSeason: true,
           waveM: [1.5, 3.0], waterC: [16, 18] },
@@ -1517,9 +1597,14 @@ const WAVEBASE_DATA = [
       ],
       // J     F     M     A     M     J     J     A     S     O     N     D
       monthlyWaveM:
-        [2.2, 1.8, 1.5, 1.2, 0.8, 0.7, 0.7, 0.8, 1.2, 1.6, 2.0, 2.2],
+        
+        [1.7, 1.6, 1.5, 1.3, 1.1, 1.0, 1.1, 0.9, 1.0, 0.8, 1.2, 1.6],
+      monthlySwellProb:
+        [0.81, 0.89, 0.90, 0.78, 0.72, 0.70, 0.87, 0.58, 0.77, 0.42, 0.70, 0.97],
+
       monthlyWaterC:
-        [16, 16, 17, 18, 19, 21, 22, 22, 22, 21, 19, 17]
+        
+        [17, 17, 17, 18, 19, 20, 21, 22, 22, 21, 19, 18]
     },
     buurt: {
       eten: "Cafés and restaurants right on the seafront (incl. the Surf Berbere café).",
@@ -1599,7 +1684,7 @@ const WAVEBASE_DATA = [
       waveType:   "Flat inside · small wave on outer reef",
       bottom:     "Sand · rocky reef at the north end",
       crowd:      "moderate",
-      source:     "Windguru archive 2019–2025 (Kouremenos spot) + 2022–2025 reviews + LDW visit",
+      source:     "Windguru GFS 13km archive (Kouremenos, id 49261) Apr 2025–May 2026",
       periods: [
         { name: "Peak",     months: [7, 8],     inSeason: true,
           windKn: [20, 28], waterC: [23, 25], waveM: [0.5, 1.5] },
@@ -1613,13 +1698,19 @@ const WAVEBASE_DATA = [
       // Per-month % of days with ≥4 Bft — Windguru Kouremenos archive 2019-2025.
       // J     F     M     A     M     J     J     A     S     O     N     D
       monthlyWindProb:
-        [0.67, 0.63, 0.70, 0.57, 0.50, 0.70, 0.87, 0.79, 0.73, 0.55, 0.60, 0.62],
+        
+        [0.81, 0.71, 0.81, 0.64, 0.57, 0.97, 0.71, 0.81, 0.93, 0.45, 0.53, 0.71],
       // Per-month avg wind in knots — weighted from Windguru Bft distribution.
       monthlyWindKn:
-        [16,   16,   16,   15,   13,   15,   18,   17,   16,   13,   14,   14],
+        
+        [16, 14, 16, 12, 12, 18, 15, 17, 18, 9, 11, 13],
       // Per-month sea-water temperature in °C — typical East Crete coastal values.
+      monthlyGustKn:
+        [19, 18, 17, 14, 14, 23, 17, 19, 20, 11, 12, 15],
+
       monthlyWaterC:
-        [16,   15,   15,   16,   18,   22,   24,   25,   24,   22,   19,   17]
+        
+        [16, 15, 15, 16, 18, 22, 24, 25, 24, 22, 19, 17]
     },
     buurt: {
       eten: "A small beach taverna at the bay; more tavernas in Palekastro village 1.5 km inland.",
@@ -1675,7 +1766,7 @@ const WAVEBASE_DATA = [
       waveType:   "Choppy on Tenda side · flatter on Eligas side",
       bottom:     "Rocky bay",
       crowd:      "low",
-      source:     "Windguru archive 2008–2025 (Tenda Bay spot) + east-Crete wind guides",
+      source:     "Windguru GFS 13km archive (Tenda Bay, id 49260) Apr 2025–May 2026",
       periods: [
         { name: "Peak",     months: [7, 8],     inSeason: true,
           windKn: [18, 28], waterC: [23, 25], waveM: [0.5, 1.5] },
@@ -1688,11 +1779,17 @@ const WAVEBASE_DATA = [
       ],
       // J     F     M     A     M     J     J     A     S     O     N     D
       monthlyWindProb:
-        [0.69, 0.66, 0.65, 0.56, 0.49, 0.63, 0.82, 0.82, 0.67, 0.54, 0.58, 0.64],
+        
+        [0.81, 0.71, 0.81, 0.64, 0.64, 1.00, 0.81, 0.81, 0.97, 0.42, 0.63, 0.68],
       monthlyWindKn:
-        [16,   16,   15,   13,   12,   13,   17,   16,   14,   13,   13,   15],
+        
+        [16, 14, 16, 13, 12, 19, 15, 17, 18, 9, 11, 14],
+      monthlyGustKn:
+        [19, 17, 17, 15, 15, 24, 19, 20, 21, 10, 12, 15],
+
       monthlyWaterC:
-        [16,   15,   15,   16,   18,   22,   24,   25,   24,   22,   19,   17]
+        
+        [16, 15, 15, 16, 18, 22, 24, 25, 24, 22, 19, 17]
     },
     buurt: {
       eten: "Nothing on the spot — pack your own; tavernas back in Palekastro village (~15 km).",
@@ -1751,7 +1848,7 @@ const WAVEBASE_DATA = [
       waveType:   "Reef peninsula point — logo to mast-high on strong meltemi or winter swell",
       bottom:     "Rocks in the line-up and surface (hazardous launch)",
       crowd:      "low",
-      source:     "Windguru archive 2019–2025 (Faneromeni spot) + cretanbeaches.com + kite-and-windsurfing-guide + SURF magazine",
+      source:     "Windguru GFS 13km archive (Faneromeni, id 49259) Apr 2025–May 2026",
       // Year-round operational (no centers to close) but emphasis split:
       // summer = sailable meltemi, winter = bigger storm swell for wave.
       periods: [
@@ -1766,11 +1863,17 @@ const WAVEBASE_DATA = [
       ],
       // J     F     M     A     M     J     J     A     S     O     N     D
       monthlyWindProb:
-        [0.61, 0.55, 0.54, 0.50, 0.38, 0.59, 0.77, 0.65, 0.61, 0.40, 0.48, 0.45],
+        
+        [0.77, 0.75, 0.71, 0.56, 0.55, 0.90, 0.77, 0.77, 0.77, 0.32, 0.30, 0.48],
       monthlyWindKn:
-        [15,   15,   14,   13,   11,   13,   15,   14,   14,   11,   12,   12],
+        
+        [14, 13, 15, 11, 11, 16, 13, 15, 16, 8, 9, 12],
+      monthlyGustKn:
+        [18, 16, 16, 13, 13, 20, 16, 17, 18, 10, 11, 13],
+
       monthlyWaterC:
-        [16,   15,   15,   16,   18,   22,   24,   25,   24,   22,   19,   17]
+        
+        [16, 15, 15, 16, 18, 22, 24, 25, 24, 22, 19, 17]
     },
     buurt: {
       eten: "Nothing on the spot; tavernas in Papadiokambos hamlet and Sitia (~15 km east).",
@@ -1838,7 +1941,7 @@ const WAVEBASE_DATA = [
       crowd:      "low",
       // No Windguru station at Xerokampos itself. Numbers come from Ierapetra
       // (~50 km west, same south-coast meltemi-shadow climate). Honest proxy.
-      source:     "Windguru archive 2019–2025 (Ierapetra, ~50 km west — same south-coast pattern) + reviewer guides",
+      source:     "Windguru GFS 13km archive (Ierapetra, id 49264 — ~50 km west, same south-coast pattern) Apr 2025–May 2026",
       // Inverted-season spot: summer = quiet, winter = best (storms).
       periods: [
         { name: "Storm season", months: [11, 12, 1, 2, 3],  inSeason: true,
@@ -1850,12 +1953,18 @@ const WAVEBASE_DATA = [
       ],
       // J     F     M     A     M     J     J     A     S     O     N     D
       monthlyWindProb:
-        [0.57, 0.54, 0.44, 0.33, 0.22, 0.22, 0.39, 0.24, 0.24, 0.33, 0.37, 0.48],
+        
+        [0.61, 0.89, 0.39, 0.42, 0.32, 0.23, 0.26, 0.23, 0.30, 0.45, 0.23, 0.32],
       monthlyWindKn:
-        [13,   13,   11,   10,   8,    8,    10,   9,    8,    10,   10,   12],
+        
+        [14, 13, 8, 8, 8, 7, 7, 7, 7, 9, 8, 8],
       // South-coast Crete water — ~1-2°C warmer year-round than north coast.
+      monthlyGustKn:
+        [16, 16, 10, 10, 9, 11, 9, 9, 9, 10, 9, 10],
+
       monthlyWaterC:
-        [17,   16,   16,   18,   20,   24,   25,   26,   25,   23,   20,   18]
+        
+        [17, 16, 16, 18, 20, 24, 25, 26, 25, 23, 20, 18]
     },
     buurt: {
       eten: "A couple of tavernas in the small village; little else.",
