@@ -408,13 +408,11 @@ const WAVEBASE_DATA = [
       ],
       // J     F     M     A     M     J     J     A     S     O     N     D
       monthlyWaveM:
-        
         [1.7, 1.6, 1.5, 1.3, 1.1, 1.0, 1.1, 0.9, 1.0, 0.8, 1.2, 1.6],
       monthlySwellProb:
         [0.81, 0.89, 0.90, 0.78, 0.72, 0.70, 0.87, 0.58, 0.77, 0.42, 0.70, 0.97],
 
       monthlyWaterC:
-        
         [17, 17, 17, 18, 19, 20, 21, 22, 22, 21, 19, 18]
     },
     buurt: {
@@ -482,13 +480,11 @@ const WAVEBASE_DATA = [
       ],
       // J     F     M     A     M     J     J     A     S     O     N     D
       monthlyWaveM:
-        
         [1.7, 1.6, 1.5, 1.3, 1.1, 1.0, 1.1, 0.9, 1.0, 0.8, 1.2, 1.6],
       monthlySwellProb:
         [0.81, 0.89, 0.90, 0.78, 0.72, 0.70, 0.87, 0.58, 0.77, 0.42, 0.70, 0.97],
 
       monthlyWaterC:
-        
         [17, 17, 17, 18, 19, 20, 21, 22, 22, 21, 19, 18]
     },
     buurt: {
@@ -556,13 +552,11 @@ const WAVEBASE_DATA = [
       ],
       // J     F     M     A     M     J     J     A     S     O     N     D
       monthlyWaveM:
-        
         [1.7, 1.6, 1.5, 1.3, 1.1, 1.0, 1.1, 0.9, 1.0, 0.8, 1.2, 1.6],
       monthlySwellProb:
         [0.81, 0.89, 0.90, 0.78, 0.72, 0.70, 0.87, 0.58, 0.77, 0.42, 0.70, 0.97],
 
       monthlyWaterC:
-        
         [17, 17, 17, 18, 19, 20, 21, 22, 22, 21, 19, 18]
     },
     buurt: {
@@ -630,13 +624,11 @@ const WAVEBASE_DATA = [
       ],
       // J     F     M     A     M     J     J     A     S     O     N     D
       monthlyWaveM:
-        
         [1.7, 1.6, 1.5, 1.3, 1.1, 1.0, 1.1, 0.9, 1.0, 0.8, 1.2, 1.6],
       monthlySwellProb:
         [0.81, 0.89, 0.90, 0.78, 0.72, 0.70, 0.87, 0.58, 0.77, 0.42, 0.70, 0.97],
 
       monthlyWaterC:
-        
         [17, 17, 17, 18, 19, 20, 21, 22, 22, 21, 19, 18]
     },
     buurt: {
@@ -704,13 +696,11 @@ const WAVEBASE_DATA = [
       ],
       // J     F     M     A     M     J     J     A     S     O     N     D
       monthlyWaveM:
-        
         [1.7, 1.6, 1.5, 1.3, 1.1, 1.0, 1.1, 0.9, 1.0, 0.8, 1.2, 1.6],
       monthlySwellProb:
         [0.81, 0.89, 0.90, 0.78, 0.72, 0.70, 0.87, 0.58, 0.77, 0.42, 0.70, 0.97],
 
       monthlyWaterC:
-        
         [17, 17, 17, 18, 19, 20, 21, 22, 22, 21, 19, 18]
     },
     buurt: {
@@ -778,13 +768,11 @@ const WAVEBASE_DATA = [
       ],
       // J     F     M     A     M     J     J     A     S     O     N     D
       monthlyWaveM:
-        
         [1.7, 1.6, 1.5, 1.3, 1.1, 1.0, 1.1, 0.9, 1.0, 0.8, 1.2, 1.6],
       monthlySwellProb:
         [0.81, 0.89, 0.90, 0.78, 0.72, 0.70, 0.87, 0.58, 0.77, 0.42, 0.70, 0.97],
 
       monthlyWaterC:
-        
         [17, 17, 17, 18, 19, 20, 21, 22, 22, 21, 19, 18]
     },
     buurt: {
@@ -852,13 +840,11 @@ const WAVEBASE_DATA = [
       ],
       // J     F     M     A     M     J     J     A     S     O     N     D
       monthlyWaveM:
-        
         [1.7, 1.6, 1.5, 1.3, 1.1, 1.0, 1.1, 0.9, 1.0, 0.8, 1.2, 1.6],
       monthlySwellProb:
         [0.81, 0.89, 0.90, 0.78, 0.72, 0.70, 0.87, 0.58, 0.77, 0.42, 0.70, 0.97],
 
       monthlyWaterC:
-        
         [17, 17, 17, 18, 19, 20, 21, 22, 22, 21, 19, 18]
     },
     buurt: {
@@ -927,13 +913,11 @@ const WAVEBASE_DATA = [
       ],
       // J     F     M     A     M     J     J     A     S     O     N     D
       monthlyWaveM:
-        
         [1.7, 1.6, 1.5, 1.3, 1.1, 1.0, 1.1, 0.9, 1.0, 0.8, 1.2, 1.6],
       monthlySwellProb:
         [0.81, 0.89, 0.90, 0.78, 0.72, 0.70, 0.87, 0.58, 0.77, 0.42, 0.70, 0.97],
 
       monthlyWaterC:
-        
         [17, 17, 17, 18, 19, 20, 21, 22, 22, 21, 19, 18]
     },
     buurt: {
@@ -1001,13 +985,11 @@ const WAVEBASE_DATA = [
       ],
       // J     F     M     A     M     J     J     A     S     O     N     D
       monthlyWaveM:
-        
         [1.7, 1.6, 1.5, 1.3, 1.1, 1.0, 1.1, 0.9, 1.0, 0.8, 1.2, 1.6],
       monthlySwellProb:
         [0.81, 0.89, 0.90, 0.78, 0.72, 0.70, 0.87, 0.58, 0.77, 0.42, 0.70, 0.97],
 
       monthlyWaterC:
-        
         [17, 17, 17, 18, 19, 20, 21, 22, 22, 21, 19, 18]
     },
     buurt: {
@@ -1076,13 +1058,11 @@ const WAVEBASE_DATA = [
       ],
       // J     F     M     A     M     J     J     A     S     O     N     D
       monthlyWaveM:
-        
         [1.7, 1.6, 1.5, 1.3, 1.1, 1.0, 1.1, 0.9, 1.0, 0.8, 1.2, 1.6],
       monthlySwellProb:
         [0.81, 0.89, 0.90, 0.78, 0.72, 0.70, 0.87, 0.58, 0.77, 0.42, 0.70, 0.97],
 
       monthlyWaterC:
-        
         [17, 17, 17, 18, 19, 20, 21, 22, 22, 21, 19, 18]
     },
     buurt: {
@@ -1150,13 +1130,11 @@ const WAVEBASE_DATA = [
       ],
       // J     F     M     A     M     J     J     A     S     O     N     D
       monthlyWaveM:
-        
         [1.7, 1.6, 1.5, 1.3, 1.1, 1.0, 1.1, 0.9, 1.0, 0.8, 1.2, 1.6],
       monthlySwellProb:
         [0.81, 0.89, 0.90, 0.78, 0.72, 0.70, 0.87, 0.58, 0.77, 0.42, 0.70, 0.97],
 
       monthlyWaterC:
-        
         [17, 17, 17, 18, 19, 20, 21, 22, 22, 21, 19, 18]
     },
     buurt: {
@@ -1225,13 +1203,11 @@ const WAVEBASE_DATA = [
       ],
       // J     F     M     A     M     J     J     A     S     O     N     D
       monthlyWaveM:
-        
         [1.7, 1.6, 1.5, 1.3, 1.1, 1.0, 1.1, 0.9, 1.0, 0.8, 1.2, 1.6],
       monthlySwellProb:
         [0.81, 0.89, 0.90, 0.78, 0.72, 0.70, 0.87, 0.58, 0.77, 0.42, 0.70, 0.97],
 
       monthlyWaterC:
-        
         [17, 17, 17, 18, 19, 20, 21, 22, 22, 21, 19, 18]
     },
     buurt: {
@@ -1299,13 +1275,11 @@ const WAVEBASE_DATA = [
       ],
       // J     F     M     A     M     J     J     A     S     O     N     D
       monthlyWaveM:
-        
         [1.7, 1.6, 1.5, 1.3, 1.1, 1.0, 1.1, 0.9, 1.0, 0.8, 1.2, 1.6],
       monthlySwellProb:
         [0.81, 0.89, 0.90, 0.78, 0.72, 0.70, 0.87, 0.58, 0.77, 0.42, 0.70, 0.97],
 
       monthlyWaterC:
-        
         [17, 17, 17, 18, 19, 20, 21, 22, 22, 21, 19, 18]
     },
     buurt: {
@@ -1373,13 +1347,11 @@ const WAVEBASE_DATA = [
       ],
       // J     F     M     A     M     J     J     A     S     O     N     D
       monthlyWaveM:
-        
         [1.7, 1.6, 1.5, 1.3, 1.1, 1.0, 1.1, 0.9, 1.0, 0.8, 1.2, 1.6],
       monthlySwellProb:
         [0.81, 0.89, 0.90, 0.78, 0.72, 0.70, 0.87, 0.58, 0.77, 0.42, 0.70, 0.97],
 
       monthlyWaterC:
-        
         [17, 17, 17, 18, 19, 20, 21, 22, 22, 21, 19, 18]
     },
     buurt: {
@@ -1448,13 +1420,11 @@ const WAVEBASE_DATA = [
       ],
       // J     F     M     A     M     J     J     A     S     O     N     D
       monthlyWaveM:
-        
         [1.7, 1.6, 1.5, 1.3, 1.1, 1.0, 1.1, 0.9, 1.0, 0.8, 1.2, 1.6],
       monthlySwellProb:
         [0.81, 0.89, 0.90, 0.78, 0.72, 0.70, 0.87, 0.58, 0.77, 0.42, 0.70, 0.97],
 
       monthlyWaterC:
-        
         [17, 17, 17, 18, 19, 20, 21, 22, 22, 21, 19, 18]
     },
     buurt: {
@@ -1522,13 +1492,11 @@ const WAVEBASE_DATA = [
       ],
       // J     F     M     A     M     J     J     A     S     O     N     D
       monthlyWaveM:
-        
         [1.7, 1.6, 1.5, 1.3, 1.1, 1.0, 1.1, 0.9, 1.0, 0.8, 1.2, 1.6],
       monthlySwellProb:
         [0.81, 0.89, 0.90, 0.78, 0.72, 0.70, 0.87, 0.58, 0.77, 0.42, 0.70, 0.97],
 
       monthlyWaterC:
-        
         [17, 17, 17, 18, 19, 20, 21, 22, 22, 21, 19, 18]
     },
     buurt: {
@@ -1597,13 +1565,11 @@ const WAVEBASE_DATA = [
       ],
       // J     F     M     A     M     J     J     A     S     O     N     D
       monthlyWaveM:
-        
         [1.7, 1.6, 1.5, 1.3, 1.1, 1.0, 1.1, 0.9, 1.0, 0.8, 1.2, 1.6],
       monthlySwellProb:
         [0.81, 0.89, 0.90, 0.78, 0.72, 0.70, 0.87, 0.58, 0.77, 0.42, 0.70, 0.97],
 
       monthlyWaterC:
-        
         [17, 17, 17, 18, 19, 20, 21, 22, 22, 21, 19, 18]
     },
     buurt: {
@@ -1675,8 +1641,8 @@ const WAVEBASE_DATA = [
       drukte: { niveau: "gemiddeld", tekst: "Two centers share the beach; the bay is long enough to spread out, but the inside near the centers is the busiest." }
     },
     // Structured stats — used by the at-a-glance panel.
-    // monthlyWindProb = % of days per month with ≥4 Bft (≥12 kn, windsurfing
-    // threshold), from Windguru archive for Kouremenos GFS spot (2019-2025).
+    // monthlyWindProb = % of days per month with at least one daytime hour
+    // (10–18h) at ≥5 Bft (≥20 kn — proper sailing wind).
     // periods supply the narrative grouping + water/wave/wind-direction ranges
     // (reviewer-derived for the in-season months).
     stats: {
@@ -1684,7 +1650,7 @@ const WAVEBASE_DATA = [
       waveType:   "Flat inside · small wave on outer reef",
       bottom:     "Sand · rocky reef at the north end",
       crowd:      "moderate",
-      source:     "Windguru GFS 13km archive (Kouremenos, id 49261) Apr 2025–May 2026",
+      source:     "Wind/gust/reliability: Windguru GFS 13km archive (Kouremenos id 49261), daytime 10–18h, Apr 2025–May 2026. Water temp: East Crete Mediterranean climatology.",
       periods: [
         { name: "Peak",     months: [7, 8],     inSeason: true,
           windKn: [20, 28], waterC: [23, 25], waveM: [0.5, 1.5] },
@@ -1698,18 +1664,15 @@ const WAVEBASE_DATA = [
       // Per-month % of days with ≥4 Bft — Windguru Kouremenos archive 2019-2025.
       // J     F     M     A     M     J     J     A     S     O     N     D
       monthlyWindProb:
-        
-        [0.81, 0.71, 0.81, 0.64, 0.57, 0.97, 0.71, 0.81, 0.93, 0.45, 0.53, 0.71],
+        [0.52, 0.46, 0.55, 0.29, 0.26, 0.60, 0.42, 0.55, 0.53, 0.10, 0.13, 0.29],
       // Per-month avg wind in knots — weighted from Windguru Bft distribution.
       monthlyWindKn:
-        
         [16, 14, 16, 12, 12, 18, 15, 17, 18, 9, 11, 13],
       // Per-month sea-water temperature in °C — typical East Crete coastal values.
       monthlyGustKn:
         [19, 18, 17, 14, 14, 23, 17, 19, 20, 11, 12, 15],
 
       monthlyWaterC:
-        
         [16, 15, 15, 16, 18, 22, 24, 25, 24, 22, 19, 17]
     },
     buurt: {
@@ -1766,7 +1729,7 @@ const WAVEBASE_DATA = [
       waveType:   "Choppy on Tenda side · flatter on Eligas side",
       bottom:     "Rocky bay",
       crowd:      "low",
-      source:     "Windguru GFS 13km archive (Tenda Bay, id 49260) Apr 2025–May 2026",
+      source:     "Wind/gust/reliability: Windguru GFS 13km archive (Tenda Bay id 49260), daytime 10–18h, Apr 2025–May 2026. Water temp: East Crete Mediterranean climatology.",
       periods: [
         { name: "Peak",     months: [7, 8],     inSeason: true,
           windKn: [18, 28], waterC: [23, 25], waveM: [0.5, 1.5] },
@@ -1779,16 +1742,13 @@ const WAVEBASE_DATA = [
       ],
       // J     F     M     A     M     J     J     A     S     O     N     D
       monthlyWindProb:
-        
-        [0.81, 0.71, 0.81, 0.64, 0.64, 1.00, 0.81, 0.81, 0.97, 0.42, 0.63, 0.68],
+        [0.48, 0.39, 0.52, 0.31, 0.28, 0.63, 0.45, 0.55, 0.50, 0.10, 0.13, 0.29],
       monthlyWindKn:
-        
         [16, 14, 16, 13, 12, 19, 15, 17, 18, 9, 11, 14],
       monthlyGustKn:
         [19, 17, 17, 15, 15, 24, 19, 20, 21, 10, 12, 15],
 
       monthlyWaterC:
-        
         [16, 15, 15, 16, 18, 22, 24, 25, 24, 22, 19, 17]
     },
     buurt: {
@@ -1848,7 +1808,7 @@ const WAVEBASE_DATA = [
       waveType:   "Reef peninsula point — logo to mast-high on strong meltemi or winter swell",
       bottom:     "Rocks in the line-up and surface (hazardous launch)",
       crowd:      "low",
-      source:     "Windguru GFS 13km archive (Faneromeni, id 49259) Apr 2025–May 2026",
+      source:     "Wind/gust/reliability: Windguru GFS 13km archive (Faneromeni id 49259), daytime 10–18h, Apr 2025–May 2026. Water temp: East Crete Mediterranean climatology.",
       // Year-round operational (no centers to close) but emphasis split:
       // summer = sailable meltemi, winter = bigger storm swell for wave.
       periods: [
@@ -1863,16 +1823,13 @@ const WAVEBASE_DATA = [
       ],
       // J     F     M     A     M     J     J     A     S     O     N     D
       monthlyWindProb:
-        
-        [0.77, 0.75, 0.71, 0.56, 0.55, 0.90, 0.77, 0.77, 0.77, 0.32, 0.30, 0.48],
+        [0.39, 0.32, 0.35, 0.20, 0.17, 0.33, 0.19, 0.32, 0.50, 0.03, 0.07, 0.26],
       monthlyWindKn:
-        
         [14, 13, 15, 11, 11, 16, 13, 15, 16, 8, 9, 12],
       monthlyGustKn:
         [18, 16, 16, 13, 13, 20, 16, 17, 18, 10, 11, 13],
 
       monthlyWaterC:
-        
         [16, 15, 15, 16, 18, 22, 24, 25, 24, 22, 19, 17]
     },
     buurt: {
@@ -1941,7 +1898,7 @@ const WAVEBASE_DATA = [
       crowd:      "low",
       // No Windguru station at Xerokampos itself. Numbers come from Ierapetra
       // (~50 km west, same south-coast meltemi-shadow climate). Honest proxy.
-      source:     "Windguru GFS 13km archive (Ierapetra, id 49264 — ~50 km west, same south-coast pattern) Apr 2025–May 2026",
+      source:     "Wind/gust/reliability: Windguru GFS 13km archive (Ierapetra id 49264 — ~50 km west, same south-coast pattern), daytime 10–18h, Apr 2025–May 2026. Water temp: East Crete Mediterranean climatology.",
       // Inverted-season spot: summer = quiet, winter = best (storms).
       periods: [
         { name: "Storm season", months: [11, 12, 1, 2, 3],  inSeason: true,
@@ -1953,17 +1910,14 @@ const WAVEBASE_DATA = [
       ],
       // J     F     M     A     M     J     J     A     S     O     N     D
       monthlyWindProb:
-        
-        [0.61, 0.89, 0.39, 0.42, 0.32, 0.23, 0.26, 0.23, 0.30, 0.45, 0.23, 0.32],
+        [0.35, 0.18, 0.03, 0.09, 0.06, 0.13, 0.06, 0.00, 0.07, 0.10, 0.03, 0.10],
       monthlyWindKn:
-        
         [14, 13, 8, 8, 8, 7, 7, 7, 7, 9, 8, 8],
       // South-coast Crete water — ~1-2°C warmer year-round than north coast.
       monthlyGustKn:
         [16, 16, 10, 10, 9, 11, 9, 9, 9, 10, 9, 10],
 
       monthlyWaterC:
-        
         [17, 16, 16, 18, 20, 24, 25, 26, 25, 23, 20, 18]
     },
     buurt: {

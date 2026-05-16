@@ -334,7 +334,7 @@ function monthlyChartHTML(e) {
         primaryChart = buildSingleMetricChart(stats.monthlyWindProb.map(p => Math.round(p * 100)), {
           stats, userMonth, monthLabels,
           label: "Wind reliability",
-          sublabel: "daytime 10–18h, % of days ≥12 kn",
+          sublabel: "daytime 10–18h, % of days ≥20 kn (5 Bft)",
           unit: "%", maxValue: 100, axisTicks: ["100%", "50%", "0%"],
           colorClass: "color-wind",
           tooltipFor: (mn, v) => {
