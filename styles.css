@@ -867,6 +867,16 @@ table.cal td.host { color: var(--clay); }
 /* Color overrides per chart */
 .month-bar.color-wind .month-bar-fill  { background: var(--sea); }
 .month-bar.color-water .month-bar-fill { background: var(--clay); }
+.month-bar-overlay {
+  position: absolute;
+  left: 0; right: 0;
+  height: 2px;
+  pointer-events: none;
+  z-index: 2;
+}
+.month-bar.color-wind  .month-bar-overlay { background: #1f3d52; } /* deeper sea = gust */
+.month-bar.color-water .month-bar-overlay { background: #6e2e16; } /* deeper clay = air */
+.month-bar.off-season .month-bar-overlay  { opacity: 0.45; }
 .month-bar.off-season .month-bar-fill { opacity: 0.45; }
 .month-bar.off-season .month-bar-label { color: var(--ink-soft); font-style: italic; }
 

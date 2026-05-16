@@ -266,10 +266,12 @@ function statsPanelHTML(e) {
 }
 
 function buildSingleMetricChart(metricArr, opts) {
-  // opts: { stats, userMonth, monthLabels, label, sublabel, unit, maxValue, axisTicks, colorClass, tooltipFor }
+  // opts: { stats, userMonth, monthLabels, label, sublabel, unit, maxValue, axisTicks, colorClass, tooltipFor, overlayArr }
   // axisTicks = array of values to show on the Y axis (top → bottom).
-  // tooltipFor(monthNum, value) → custom tooltip string (optional).
-  const { stats, userMonth, monthLabels, label, sublabel, unit, maxValue, axisTicks, colorClass, tooltipFor } = opts;
+  // tooltipFor(monthNum, value, overlayValue?) → custom tooltip string (optional).
+  // overlayArr (optional) → per-month secondary value (e.g. gust kn, air temp);
+  //   rendered as a thin horizontal line on top of the bar at its scaled height.
+  const { stats, userMonth, monthLabels, label, sublabel, unit, maxValue, axisTicks, colorClass, tooltipFor, overlayArr } = opts;
   const bars = monthLabels.map((m, i) => {
     const monthNum = i + 1;
     const isUser = monthNum === userMonth;
@@ -278,9 +280,14 @@ function buildSingleMetricChart(metricArr, opts) {
     const inSeason = !period || period.inSeason !== false;
     const seasonClass = inSeason ? "in-season" : "off-season";
     const pct = Math.max(2, Math.min(100, (v / maxValue) * 100));
-    const tip = tooltipFor ? tooltipFor(monthNum, v) : `${m}: ${v}${unit}`;
+    const ov = overlayArr ? overlayArr[i] : null;
+    const ovPct = (ov != null && !isNaN(ov)) ? Math.max(2, Math.min(100, (ov / maxValue) * 100)) : null;
+    const tip = tooltipFor ? tooltipFor(monthNum, v, ov) : `${m}: ${v}${unit}`;
+    const overlay = ovPct != null
+      ? `<span class="month-bar-overlay" style="bottom: ${ovPct}%;"></span>` : "";
     return `<div class="month-bar ${colorClass} ${seasonClass}${isUser ? " is-user" : ""}" title="${tip}">
       <span class="month-bar-fill" style="height: ${pct}%;"></span>
+      ${overlay}
       <span class="month-bar-label">${m}</span>
     </div>`;
   }).join("");
@@ -307,21 +314,20 @@ function monthlyChartHTML(e) {
   const userMonth = userSelectedMonth();
   const monthLabels = ["J","F","M","A","M","J","J","A","S","O","N","D"];
 
-  // Two separate charts side-by-side. Variant depends on chartType:
-  //   "wind" (default) — wind reliability % + water temp
-  //   "wave"           — wave height (m) + water temp
+  // Two charts side-by-side:
+  //   primary = wind (bar=avg kn, overlay=gust kn) or wave height
+  //   secondary = temperature (bar=water °C, overlay=air °C)
   if (stats && Array.isArray(stats.monthlyWaterC)) {
-    const chartType = stats.chartType || (Array.isArray(stats.monthlyWindProb) || Array.isArray(stats.monthlyWindKn) ? "wind" : null);
+    const chartType = stats.chartType || (Array.isArray(stats.monthlyWindKn) ? "wind" : null);
     let primaryChart = null;
 
     if (chartType === "wave" && Array.isArray(stats.monthlyWaveM)) {
-      // Wave height per month — max 3 m covers Morocco peak winter swell.
       primaryChart = buildSingleMetricChart(stats.monthlyWaveM, {
         stats, userMonth, monthLabels,
         label: "Wave height",
         sublabel: "daytime avg, metres",
         unit: " m", maxValue: 3, axisTicks: ["3 m", "1.5 m", "0"],
-        colorClass: "color-wind",  // reuse sea-blue for primary metric
+        colorClass: "color-wind",
         tooltipFor: (mn, v) => {
           const i = mn - 1;
           const sp = Array.isArray(stats.monthlySwellProb)
@@ -329,46 +335,35 @@ function monthlyChartHTML(e) {
           return `${monthLabels[i]}: ${v} m${sp}`;
         }
       });
-    } else if (chartType === "wind") {
-      if (Array.isArray(stats.monthlyWindProb)) {
-        primaryChart = buildSingleMetricChart(stats.monthlyWindProb.map(p => Math.round(p * 100)), {
-          stats, userMonth, monthLabels,
-          label: "Wind reliability",
-          sublabel: "daytime 10–18h, % of days ≥20 kn (5 Bft)",
-          unit: "%", maxValue: 100, axisTicks: ["100%", "50%", "0%"],
-          colorClass: "color-wind",
-          tooltipFor: (mn, v) => {
-            const i = mn - 1;
-            const wk = Array.isArray(stats.monthlyWindKn) ? stats.monthlyWindKn[i] : null;
-            const gk = Array.isArray(stats.monthlyGustKn) ? stats.monthlyGustKn[i] : null;
-            const extras = wk != null
-              ? ` · avg ${wk} kn${gk != null ? ` (gust ${gk} kn)` : ""}` : "";
-            return `${monthLabels[i]}: ${v}% surf days${extras}`;
-          }
-        });
-      } else if (Array.isArray(stats.monthlyWindKn)) {
-        primaryChart = buildSingleMetricChart(stats.monthlyWindKn, {
-          stats, userMonth, monthLabels,
-          label: "Avg wind",
-          sublabel: "daytime 10–18h, knots",
-          unit: " kn", maxValue: 30, axisTicks: ["30 kn", "15 kn", "0"],
-          colorClass: "color-wind",
-          tooltipFor: (mn, v) => {
-            const i = mn - 1;
-            const gk = Array.isArray(stats.monthlyGustKn) ? stats.monthlyGustKn[i] : null;
-            return `${monthLabels[i]}: ${v} kn${gk != null ? ` (gust ${gk} kn)` : ""}`;
-          }
-        });
-      }
+    } else if (chartType === "wind" && Array.isArray(stats.monthlyWindKn)) {
+      primaryChart = buildSingleMetricChart(stats.monthlyWindKn, {
+        stats, userMonth, monthLabels,
+        label: "Wind",
+        sublabel: "daytime 10–18h, knots (line = gust)",
+        unit: " kn", maxValue: 30, axisTicks: ["30 kn", "15 kn", "0"],
+        colorClass: "color-wind",
+        overlayArr: Array.isArray(stats.monthlyGustKn) ? stats.monthlyGustKn : null,
+        tooltipFor: (mn, v, gk) => {
+          const i = mn - 1;
+          const tag = gk != null ? ` · gust ${gk} kn` : "";
+          return `${monthLabels[i]}: avg ${v} kn${tag}`;
+        }
+      });
     }
 
     if (primaryChart) {
       const waterChart = buildSingleMetricChart(stats.monthlyWaterC, {
         stats, userMonth, monthLabels,
-        label: "Water temperature",
-        sublabel: "°C per month",
-        unit: " °C", maxValue: 30, axisTicks: ["30°", "15°", "0°"],
-        colorClass: "color-water"
+        label: "Temperature",
+        sublabel: "°C — bar = sea water, line = daytime air",
+        unit: " °C", maxValue: 35, axisTicks: ["35°", "20°", "0°"],
+        colorClass: "color-water",
+        overlayArr: Array.isArray(stats.monthlyAirC) ? stats.monthlyAirC : null,
+        tooltipFor: (mn, v, air) => {
+          const i = mn - 1;
+          const tag = air != null ? ` · air ${air}°C` : "";
+          return `${monthLabels[i]}: water ${v}°C${tag}`;
+        }
       });
 
       const hasOffSeason = stats.periods && stats.periods.some(p => p.inSeason === false);
