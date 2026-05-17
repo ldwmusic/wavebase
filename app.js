@@ -167,18 +167,26 @@ function periodColumnHTML(period, label, monthLabel, isPeak, stats, targetMonth)
   // Prefer per-month value where we have monthly arrays — more precise than
   // the period range. Falls back to period.windKn etc. when monthlies missing.
   const m = targetMonth - 1;
-  const monthlyKn   = (stats && Array.isArray(stats.monthlyWindKn))   ? stats.monthlyWindKn[m]   : null;
-  const monthlyGust = (stats && Array.isArray(stats.monthlyGustKn))   ? stats.monthlyGustKn[m]   : null;
-  const monthlyWat  = (stats && Array.isArray(stats.monthlyWaterC))   ? stats.monthlyWaterC[m]   : null;
+  const monthlyKn        = (stats && Array.isArray(stats.monthlyWindKn))      ? stats.monthlyWindKn[m]      : null;
+  const monthlyGust      = (stats && Array.isArray(stats.monthlyGustKn))      ? stats.monthlyGustKn[m]      : null;
+  const monthlyDailyPeak = (stats && Array.isArray(stats.monthlyDailyPeakKn)) ? stats.monthlyDailyPeakKn[m] : null;
+  const monthlyGustPeak  = (stats && Array.isArray(stats.monthlyGustPeakKn))  ? stats.monthlyGustPeakKn[m]  : null;
+  const monthlyWat       = (stats && Array.isArray(stats.monthlyWaterC))      ? stats.monthlyWaterC[m]      : null;
 
   const hasWindData = (typeof monthlyKn === "number") || period.windKn;
   const wind = (typeof monthlyKn === "number")
     ? `~${monthlyKn} kn`
     : (period.windKn ? fmtRange(period.windKn, "kn") : "—");
-  const offNote = period.inSeason === false ? " · centers closed" : "";
-  const gustNote = (typeof monthlyGust === "number")
-    ? `gust ~${monthlyGust} kn${offNote}`
-    : (offNote ? offNote.replace(/^ · /, "") : "");
+
+  // Gust note: avg gust · typical daily peak · 5-year absolute max
+  const gustParts = [];
+  if (typeof monthlyGust === "number")      gustParts.push(`gust ~${monthlyGust}`);
+  if (typeof monthlyDailyPeak === "number") gustParts.push(`daily peak ~${monthlyDailyPeak}`);
+  if (typeof monthlyGustPeak === "number")  gustParts.push(`max ${monthlyGustPeak}`);
+  let gustNote = gustParts.length ? `${gustParts.join(" · ")} kn` : "";
+  if (period.inSeason === false) {
+    gustNote = gustNote ? `${gustNote} · centers closed` : "centers closed";
+  }
 
   const wave = period.waveM ? fmtRange(period.waveM, "m") : "—";
   const water = (typeof monthlyWat === "number")
