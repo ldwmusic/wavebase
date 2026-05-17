@@ -3,6 +3,28 @@
 
 function cap(s) { return s.charAt(0).toUpperCase() + s.slice(1); }
 function byId(id) { return WAVEBASE_DATA.find(x => x.id === id); }
+
+// Haversine — straight-line km between [lat, lon] pairs.
+function distanceKm(a, b) {
+  if (!a || !b) return Infinity;
+  const R = 6371;
+  const toRad = x => x * Math.PI / 180;
+  const dLat = toRad(b[0] - a[0]);
+  const dLon = toRad(b[1] - a[1]);
+  const lat1 = toRad(a[0]);
+  const lat2 = toRad(b[0]);
+  const h = Math.sin(dLat / 2) ** 2 + Math.cos(lat1) * Math.cos(lat2) * Math.sin(dLon / 2) ** 2;
+  return 2 * R * Math.asin(Math.sqrt(h));
+}
+function fmtKm(km) {
+  if (km == null || !isFinite(km)) return "";
+  if (km < 1) return `${Math.round(km * 1000)} m`;
+  if (km < 10) return `${km.toFixed(1)} km`;
+  return `${Math.round(km)} km`;
+}
+function googleMapsHref(coords) {
+  return `https://www.google.com/maps?q=${coords[0]},${coords[1]}&z=15`;
+}
 function bookingHref(e) {
   if (e.bookingUrl) return e.bookingUrl;
   return `https://www.booking.com/searchresults.html?ss=${encodeURIComponent(e.name + " " + e.town)}`;
@@ -442,49 +464,81 @@ function monthlyChartHTML(e) {
 }
 
 /* Connect-the-dots — every detail page shows the other entity types nearby
-   (in the same town). Keeps clicks inside WaveBase rather than leaking to
-   Google: see a stay → click the nearby center → click that center's website. */
-function nearbyEntriesHTML(currentEntry, targetType, labelPlural, labelSingular, intro) {
-  const matches = WAVEBASE_DATA.filter(c =>
-    c.type === targetType &&
-    c.id !== currentEntry.id &&
-    c.country === entryCountry(currentEntry) &&
-    c.town === currentEntry.town
-  );
-  if (!matches.length) return "";
-  const label = matches.length === 1 ? labelSingular : labelPlural;
+   by ACTUAL distance (Haversine). Keeps clicks inside WaveBase rather than
+   leaking to Google: see a stay → click the nearby center → click that
+   center's website. */
+function nearbyEntriesHTML(currentEntry, targetType, labelPlural, labelSingular, intro, opts) {
+  opts = opts || {};
+  const maxKm = opts.maxKm != null ? opts.maxKm : 30;
+  const limit = opts.limit != null ? opts.limit : 8;
+  let scored;
+  if (!currentEntry.coords) {
+    // Fallback to town equality when this entry has no coords yet.
+    scored = WAVEBASE_DATA
+      .filter(c => c.type === targetType && c.id !== currentEntry.id &&
+                   c.country === entryCountry(currentEntry) && c.town === currentEntry.town)
+      .map(c => ({ entry: c, dist: null }));
+  } else {
+    scored = WAVEBASE_DATA
+      .filter(c => c.type === targetType && c.id !== currentEntry.id && c.coords)
+      .map(c => ({ entry: c, dist: distanceKm(currentEntry.coords, c.coords) }))
+      .filter(x => x.dist <= maxKm)
+      .sort((a, b) => a.dist - b.dist)
+      .slice(0, limit);
+  }
+  if (!scored.length) return "";
+  const label = scored.length === 1 ? labelSingular : labelPlural;
+  const headerLoc = currentEntry.coords ? `near ${escHTML(currentEntry.town)}` : `at ${escHTML(currentEntry.town)}`;
   return `<section class="related-entries">
-    <h2>${label} at ${escHTML(currentEntry.town)}</h2>
+    <h2>${label} ${headerLoc}</h2>
     ${intro ? `<p class="muted form-note">${intro}</p>` : ""}
-    <div class="grid list-view">${matches.map(cardHTML).join("")}</div>
+    <div class="grid list-view">${scored.map(x => cardHTML(x.entry, x.dist)).join("")}</div>
+  </section>`;
+}
+
+// Section for a single explicitly-linked entry (used when a center should
+// only ever surface ITS spot — not every nearby spot).
+function linkedSpotSectionHTML(centerEntry) {
+  if (!centerEntry.linkedSpotId) return "";
+  const spot = byId(centerEntry.linkedSpotId);
+  if (!spot) return "";
+  return `<section class="related-entries">
+    <h2>The spot this center sits on</h2>
+    <p class="muted form-note">Where lessons and rentals happen.</p>
+    <div class="grid list-view">${cardHTML(spot, distanceKm(centerEntry.coords, spot.coords))}</div>
   </section>`;
 }
 
 function relatedSectionsForDetail(e) {
   if (e.type === "spot") {
     return nearbyEntriesHTML(e, "center", "Centers", "Center",
-      "Two clicks away from the people who teach and rent here.");
+      "Where to take lessons or rent gear at this beach.", { maxKm: 5, limit: 8 }) +
+      nearbyEntriesHTML(e, "stay", "Stays", "Stay",
+        "Places to base yourself within easy reach.", { maxKm: 20, limit: 8 });
   }
   if (e.type === "stay") {
     return nearbyEntriesHTML(e, "center", "Centers", "Center",
-      "Where to take lessons or rent gear nearby.") +
+      "Where to take lessons or rent gear nearby.", { maxKm: 20, limit: 8 }) +
       nearbyEntriesHTML(e, "spot", "Spots", "Spot",
-        "The breaks and beaches within easy reach.");
+        "The breaks and beaches within easy reach.", { maxKm: 20, limit: 8 });
   }
   if (e.type === "center") {
-    return nearbyEntriesHTML(e, "stay", "Stays", "Stay",
-      "Places to base yourself within easy reach.") +
-      nearbyEntriesHTML(e, "spot", "Spots", "Spot",
-        "The breaks and beaches you'll be sailing.");
+    // Center pages: ONLY the spot the center sits on — never other nearby
+    // spots, even if they're close. Per LDW: the center belongs to its beach.
+    return linkedSpotSectionHTML(e) +
+      nearbyEntriesHTML(e, "stay", "Stays", "Stay",
+        "Places to base yourself within easy reach.", { maxKm: 20, limit: 8 });
   }
   return "";
 }
 
 /* ---- card ---- */
-function cardHTML(e) {
+function cardHTML(e, distKm) {
   const pills = e.levels.map(l => `<span class="pill">${cap(l)}</span>`).join("");
   const saved = WaveBaseAccount.isSaved(e.id);
   const comparing = WaveBaseAccount.isComparing(e.id);
+  const distHint = (distKm != null && isFinite(distKm))
+    ? ` <span class="muted">· ${fmtKm(distKm)} away</span>` : "";
   return `
   <article class="card" data-href="${spotHref(e.id)}">
     <div class="thumb ${e.type}${e.photo ? " has-photo" : ""}"${thumbStyle(e)}>
@@ -494,7 +548,7 @@ function cardHTML(e) {
       <button class="save-btn ${saved ? "on" : ""}" data-save="${e.id}" aria-label="Save" title="${saved ? "Saved" : "Save this place"}">${saved ? "♥" : "♡"}</button>
     </div>
     <div class="body">
-      <div class="place">${e.town}</div>
+      <div class="place">${e.town}${distHint}</div>
       <h3>${e.name}</h3>
       <p class="tag">${e.tagline}</p>
       <div class="meta">${pills}</div>
@@ -1178,7 +1232,8 @@ function initSpot() {
       </div>
     </header>
 
-    ${e.coords ? `<div class="detail-map" id="detail-map"></div>` : ""}
+    ${e.coords ? `<div class="detail-map" id="detail-map"></div>
+      <p class="map-actions"><a href="${googleMapsHref(e.coords)}" target="_blank" rel="noopener">Open in Google Maps ↗</a></p>` : ""}
 
     ${statsPanelHTML(e)}
 
@@ -1272,6 +1327,33 @@ function initMap() {
     attribution: "&copy; OpenStreetMap contributors", maxZoom: 19
   }).addTo(map);
 
+  // Pre-pass: spread markers that land within ~200 m of each other so they're
+  // both visible at any zoom level. Without this, Gone Surfing + Freak Surf
+  // (~140 m apart) stack on top of each other and look like one center.
+  // Real coords stay on the entry; we only offset the DISPLAY position.
+  const displayCoords = {};
+  const PROX_M = 200, OFFSET_DEG = 0.0012; // ~130 m
+  const groups = [];
+  WAVEBASE_DATA.forEach(e => {
+    if (!e.coords) return;
+    const existing = groups.find(g => distanceKm(g.center, e.coords) * 1000 < PROX_M);
+    if (existing) existing.entries.push(e);
+    else groups.push({ center: e.coords, entries: [e] });
+  });
+  groups.forEach(g => {
+    if (g.entries.length === 1) {
+      displayCoords[g.entries[0].id] = g.entries[0].coords;
+    } else {
+      g.entries.forEach((e, i) => {
+        const angle = (i / g.entries.length) * 2 * Math.PI;
+        displayCoords[e.id] = [
+          g.center[0] + Math.cos(angle) * OFFSET_DEG,
+          g.center[1] + Math.sin(angle) * OFFSET_DEG
+        ];
+      });
+    }
+  });
+
   // One layer per entity-type (for the type toggles), and per-marker entry refs
   // (so the sport filter can hide individual markers within a layer).
   const layers = { spot: L.layerGroup(), stay: L.layerGroup(), center: L.layerGroup() };
@@ -1280,7 +1362,8 @@ function initMap() {
   WAVEBASE_DATA.forEach(e => {
     if (!e.coords || !layers[e.type]) return;
     allCoords.push(e.coords);
-    const m = L.circleMarker(e.coords, {
+    const pos = displayCoords[e.id] || e.coords;
+    const m = L.circleMarker(pos, {
       radius: 8, color: "#fff", weight: 2, fillColor: typeColor(e.type), fillOpacity: 1
     });
     const note = e.coordsLabel ? "<br><em>Approximate location</em>" : "";

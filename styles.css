@@ -1776,9 +1776,17 @@ table.cal td.host { color: var(--clay); }
   height: 240px;
   border-radius: var(--radius);
   border: 1px solid var(--sand);
-  margin: 0 0 30px;
+  margin: 0 0 8px;
   overflow: hidden;
   box-shadow: var(--shadow-sm);
+}
+.map-actions {
+  margin: 0 0 30px;
+  font-size: 13px;
+}
+.map-actions a {
+  color: var(--sea);
+  font-weight: 600;
 }
 
 .btn.btn-book {
