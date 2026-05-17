@@ -546,6 +546,12 @@ table.cal td.host { color: var(--clay); }
 }
 .site-footer .wrap { display: flex; justify-content: space-between; flex-wrap: wrap; gap: 10px; }
 .site-footer .note { font-style: italic; max-width: 52ch; }
+.site-footer .disclosure {
+  flex-basis: 100%;
+  font-size: 12.5px; color: var(--ink-soft);
+  border-top: 1px solid var(--sand);
+  padding-top: 8px; margin-top: 4px;
+}
 
 /* ---- responsive ---- */
 @media (max-width: 620px) {

@@ -242,14 +242,17 @@ function statsPanelHTML(e) {
     ? `<p class="stats-source">Conditions are for the beach this center sits on.</p>`
     : "";
 
-  // Top "always" facts: wave character, wind direction, bottom, crowd
+  // Top "always" facts: wave character, wind direction, bottom, crowd, locals
   const topRows = [
     { label: "Wave",     main: s.waveType || "—",  note: "" },
     { label: "Bottom",   main: s.bottom   || "—",  note: "" },
     { label: "Wind dir", main: s.windDir  || "—",  note: "" },
     { label: "Crowd",
       main: `<span class="crowd-dots">${crowdDotsHTML(s.crowd)}</span>`,
-      note: crowdLabelText(s.crowd) }
+      note: crowdLabelText(s.crowd) },
+    { label: "Locals",
+      main: s.localism || "No localism reports found in recent reviews.",
+      note: "" }
   ];
   const topFacts = `<div class="stats-grid">${topRows.map(r =>
     `<div class="stats-row">

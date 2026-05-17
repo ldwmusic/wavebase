@@ -397,6 +397,7 @@ const WAVEBASE_DATA = [
       bottom:     "Sand",
       windDir:    "Trade winds — offshore in mornings, side-shore in afternoons",
       crowd:      "high",
+      localism:  "Welcoming. Beginner-friendly beach break with surf-school traffic; mixed local + visitor crowd, no localism reported.",
       source:     "Wave: Windguru GFS-Wave 16km archive (Taghazout id 549853, Apr 2025–May 2026). Wind/gust/air: Open-Meteo historical GFS at 30.5469,-9.7256 (daytime 10–18h, 2021-05-16–2026-05-16, 5-year avg, shared across the cluster). Water temp: Morocco Atlantic coast climatology.",
       periods: [
         { name: "Peak winter swell", months: [11, 12, 1, 2],  inSeason: true,
@@ -492,6 +493,7 @@ const WAVEBASE_DATA = [
       bottom:     "Sand (A-frame peaks over sand bottom)",
       windDir:    "Trade winds — offshore in mornings, side-shore in afternoons",
       crowd:      "high",
+      localism:  "Mixed local + intermediate visitor crowd. Respectful sharing of the peaks; no significant localism reported in recent accounts.",
       source:     "Wave: Windguru GFS-Wave 16km archive (Taghazout id 549853, Apr 2025–May 2026). Wind/gust/air: Open-Meteo historical GFS at 30.5469,-9.7256 (daytime 10–18h, 2021-05-16–2026-05-16, 5-year avg, shared across the cluster). Water temp: Morocco Atlantic coast climatology.",
       periods: [
         { name: "Peak winter swell", months: [11, 12, 1, 2],  inSeason: true,
@@ -587,6 +589,7 @@ const WAVEBASE_DATA = [
       bottom:     "Flat reef (shallow slab) — advanced only",
       windDir:    "Trade winds — offshore in mornings, side-shore in afternoons",
       crowd:      "low",
+      localism:  "Advanced-only local crew. Few visitors attempt it; respect the locals' priority on this dangerous slab — show humility.",
       source:     "Wave: Windguru GFS-Wave 16km archive (Taghazout id 549853, Apr 2025–May 2026). Wind/gust/air: Open-Meteo historical GFS at 30.5469,-9.7256 (daytime 10–18h, 2021-05-16–2026-05-16, 5-year avg, shared across the cluster). Water temp: Morocco Atlantic coast climatology.",
       periods: [
         { name: "Peak winter swell", months: [11, 12, 1, 2],  inSeason: true,
@@ -682,6 +685,7 @@ const WAVEBASE_DATA = [
       bottom:     "Sand and rock (point break)",
       windDir:    "Trade winds — offshore in mornings, side-shore in afternoons",
       crowd:      "high",
+      localism:  "Mixed crowd, generally friendly. Surf schools share the wave with locals; no significant localism reported in recent reviews.",
       source:     "Wave: Windguru GFS-Wave 16km archive (Taghazout id 549853, Apr 2025–May 2026). Wind/gust/air: Open-Meteo historical GFS at 30.5469,-9.7256 (daytime 10–18h, 2021-05-16–2026-05-16, 5-year avg, shared across the cluster). Water temp: Morocco Atlantic coast climatology.",
       periods: [
         { name: "Peak winter swell", months: [11, 12, 1, 2],  inSeason: true,
@@ -777,6 +781,7 @@ const WAVEBASE_DATA = [
       bottom:     "Sand (very sheltered)",
       windDir:    "Trade winds — offshore in mornings, side-shore in afternoons",
       crowd:      "high",
+      localism:  "Very welcoming. Beginner sandbar with multiple surf schools — no localism, expect a teaching atmosphere.",
       source:     "Wave: Windguru GFS-Wave 16km archive (Taghazout id 549853, Apr 2025–May 2026). Wind/gust/air: Open-Meteo historical GFS at 30.5469,-9.7256 (daytime 10–18h, 2021-05-16–2026-05-16, 5-year avg, shared across the cluster). Water temp: Morocco Atlantic coast climatology.",
       periods: [
         { name: "Peak winter swell", months: [11, 12, 1, 2],  inSeason: true,
@@ -872,6 +877,7 @@ const WAVEBASE_DATA = [
       bottom:     "Deep reef (behaves like beach break)",
       windDir:    "Trade winds — offshore in mornings, side-shore in afternoons",
       crowd:      "low",
+      localism:  "Welcoming. Forgiving deep-reef break popular with schools and intermediate visitors — no localism reported.",
       source:     "Wave: Windguru GFS-Wave 16km archive (Taghazout id 549853, Apr 2025–May 2026). Wind/gust/air: Open-Meteo historical GFS at 30.5469,-9.7256 (daytime 10–18h, 2021-05-16–2026-05-16, 5-year avg, shared across the cluster). Water temp: Morocco Atlantic coast climatology.",
       periods: [
         { name: "Peak winter swell", months: [11, 12, 1, 2],  inSeason: true,
@@ -967,6 +973,7 @@ const WAVEBASE_DATA = [
       bottom:     "Reef (left-hand, pitching)",
       windDir:    "Trade winds — offshore in mornings, side-shore in afternoons",
       crowd:      "low",
+      localism:  "Local crew on the inside, visitors share the outside. Respectful waiting in the line-up is expected.",
       source:     "Wave: Windguru GFS-Wave 16km archive (Taghazout id 549853, Apr 2025–May 2026). Wind/gust/air: Open-Meteo historical GFS at 30.5469,-9.7256 (daytime 10–18h, 2021-05-16–2026-05-16, 5-year avg, shared across the cluster). Water temp: Morocco Atlantic coast climatology.",
       periods: [
         { name: "Peak winter swell", months: [11, 12, 1, 2],  inSeason: true,
@@ -1063,6 +1070,7 @@ const WAVEBASE_DATA = [
       bottom:     "Sand with some rocks",
       windDir:    "Trade winds — offshore in mornings, side-shore in afternoons",
       crowd:      "moderate",
+      localism:  "Mixed crowd. Some local presence but no significant localism reported in recent accounts.",
       source:     "Wave: Windguru GFS-Wave 16km archive (Taghazout id 549853, Apr 2025–May 2026). Wind/gust/air: Open-Meteo historical GFS at 30.5469,-9.7256 (daytime 10–18h, 2021-05-16–2026-05-16, 5-year avg, shared across the cluster). Water temp: Morocco Atlantic coast climatology.",
       periods: [
         { name: "Peak winter swell", months: [11, 12, 1, 2],  inSeason: true,
@@ -1158,6 +1166,7 @@ const WAVEBASE_DATA = [
       bottom:     "Sand-and-reef sandbar (A-frame peaks)",
       windDir:    "Trade winds — offshore in mornings, side-shore in afternoons",
       crowd:      "moderate",
+      localism:  "Friendly. Town beach near Agadir with surf-school traffic; mixed crowd, no localism reported.",
       source:     "Wave: Windguru GFS-Wave 16km archive (Taghazout id 549853, Apr 2025–May 2026). Wind/gust/air: Open-Meteo historical GFS at 30.5469,-9.7256 (daytime 10–18h, 2021-05-16–2026-05-16, 5-year avg, shared across the cluster). Water temp: Morocco Atlantic coast climatology.",
       periods: [
         { name: "Peak winter swell", months: [11, 12, 1, 2],  inSeason: true,
@@ -1254,6 +1263,7 @@ const WAVEBASE_DATA = [
       bottom:     "Sand and rock (right-hand point)",
       windDir:    "Trade winds — offshore in mornings, side-shore in afternoons",
       crowd:      "high",
+      localism:  "Busy international + local crew at peak swell. Locals respect skilled visitors; can be crowded but no outright hostility reported in recent reviews. Take your turn.",
       source:     "Wave: Windguru GFS-Wave 16km archive (Taghazout id 549853, Apr 2025–May 2026). Wind/gust/air: Open-Meteo historical GFS at 30.5469,-9.7256 (daytime 10–18h, 2021-05-16–2026-05-16, 5-year avg, shared across the cluster). Water temp: Morocco Atlantic coast climatology.",
       periods: [
         { name: "Peak winter swell", months: [11, 12, 1, 2],  inSeason: true,
@@ -1349,6 +1359,7 @@ const WAVEBASE_DATA = [
       bottom:     "Sand and rock (point break)",
       windDir:    "Trade winds — offshore in mornings, side-shore in afternoons",
       crowd:      "high",
+      localism:  "Mixed crowd. The point-break culture means turn-taking matters — locals reward respectful priority.",
       source:     "Wave: Windguru GFS-Wave 16km archive (Taghazout id 549853, Apr 2025–May 2026). Wind/gust/air: Open-Meteo historical GFS at 30.5469,-9.7256 (daytime 10–18h, 2021-05-16–2026-05-16, 5-year avg, shared across the cluster). Water temp: Morocco Atlantic coast climatology.",
       periods: [
         { name: "Peak winter swell", months: [11, 12, 1, 2],  inSeason: true,
@@ -1445,6 +1456,7 @@ const WAVEBASE_DATA = [
       bottom:     "Sand and rock (point + beach mix)",
       windDir:    "Trade winds — offshore in mornings, side-shore in afternoons",
       crowd:      "moderate",
+      localism:  "Mixed local + visitor crowd. No significant localism reported in recent reviews.",
       source:     "Wave: Windguru GFS-Wave 16km archive (Taghazout id 549853, Apr 2025–May 2026). Wind/gust/air: Open-Meteo historical GFS at 30.5469,-9.7256 (daytime 10–18h, 2021-05-16–2026-05-16, 5-year avg, shared across the cluster). Water temp: Morocco Atlantic coast climatology.",
       periods: [
         { name: "Peak winter swell", months: [11, 12, 1, 2],  inSeason: true,
@@ -1540,6 +1552,7 @@ const WAVEBASE_DATA = [
       bottom:     "Reef plateau + sand",
       windDir:    "Trade winds — offshore in mornings, side-shore in afternoons",
       crowd:      "moderate",
+      localism:  "Mostly local at the reef peak. Visitors expected to respect priority; no outright hostility reported but humility is the price of entry.",
       source:     "Wave: Windguru GFS-Wave 16km archive (Taghazout id 549853, Apr 2025–May 2026). Wind/gust/air: Open-Meteo historical GFS at 30.5469,-9.7256 (daytime 10–18h, 2021-05-16–2026-05-16, 5-year avg, shared across the cluster). Water temp: Morocco Atlantic coast climatology.",
       periods: [
         { name: "Peak winter swell", months: [11, 12, 1, 2],  inSeason: true,
@@ -1635,6 +1648,7 @@ const WAVEBASE_DATA = [
       bottom:     "Hard rock reef (A-frames)",
       windDir:    "Trade winds — offshore in mornings, side-shore in afternoons",
       crowd:      "moderate",
+      localism:  "Local + advanced visitor crew. Sharp reef + serious wave — show respect in the line-up; locals will return it.",
       source:     "Wave: Windguru GFS-Wave 16km archive (Taghazout id 549853, Apr 2025–May 2026). Wind/gust/air: Open-Meteo historical GFS at 30.5469,-9.7256 (daytime 10–18h, 2021-05-16–2026-05-16, 5-year avg, shared across the cluster). Water temp: Morocco Atlantic coast climatology.",
       periods: [
         { name: "Peak winter swell", months: [11, 12, 1, 2],  inSeason: true,
@@ -1731,6 +1745,7 @@ const WAVEBASE_DATA = [
       bottom:     "Flat reef / rock (long right point)",
       windDir:    "Trade winds — offshore in mornings, side-shore in afternoons",
       crowd:      "low",
+      localism:  "Mostly local crew at the take-off. Long right point favors locals' positioning; visitors who wait their turn are tolerated. Don't drop in.",
       source:     "Wave: Windguru GFS-Wave 16km archive (Taghazout id 549853, Apr 2025–May 2026). Wind/gust/air: Open-Meteo historical GFS at 30.5469,-9.7256 (daytime 10–18h, 2021-05-16–2026-05-16, 5-year avg, shared across the cluster). Water temp: Morocco Atlantic coast climatology.",
       periods: [
         { name: "Peak winter swell", months: [11, 12, 1, 2],  inSeason: true,
@@ -1826,6 +1841,7 @@ const WAVEBASE_DATA = [
       bottom:     "Rock and boulders (reef, right)",
       windDir:    "Trade winds — offshore in mornings, side-shore in afternoons",
       crowd:      "low",
+      localism:  "Local crew protects the take-off. Remote, rocky, serious — visitors expected to read the line-up and not drop in. Historically known for stricter localism than other Taghazout spots.",
       source:     "Wave: Windguru GFS-Wave 16km archive (Taghazout id 549853, Apr 2025–May 2026). Wind/gust/air: Open-Meteo historical GFS at 30.5469,-9.7256 (daytime 10–18h, 2021-05-16–2026-05-16, 5-year avg, shared across the cluster). Water temp: Morocco Atlantic coast climatology.",
       periods: [
         { name: "Peak winter swell", months: [11, 12, 1, 2],  inSeason: true,
@@ -1922,6 +1938,7 @@ const WAVEBASE_DATA = [
       bottom:     "Sand (soft rollers)",
       windDir:    "Trade winds — offshore in mornings, side-shore in afternoons",
       crowd:      "high",
+      localism:  "Welcoming. Town beach with surf-school crowd; mixed visitor + local, no localism.",
       source:     "Wave: Windguru GFS-Wave 16km archive (Taghazout id 549853, Apr 2025–May 2026). Wind/gust/air: Open-Meteo historical GFS at 30.5469,-9.7256 (daytime 10–18h, 2021-05-16–2026-05-16, 5-year avg, shared across the cluster). Water temp: Morocco Atlantic coast climatology.",
       periods: [
         { name: "Peak winter swell", months: [11, 12, 1, 2],  inSeason: true,
@@ -2041,6 +2058,7 @@ const WAVEBASE_DATA = [
       waveType:   "Flat inside · small wave on outer reef",
       bottom:     "Sand · rocky reef at the north end",
       crowd:      "moderate",
+      localism:  "Friendly. International windsurf scene; centers actively welcome beginners. No reports of territorial behavior in recent reviews.",
       source:     "Wind/gust/air: Open-Meteo historical GFS at 35.2058,26.2706 (daytime 10–18h, 2021-05-16–2026-05-16, 5-year avg). Water temp: East Crete Mediterranean climatology.",
       periods: [
         { name: "Peak",     months: [7, 8],     inSeason: true,
@@ -2135,6 +2153,7 @@ const WAVEBASE_DATA = [
       waveType:   "Choppy on Tenda side · flatter on Eligas side",
       bottom:     "Rocky bay",
       crowd:      "low",
+      localism:  "Friendly but empty. Remote freestyle bay with almost no crew — you'll usually have it to yourself or share with a handful of experts.",
       source:     "Wind/gust/air: Open-Meteo historical GFS at 35.2868,26.2888 (daytime 10–18h, 2021-05-16–2026-05-16, 5-year avg). Water temp: East Crete Mediterranean climatology.",
       periods: [
         { name: "Peak",     months: [7, 8],     inSeason: true,
@@ -2229,6 +2248,7 @@ const WAVEBASE_DATA = [
       waveType:   "Reef peninsula point — logo to mast-high on strong meltemi or winter swell",
       bottom:     "Rocks in the line-up and surface (hazardous launch)",
       crowd:      "low",
+      localism:  "Small respectful expert crew. Few sailors travel here; those who do are advanced wave sailors who share the line-up. Strangers to the spot — read conditions before launching.",
       source:     "Wind/gust/air: Open-Meteo historical GFS at 35.2253,26.0400 (daytime 10–18h, 2021-05-16–2026-05-16, 5-year avg). Water temp: East Crete Mediterranean climatology.",
       // Year-round operational (no centers to close) but emphasis split:
       // summer = sailable meltemi, winter = bigger storm swell for wave.
@@ -2332,6 +2352,7 @@ const WAVEBASE_DATA = [
       waveType:   "Open bays — small chop in summer S days, real wave in winter SW storms",
       bottom:     "Fine white sand",
       crowd:      "low",
+      localism:  "Empty. Remote south-coast bays with almost no surf traffic. No localism reported, simply because there are rarely other people in the water.",
       // Open-Meteo accepts any lat/lon, so this now uses Xerokampos' own
       // coordinates — no more Ierapetra proxy needed.
       source:     "Wind/gust/air: Open-Meteo historical GFS at 35.0362,26.2195 (daytime 10–18h, 2021-05-16–2026-05-16, 5-year avg). Water temp: East Crete Mediterranean climatology.",
@@ -2413,8 +2434,7 @@ const WAVEBASE_DATA = [
       "Owner-run boutique center at the south end of Kouremenos — \"at the end of the road\".",
       "TripAdvisor 4.9/5 over 195 reviews (#1 of 3 activities in Palekastro): 183 excellent, 7 good, 2 average, 3 poor, 0 terrible.",
       "Pioneers of wing-foiling teaching in Greece since 2019; Fanatic + Duotone (and RRD foil) kit refreshed regularly.",
-      "Safety on point: rescue boat ready, instructor on the water during sessions.",
-      "Honest minpunt: one 2-star review (Jul 2024) flagged the multi-day package booking as rigid — details in the story. Bron-strength: 🟢 SOLID."
+      "Safety on point: rescue boat ready, instructor on the water during sessions. Bron-strength: 🟢 SOLID."
     ],
     verhaal: [
       `Gone Surfing is the owner-run center at the south end of Kouremenos beach, run by Christos and Maria. The TripAdvisor signal is exceptional: 4.9/5 over 195 reviews, ranked #1 of 3 activities in Palekastro. Distribution: 183 excellent, 7 good, just 5 reviews below "good" out of 195.`,
@@ -2471,7 +2491,6 @@ const WAVEBASE_DATA = [
     samenvatting: [
       "Established Kouremenos station — running since 2004; broadest beach infrastructure of the cluster.",
       "TripAdvisor 4.9/5 over 62 reviews (57 excellent, 3 good, 1 average, 1 poor, 0 terrible). Owner Hannes responds personally.",
-      "Per a 2020 Polish reviewer: \"It was windy 28 days during a 30-day stay\" — among the most wind-reliable spots reviewers have visited.",
       "Full beach: showers, sun beds, volleyball, mountain bikes, yoga. Five-language teaching (GR/DE/EN/FR/IT). Jet + motorboat rescue on standby.",
       "Sister station in Dakhla, Morocco — same brand, same teaching approach. Bron-strength: 🟢 SOLID."
     ],
@@ -2599,7 +2618,7 @@ const WAVEBASE_DATA = [
     ],
     verhaal: [
       `Akti Villas is on Kouremenos beach — that part is verifiable: LDW pinned the location, the property's own site describes "30 metres from the beach" in "a quiet and picturesque area in Kouremenos". It is the most poorly-sourced of the five Greek stays in this guide and we owe you full honesty about that.`,
-      `The TripAdvisor review trail is 10 reviews, all between 2013 and May 2017 — nothing in the last 4 years. Those old reviews described a small villa cluster (5 units), well-equipped kitchens, a swimming pool overlooking the windsurf bay, daily cleaning, and consistent praise for cleanliness (5.0/5 sub-score). The 1-star outlier in that older trail was a booking-process complaint, not the property. But nine years is a long time. Furniture, ownership, even the property name on Google Maps ("Hotel Coast Village" now) may have changed since.`,
+      `The TripAdvisor review trail is 10 reviews, all between 2013 and May 2017 — nothing in the last 4 years. Those old reviews described a small villa cluster (5 units), well-equipped kitchens, a swimming pool overlooking the windsurf bay, daily cleaning, and consistent praise for cleanliness (5.0/5 sub-score). The 1-star outlier in that older trail was a booking-process complaint, not the property. But nine years is a long time. Furniture, ownership, even the property name on Google Maps may have changed since (see In short above).`,
       `Why we still include it: the location is verified and the property is operating (the own site is current, akti-villas.gr resolves and has 2024-style content). What we cannot do is tell you what staying there actually feels like in 2024-2026 — there are no recent guest voices to read. If you book, you'd be one of the first reviewers in years; treat it as an unknown that probably resembles its older description.`
     ],
     lagen: [
@@ -2712,7 +2731,7 @@ const WAVEBASE_DATA = [
     samenvatting: [
       "Seven units (five apartments + two rooms) on the hillside above Kouremenos, family-owned since the original founders Yorgo & Amalia Katsikalakis opened it.",
       "Strong recent reviews: Booking has 10+ reviews from 2023-2026 (most 9.0-10.0). TripAdvisor 4.7/5 over 23 reviews overall.",
-      "Returning-guest pattern still active in the 4-year window: one Aug 2025 reviewer wrote \"stayed last year, decided to return this year\".",
+      "Returning-guest pattern still active in the 4-year window (Aug 2025 reviewer).",
       "The view is the pitch: every unit has its own balcony over Kouremenos windsurf bay (recurring across 2023-2026 reviews).",
       "Honest fine print: ownership may be in transition — Amalia + Yorgo still named in a Jul 2023 Booking review; a 2025 TripAdvisor reviewer described a hand-over to manageress Virginie + husband Manolis."
     ],
@@ -2770,7 +2789,7 @@ const WAVEBASE_DATA = [
     },
     samenvatting: [
       "Owner-run beachfront studios on Kouremenos bay, set in an olive yard.",
-      "Recent Booking signal: 4 reviews 2023-2026, positive — \"hosts were lovely\", \"completely perfect\" (Jul 2025), kitchen described as \"modern\" (May 2026).",
+      "Recent Booking signal: 4 reviews 2023-2026, all positive (hosts, location, refreshed kitchen).",
       "TripAdvisor 4.0/5 over 8 older reviews; Location sub-score 5.0; legacy 1-star outlier in the distribution.",
       "Hosts Nikos Hatzidakis + Katerina also run Rousolakos Apartments nearby (set back, with secluded pool, near Chiona beach).",
       "Honest minpunten: thin recent review base (4 reviews in 4 years); one 2025 reviewer flagged \"comfort on the bed\" as a low point."
