@@ -5,3 +5,9 @@ desktop.ini
 Thumbs.db
 *.pyc
 __pycache__/
+
+# Design references / project docs — not part of the deployed site
+*.pdf
+sport-icon-options.png
+sport-icons-v*.png
+pictogrammen/
