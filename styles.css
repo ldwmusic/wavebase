@@ -1053,7 +1053,7 @@ table.cal td.host { color: var(--clay); }
 /* Plan-your-surftrip strip between hero and searchbar — discreet CTA that
    points users at the trips section of their account. Width matches the
    searcher/searchbar below so the page rhythm is consistent. */
-.plan-trip-strip { margin: 18px 0 12px; }
+.plan-trip-strip { margin: 18px auto 12px; }
 .plan-trip {
   max-width: 760px; margin: 0 auto;
   display: flex; align-items: center; justify-content: space-between;
@@ -1063,7 +1063,10 @@ table.cal td.host { color: var(--clay); }
   border-radius: var(--radius);
   padding: 16px 22px;
 }
-.plan-trip-text { display: flex; flex-direction: column; gap: 2px; }
+/* flex: 1 keeps the button on the same row by letting the text take all
+   remaining space (wrapping the subtitle when narrow) instead of pushing
+   the button onto a new line. */
+.plan-trip-text { display: flex; flex-direction: column; gap: 2px; flex: 1; min-width: 220px; }
 .plan-trip-kicker {
   font-family: 'Fraunces', Georgia, serif; font-size: 18px; font-weight: 600;
   color: var(--clay);
