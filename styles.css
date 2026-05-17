@@ -1032,6 +1032,92 @@ table.cal td.host { color: var(--clay); }
   border: 1px solid #cde0e3; border-radius: 999px;
   padding: 11px 16px; cursor: pointer;
 }
+.trip-picker {
+  display: inline-flex; align-items: center; gap: 10px;
+}
+
+/* Plan-your-surftrip strip between hero and searchbar — discreet CTA that
+   points users at the trips section of their account. */
+.plan-trip-strip { margin: 18px 0 12px; }
+.plan-trip {
+  display: flex; align-items: center; justify-content: space-between;
+  flex-wrap: wrap; gap: 16px;
+  background: var(--clay-soft);
+  border: 1px solid #ecd0c2;
+  border-radius: var(--radius);
+  padding: 16px 22px;
+}
+.plan-trip-text { display: flex; flex-direction: column; gap: 2px; }
+.plan-trip-kicker {
+  font-family: 'Fraunces', Georgia, serif; font-size: 18px; font-weight: 600;
+  color: var(--clay);
+}
+.plan-trip-sub { font-size: 13.5px; color: var(--ink-soft); }
+
+/* Surfer reviews mock — UI-only preview. Storage starts with the backend. */
+.reviews-mock {
+  margin: 36px 0 24px;
+  padding: 22px 24px;
+  background: var(--paper);
+  border: 1px solid var(--sand);
+  border-radius: var(--radius);
+}
+.reviews-head h2 {
+  font-family: 'Fraunces', Georgia, serif; font-size: 26px; margin: 0 0 6px;
+  display: flex; align-items: baseline; gap: 10px; flex-wrap: wrap;
+}
+.reviews-soon-tag {
+  font-family: 'DM Sans', sans-serif; font-size: 11px; font-weight: 600;
+  letter-spacing: 0.06em; text-transform: uppercase;
+  color: var(--clay); background: var(--clay-soft);
+  border-radius: 999px; padding: 3px 10px;
+}
+.reviews-head .muted { font-size: 13.5px; margin-bottom: 18px; }
+.review-form {
+  display: flex; flex-direction: column; gap: 14px;
+  background: var(--cream); border-radius: 12px; padding: 16px 18px;
+}
+.review-field label { font-size: 13px; font-weight: 600; color: var(--ink-soft); display: block; margin-bottom: 6px; }
+.review-stars { display: flex; gap: 4px; }
+.review-star {
+  background: none; border: none; cursor: pointer; padding: 2px 4px;
+  font-size: 26px; line-height: 1; color: var(--sand-deep);
+  transition: color 0.15s ease;
+}
+.review-star:hover, .review-star.on { color: var(--clay); }
+.review-radio-row {
+  display: flex; flex-wrap: wrap; gap: 16px;
+}
+.review-radio { font-size: 13.5px; display: inline-flex; align-items: center; gap: 6px; color: var(--ink); }
+.review-form textarea {
+  width: 100%; font-family: 'DM Sans', sans-serif; font-size: 14px;
+  border: 1px solid var(--sand); border-radius: 8px; padding: 10px 12px;
+  background: var(--paper); resize: vertical;
+}
+.review-field-row {
+  display: flex; gap: 14px; align-items: flex-end; flex-wrap: wrap;
+}
+.review-name-field {
+  display: flex; flex-direction: column; gap: 4px; flex: 1 1 220px;
+  font-size: 13px; font-weight: 600; color: var(--ink-soft);
+}
+.review-name-field input {
+  font-family: 'DM Sans', sans-serif; font-size: 14px;
+  border: 1px solid var(--sand); border-radius: 8px; padding: 9px 12px;
+  background: var(--paper);
+}
+.review-feedback {
+  background: var(--sea-soft); border-radius: 8px; padding: 10px 14px;
+  font-size: 13.5px; color: var(--sea); margin: 0;
+}
+.review-empty {
+  font-size: 13px; color: var(--ink-soft); padding: 14px 0 0;
+}
+.trip-view-link {
+  font-size: 13.5px; font-weight: 600; color: var(--sea);
+  text-decoration: underline; text-underline-offset: 3px;
+}
+.trip-view-link:hover { color: var(--clay); }
 
 /* account */
 .acc-block { margin-bottom: 40px; }
@@ -1274,6 +1360,14 @@ table.cal td.host { color: var(--clay); }
   font-size: 11px; font-weight: 600; letter-spacing: 0.04em; text-transform: uppercase;
   color: #fff; background: rgba(0,0,0,0.4); border-radius: 999px; padding: 3px 10px;
 }
+.cmp-col .thumb .cmp-remove {
+  position: absolute; top: 12px; right: 12px;
+  font-size: 16px; line-height: 1; font-weight: 600;
+  color: #fff; background: rgba(0,0,0,0.4); border: none; cursor: pointer;
+  border-radius: 999px; padding: 2px 9px 4px;
+  transition: background 0.15s ease;
+}
+.cmp-col .thumb .cmp-remove:hover { background: rgba(0,0,0,0.6); }
 .cmp-col .thumb .sport-icons {
   position: absolute; bottom: 10px; left: 12px;
   display: flex; gap: 4px; color: #fffefb;

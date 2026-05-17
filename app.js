@@ -868,7 +868,15 @@ function runSearch() {
   // no country yet → ask the user to pick one
   if (!country) {
     results.innerHTML = `<div class="empty"><strong>Pick a country to begin.</strong><br>
-      Use the &ldquo;Where?&rdquo; picker above, type a place in the search bar, or open the Destinations menu in the header.</div>`;
+      <a href="#" id="empty-open-destinations">Browse the country picker</a>, use the &ldquo;Where?&rdquo; field above, or type a place in the search bar.</div>`;
+    const openLink = document.getElementById("empty-open-destinations");
+    if (openLink) {
+      openLink.addEventListener("click", ev => {
+        ev.preventDefault();
+        ev.stopPropagation();
+        openDestinationsMenu();
+      });
+    }
     return;
   }
 
@@ -1003,6 +1011,17 @@ function initIndex() {
     const el = document.getElementById(id);
     if (el) el.addEventListener("change", runSearch);
   });
+  // Opening the Where field also opens the destinations menu so the user
+  // sees the country grid (with flags + "soon" labels) instead of only the
+  // native datalist popup. The datalist still works for type-ahead.
+  const fCountry = document.getElementById("f-country");
+  if (fCountry) {
+    fCountry.addEventListener("focus", () => openDestinationsMenu());
+    fCountry.addEventListener("click", ev => {
+      ev.stopPropagation();
+      openDestinationsMenu();
+    });
+  }
   document.getElementById("search-btn").addEventListener("click", runSearch);
 
   // live free-text search (debounced — small dataset, so 150 ms is plenty)
@@ -1219,9 +1238,83 @@ function townPanelHTML(townName) {
   </section>`;
 }
 
-function tripOptionsHTML() {
-  const opts = WaveBaseAccount.getTrips().map(t => `<option value="${t.id}">${t.name}</option>`).join("");
-  return `<option value="">+ Add to a trip…</option>${opts}<option value="__new">➕ New trip…</option>`;
+// Mock surfer-reviews section — UI only, no storage. Lets us validate
+// the design + collect "would you submit?" signal before any backend lands.
+// All submissions are dropped on the floor with a "coming soon" confirmation.
+function reviewsMockHTML(e) {
+  const typeWord = e.type === "stay" ? "stay" : (e.type === "center" ? "center" : "spot");
+  return `<section class="reviews-mock" id="reviews">
+    <header class="reviews-head">
+      <h2>Surfer reviews <span class="reviews-soon-tag">coming soon</span></h2>
+      <p class="muted">Have you been to this ${typeWord}? Tell us how it matched our write-up.
+        The form below works as a preview — your input won't be saved yet (backend is phase 2),
+        but it shows what's coming.</p>
+    </header>
+
+    <form class="review-form" data-mock-target="${e.id}" autocomplete="off">
+      <div class="review-field">
+        <label>Your rating</label>
+        <div class="review-stars" role="radiogroup" aria-label="Star rating">
+          ${[1,2,3,4,5].map(n => `<button type="button" class="review-star" data-stars="${n}" role="radio" aria-label="${n} star${n>1?'s':''}">★</button>`).join("")}
+        </div>
+      </div>
+
+      <div class="review-field">
+        <label>Does our write-up match what you found?</label>
+        <div class="review-radio-row">
+          <label class="review-radio"><input type="radio" name="matches" value="yes"> Yes, on the nose</label>
+          <label class="review-radio"><input type="radio" name="matches" value="partial"> Partly</label>
+          <label class="review-radio"><input type="radio" name="matches" value="no"> No, my experience differed</label>
+        </div>
+      </div>
+
+      <div class="review-field">
+        <label for="review-text">Your honest take <span class="muted">(any month, any year — we'll show date + month with the review)</span></label>
+        <textarea id="review-text" name="text" rows="4" placeholder="What surprised you? Anything off?"></textarea>
+      </div>
+
+      <div class="review-field review-field-row">
+        <label class="review-name-field">First name or initials <input type="text" name="name" placeholder="e.g. Lode D."></label>
+        <button type="submit" class="btn">Submit (preview)</button>
+      </div>
+
+      <p class="review-feedback" hidden></p>
+    </form>
+
+    <div class="review-empty">
+      <em>No reviews yet — the list will fill up once the backend goes live and surfers start posting.</em>
+    </div>
+  </section>`;
+}
+
+function tripOptionsHTML(entryId) {
+  // Trips that already contain this entry get a ✓ prefix so the user can see
+  // at a glance where it sits without re-adding. The first such trip becomes
+  // the selected default — so the dropdown shows the membership rather than
+  // a flat "+ Add to a trip…" after a successful add.
+  const trips = WaveBaseAccount.getTrips();
+  const inTrips = new Set(trips.filter(t => Array.isArray(t.spotIds) && t.spotIds.includes(entryId)).map(t => t.id));
+  const opts = trips.map(t => {
+    const isIn = inTrips.has(t.id);
+    const sel = isIn ? " selected" : "";
+    const label = isIn ? `✓ In: ${t.name}` : t.name;
+    return `<option value="${t.id}"${sel}>${label}</option>`;
+  }).join("");
+  const placeholderSel = inTrips.size ? "" : " selected";
+  return `<option value=""${placeholderSel}>+ Add to a trip…</option>${opts}<option value="__new">➕ New trip…</option>`;
+}
+
+function tripViewLinkHTML(entryId) {
+  // Inline link that opens whichever trip this entry sits in, on the account
+  // page, scrolled to that trip. Empty when the entry isn't in any trip yet.
+  const trips = WaveBaseAccount.getTrips();
+  const containing = trips.filter(t => Array.isArray(t.spotIds) && t.spotIds.includes(entryId));
+  if (!containing.length) return "";
+  if (containing.length === 1) {
+    const t = containing[0];
+    return `<a class="trip-view-link" href="account.html#trip-${t.id}" title="Open ${escHTML(t.name)} on your account page">View trip ↗</a>`;
+  }
+  return `<a class="trip-view-link" href="account.html#trips" title="Open your trips on the account page">View ${containing.length} trips ↗</a>`;
 }
 
 function initSpot() {
@@ -1259,7 +1352,10 @@ function initSpot() {
         ${e.type === "center" && e.bookingUrl ? `<a class="btn btn-book" href="${e.bookingUrl}" target="_blank" rel="noopener">Visit website ↗</a>` : ""}
         <button class="btn ghost ${saved ? "on" : ""}" id="save-toggle">${saved ? "♥ Saved" : "♡ Save this place"}</button>
         <button class="btn ghost ${comparing ? "on" : ""}" id="compare-toggle">${comparing ? "✓ In compare" : "+ Compare"}</button>
-        <select id="trip-select">${tripOptionsHTML()}</select>
+        <span class="trip-picker">
+          <select id="trip-select">${tripOptionsHTML(e.id)}</select>
+          <span id="trip-view-link-slot">${tripViewLinkHTML(e.id)}</span>
+        </span>
       </div>
     </header>
 
@@ -1285,6 +1381,7 @@ function initSpot() {
     ${lagen}
     ${buurtHTML(e.buurt)}
     ${vergelijkingHTML(e.vergelijking)}
+    ${reviewsMockHTML(e)}
     ${relatedSectionsForDetail(e)}
     ${townPanelHTML(e.town)}
 
@@ -1325,21 +1422,51 @@ function initSpot() {
   document.getElementById("trip-select").addEventListener("change", function () {
     const v = this.value;
     if (!v) return;
+    let targetId = v;
     if (v === "__new") {
       const name = window.prompt("Name your new trip:");
-      if (name) {
-        const t = WaveBaseAccount.addTrip(name);
-        WaveBaseAccount.addToTrip(t.id, e.id);
-        alert(`"${e.name}" added to trip "${t.name}".`);
-      }
+      if (!name) { this.innerHTML = tripOptionsHTML(e.id); return; }
+      const t = WaveBaseAccount.addTrip(name);
+      WaveBaseAccount.addToTrip(t.id, e.id);
+      targetId = t.id;
     } else {
       WaveBaseAccount.addToTrip(v, e.id);
-      const t = WaveBaseAccount.getTrips().find(x => x.id === v);
-      alert(`"${e.name}" added to trip "${t ? t.name : ""}".`);
     }
-    this.innerHTML = tripOptionsHTML();
-    this.value = "";
+    // Rebuild options so the newly-containing trip is checkmarked + selected,
+    // and refresh the inline "View trip ↗" link so the user can jump there.
+    this.innerHTML = tripOptionsHTML(e.id);
+    this.value = targetId;
+    const slot = document.getElementById("trip-view-link-slot");
+    if (slot) slot.innerHTML = tripViewLinkHTML(e.id);
   });
+
+  // Reviews mock — stars highlight on click; submit shows a friendly
+  // "coming soon" confirmation and clears the form. Nothing is persisted yet.
+  const reviewForm = root.querySelector(".review-form");
+  if (reviewForm) {
+    let chosenStars = 0;
+    reviewForm.querySelectorAll(".review-star").forEach(btn => {
+      btn.addEventListener("click", () => {
+        chosenStars = parseInt(btn.dataset.stars, 10);
+        reviewForm.querySelectorAll(".review-star").forEach(b => {
+          b.classList.toggle("on", parseInt(b.dataset.stars, 10) <= chosenStars);
+        });
+      });
+    });
+    reviewForm.addEventListener("submit", ev => {
+      ev.preventDefault();
+      const fb = reviewForm.querySelector(".review-feedback");
+      if (!fb) return;
+      fb.hidden = false;
+      fb.textContent = "Thanks — your preview review went through. We'll start storing real submissions once the backend is live.";
+      // Reset state so the user sees the form go back to blank after a moment.
+      setTimeout(() => {
+        chosenStars = 0;
+        reviewForm.querySelectorAll(".review-star").forEach(b => b.classList.remove("on"));
+        reviewForm.reset();
+      }, 2200);
+    });
+  }
 
   // back link: if the user came from inside the site, use history.back() to restore their previous state.
   // The href fallback (set above) points to this entry's country + sport.
@@ -1515,7 +1642,7 @@ function renderAccount() {
               </div></li>`).join("")}</ol>`
           : `<p class="muted">Empty so far — add places from a detail page.</p>`;
         const mapDiv = located.length ? `<div class="trip-map" id="trip-map-${t.id}"></div>` : "";
-        return `<div class="trip">
+        return `<div class="trip" id="trip-${t.id}">
           <div class="trip-head"><h3>${t.name}</h3><button class="link-btn" data-del="${t.id}">remove</button></div>
           ${list}
           ${mapDiv}</div>`;
@@ -1557,7 +1684,7 @@ function renderAccount() {
       ${savedHTML}
     </section>
 
-    <section class="acc-block">
+    <section class="acc-block" id="trips">
       <div class="trip-section-head">
         <h2>My trips <span class="seccount">${trips.length}</span></h2>
         <button class="btn ghost" id="new-trip">+ New trip</button>
@@ -1697,6 +1824,7 @@ function renderCompare() {
     return `<div class="cmp-col">
       <div class="thumb ${e.type}${e.photo ? " has-photo" : ""}"${thumbStyle(e)}>
         <span class="badge">${typeBadge(e.type)}</span>
+        <button class="cmp-remove" data-uncompare="${e.id}" aria-label="Remove from compare" title="Remove from compare">×</button>
         ${e.type === "stay" ? "" : sportIconsHTML(entrySports(e))}
       </div>
       <div class="cmp-body">
@@ -1704,7 +1832,6 @@ function renderCompare() {
         <h3><a href="spot.html?id=${e.id}">${e.name}</a></h3>
         <p class="tag">${e.tagline}</p>
         ${pts}
-        <button class="link-btn" data-uncompare="${e.id}">remove</button>
       </div>
     </div>`;
   }).join("");
@@ -1726,6 +1853,23 @@ function renderCompare() {
 }
 
 /* ---- destinations mega-menu ---- */
+// Open/close the destinations menu — exposed so the Where-field on Discover
+// and the "pick a country to begin" empty-state link can also trigger it.
+function openDestinationsMenu() {
+  const panel = document.getElementById("destinations-menu");
+  const trigger = document.getElementById("destinations-trigger");
+  if (!panel || !trigger) return;
+  panel.classList.add("open");
+  trigger.classList.add("active");
+}
+function closeDestinationsMenu() {
+  const panel = document.getElementById("destinations-menu");
+  const trigger = document.getElementById("destinations-trigger");
+  if (!panel || !trigger) return;
+  panel.classList.remove("open");
+  trigger.classList.remove("active");
+}
+
 function initDestinations() {
   if (typeof WAVEBASE_DESTINATIONS === "undefined") return;
   const nav = document.querySelector(".site-nav");
@@ -1742,9 +1886,10 @@ function initDestinations() {
   const cols = WAVEBASE_DESTINATIONS.map(c => {
     const chips = c.countries.map(co => {
       const href = `index.html?country=${encodeURIComponent(co.name)}`;
+      const dataAttr = ` data-country="${co.name}" data-status="${co.status}"`;
       return co.status === "live"
-        ? `<a class="dest-chip live" href="${href}">${co.flag} ${co.name}</a>`
-        : `<a class="dest-chip soon" href="${href}">${co.flag} ${co.name}<span class="soon-tag">soon</span></a>`;
+        ? `<a class="dest-chip live" href="${href}"${dataAttr}>${co.flag} ${co.name}</a>`
+        : `<a class="dest-chip soon" href="${href}"${dataAttr}>${co.flag} ${co.name}<span class="soon-tag">soon</span></a>`;
     }).join("");
     return `<div class="dest-continent"><h3>${c.continent}</h3><div class="dest-chips">${chips}</div></div>`;
   }).join("");
@@ -1760,14 +1905,31 @@ function initDestinations() {
 
   trigger.addEventListener("click", ev => {
     ev.stopPropagation();
+    const panel = document.getElementById("destinations-menu");
     const open = panel.classList.toggle("open");
     trigger.classList.toggle("active", open);
   });
   panel.addEventListener("click", ev => ev.stopPropagation());
-  document.addEventListener("click", () => {
-    panel.classList.remove("open");
-    trigger.classList.remove("active");
-  });
+  document.addEventListener("click", () => closeDestinationsMenu());
+
+  // On Discover: clicking a country chip should fill the Where field and
+  // re-run the search inline (no full reload). Off Discover: normal navigation.
+  if (document.getElementById("f-country")) {
+    panel.querySelectorAll(".dest-chip").forEach(chip => {
+      chip.addEventListener("click", ev => {
+        ev.preventDefault();
+        const country = chip.dataset.country;
+        const input = document.getElementById("f-country");
+        if (input) input.value = country;
+        closeDestinationsMenu();
+        // Update URL so deep-links + back button still work.
+        const url = new URL(window.location.href);
+        url.searchParams.set("country", country);
+        window.history.replaceState(null, "", url.toString());
+        if (typeof runSearch === "function") runSearch();
+      });
+    });
+  }
 }
 
 /* ---- mobile bottom tab bar (Discover / Map / Compare / Me) ---- */
