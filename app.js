@@ -1683,6 +1683,63 @@ function compareKeyPoints(e) {
   ];
 }
 
+function compareStatsHTML(items) {
+  // Build a side-by-side stats grid: one row per metric, one column per item.
+  // Pulls from each item's stats (centers inherit via getStatsFor) for the
+  // user-selected month. Skips rows where no item has a value (don't invent).
+  const userMonth = userSelectedMonth();
+  const monthNames = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
+  const m = userMonth - 1;
+
+  const v = (arr) => (Array.isArray(arr) && arr[m] != null && !isNaN(arr[m])) ? arr[m] : null;
+  const metrics = [
+    { label: "Wave height",     unit: " m",  fmt: x => x.toFixed(1), get: e => v((getStatsFor(e) || {}).monthlyWaveM) },
+    { label: "Avg wind",         unit: " kn", fmt: x => Math.round(x), get: e => v((getStatsFor(e) || {}).monthlyWindKn) },
+    { label: "Avg gust",         unit: " kn", fmt: x => Math.round(x), get: e => v((getStatsFor(e) || {}).monthlyGustKn) },
+    { label: "Typical daily peak gust", unit: " kn", fmt: x => Math.round(x), get: e => v((getStatsFor(e) || {}).monthlyDailyPeakKn) },
+    { label: "Max gust (5y)",    unit: " kn", fmt: x => Math.round(x), get: e => v((getStatsFor(e) || {}).monthlyGustPeakKn) },
+    { label: "Sea water",        unit: "°C",  fmt: x => Math.round(x), get: e => v((getStatsFor(e) || {}).monthlyWaterC) },
+    { label: "Daytime air",      unit: "°C",  fmt: x => Math.round(x), get: e => v((getStatsFor(e) || {}).monthlyAirC) },
+  ];
+
+  const rows = metrics.map(metric => {
+    const cells = items.map(e => ({ e, val: metric.get(e) }));
+    if (!cells.some(c => c.val != null)) return ""; // skip empty rows
+    const maxVal = Math.max(...cells.filter(c => c.val != null).map(c => c.val));
+    const minVal = Math.min(...cells.filter(c => c.val != null).map(c => c.val));
+    const tds = cells.map(c => {
+      if (c.val == null) return `<td class="cmp-stat-cell empty">—</td>`;
+      const pct = maxVal > 0 ? Math.round((c.val / maxVal) * 100) : 0;
+      const isMax = cells.length > 1 && c.val === maxVal && maxVal !== minVal;
+      return `<td class="cmp-stat-cell${isMax ? " is-max" : ""}">
+        <span class="cmp-stat-bar"><span class="cmp-stat-fill" style="width: ${pct}%;"></span></span>
+        <span class="cmp-stat-val">${metric.fmt(c.val)}${metric.unit}</span>
+      </td>`;
+    }).join("");
+    return `<tr><th class="cmp-stat-metric">${metric.label}</th>${tds}</tr>`;
+  }).filter(Boolean).join("");
+
+  if (!rows) return ""; // no comparable monthly data at all
+
+  const headerCells = items.map(e => `<th class="cmp-stat-header">
+    <div class="cmp-stat-name">${e.name}</div>
+    <div class="cmp-stat-sub">${typeLabel(e.type)} · ${e.town}</div>
+  </th>`).join("");
+
+  return `<section class="cmp-stats">
+    <header class="cmp-stats-head">
+      <h2>Stats for ${monthNames[m]}</h2>
+      <p class="muted form-note">Numbers pulled from the spot's own data (centers inherit from their beach). Highest value per row marked.</p>
+    </header>
+    <div class="cmp-stats-table-wrap">
+      <table class="cmp-stats-table">
+        <thead><tr><th class="cmp-stat-metric"></th>${headerCells}</tr></thead>
+        <tbody>${rows}</tbody>
+      </table>
+    </div>
+  </section>`;
+}
+
 function renderCompare() {
   const root = document.getElementById("compare-root");
   const items = WaveBaseAccount.getCompare().map(byId).filter(Boolean);
@@ -1691,6 +1748,7 @@ function renderCompare() {
       <p class="muted">Nothing to compare yet. Tap the "⇄" button on a spot or stay, then come back here.</p>`;
     return;
   }
+  const statsBlock = compareStatsHTML(items);
   const cols = items.map(e => {
     const pts = compareKeyPoints(e).map(([k, v]) =>
       v ? `<div class="cmp-row"><span class="cmp-k">${k}</span><span class="cmp-v">${v}</span></div>` : "").join("");
@@ -1713,6 +1771,7 @@ function renderCompare() {
       <h1>Compare <span class="seccount">${items.length}</span></h1>
       <button class="btn ghost" id="clear-compare">Clear all</button>
     </div>
+    ${statsBlock}
     <div class="cmp-grid">${cols}</div>`;
   document.getElementById("clear-compare").addEventListener("click", () => {
     WaveBaseAccount.clearCompare(); updateNav(); renderCompare();

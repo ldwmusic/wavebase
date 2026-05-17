@@ -1252,6 +1252,58 @@ table.cal td.host { color: var(--clay); }
   grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
   gap: 18px; padding-bottom: 40px;
 }
+
+/* Compare stats grid — side-by-side numbers + mini bar per metric. */
+.cmp-stats {
+  background: var(--paper);
+  border: 1px solid var(--sand);
+  border-radius: var(--radius);
+  padding: 20px 22px;
+  margin-bottom: 24px;
+  box-shadow: var(--shadow-sm);
+}
+.cmp-stats-head h2 {
+  font-family: 'Fraunces', Georgia, serif; font-size: 22px; margin: 0 0 4px;
+}
+.cmp-stats-head .form-note { margin: 0 0 14px; }
+.cmp-stats-table-wrap { overflow-x: auto; }
+.cmp-stats-table {
+  width: 100%; border-collapse: collapse;
+  font-size: 13.5px;
+}
+.cmp-stats-table th, .cmp-stats-table td {
+  text-align: left; padding: 8px 10px; vertical-align: middle;
+}
+.cmp-stats-table thead th { border-bottom: 1px solid var(--sand); }
+.cmp-stat-header .cmp-stat-name { font-weight: 700; color: var(--ink); }
+.cmp-stat-header .cmp-stat-sub  { font-size: 11px; color: var(--ink-soft); font-weight: 400; }
+.cmp-stats-table tbody tr + tr th, .cmp-stats-table tbody tr + tr td {
+  border-top: 1px dashed var(--sand);
+}
+.cmp-stat-metric {
+  font-weight: 600; color: var(--ink-soft);
+  white-space: nowrap; width: 1%;
+}
+.cmp-stat-cell {
+  position: relative; min-width: 120px;
+}
+.cmp-stat-cell.empty { color: var(--ink-soft); }
+.cmp-stat-bar {
+  display: block; height: 6px;
+  background: var(--sand);
+  border-radius: 3px;
+  margin-bottom: 4px;
+  overflow: hidden;
+}
+.cmp-stat-fill {
+  display: block; height: 100%;
+  background: var(--sea);
+  border-radius: 3px;
+  transition: width 0.2s ease;
+}
+.cmp-stat-cell.is-max .cmp-stat-fill { background: var(--clay); }
+.cmp-stat-cell.is-max .cmp-stat-val  { color: var(--clay); font-weight: 700; }
+.cmp-stat-val { font-variant-numeric: tabular-nums; }
 .cmp-col {
   background: var(--paper);
   border: 1px solid var(--sand);
