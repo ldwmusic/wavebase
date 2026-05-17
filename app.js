@@ -251,8 +251,8 @@ function statsPanelHTML(e) {
       main: `<span class="crowd-dots">${crowdDotsHTML(s.crowd)}</span>`,
       note: crowdLabelText(s.crowd) },
     { label: "Locals",
-      main: s.localism || "No localism reports found in recent reviews.",
-      note: "" }
+      main: s.localism || "No verified reports in recent reviews yet.",
+      note: s.localism ? "⚠ Inferred from general spot character — not yet verified against recent reviews." : "" }
   ];
   const topFacts = `<div class="stats-grid">${topRows.map(r =>
     `<div class="stats-row">
