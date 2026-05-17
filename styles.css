@@ -409,6 +409,8 @@ a:hover { text-decoration: underline; }
 }
 .card .sport-icon { display: inline-flex; }
 .card .sport-icon svg { width: 36px; height: 36px; display: block; }
+/* Pictograms render at 50% opacity everywhere — softer feel against thumbnails. */
+.sport-icon { opacity: 0.5; }
 .card .body { padding: 18px 20px 22px; display: flex; flex-direction: column; gap: 8px; flex: 1; }
 .card .place {
   font-size: 13px;
