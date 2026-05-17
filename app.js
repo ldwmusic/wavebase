@@ -1032,7 +1032,11 @@ function initIndex() {
   // the typed substring fades out + becomes unclickable.
   const fCountry = document.getElementById("f-country");
   if (fCountry) {
-    fCountry.addEventListener("focus", () => openDestinationsMenu());
+    // Focus handler opens the menu WITHOUT scrolling — focus fires before
+    // mouseup, so a scroll here would move the input out from under the
+    // cursor and break the click. The click handler (which fires after
+    // mouseup) is the one that scrolls.
+    fCountry.addEventListener("focus", () => openDestinationsMenu({ scroll: false }));
     fCountry.addEventListener("click", ev => {
       ev.stopPropagation();
       openDestinationsMenu();
@@ -1942,22 +1946,21 @@ function renderCompare() {
 /* ---- destinations mega-menu ---- */
 // Open/close the destinations menu — exposed so the Where-field on Discover
 // and the "pick a country to begin" empty-state link can also trigger it.
-// The menu is positioned under the header (absolute). When the user is
-// scrolled down we have to jump to top to make it visible — but we DEFER
-// that scroll to the next tick so the in-flight click cycle (mousedown →
-// focus → mouseup → click) completes before the page shifts. Otherwise
-// mouseup lands on whatever element is now under the cursor and triggers
-// the document close-handler — the "flash" bug.
-function openDestinationsMenu() {
+// The menu is positioned under the header (absolute). When opening from
+// below the fold we need to scroll to top to make it visible — but ONLY
+// from event handlers that fire AFTER mouseup (i.e. click handlers).
+// Calling scroll from the focus handler (which fires BEFORE mouseup)
+// shifts the page mid-click, so the mouseup target is wrong and bubbles
+// to the document close-handler — the "flash" bug. Default opts.scroll=true
+// is for click handlers; focus handlers pass {scroll:false}.
+function openDestinationsMenu(opts) {
+  const scroll = !opts || opts.scroll !== false;
   const panel = document.getElementById("destinations-menu");
   const trigger = document.getElementById("destinations-trigger");
   if (!panel || !trigger) return;
-  const wasOpen = panel.classList.contains("open");
   panel.classList.add("open");
   trigger.classList.add("active");
-  if (!wasOpen && window.scrollY > 4) {
-    setTimeout(() => window.scrollTo(0, 0), 0);
-  }
+  if (scroll && window.scrollY > 4) window.scrollTo(0, 0);
 }
 function closeDestinationsMenu() {
   const panel = document.getElementById("destinations-menu");
