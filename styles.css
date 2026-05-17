@@ -996,9 +996,13 @@ table.cal td.host { color: var(--clay); }
 }
 
 .related-entries { margin: 32px 0 20px; }
+.related-entries .related-head {
+  display: flex; align-items: flex-end; justify-content: space-between;
+  gap: 12px; margin-bottom: 6px;
+}
 .related-entries h2 {
   font-family: 'Fraunces', Georgia, serif; font-size: 28px;
-  margin-bottom: 6px;
+  margin: 0;
 }
 .related-entries .form-note { margin-bottom: 14px; }
 .kort h2 {
