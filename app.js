@@ -1942,17 +1942,22 @@ function renderCompare() {
 /* ---- destinations mega-menu ---- */
 // Open/close the destinations menu — exposed so the Where-field on Discover
 // and the "pick a country to begin" empty-state link can also trigger it.
-// The menu is positioned under the header (absolute), so we jump to top
-// first to make sure it's actually in view. Instant scroll (not smooth) so
-// the click target doesn't drift mid-animation and cause a fake "click
-// outside menu" that immediately closes it.
+// The menu is positioned under the header (absolute). When the user is
+// scrolled down we have to jump to top to make it visible — but we DEFER
+// that scroll to the next tick so the in-flight click cycle (mousedown →
+// focus → mouseup → click) completes before the page shifts. Otherwise
+// mouseup lands on whatever element is now under the cursor and triggers
+// the document close-handler — the "flash" bug.
 function openDestinationsMenu() {
   const panel = document.getElementById("destinations-menu");
   const trigger = document.getElementById("destinations-trigger");
   if (!panel || !trigger) return;
-  if (window.scrollY > 4) window.scrollTo(0, 0);
+  const wasOpen = panel.classList.contains("open");
   panel.classList.add("open");
   trigger.classList.add("active");
+  if (!wasOpen && window.scrollY > 4) {
+    setTimeout(() => window.scrollTo(0, 0), 0);
+  }
 }
 function closeDestinationsMenu() {
   const panel = document.getElementById("destinations-menu");
