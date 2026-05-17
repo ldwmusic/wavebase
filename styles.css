@@ -1162,6 +1162,48 @@ table.cal td.host { color: var(--clay); }
 .my-review-match.match-partial { background: var(--amber-soft); color: #8a5a14; }
 .my-review-match.match-no      { background: var(--clay-soft); color: var(--clay); }
 .my-review-text { font-size: 14px; margin: 8px 0 0; color: var(--ink); }
+
+/* Auto-linked entry mentions in prose — keep them visible enough to invite
+   a click but not so loud they break the editorial reading flow. */
+.entry-ref {
+  color: var(--sea);
+  text-decoration: underline;
+  text-underline-offset: 2px;
+  text-decoration-thickness: 1px;
+  text-decoration-color: rgba(63, 111, 125, 0.4);
+  transition: text-decoration-color 0.15s ease, color 0.15s ease;
+}
+.entry-ref:hover {
+  color: var(--clay);
+  text-decoration-color: var(--clay);
+}
+
+/* "More in [Country]" section near the bottom of detail pages — wider
+   view than the proximity-based "Nearby" sections above. */
+.more-in-country { margin: 36px 0 24px; }
+.more-in-country-head {
+  display: flex; align-items: baseline; justify-content: space-between;
+  gap: 12px; margin-bottom: 12px;
+}
+.more-in-country-head h2 {
+  font-family: 'Fraunces', Georgia, serif; font-size: 26px; margin: 0;
+}
+.more-in-country-all {
+  font-size: 13.5px; font-weight: 600; color: var(--sea);
+  text-decoration: underline; text-underline-offset: 3px;
+}
+.more-in-country-all:hover { color: var(--clay); }
+
+/* Clickable head chips on detail pages — type · town · country, each
+   filters the Discover page on that dimension. Underlined on hover only
+   so the breadcrumb still reads as breadcrumb, not as a noisy link row. */
+.head-chip {
+  color: var(--ink-soft);
+  text-decoration: none;
+  transition: color 0.15s ease;
+}
+.head-chip:hover { color: var(--sea); text-decoration: underline; text-underline-offset: 2px; }
+.head-sep { color: var(--ink-soft); }
 .trip-view-link {
   font-size: 13.5px; font-weight: 600; color: var(--sea);
   text-decoration: underline; text-underline-offset: 3px;

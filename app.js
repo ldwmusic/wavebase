@@ -539,6 +539,36 @@ function wireDetailViewToggles(container) {
   });
 }
 
+// "More in [country]" — a wider net than the proximity-based "Nearby"
+// section. Shows up to 6 other entries from the same country, mixing
+// types so the user gets a sense of what else WaveBase has there.
+function moreInCountryHTML(currentEntry) {
+  const country = entryCountry(currentEntry);
+  if (!country) return "";
+  const pool = WAVEBASE_DATA.filter(c =>
+    entryCountry(c) === country && c.id !== currentEntry.id
+  );
+  if (!pool.length) return "";
+  // Mix types: try to surface a balance of spots / centers / stays
+  const byType = { spot: [], center: [], stay: [] };
+  pool.forEach(p => { if (byType[p.type]) byType[p.type].push(p); });
+  // Round-robin pick to get a mix
+  const picks = [];
+  while (picks.length < 6 && (byType.spot.length || byType.center.length || byType.stay.length)) {
+    for (const t of ["spot", "center", "stay"]) {
+      if (byType[t].length && picks.length < 6) picks.push(byType[t].shift());
+    }
+  }
+  if (!picks.length) return "";
+  return `<section class="more-in-country">
+    <header class="more-in-country-head">
+      <h2>More in ${escHTML(country)}</h2>
+      <a class="more-in-country-all" href="index.html?country=${encodeURIComponent(country)}">See all &rarr;</a>
+    </header>
+    <div class="grid list-view">${picks.map(cardHTML).join("")}</div>
+  </section>`;
+}
+
 function relatedSectionsForDetail(e) {
   if (e.type === "spot") {
     // Centers must be on the same beach (≤1km). Stays within easy walk/drive.
@@ -1175,9 +1205,36 @@ function applySpotSEO(e) {
 }
 
 /* ---- SPOT: detail page ---- */
-function laagHTML(laag) {
+// Auto-link entry names in prose — turns "Tenda is a separate destination"
+// into "<a href=...>Tenda</a> is a separate destination". Skips the current
+// entry (so a page doesn't link to itself), prefers longer name matches
+// first (so "Gone Surfing Crete" wins over a stray "Surfing"), and uses
+// a zero-width marker to avoid re-matching text that's already inside a
+// link we just inserted.
+function autoLinkEntries(html, currentId) {
+  if (!html || typeof html !== "string") return html || "";
+  const entries = (typeof WAVEBASE_DATA === "undefined" ? [] : WAVEBASE_DATA)
+    .filter(e => e && e.id !== currentId && e.name)
+    .sort((a, b) => b.name.length - a.name.length);
+  if (!entries.length) return html;
+  const MARK = "​"; // zero-width space marker
+  let out = html;
+  for (const e of entries) {
+    // Strip parentheticals so "Freak Surf (Freak Windsurf Station)" still matches "Freak Surf"
+    const baseName = e.name.replace(/\s*\([^)]*\)\s*$/, "").trim();
+    if (!baseName) continue;
+    const escaped = baseName.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+    // Word boundary + skip if already wrapped (marker prefix/suffix).
+    const re = new RegExp(`(?<!${MARK})\\b(${escaped})\\b(?!${MARK})`, "gi");
+    out = out.replace(re, (match) =>
+      `${MARK}<a class="entry-ref" href="${spotHref(e.id)}">${match}</a>${MARK}`);
+  }
+  return out.split(MARK).join("");
+}
+
+function laagHTML(laag, currentId) {
   const blokken = laag.inhoud.map(b =>
-    `<div class="blok"><h3>${b.kop}</h3><p>${b.tekst}</p></div>`).join("");
+    `<div class="blok"><h3>${b.kop}</h3><p>${autoLinkEntries(b.tekst, currentId)}</p></div>`).join("");
   return `<section class="laag"><h2>${laag.titel}</h2>
     <span class="bron">Source: ${laag.bron}</span>${blokken}</section>`;
 }
@@ -1253,14 +1310,14 @@ function dienstenHTML(d) {
   </section>`;
 }
 
-function buurtHTML(b) {
+function buurtHTML(b, currentId) {
   if (!b) return "";
   return `<section class="buurt">
     <h2>Nearby</h2>
     <div class="buurt-grid">
-      <div class="buurt-item"><span class="buurt-label">Food</span><span>${b.eten}</span></div>
-      <div class="buurt-item"><span class="buurt-label">Parking</span><span>${b.parking}</span></div>
-      <div class="buurt-item"><span class="buurt-label">Gear rental</span><span>${b.verhuur}</span></div>
+      <div class="buurt-item"><span class="buurt-label">Food</span><span>${autoLinkEntries(b.eten, currentId)}</span></div>
+      <div class="buurt-item"><span class="buurt-label">Parking</span><span>${autoLinkEntries(b.parking, currentId)}</span></div>
+      <div class="buurt-item"><span class="buurt-label">Gear rental</span><span>${autoLinkEntries(b.verhuur, currentId)}</span></div>
     </div>
   </section>`;
 }
@@ -1370,9 +1427,9 @@ function initSpot() {
     return;
   }
   applySpotSEO(e);
-  const verhaal = e.verhaal.map(p => `<p>${p}</p>`).join("");
-  const samenvatting = e.samenvatting.map(s => `<li>${s}</li>`).join("");
-  const lagen = e.lagen.map(laagHTML).join("");
+  const verhaal = e.verhaal.map(p => `<p>${autoLinkEntries(p, e.id)}</p>`).join("");
+  const samenvatting = e.samenvatting.map(s => `<li>${autoLinkEntries(s, e.id)}</li>`).join("");
+  const lagen = e.lagen.map(l => laagHTML(l, e.id)).join("");
   const saved = WaveBaseAccount.isSaved(e.id);
   const comparing = WaveBaseAccount.isComparing(e.id);
 
@@ -1386,7 +1443,13 @@ function initSpot() {
       ${e.photo ? "" : `<span class="photo-placeholder">Photo coming soon</span>`}
     </div>
     <header class="detail-head">
-      <div class="place">${typeLabel(e.type)} &middot; ${e.town}</div>
+      <div class="place">
+        <a class="head-chip" href="index.html?type=${e.type}">${typeLabel(e.type)}</a>
+        <span class="head-sep">&middot;</span>
+        <a class="head-chip" href="index.html?country=${encodeURIComponent(entryCountry(e))}&amp;q=${encodeURIComponent(e.town)}">${e.town}</a>
+        <span class="head-sep">&middot;</span>
+        <a class="head-chip" href="index.html?country=${encodeURIComponent(entryCountry(e))}">${entryCountry(e)}</a>
+      </div>
       <h1>${e.name}</h1>
       <p class="tag">${e.tagline}</p>
       ${e.coordsLabel ? `<p class="coords-note">About the location: ${e.coordsLabel}</p>` : ""}
@@ -1422,7 +1485,7 @@ function initSpot() {
     </div>
 
     ${lagen}
-    ${buurtHTML(e.buurt)}
+    ${buurtHTML(e.buurt, e.id)}
     ${vergelijkingHTML(e.vergelijking)}
     ${relatedSectionsForDetail(e)}
     ${townPanelHTML(e.town)}
@@ -1431,6 +1494,8 @@ function initSpot() {
       <div class="box yes"><h3>Ideal for</h3><p>${e.ideaalVoor}</p></div>
       <div class="box no"><h3>Not ideal if</h3><p>${e.nietIdeaalAls}</p></div>
     </section>
+
+    ${moreInCountryHTML(e)}
 
     ${reviewsMockHTML(e)}`;
 
@@ -1446,8 +1511,9 @@ function initSpot() {
     m.setView(e.coords, 14);
   }
 
-  // Wire embedded entry cards + the per-section list/cards toggle
-  if (root.querySelector(".related-entries .grid")) {
+  // Wire embedded entry cards (related sections + "More in country") + the
+  // per-section list/cards toggle.
+  if (root.querySelector(".related-entries .grid") || root.querySelector(".more-in-country .grid")) {
     wireCards(root);
     wireDetailViewToggles(root);
   }
