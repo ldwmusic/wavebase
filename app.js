@@ -1953,6 +1953,11 @@ function renderCompare() {
 // shifts the page mid-click, so the mouseup target is wrong and bubbles
 // to the document close-handler — the "flash" bug. Default opts.scroll=true
 // is for click handlers; focus handlers pass {scroll:false}.
+// Timestamp of the last open — used to ignore any "close" attempts that
+// happen within the same click cycle (mousedown → focus → scroll → mouseup
+// → click → bubble to document → close). 250 ms is enough to swallow the
+// rogue event without disabling legitimate user clicks elsewhere.
+let __destMenuOpenedAt = 0;
 function openDestinationsMenu(opts) {
   const scroll = !opts || opts.scroll !== false;
   const panel = document.getElementById("destinations-menu");
@@ -1960,9 +1965,13 @@ function openDestinationsMenu(opts) {
   if (!panel || !trigger) return;
   panel.classList.add("open");
   trigger.classList.add("active");
+  __destMenuOpenedAt = Date.now();
   if (scroll && window.scrollY > 4) window.scrollTo(0, 0);
 }
 function closeDestinationsMenu() {
+  // Direct close (chip click, etc.) — no guard. The "race with opening"
+  // guard lives in the document outside-click handler instead, so legit
+  // manual closes still go through.
   const panel = document.getElementById("destinations-menu");
   const trigger = document.getElementById("destinations-trigger");
   if (!panel || !trigger) return;
@@ -2011,10 +2020,12 @@ function initDestinations() {
   });
   panel.addEventListener("click", ev => ev.stopPropagation());
   // Close on any click that's NOT inside the panel, the trigger, the
-  // Where-field, or the country-picker empty-state button. Using closest()
-  // makes the check robust against bubbling from child elements (icons,
-  // text spans, etc.) and prevents the "open then immediately close" flash.
+  // Where-field, or the country-picker empty-state button. Plus a 250 ms
+  // grace window after opening — any rogue close attempt during the click
+  // cycle that opened the menu is ignored. Belt + suspenders against the
+  // "open then immediately close" flash.
   document.addEventListener("click", (ev) => {
+    if (Date.now() - __destMenuOpenedAt < 250) return;
     const t = ev.target;
     if (!t) return;
     if (t.closest && (
