@@ -33,7 +33,8 @@ const WaveBaseAccount = (function () {
       },
       saved: s.saved || [],
       compare: s.compare || [],
-      trips: s.trips || []
+      trips: s.trips || [],
+      reviews: Array.isArray(s.reviews) ? s.reviews : []
     };
   }
 
@@ -120,6 +121,31 @@ const WaveBaseAccount = (function () {
       if (fromIndex < 0 || fromIndex >= ids.length || toIndex < 0 || toIndex >= ids.length || fromIndex === toIndex) return;
       const moved = ids.splice(fromIndex, 1)[0];
       ids.splice(toIndex, 0, moved);
+      write(s);
+    },
+
+    /* reviews — local previews of submissions. Persist what the user typed
+       so they can see their drafts on the account page until the backend
+       lands and turns them into real, shared reviews. */
+    getReviews() { return state().reviews; },
+    addReview(review) {
+      const s = state();
+      const entry = {
+        id: "r" + Date.now() + Math.floor(Math.random() * 1000),
+        entryId: review.entryId,
+        stars: Number(review.stars) || 0,
+        matches: review.matches || "",
+        text: (review.text || "").trim(),
+        name: (review.name || "").trim(),
+        when: new Date().toISOString()
+      };
+      s.reviews.unshift(entry);
+      write(s);
+      return entry;
+    },
+    deleteReview(reviewId) {
+      const s = state();
+      s.reviews = s.reviews.filter(r => r.id !== reviewId);
       write(s);
     }
   };

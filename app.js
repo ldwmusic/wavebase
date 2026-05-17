@@ -1027,14 +1027,38 @@ function initIndex() {
     if (el) el.addEventListener("change", runSearch);
   });
   // Opening the Where field also opens the destinations menu so the user
-  // sees the country grid (with flags + "soon" labels) instead of only the
-  // native datalist popup. The datalist still works for type-ahead.
+  // sees the country grid (with flags + "soon" labels). Typing inside the
+  // field filters the chips inline — a country whose name doesn't include
+  // the typed substring fades out + becomes unclickable.
   const fCountry = document.getElementById("f-country");
   if (fCountry) {
     fCountry.addEventListener("focus", () => openDestinationsMenu());
     fCountry.addEventListener("click", ev => {
       ev.stopPropagation();
       openDestinationsMenu();
+    });
+    fCountry.addEventListener("input", () => {
+      const q = fCountry.value.trim().toLowerCase();
+      const panel = document.getElementById("destinations-menu");
+      if (!panel) return;
+      panel.querySelectorAll(".dest-chip").forEach(chip => {
+        const name = (chip.dataset.country || "").toLowerCase();
+        const hit = !q || name.includes(q);
+        chip.classList.toggle("dimmed", !hit);
+      });
+      // Hide continent columns that no longer have any matching chips.
+      panel.querySelectorAll(".dest-continent").forEach(col => {
+        const anyHit = col.querySelector(".dest-chip:not(.dimmed)");
+        col.classList.toggle("dimmed", !anyHit);
+      });
+    });
+    fCountry.addEventListener("keydown", ev => {
+      if (ev.key !== "Enter") return;
+      ev.preventDefault();
+      // Pressing Enter selects the first visible (non-dimmed) chip
+      const panel = document.getElementById("destinations-menu");
+      const first = panel && panel.querySelector(".dest-chip:not(.dimmed)");
+      if (first) first.click();
     });
   }
   document.getElementById("search-btn").addEventListener("click", runSearch);
@@ -1456,8 +1480,9 @@ function initSpot() {
     if (slot) slot.innerHTML = tripViewLinkHTML(e.id);
   });
 
-  // Reviews mock — stars highlight on click; submit shows a friendly
-  // "coming soon" confirmation and clears the form. Nothing is persisted yet.
+  // Reviews mock — stars highlight on click; submit persists the preview
+  // locally (so it shows on My WaveBase → My reviews) and clears the form.
+  // No data leaves the browser; real shared reviews land with the backend.
   const reviewForm = root.querySelector(".review-form");
   if (reviewForm) {
     let chosenStars = 0;
@@ -1473,14 +1498,22 @@ function initSpot() {
       ev.preventDefault();
       const fb = reviewForm.querySelector(".review-feedback");
       if (!fb) return;
+      const fd = new FormData(reviewForm);
+      WaveBaseAccount.addReview({
+        entryId: e.id,
+        stars: chosenStars,
+        matches: fd.get("matches") || "",
+        text: fd.get("text") || "",
+        name: fd.get("name") || ""
+      });
       fb.hidden = false;
-      fb.textContent = "Thanks — your preview review went through. We'll start storing real submissions once the backend is live.";
+      fb.innerHTML = `Thanks — your preview review is saved on this device. See it on <a href="account.html#my-reviews">My WaveBase → My reviews</a>. Real, shared reviews land when the backend goes live.`;
       // Reset state so the user sees the form go back to blank after a moment.
       setTimeout(() => {
         chosenStars = 0;
         reviewForm.querySelectorAll(".review-star").forEach(b => b.classList.remove("on"));
         reviewForm.reset();
-      }, 2200);
+      }, 3000);
     });
   }
 
@@ -1611,6 +1644,7 @@ function renderAccount() {
   const p = WaveBaseAccount.getProfile();
   const saved = WaveBaseAccount.getSaved().map(byId).filter(Boolean);
   const trips = WaveBaseAccount.getTrips();
+  const reviews = WaveBaseAccount.getReviews();
 
   function opts(list, val) {
     return list.map(o => `<option value="${o}" ${val === o ? "selected" : ""}>${o}</option>`).join("");
@@ -1665,6 +1699,30 @@ function renderAccount() {
       }).join("")
     : `<p class="muted">No trips yet.</p>`;
 
+  const matchesLabel = { yes: "Matched our write-up", partial: "Partly matched", no: "Differed from our write-up" };
+  const reviewsHTML = reviews.length
+    ? `<ul class="my-reviews">${reviews.map(r => {
+        const entry = byId(r.entryId);
+        const where = entry
+          ? `<a href="${spotHref(entry.id)}">${escHTML(entry.name)}</a> <span class="muted">&middot; ${typeLabel(entry.type)} &middot; ${escHTML(entry.town)}</span>`
+          : `<span class="muted">(removed entry)</span>`;
+        const date = r.when ? new Date(r.when).toISOString().slice(0, 10) : "";
+        const stars = r.stars
+          ? `<span class="my-review-stars" aria-label="${r.stars} stars">${"★".repeat(r.stars)}${"☆".repeat(Math.max(0, 5 - r.stars))}</span>` : "";
+        const matchTag = r.matches && matchesLabel[r.matches]
+          ? `<span class="my-review-match match-${r.matches}">${matchesLabel[r.matches]}</span>` : "";
+        const author = r.name ? ` &mdash; ${escHTML(r.name)}` : "";
+        return `<li class="my-review" data-review="${r.id}">
+          <div class="my-review-head">
+            <div class="my-review-where">${where}</div>
+            <button class="link-btn" data-del-review="${r.id}" aria-label="Delete review">remove</button>
+          </div>
+          <div class="my-review-meta">${stars} ${matchTag} <span class="muted">${date}${author}</span></div>
+          ${r.text ? `<p class="my-review-text">${escHTML(r.text)}</p>` : ""}
+        </li>`;
+      }).join("")}</ul>`
+    : `<p class="muted">No reviews yet. Use any spot, center or stay page — the review form at the bottom saves a preview here.</p>`;
+
   root.innerHTML = `
     <h1>My WaveBase</h1>
     <p class="muted lead-note">This is a fake account — everything is stored locally in your browser. There's no real login or server yet; that's phase 2.</p>
@@ -1707,6 +1765,13 @@ function renderAccount() {
       </div>
       <p class="muted form-note">Drag locations to reorder them — each trip's map and its route line follow the order. Use ✕ to remove a stop.</p>
       ${tripsHTML}
+    </section>
+
+    <section class="acc-block" id="my-reviews">
+      <h2>My reviews <span class="seccount">${reviews.length}</span></h2>
+      <p class="muted form-note">Previews of reviews you wrote — saved locally on this device.
+        They'll turn into real, shared reviews when the backend is live (phase 2).</p>
+      ${reviewsHTML}
     </section>`;
 
   const readChecks = name => Array.from(
@@ -1785,6 +1850,12 @@ function renderAccount() {
   root.querySelectorAll("[data-remove]").forEach(b => {
     b.addEventListener("click", () => {
       WaveBaseAccount.removeFromTrip(b.dataset.trip, b.dataset.spot);
+      renderAccount();
+    });
+  });
+  root.querySelectorAll("[data-del-review]").forEach(b => {
+    b.addEventListener("click", () => {
+      WaveBaseAccount.deleteReview(b.dataset.delReview);
       renderAccount();
     });
   });
@@ -1871,14 +1942,15 @@ function renderCompare() {
 /* ---- destinations mega-menu ---- */
 // Open/close the destinations menu — exposed so the Where-field on Discover
 // and the "pick a country to begin" empty-state link can also trigger it.
-// The menu is positioned under the header (absolute), so we scroll to top
-// first to make sure the user actually sees it open if they were scrolled
-// down on the page.
+// The menu is positioned under the header (absolute), so we jump to top
+// first to make sure it's actually in view. Instant scroll (not smooth) so
+// the click target doesn't drift mid-animation and cause a fake "click
+// outside menu" that immediately closes it.
 function openDestinationsMenu() {
   const panel = document.getElementById("destinations-menu");
   const trigger = document.getElementById("destinations-trigger");
   if (!panel || !trigger) return;
-  if (window.scrollY > 4) window.scrollTo({ top: 0, behavior: "smooth" });
+  if (window.scrollY > 4) window.scrollTo(0, 0);
   panel.classList.add("open");
   trigger.classList.add("active");
 }
@@ -1930,7 +2002,21 @@ function initDestinations() {
     trigger.classList.toggle("active", open);
   });
   panel.addEventListener("click", ev => ev.stopPropagation());
-  document.addEventListener("click", () => closeDestinationsMenu());
+  // Close on any click that's NOT inside the panel, the trigger, the
+  // Where-field, or the country-picker empty-state button. Using closest()
+  // makes the check robust against bubbling from child elements (icons,
+  // text spans, etc.) and prevents the "open then immediately close" flash.
+  document.addEventListener("click", (ev) => {
+    const t = ev.target;
+    if (!t) return;
+    if (t.closest && (
+      t.closest("#destinations-menu") ||
+      t.closest("#destinations-trigger") ||
+      t.closest("#f-country") ||
+      t.closest("#empty-open-destinations")
+    )) return;
+    closeDestinationsMenu();
+  });
 
   // On Discover: clicking a country chip should fill the Where field and
   // re-run the search inline (no full reload). Off Discover: normal navigation.
