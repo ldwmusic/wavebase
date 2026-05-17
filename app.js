@@ -739,10 +739,21 @@ function getSportPref() {
   const params = new URLSearchParams(window.location.search);
   const fromUrl = params.get("sport");
   if (fromUrl) return fromUrl;
-  return localStorage.getItem("wavebase_sport_pref") || "all";
+  // One-time migration: "wave" used to be the implicit default in earlier
+  // versions, so anyone with that stuck in localStorage shouldn't keep it.
+  // Treat a stored "wave" as if no pref was set.
+  const stored = localStorage.getItem("wavebase_sport_pref");
+  if (stored === "wave") {
+    localStorage.removeItem("wavebase_sport_pref");
+    return "all";
+  }
+  return stored || "all";
 }
 function setSportPref(sport) {
-  localStorage.setItem("wavebase_sport_pref", sport);
+  // Don't persist the default — "all" is the natural starting state, no need
+  // to take up a slot in localStorage for it.
+  if (sport === "all") localStorage.removeItem("wavebase_sport_pref");
+  else localStorage.setItem("wavebase_sport_pref", sport);
 }
 function sportLabel(key) {
   const s = WAVEBASE_SPORTS.find(s => s.key === key);
