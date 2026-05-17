@@ -446,6 +446,20 @@ a:hover { text-decoration: underline; }
   border-radius: var(--radius);
 }
 .empty strong { color: var(--ink); font-family: 'Fraunces', serif; }
+/* Empty-state as a single click target (when it's the country picker
+   prompt). Looks identical to .empty but the whole box is the affordance. */
+button.empty-clickable {
+  width: 100%; display: flex; flex-direction: column; gap: 6px;
+  font-family: 'DM Sans', sans-serif; font-size: 14px;
+  cursor: pointer;
+  transition: border-color 0.15s ease, background 0.15s ease;
+}
+button.empty-clickable:hover {
+  border-color: var(--sea);
+  background: var(--sea-soft);
+}
+button.empty-clickable strong { font-size: 22px; }
+button.empty-clickable .empty-sub { color: var(--ink-soft); }
 
 /* ---- detail page ---- */
 .detail { padding: 40px 0 70px; }
@@ -1037,9 +1051,11 @@ table.cal td.host { color: var(--clay); }
 }
 
 /* Plan-your-surftrip strip between hero and searchbar — discreet CTA that
-   points users at the trips section of their account. */
+   points users at the trips section of their account. Width matches the
+   searcher/searchbar below so the page rhythm is consistent. */
 .plan-trip-strip { margin: 18px 0 12px; }
 .plan-trip {
+  max-width: 760px; margin: 0 auto;
   display: flex; align-items: center; justify-content: space-between;
   flex-wrap: wrap; gap: 16px;
   background: var(--clay-soft);

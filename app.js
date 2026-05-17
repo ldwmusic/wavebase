@@ -865,13 +865,17 @@ function runSearch() {
     return;
   }
 
-  // no country yet → ask the user to pick one
+  // no country yet → make the whole empty box one big click target that
+  // opens the country picker (per LDW: no link-in-text, the whole dotted
+  // panel is the affordance).
   if (!country) {
-    results.innerHTML = `<div class="empty"><strong>Pick a country to begin.</strong><br>
-      <a href="#" id="empty-open-destinations">Browse the country picker</a>, use the &ldquo;Where?&rdquo; field above, or type a place in the search bar.</div>`;
-    const openLink = document.getElementById("empty-open-destinations");
-    if (openLink) {
-      openLink.addEventListener("click", ev => {
+    results.innerHTML = `<button type="button" class="empty empty-clickable" id="empty-open-destinations">
+      <strong>Pick a country to begin.</strong>
+      <span class="empty-sub">Tap here to open the country picker &mdash; or use the &ldquo;Where?&rdquo; field above, or type a place in the search bar.</span>
+    </button>`;
+    const openBtn = document.getElementById("empty-open-destinations");
+    if (openBtn) {
+      openBtn.addEventListener("click", ev => {
         ev.preventDefault();
         ev.stopPropagation();
         openDestinationsMenu();
@@ -1381,14 +1385,15 @@ function initSpot() {
     ${lagen}
     ${buurtHTML(e.buurt)}
     ${vergelijkingHTML(e.vergelijking)}
-    ${reviewsMockHTML(e)}
     ${relatedSectionsForDetail(e)}
     ${townPanelHTML(e.town)}
 
     <section class="fit">
       <div class="box yes"><h3>Ideal for</h3><p>${e.ideaalVoor}</p></div>
       <div class="box no"><h3>Not ideal if</h3><p>${e.nietIdeaalAls}</p></div>
-    </section>`;
+    </section>
+
+    ${reviewsMockHTML(e)}`;
 
   // mini-map showing this entry's location
   if (e.coords && typeof L !== "undefined" && document.getElementById("detail-map")) {
@@ -1855,10 +1860,14 @@ function renderCompare() {
 /* ---- destinations mega-menu ---- */
 // Open/close the destinations menu — exposed so the Where-field on Discover
 // and the "pick a country to begin" empty-state link can also trigger it.
+// The menu is positioned under the header (absolute), so we scroll to top
+// first to make sure the user actually sees it open if they were scrolled
+// down on the page.
 function openDestinationsMenu() {
   const panel = document.getElementById("destinations-menu");
   const trigger = document.getElementById("destinations-trigger");
   if (!panel || !trigger) return;
+  if (window.scrollY > 4) window.scrollTo({ top: 0, behavior: "smooth" });
   panel.classList.add("open");
   trigger.classList.add("active");
 }
