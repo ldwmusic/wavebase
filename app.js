@@ -256,7 +256,7 @@ function statsPanelHTML(e) {
       .map(m => WAVEBASE_MONTH_LONG[m]).join("/");
     periodComparison = `<div class="period-comparison">
       ${periodColumnHTML(userPeriod, "Your month", userLabel, userIsPeak, s, userMonth)}
-      ${periodColumnHTML(peakPeriod, "Best month", peakLabel, true, s, peakMonth)}
+      ${periodColumnHTML(peakPeriod, "Best months", peakLabel, true, s, peakMonth)}
     </div>`;
   }
 
