@@ -2067,23 +2067,31 @@ function compareScoreboardHTML(items) {
         get: e => itemCount(e.diensten && e.diensten.faciliteiten) }
     ];
   } else { // stay
-    // Optional manual 1-5 scores: each stay can add
-    //   verblijf.scores: { food: 4, hosts: 5, comfort: 4, vibe: 5, value: 3 }
-    // and those dimensions get rendered as bars on a 0-5 scale. Skipped per
-    // dimension when no stay in the comparison has that score.
-    const scoreDims = [
-      { key: "food",     icon: "🍽️", label: "Food" },
-      { key: "hosts",    icon: "🤝", label: "Hosts" },
-      { key: "comfort",  icon: "🛏️", label: "Comfort" },
-      { key: "vibe",     icon: "✨", label: "Vibe" },
+    // Numeric scores (1-5) live on verblijf.scores, inferred from prose
+    // (refine in data.js if you disagree). Essence labels (style/vibe) are
+    // categorical chips, no bar.
+    const numericDims = [
+      { key: "food",        icon: "🍽️", label: "Food" },
+      { key: "hosts",       icon: "🤝", label: "Hosts" },
+      { key: "comfort",     icon: "🛏️", label: "Comfort" },
       { key: "cleanliness", icon: "🧼", label: "Cleanliness" },
-      { key: "value",    icon: "💶", label: "Value for money" }
+      { key: "value",       icon: "💶", label: "Value for money" }
     ].map(sd => ({
       icon: sd.icon, label: sd.label, max: 5, unit: " / 5", winnerDirection: "higher",
       fmt: x => x.toFixed(1),
       get: e => {
         const s = e.verblijf && e.verblijf.scores;
         return (s && typeof s[sd.key] === "number") ? s[sd.key] : null;
+      }
+    }));
+    const essenceDims = [
+      { key: "style", icon: "🏠", label: "Style" },
+      { key: "vibe",  icon: "✨", label: "Vibe" }
+    ].map(sd => ({
+      icon: sd.icon, label: sd.label, mode: "label",
+      get: e => {
+        const s = e.verblijf && e.verblijf.essence;
+        return (s && typeof s[sd.key] === "string" && s[sd.key]) ? s[sd.key] : null;
       }
     }));
 
@@ -2100,7 +2108,8 @@ function compareScoreboardHTML(items) {
       // Things to do counts comma/and-separated items in activiteiten.
       { icon: "🗺️", label: "Things to do nearby", max: 8, unit: " items", winnerDirection: "higher",
         get: e => itemCount(e.verblijf && e.verblijf.activiteiten) },
-      ...scoreDims
+      ...numericDims,
+      ...essenceDims
     ];
   }
 
@@ -2108,6 +2117,7 @@ function compareScoreboardHTML(items) {
     const val = d.get(e);
     if (val == null) return false;
     if (d.mode === "range") return val.lo != null && val.hi != null;
+    if (d.mode === "label") return typeof val === "string" && val.length > 0;
     return !isNaN(val);
   }));
   if (!dims.length) return "";
@@ -2124,6 +2134,13 @@ function compareScoreboardHTML(items) {
       if (hasContrast) winnerIdx = vals.indexOf(ext);
     }
     const cellHtml = cells.map((c, ci) => {
+      // Label mode: categorical chip, no bar.
+      if (d.mode === "label") {
+        return `<div class="sb-row-cell sb-row-cell-label">
+          <span class="sb-entry-name">${escHTML(c.e.name)}</span>
+          <span class="sb-chip">${escHTML(c.val)}</span>
+        </div>`;
+      }
       let barInner;
       if (d.mode === "range") {
         const loPct = ((c.val.lo - 1) / d.max) * 100;
@@ -2155,10 +2172,14 @@ function compareScoreboardHTML(items) {
   const monthHint = type === "spot"
     ? `${monthNames[m]} numbers from each entry's data. `
     : "";
+  const inferredNote = type === "stay"
+    ? `<p class="muted form-note">⚠ Food / Hosts / Comfort / Cleanliness / Value / Style / Vibe are inferred from the reviewer prose — not yet verified against fresh reviews. Refine if you disagree.</p>`
+    : "";
   return `<section class="cmp-scoreboard">
     <header class="sb-head">
       <h2>Scoreboard</h2>
       <p class="muted form-note">${monthHint}Longer bar means more of that dimension. Clay accent marks the winner where "more" is unambiguously better.</p>
+      ${inferredNote}
     </header>
     ${rows}
   </section>`;

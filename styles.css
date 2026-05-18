@@ -1528,6 +1528,17 @@ table.cal td.host { color: var(--clay); }
 .sb-row-cell.is-winner .sb-bar-fill { background: var(--clay); }
 .sb-row-cell.is-winner .sb-value    { color: var(--clay); font-weight: 700; }
 .sb-row-cell.is-winner .sb-entry-name { color: var(--clay); font-weight: 600; }
+
+/* Label-mode cell: categorical chip instead of a bar. Used for Style/Vibe
+   on stay scoreboards — the essence in a glance, not a numeric value. */
+.sb-row-cell-label { grid-template-columns: minmax(120px, 1.2fr) 1fr; }
+.sb-row-cell-label .sb-chip {
+  display: inline-flex; align-items: center;
+  padding: 4px 12px; border-radius: 999px;
+  background: var(--sea-soft); color: var(--sea);
+  font-size: 13px; font-weight: 600;
+  white-space: nowrap;
+}
 @media (max-width: 620px) {
   .sb-row { grid-template-columns: 1fr; gap: 8px; }
   .sb-row-cell { grid-template-columns: 1fr auto; }

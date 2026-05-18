@@ -24,7 +24,10 @@ const WAVEBASE_DATA = [
       lessen: "Yes — surf packages from ~€490/week, with local instructors (Salah, Younes, Amine).",
       rating: "TripAdvisor 5.0 (283 reviews, ~20 readable); Hostelworld 8.3. Booking.com & Google blocked.",
       sfeer: "Chill and homely — a family house, not a party hostel; lots of returning guests and long stays.",
-      activiteiten: "Not a focus in the reviews — the draw is the house, the food and the host."
+      activiteiten: "Not a focus in the reviews — the draw is the house, the food and the host.",
+      // Inferred from the prose by Claude — refine if you disagree.
+      scores: { food: 5.0, hosts: 5.0, comfort: 3.0, cleanliness: 4.0, value: 4.5 },
+      essence: { style: "Hostel", vibe: "Surfer crowd" }
     },
     samenvatting: [
       "A simple, family-run house — not a polished resort.",
@@ -88,7 +91,10 @@ const WAVEBASE_DATA = [
       lessen: "Yes — lessons for every level, included; instructors often run over their contracted hours.",
       rating: "TripAdvisor 4.9/5 (#2 of 59 in Tamraght, ~25 readable). Booking.com & Google blocked.",
       sfeer: "Social and group-oriented — roof terrace and pool; regularly takes large (school) groups. Lively, not a quiet retreat.",
-      activiteiten: "Excursions are part of the all-inclusive package."
+      activiteiten: "Excursions are part of the all-inclusive package.",
+      // Inferred from the prose by Claude — refine if you disagree.
+      scores: { food: 4.0, hosts: 4.5, comfort: 3.5, cleanliness: 2.5, value: 5.0 },
+      essence: { style: "Surf camp", vibe: "Social hostel" }
     },
     samenvatting: [
       "All-inclusive surf camp (food, lessons, transport, excursions) — strong value for money.",
@@ -144,7 +150,10 @@ const WAVEBASE_DATA = [
       lessen: "Yes — structured lessons with theory and video analysis (some reviewers said the promised video analysis didn't always happen).",
       rating: "TripAdvisor 4.8/5 (359 reviews, ~12 readable; sample skews 5-star). Booking.com & Google blocked.",
       sfeer: "Quieter, boutique surf-camp feel — a villa with a private pool, not a backpacker party hostel.",
-      activiteiten: "Daily yoga; lounges and a cinema corner at the villa."
+      activiteiten: "Daily yoga; lounges and a cinema corner at the villa.",
+      // Inferred from the prose by Claude — refine if you disagree.
+      scores: { food: 4.5, hosts: 3.5, comfort: 4.5, cleanliness: 4.0, value: 3.5 },
+      essence: { style: "Surf camp", vibe: "Couples / quiet" }
     },
     samenvatting: [
       "A villa with a private pool — more boutique surf camp than backpacker hostel.",
@@ -201,7 +210,10 @@ const WAVEBASE_DATA = [
       lessen: "Yes — surf lessons and guiding arranged on-site, for all levels.",
       rating: "Google 4.3/5 (59 reviews); Hostelworld 9.3/10 (~885 reviews); TripAdvisor 4.6/5 (40 reviews, Travelers' Choice).",
       sfeer: "Social and laid-back — a rooftop hangout with movie nights and jam sessions; a place to meet people, not a quiet retreat.",
-      activiteiten: "Sandboarding, Paradise Valley trips, Agadir souk tours, fishing and Moroccan cooking classes (day trips need ~6 people minimum)."
+      activiteiten: "Sandboarding, Paradise Valley trips, Agadir souk tours, fishing and Moroccan cooking classes (day trips need ~6 people minimum).",
+      // Inferred from the prose by Claude — refine if you disagree.
+      scores: { food: 3.5, hosts: 4.5, comfort: 3.0, cleanliness: 2.5, value: 4.5 },
+      essence: { style: "Hostel", vibe: "Social hostel" }
     },
     samenvatting: [
       "A budget surf hostel in the heart of Taghazout village, run by two local brothers.",
@@ -257,7 +269,10 @@ const WAVEBASE_DATA = [
       lessen: "Yes — surf lessons with instructors who adapt to your level; reviewers single the lessons out for praise.",
       rating: "TripAdvisor 4/5 (#3 of 69 specialty lodging in Taghazout); Booking.com 8.0/10; Hostelz 8.7 (~124 reviews).",
       sfeer: "Chill and social rather than party — a boutique surf-and-yoga house, good for meeting people; the odd review found it a little impersonal.",
-      activiteiten: "Yoga is a core part of the offering — it bills itself as a surf-and-yoga stay."
+      activiteiten: "Yoga is a core part of the offering — it bills itself as a surf-and-yoga stay.",
+      // Inferred from the prose by Claude — refine if you disagree.
+      scores: { food: 5.0, hosts: 3.5, comfort: 4.0, cleanliness: 4.0, value: 3.5 },
+      essence: { style: "Hostel", vibe: "Surfer crowd" }
     },
     samenvatting: [
       "A boutique surf-and-yoga hostel in a refurbished Taghazout fishing cottage — dorms plus smarter doubles.",
@@ -313,7 +328,10 @@ const WAVEBASE_DATA = [
       lessen: "Yes — daily surf lessons offered at the property, and staff help with finding spots and arranging activities.",
       rating: "Around 9.8/10 across booking aggregators (review counts vary by platform, roughly 56–190); consistently listed among Taghazout's top-rated hostels.",
       sfeer: "Chill and homely — a small, cosy house with a rooftop terrace, shared meals and movie nights; not a party hostel.",
-      activiteiten: "Yoga classes and hiking are listed; the Taghazout skatepark is a few minutes' walk away."
+      activiteiten: "Yoga classes and hiking are listed; the Taghazout skatepark is a few minutes' walk away.",
+      // Inferred from the prose by Claude — refine if you disagree.
+      scores: { food: 3.5, hosts: 4.0, comfort: 4.0, cleanliness: 4.5, value: 4.5 },
+      essence: { style: "Hostel", vibe: "Quiet retreat" }
     },
     samenvatting: [
       "A small, homely surf house in Taghazout village, about 5 minutes' walk from the beach.",
@@ -2546,7 +2564,10 @@ const WAVEBASE_DATA = [
       lessen: "Not on site — via one of the centers on the beach.",
       rating: "Booking.com 9.1/10 \"Fantastisch\" over 30 reviews. Also listed on TripAdvisor, Hotels.com, Planet Windsurf Holidays and their own site (surfbeachapts.gr). Bron-strength: 🟢 SOLID.",
       sfeer: "Low-key, windsurfer/wing-foiler crowd. Not a camp — independent travellers who want to wake up to the wind.",
-      activiteiten: "Wind sports first; bike rental on site; Vai (5 km), Zakros gorge, Sitia old town in day-trip range."
+      activiteiten: "Wind sports first; bike rental on site; Vai (5 km), Zakros gorge, Sitia old town in day-trip range.",
+      // Inferred from the prose by Claude — refine if you disagree.
+      scores: { food: 3.0, hosts: 3.5, comfort: 4.0, cleanliness: 4.0, value: 4.0 },
+      essence: { style: "Apartments", vibe: "Surfer crowd" }
     },
     samenvatting: [
       "Middle of Kouremenos beach — next door to Surf Beach Bar and the windsurf centers.",
@@ -2607,7 +2628,10 @@ const WAVEBASE_DATA = [
       lessen: "Not on site — book through one of the centers on the beach.",
       rating: "TripAdvisor 4.4/5 over 10 reviews — but ALL reviews are from 2013-2017, pre-pandemic. No verifiable reviews from the last 4 years. Sub-scores (legacy): Cleanliness 5.0, Location 4.8, Value 4.8, Rooms 3.8, Sleep Quality 3.7. Not on Booking.com. Bron-strength: 🔴 STALE — current operation unverified; treat below picture as historical.",
       sfeer: "Per the property's own site: \"a quiet and picturesque area in Kouremenos\", olive groves, family-friendly. Current vibe unverified — review trail stalled in 2017.",
-      activiteiten: "Wind sports first; regional side trips per the property's own description (Vai 5 km, Erimoupolis, Itanos, Toplou Monastery)."
+      activiteiten: "Wind sports first; regional side trips per the property's own description (Vai 5 km, Erimoupolis, Itanos, Toplou Monastery).",
+      // Inferred from the prose by Claude — refine if you disagree.
+      scores: { food: 3.0, hosts: 3.5, comfort: 3.0, cleanliness: 4.5, value: 4.0 },
+      essence: { style: "Villa", vibe: "Family-friendly" }
     },
     samenvatting: [
       "Small villa cluster on Kouremenos beach with a swimming pool overlooking the windsurf bay (per the property's own site).",
@@ -2666,7 +2690,10 @@ const WAVEBASE_DATA = [
       lessen: "Not on site — book through one of the centers on Kouremenos.",
       rating: "Strong recent signal: 10 Booking reviews 2023-2025 (mostly 9.0-10.0). TripAdvisor 4.5/5 over 19 reviews (13 excellent, 4 good, 1 average, 1 poor) — #2 of 16 condos in Palekastro. TripAdvisor sub-scores: Cleanliness 5.0, Value 4.9, Service 4.8, Rooms 4.7. Bron-strength: 🟢 SOLID with recent coverage.",
       sfeer: "Quiet hamlet, family-run. Aug-2023 Booking reviewer: \"Kostas is a great host!\" — but a Jun-2025 TripAdvisor review reported Kostas had died and a daughter + Marianthi & Michalis had taken over; standard \"remains impeccably high\". 3-star Giata.",
-      activiteiten: "Walking distance to Palekastro center (10–12 min); short drive to Chiona, Vai, the Minoan settlement. Bicycle rental on site. Pet-friendly."
+      activiteiten: "Walking distance to Palekastro center (10–12 min); short drive to Chiona, Vai, the Minoan settlement. Bicycle rental on site. Pet-friendly.",
+      // Inferred from the prose by Claude — refine if you disagree.
+      scores: { food: 3.0, hosts: 4.5, comfort: 3.5, cleanliness: 5.0, value: 4.5 },
+      essence: { style: "Apartments", vibe: "Quiet retreat" }
     },
     samenvatting: [
       "Family-run apartments in Agathia hamlet — between Palekastro village and Kouremenos beach, in the olive groves.",
@@ -2726,7 +2753,10 @@ const WAVEBASE_DATA = [
       lessen: "Not on site — book through one of the centers on Kouremenos.",
       rating: "Strong recent signal: 10+ Booking reviews 2023-2026 (most 9.0-10.0). TripAdvisor 4.7/5 over 23 reviews (17 excellent, 6 good, 0 negative readable). Sub-scores 4.4-4.6. Bron-strength: 🟢 SOLID with recent coverage.",
       sfeer: "Recurring 2022+ themes: \"felt like home\", \"end of the world feel\" (secluded), gracious hosts. Returning-guest pattern alive in 2025 (one Aug 2025 reviewer: \"stayed last year, decided to return this year\").",
-      activiteiten: "Walking/drive: Palekastro (2-3 km), Vai (10 min drive per Aug 2024 review), Chiona, Itanos, Toplou Monastery, Zakros Gorge."
+      activiteiten: "Walking/drive: Palekastro (2-3 km), Vai (10 min drive per Aug 2024 review), Chiona, Itanos, Toplou Monastery, Zakros Gorge.",
+      // Inferred from the prose by Claude — refine if you disagree.
+      scores: { food: 3.0, hosts: 5.0, comfort: 4.0, cleanliness: 4.0, value: 4.0 },
+      essence: { style: "Apartments", vibe: "End of the world" }
     },
     samenvatting: [
       "Seven units (five apartments + two rooms) on the hillside above Kouremenos, family-owned since the original founders Yorgo & Amalia Katsikalakis opened it.",
@@ -2785,7 +2815,10 @@ const WAVEBASE_DATA = [
       lessen: "Not on site — book through the centers.",
       rating: "4 recent Booking reviews (Sep 2023–May 2026), positive: \"location was awesome, hosts were lovely\" (Jul 2025), \"excellent apartment with full equipment kitchen, modern\" (May 2026). TripAdvisor 4.0/5 over 8 older reviews (newest 2021). Sub-scores (TA): Location 5.0, Cleanliness 4.5, Sleep Quality 4.3. Bron-strength: 🟢 SOLID with recent Booking coverage.",
       sfeer: "Quiet, owner-run, terrace \"out of the wind with sun/shade spot\" (Sep 2023 reviewer). Hosts described as \"lovely\" (Jul 2025). The same owners run Rousolakos Apartments (set back, with pool, near Chiona).",
-      activiteiten: "Wind sports first; ancient Minoan town of Rousolakos nearby; Vai, Toplou Monastery, Kato Zakros Gorge in day-trip range."
+      activiteiten: "Wind sports first; ancient Minoan town of Rousolakos nearby; Vai, Toplou Monastery, Kato Zakros Gorge in day-trip range.",
+      // Inferred from the prose by Claude — refine if you disagree.
+      scores: { food: 3.0, hosts: 4.5, comfort: 3.0, cleanliness: 4.0, value: 4.0 },
+      essence: { style: "Apartments", vibe: "Quiet retreat" }
     },
     samenvatting: [
       "Owner-run beachfront studios on Kouremenos bay, set in an olive yard.",
