@@ -1483,6 +1483,57 @@ table.cal td.host { color: var(--clay); }
 .cmp-v { font-size: 14px; color: var(--ink); }
 .cmp-body .link-btn { margin-top: 12px; }
 
+/* Compare scoreboard — sits above the per-entry text cards. One row per
+   dimension, one cell per compared entry. The cell with the highest value
+   in a row gets the clay accent ("winner of this dimension"). */
+.cmp-scoreboard {
+  background: var(--paper);
+  border: 1px solid var(--sand);
+  border-radius: var(--radius);
+  padding: 20px 22px;
+  margin-bottom: 24px;
+  box-shadow: var(--shadow-sm);
+}
+.sb-head h2 {
+  font-family: 'Fraunces', Georgia, serif; font-size: 24px; margin: 0 0 4px;
+}
+.sb-head .form-note { margin: 0 0 16px; }
+.sb-row {
+  display: grid;
+  grid-template-columns: 200px 1fr;
+  gap: 18px; align-items: center;
+  padding: 10px 0; border-top: 1px dashed var(--sand);
+}
+.sb-row:first-of-type { border-top: 0; }
+.sb-dim { display: flex; align-items: center; gap: 8px; font-weight: 600; color: var(--ink); }
+.sb-dim-icon { font-size: 18px; line-height: 1; }
+.sb-dim-label { font-size: 14px; }
+.sb-row-cells { display: flex; flex-direction: column; gap: 6px; }
+.sb-row-cell {
+  display: grid;
+  grid-template-columns: minmax(120px, 1.2fr) 2fr minmax(70px, auto);
+  gap: 10px; align-items: center;
+}
+.sb-entry-name {
+  font-size: 13px; color: var(--ink-soft);
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+}
+.sb-bar { display: block; position: relative; height: 10px; border-radius: 5px; background: var(--sand); }
+.sb-bar-fill {
+  position: absolute; left: 0; top: 0; bottom: 0;
+  background: var(--sea); border-radius: 5px;
+  transition: width 0.2s ease;
+}
+.sb-value { font-size: 13px; color: var(--ink); font-variant-numeric: tabular-nums; white-space: nowrap; }
+.sb-row-cell.is-winner .sb-bar-fill { background: var(--clay); }
+.sb-row-cell.is-winner .sb-value    { color: var(--clay); font-weight: 700; }
+.sb-row-cell.is-winner .sb-entry-name { color: var(--clay); font-weight: 600; }
+@media (max-width: 620px) {
+  .sb-row { grid-template-columns: 1fr; gap: 8px; }
+  .sb-row-cell { grid-template-columns: 1fr auto; }
+  .sb-row-cell .sb-bar { grid-column: 1 / -1; }
+}
+
 @media (max-width: 620px) {
   .detail-photo { height: 200px; }
 }

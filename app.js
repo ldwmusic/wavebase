@@ -1934,6 +1934,84 @@ function renderAccount() {
 }
 
 /* ---- COMPARE ---- */
+// Scoreboard above the text cards: same data the at-a-glance panel uses,
+// but rendered as bars across all compared entries so the user can see
+// at a glance which entry has more wind, more wave, warmer water, etc.
+// Crowd is inverted (low crowd → high "quietness" score) so a longer bar
+// always means "more of this dimension".
+function compareScoreboardHTML(items) {
+  if (items.length < 2) return "";
+  const types = new Set(items.map(i => i.type));
+  if (types.size > 1) return ""; // mixed types — no shared scale
+  const type = items[0].type;
+  if (type !== "spot" && type !== "center") return ""; // stays don't have numeric stats yet
+
+  const m = userSelectedMonth() - 1;
+  const monthNames = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
+  const v = (arr) => (Array.isArray(arr) && arr[m] != null && !isNaN(arr[m])) ? arr[m] : null;
+  const crowdToScore = c => ({ rustig: 3, low: 3, gemiddeld: 2, moderate: 2, druk: 1, high: 1 }[c] || null);
+
+  const all = [
+    { icon: "🌬️", label: "Wind", max: 30, unit: " kn",
+      get: e => v((getStatsFor(e) || {}).monthlyWindKn) },
+    { icon: "💨", label: "Gust (typical peak)", max: 40, unit: " kn",
+      get: e => v((getStatsFor(e) || {}).monthlyDailyPeakKn) },
+    { icon: "🌊", label: "Wave height", max: 3, unit: " m", fmt: x => x.toFixed(1),
+      get: e => v((getStatsFor(e) || {}).monthlyWaveM) },
+    { icon: "🌡️", label: "Water warmth", max: 30, unit: " °C",
+      get: e => v((getStatsFor(e) || {}).monthlyWaterC) },
+    { icon: "☀️", label: "Daytime air", max: 35, unit: " °C",
+      get: e => v((getStatsFor(e) || {}).monthlyAirC) },
+    { icon: "👥", label: "Quietness", max: 3, unit: "",
+      labelFor: x => x === 3 ? "Quiet" : x === 2 ? "Moderate" : "Busy",
+      get: e => {
+        const c = (e.condities && e.condities.drukte && e.condities.drukte.niveau)
+               || (getStatsFor(e) && getStatsFor(e).crowd);
+        return crowdToScore(c);
+      } },
+    { icon: "🎓", label: "Levels welcome", max: 3, unit: "",
+      labelFor: x => x === 3 ? "All levels" : (x + " level" + (x > 1 ? "s" : "")),
+      get: e => Array.isArray(e.levels) ? e.levels.length : null }
+  ];
+  const dims = all.filter(d => items.every(e => {
+    const val = d.get(e);
+    return val != null && !isNaN(val);
+  }));
+  if (!dims.length) return "";
+
+  const rows = dims.map(d => {
+    const cells = items.map(e => ({ e, val: d.get(e) }));
+    const top = Math.max(...cells.map(c => c.val));
+    const someBelow = cells.some(c => c.val < top);
+    const cellHtml = cells.map(c => {
+      const pct = Math.max(4, Math.min(100, (c.val / d.max) * 100));
+      const winner = someBelow && c.val === top;
+      const fmt = d.fmt || (x => Math.round(x));
+      const labelText = d.labelFor ? d.labelFor(c.val) : (fmt(c.val) + d.unit);
+      return `<div class="sb-row-cell${winner ? " is-winner" : ""}">
+        <span class="sb-entry-name">${escHTML(c.e.name)}</span>
+        <span class="sb-bar"><span class="sb-bar-fill" style="width:${pct}%"></span></span>
+        <span class="sb-value">${labelText}</span>
+      </div>`;
+    }).join("");
+    return `<div class="sb-row">
+      <div class="sb-dim">
+        <span class="sb-dim-icon" aria-hidden="true">${d.icon}</span>
+        <span class="sb-dim-label">${d.label}</span>
+      </div>
+      <div class="sb-row-cells">${cellHtml}</div>
+    </div>`;
+  }).join("");
+
+  return `<section class="cmp-scoreboard">
+    <header class="sb-head">
+      <h2>Scoreboard</h2>
+      <p class="muted form-note">${monthNames[m]} numbers from each entry's data. Longer bar = more of that dimension. The winner gets the clay accent.</p>
+    </header>
+    ${rows}
+  </section>`;
+}
+
 function compareKeyPoints(e) {
   if (e.type === "spot") {
     const c = e.condities || {};
@@ -1997,6 +2075,7 @@ function renderCompare() {
       <h1>Compare <span class="seccount">${items.length}</span></h1>
       <button class="btn ghost" id="clear-compare">Clear all</button>
     </div>
+    ${compareScoreboardHTML(items)}
     <div class="cmp-grid">${cols}</div>`;
   document.getElementById("clear-compare").addEventListener("click", () => {
     WaveBaseAccount.clearCompare(); updateNav(); renderCompare();
