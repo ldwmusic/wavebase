@@ -168,12 +168,25 @@ function pickPeakPeriod(periods, monthlyWindProb) {
 }
 
 // What month should the panel highlight as "yours"?
-// Priority: ?month= URL param → today's month.
+// Priority: ?month= URL param → localStorage pref → today's month.
+// localStorage lets the chosen month carry over from Discover to Compare,
+// detail pages, etc. — without it, internal nav resets to today.
 function userSelectedMonth() {
   const params = new URLSearchParams(window.location.search);
-  const m = parseInt(params.get("month"), 10);
-  if (m >= 1 && m <= 12) return m;
+  const fromUrl = parseInt(params.get("month"), 10);
+  if (fromUrl >= 1 && fromUrl <= 12) return fromUrl;
+  try {
+    const stored = parseInt(localStorage.getItem("wavebase_month_pref"), 10);
+    if (stored >= 1 && stored <= 12) return stored;
+  } catch (e) { /* localStorage unavailable */ }
   return new Date().getMonth() + 1;
+}
+function setMonthPref(month) {
+  try {
+    const m = parseInt(month, 10);
+    if (m >= 1 && m <= 12) localStorage.setItem("wavebase_month_pref", String(m));
+    else localStorage.removeItem("wavebase_month_pref");
+  } catch (e) { /* ignore */ }
 }
 
 function periodColumnHTML(period, label, monthLabel, isPeak, stats, targetMonth) {
@@ -1056,6 +1069,15 @@ function initIndex() {
     const el = document.getElementById(id);
     if (el) el.addEventListener("change", runSearch);
   });
+  // Persist the picked month so it carries to Compare / detail pages.
+  const fMonth = document.getElementById("f-month");
+  if (fMonth) {
+    // Save on load (handles deep links and the initial select-from-URL above)
+    setMonthPref(fMonth.value === "all" ? null : fMonth.value);
+    fMonth.addEventListener("change", () => {
+      setMonthPref(fMonth.value === "all" ? null : fMonth.value);
+    });
+  }
   // Opening the Where field also opens the destinations menu so the user
   // sees the country grid (with flags + "soon" labels). Typing inside the
   // field filters the chips inline — a country whose name doesn't include
@@ -2032,10 +2054,14 @@ function compareScoreboardHTML(items) {
 
   if (type === "spot") {
     all = [
-      { icon: "🌬️", label: "Wind", max: 30, unit: " kn", winnerDirection: "higher",
-        get: e => v((getStatsFor(e) || {}).monthlyWindKn) },
-      { icon: "💨", label: "Gust (typical peak)", max: 40, unit: " kn", winnerDirection: "higher",
+      // Daily-peak gust = the typical session-relevant wind speed (avg of
+      // each day's peak gust over 5 years). The 9-hour avg in monthlyWindKn
+      // includes calm mornings and underestimates what surfers actually feel.
+      { icon: "🌬️", label: "Typical session wind", max: 45, unit: " kn", winnerDirection: "higher",
         get: e => v((getStatsFor(e) || {}).monthlyDailyPeakKn) },
+      // Storm-day max gust over the 5-year window.
+      { icon: "💨", label: "Storm-day max gust (5y)", max: 60, unit: " kn", winnerDirection: "higher",
+        get: e => v((getStatsFor(e) || {}).monthlyGustPeakKn) },
       { icon: "🌊", label: "Wave height", max: 3, unit: " m", fmt: x => x.toFixed(1), winnerDirection: "higher",
         get: e => v((getStatsFor(e) || {}).monthlyWaveM) },
       { icon: "🌡️", label: "Water warmth", max: 30, unit: " °C",
