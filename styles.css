@@ -49,8 +49,10 @@ a:hover { text-decoration: underline; }
 .site-header {
   padding: 26px 0;
   border-bottom: 1px solid var(--sand);
-  position: relative;
+  position: sticky;
+  top: 0;
   z-index: 1000;
+  background: var(--cream);
 }
 .site-header .wrap { display: flex; align-items: baseline; justify-content: space-between; }
 .logo {
