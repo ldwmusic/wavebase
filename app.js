@@ -1590,13 +1590,29 @@ function reviewsMockHTML(e) {
   // Build the type-specific story prose
   let story;
   if (e.type === "spot") {
+    // Crowd = how busy it felt. Locals = how tourist-friendly. Clearer
+    // categorical scales than 1-10 (which leaves "is 10 = busy or good?"
+    // ambiguous). Gear belongs on centers, not on spots.
+    const crowdFelt = [
+      { value: "empty",    label: "almost empty" },
+      { value: "quiet",    label: "quiet" },
+      { value: "moderate", label: "moderate" },
+      { value: "busy",     label: "busy" },
+      { value: "packed",   label: "packed" }
+    ];
+    const localsFelt = [
+      { value: "welcoming",   label: "welcoming" },
+      { value: "friendly",    label: "friendly" },
+      { value: "neutral",     label: "neutral" },
+      { value: "territorial", label: "territorial" },
+      { value: "hostile",     label: "hostile to tourists" }
+    ];
     story = `<p class="review-story">
       I went to <strong>${escHTML(e.name)}</strong> in ${dateRow}
       for ${chip("tripLength", tripDays, "", "?")},
       sailed ${chip("daysSailed", tripDays, "", "?")} of them.
-      Crowd was ${chip("crowd", score10Opts, "", "1-10")},
-      locals ${chip("localism", score10Opts, "", "1-10")},
-      gear ${chip("gear", score10Opts, "", "1-10")}.
+      It was ${chip("crowd", crowdFelt, "", "how busy?")},
+      locals were ${chip("localism", localsFelt, "", "tourist-friendly?")}.
       Verdict: ${chip("verdict", verdictOpts, "", "would I go back?")}.
     </p>`;
   } else if (e.type === "center") {
