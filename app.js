@@ -1934,63 +1934,132 @@ function renderAccount() {
 }
 
 /* ---- COMPARE ---- */
-// Scoreboard above the text cards: same data the at-a-glance panel uses,
-// but rendered as bars across all compared entries so the user can see
-// at a glance which entry has more wind, more wave, warmer water, etc.
-// Crowd is inverted (low crowd → high "quietness" score) so a longer bar
-// always means "more of this dimension".
+// Scoreboard above the text cards. Bar direction is always "less = left,
+// more = right" — so a calm spot has a short bar and a busy one is long;
+// a beginner-only spot has a short bar starting at the left, an advanced-
+// only one has a band on the right. Winner clay-accent only applies to
+// dimensions where "more = unambiguously better" (Wind / Gust / Wave).
+// Other dimensions are user preference and stay sea-blue both ways.
 function compareScoreboardHTML(items) {
   if (items.length < 2) return "";
   const types = new Set(items.map(i => i.type));
-  if (types.size > 1) return ""; // mixed types — no shared scale
+  if (types.size > 1) return "";
   const type = items[0].type;
-  if (type !== "spot" && type !== "center") return ""; // stays don't have numeric stats yet
+  if (type !== "spot" && type !== "center") return "";
 
   const m = userSelectedMonth() - 1;
   const monthNames = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
   const v = (arr) => (Array.isArray(arr) && arr[m] != null && !isNaN(arr[m])) ? arr[m] : null;
-  const crowdToScore = c => ({ rustig: 3, low: 3, gemiddeld: 2, moderate: 2, druk: 1, high: 1 }[c] || null);
+  const crowdLow = c => ({ rustig: 1, low: 1, gemiddeld: 2, moderate: 2, druk: 3, high: 3 }[c] || null);
 
-  const all = [
-    { icon: "🌬️", label: "Wind", max: 30, unit: " kn",
-      get: e => v((getStatsFor(e) || {}).monthlyWindKn) },
-    { icon: "💨", label: "Gust (typical peak)", max: 40, unit: " kn",
-      get: e => v((getStatsFor(e) || {}).monthlyDailyPeakKn) },
-    { icon: "🌊", label: "Wave height", max: 3, unit: " m", fmt: x => x.toFixed(1),
-      get: e => v((getStatsFor(e) || {}).monthlyWaveM) },
-    { icon: "🌡️", label: "Water warmth", max: 30, unit: " °C",
-      get: e => v((getStatsFor(e) || {}).monthlyWaterC) },
-    { icon: "☀️", label: "Daytime air", max: 35, unit: " °C",
-      get: e => v((getStatsFor(e) || {}).monthlyAirC) },
-    { icon: "👥", label: "Quietness", max: 3, unit: "",
-      labelFor: x => x === 3 ? "Quiet" : x === 2 ? "Moderate" : "Busy",
-      get: e => {
-        const c = (e.condities && e.condities.drukte && e.condities.drukte.niveau)
-               || (getStatsFor(e) && getStatsFor(e).crowd);
-        return crowdToScore(c);
-      } },
-    { icon: "🎓", label: "Levels welcome", max: 3, unit: "",
-      labelFor: x => x === 3 ? "All levels" : (x + " level" + (x > 1 ? "s" : "")),
-      get: e => Array.isArray(e.levels) ? e.levels.length : null }
-  ];
+  // Count comma- or plus-separated chunks in a free-text field (proxy for
+  // "how many things does this center offer in this category"). Used for
+  // centers where the data is qualitative prose.
+  const itemCount = (text) => {
+    if (!text || typeof text !== "string") return null;
+    const parts = text.split(/[,;]|\sand\s|\s\+\s/i).map(s => s.trim()).filter(Boolean);
+    return parts.length || null;
+  };
+
+  // mode: "fill" (left edge to value, default) | "range" (band from lo to hi)
+  // winner: true → highest value gets clay accent
+  let all;
+  if (type === "spot") {
+    all = [
+      { icon: "🌬️", label: "Wind", max: 30, unit: " kn", winner: true,
+        get: e => v((getStatsFor(e) || {}).monthlyWindKn) },
+      { icon: "💨", label: "Gust (typical peak)", max: 40, unit: " kn", winner: true,
+        get: e => v((getStatsFor(e) || {}).monthlyDailyPeakKn) },
+      { icon: "🌊", label: "Wave height", max: 3, unit: " m", fmt: x => x.toFixed(1), winner: true,
+        get: e => v((getStatsFor(e) || {}).monthlyWaveM) },
+      { icon: "🌡️", label: "Water warmth", max: 30, unit: " °C",
+        get: e => v((getStatsFor(e) || {}).monthlyWaterC) },
+      { icon: "☀️", label: "Daytime air", max: 35, unit: " °C",
+        get: e => v((getStatsFor(e) || {}).monthlyAirC) },
+      { icon: "👥", label: "Crowd", max: 3, unit: "",
+        labelFor: x => x === 1 ? "Quiet" : x === 2 ? "Moderate" : "Busy",
+        get: e => {
+          const c = (e.condities && e.condities.drukte && e.condities.drukte.niveau)
+                 || (getStatsFor(e) && getStatsFor(e).crowd);
+          return crowdLow(c);
+        } },
+      { icon: "🎓", label: "Levels welcome", mode: "range", max: 3,
+        labelFor: r => {
+          const map = ["", "B", "I", "A"];
+          if (r.lo === r.hi) return cap(["", "beginner", "intermediate", "advanced"][r.lo] || "");
+          return `${map[r.lo]} → ${map[r.hi]}`;
+        },
+        get: e => {
+          if (!Array.isArray(e.levels) || !e.levels.length) return null;
+          const pos = { beginner: 1, intermediate: 2, advanced: 3 };
+          const ps = e.levels.map(l => pos[l]).filter(Boolean);
+          if (!ps.length) return null;
+          return { lo: Math.min(...ps), hi: Math.max(...ps) };
+        } }
+    ];
+  } else { // center
+    all = [
+      { icon: "🎓", label: "Levels welcome", mode: "range", max: 3,
+        labelFor: r => {
+          const map = ["", "B", "I", "A"];
+          if (r.lo === r.hi) return cap(["", "beginner", "intermediate", "advanced"][r.lo] || "");
+          return `${map[r.lo]} → ${map[r.hi]}`;
+        },
+        get: e => {
+          if (!Array.isArray(e.levels) || !e.levels.length) return null;
+          const pos = { beginner: 1, intermediate: 2, advanced: 3 };
+          const ps = e.levels.map(l => pos[l]).filter(Boolean);
+          if (!ps.length) return null;
+          return { lo: Math.min(...ps), hi: Math.max(...ps) };
+        } },
+      { icon: "🏄", label: "Sports taught", max: 4, unit: "", winner: true,
+        labelFor: x => x + " sport" + (x > 1 ? "s" : ""),
+        get: e => Array.isArray(e.sports) ? e.sports.length : null },
+      { icon: "📚", label: "Lessons variety", max: 6, unit: " types", winner: true,
+        get: e => itemCount(e.diensten && e.diensten.lessen) },
+      { icon: "🛹", label: "Rental variety", max: 6, unit: " items", winner: true,
+        get: e => itemCount(e.diensten && e.diensten.rental) },
+      { icon: "🏷️", label: "Gear brands", max: 5, unit: "", winner: true,
+        get: e => itemCount(e.diensten && e.diensten.brands) },
+      { icon: "🛠️", label: "Facilities", max: 8, unit: " items", winner: true,
+        get: e => itemCount(e.diensten && e.diensten.faciliteiten) }
+    ];
+  }
+
   const dims = all.filter(d => items.every(e => {
     const val = d.get(e);
-    return val != null && !isNaN(val);
+    if (val == null) return false;
+    if (d.mode === "range") return val.lo != null && val.hi != null;
+    return !isNaN(val);
   }));
   if (!dims.length) return "";
 
   const rows = dims.map(d => {
     const cells = items.map(e => ({ e, val: d.get(e) }));
-    const top = Math.max(...cells.map(c => c.val));
-    const someBelow = cells.some(c => c.val < top);
+    // Numeric "top" for winner highlight (skipped for range mode)
+    let top = -Infinity, someBelow = false;
+    if (d.winner && d.mode !== "range") {
+      const vals = cells.map(c => c.val);
+      top = Math.max(...vals);
+      someBelow = vals.some(x => x < top);
+    }
     const cellHtml = cells.map(c => {
-      const pct = Math.max(4, Math.min(100, (c.val / d.max) * 100));
-      const winner = someBelow && c.val === top;
+      let barInner;
+      if (d.mode === "range") {
+        const loPct = ((c.val.lo - 1) / d.max) * 100;
+        const hiPct = (c.val.hi / d.max) * 100;
+        const widthPct = Math.max(8, hiPct - loPct);
+        barInner = `<span class="sb-bar-fill" style="left:${loPct}%; width:${widthPct}%"></span>`;
+      } else {
+        const pct = Math.max(4, Math.min(100, (c.val / d.max) * 100));
+        barInner = `<span class="sb-bar-fill" style="left:0; width:${pct}%"></span>`;
+      }
+      const winner = d.winner && d.mode !== "range" && someBelow && c.val === top;
       const fmt = d.fmt || (x => Math.round(x));
-      const labelText = d.labelFor ? d.labelFor(c.val) : (fmt(c.val) + d.unit);
+      const labelText = d.labelFor ? d.labelFor(c.val) : (fmt(c.val) + (d.unit || ""));
       return `<div class="sb-row-cell${winner ? " is-winner" : ""}">
         <span class="sb-entry-name">${escHTML(c.e.name)}</span>
-        <span class="sb-bar"><span class="sb-bar-fill" style="width:${pct}%"></span></span>
+        <span class="sb-bar">${barInner}</span>
         <span class="sb-value">${labelText}</span>
       </div>`;
     }).join("");
@@ -2003,10 +2072,13 @@ function compareScoreboardHTML(items) {
     </div>`;
   }).join("");
 
+  const monthHint = type === "spot"
+    ? `${monthNames[m]} numbers from each entry's data. `
+    : "";
   return `<section class="cmp-scoreboard">
     <header class="sb-head">
       <h2>Scoreboard</h2>
-      <p class="muted form-note">${monthNames[m]} numbers from each entry's data. Longer bar = more of that dimension. The winner gets the clay accent.</p>
+      <p class="muted form-note">${monthHint}Longer bar means more of that dimension. Clay accent marks the winner where "more" is unambiguously better.</p>
     </header>
     ${rows}
   </section>`;
