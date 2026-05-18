@@ -1078,39 +1078,29 @@ function runSearch() {
     return;
   }
 
-  // Apply the secondary filters (level / month / type) inside the country×sport set
-  let matches = liveCountrySportEntries.filter(e => {
+  // Two-tier filtering: strict matches (all filters pass), plus the
+  // off-season set (level/type pass but the picked month doesn't). The
+  // off-season list is rendered as a separate section below so the user
+  // always sees the full inventory of the country×sport pool, just sorted
+  // by "currently peaking" vs "off-season for this month".
+  const matches = liveCountrySportEntries.filter(e => {
     const okL = level === "all" || e.levels.includes(level);
     const okM = month === "all" || e.goodMonths.includes(parseInt(month, 10));
     const okT = type === "all" || e.type === type;
     return okL && okM && okT;
   });
-
-  // Soft fallback: when the picked month wipes out every entry, drop the
-  // month filter and show what we have with an "off-season" banner. Lets
-  // the user see the live region's content even when they picked a month
-  // outside the local peak season — they can decide for themselves.
-  let offSeasonBanner = "";
-  if (matches.length === 0 && month !== "all") {
-    const relaxed = liveCountrySportEntries.filter(e => {
-      const okL = level === "all" || e.levels.includes(level);
-      const okT = type === "all" || e.type === type;
-      return okL && okT;
-    });
-    if (relaxed.length > 0) {
-      matches = relaxed;
-      const monthLabel = WAVEBASE_MONTHS[parseInt(month, 10)] || month;
-      offSeasonBanner = `<div class="off-season-banner">
-        <strong>${monthLabel} is off-season here.</strong>
-        Showing the live ${escHTML(country)} entries anyway — check each one's at-a-glance to see when it actually peaks.
-      </div>`;
-    }
-  }
+  const offSeasonOnly = month === "all" ? [] : liveCountrySportEntries.filter(e => {
+    const okL = level === "all" || e.levels.includes(level);
+    const okT = type === "all" || e.type === type;
+    const okM = e.goodMonths.includes(parseInt(month, 10));
+    return okL && okT && !okM;
+  });
+  const monthLabel = month === "all" ? "" : (WAVEBASE_MONTHS[parseInt(month, 10)] || month);
 
   const heading = countryHeading(country);
   let html = "";
 
-  if (matches.length === 0) {
+  if (matches.length === 0 && offSeasonOnly.length === 0) {
     html += `<div class="results-head"><h2>${heading}</h2></div>`;
     html += townStripHTML(country);
     html += `<div class="empty"><strong>Nothing's a perfect match here.</strong><br>
@@ -1118,8 +1108,23 @@ function runSearch() {
   } else {
     html += `<div class="results-head"><h2>${heading}</h2>${viewToggleHTML(pref)}</div>`;
     html += townStripHTML(country);
-    if (offSeasonBanner) html += offSeasonBanner;
-    html += renderResultsSections(matches, gridClass);
+    if (matches.length > 0) {
+      html += renderResultsSections(matches, gridClass);
+    } else if (monthLabel) {
+      html += `<div class="off-season-banner">
+        <strong>${monthLabel} is off-season for every live ${escHTML(country)} entry.</strong>
+        Listing them below for context — check each one's at-a-glance to see when it actually peaks.
+      </div>`;
+    }
+    if (offSeasonOnly.length > 0) {
+      html += `<section class="results-off-season">
+        <header class="off-season-head">
+          <h2>Off-season for ${monthLabel} <span class="seccount">${offSeasonOnly.length}</span></h2>
+          <p class="muted form-note">These entries don't list ${monthLabel} as a peak month — listed here so you can still browse the full ${escHTML(country)} inventory.</p>
+        </header>
+        ${renderResultsSections(offSeasonOnly, gridClass)}
+      </section>`;
+    }
   }
 
   results.innerHTML = html;
