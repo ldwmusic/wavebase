@@ -1616,16 +1616,55 @@ function reviewsMockHTML(e) {
       Verdict: ${chip("verdict", verdictOpts, "", "would I go back?")}.
     </p>`;
   } else if (e.type === "center") {
+    // Center-specific story — descriptive chips instead of 1-10 numbers.
+    const lessonsFelt = [
+      { value: "excellent",       label: "excellent" },
+      { value: "good",            label: "good" },
+      { value: "fine",            label: "fine" },
+      { value: "disappointing",   label: "disappointing" },
+      { value: "didnt-take",      label: "didn't take lessons" }
+    ];
+    const gearFelt = [
+      { value: "brand-new",       label: "brand new" },
+      { value: "well-maintained", label: "well-maintained" },
+      { value: "decent",          label: "decent" },
+      { value: "dated",           label: "dated" },
+      { value: "poor",            label: "poor" },
+      { value: "didnt-rent",      label: "didn't rent gear" }
+    ];
+    const teamFelt = [
+      { value: "outstanding", label: "outstanding" },
+      { value: "great",       label: "great" },
+      { value: "fine",        label: "fine" },
+      { value: "mixed",       label: "mixed" },
+      { value: "weak",        label: "weak" }
+    ];
+    const safetyFelt = [
+      { value: "very-tight", label: "very tight" },
+      { value: "careful",    label: "careful" },
+      { value: "adequate",   label: "adequate" },
+      { value: "lax",        label: "lax" },
+      { value: "risky",      label: "felt risky" }
+    ];
+    const valueFelt = [
+      { value: "great-value", label: "great value" },
+      { value: "fair",        label: "fair" },
+      { value: "pricey",      label: "pricey" },
+      { value: "overpriced",  label: "overpriced" }
+    ];
     story = `<p class="review-story">
       I trained at <strong>${escHTML(e.name)}</strong> in ${dateRow}
-      for ${chip("tripLength", tripDays, "", "?")}.
-      Lessons ${chip("lessonsScore", score10Opts, "", "1-10")},
-      rental gear ${chip("gearScore", score10Opts, "", "1-10")},
-      instructor/team ${chip("instructorScore", score10Opts, "", "1-10")},
-      safety ${chip("safetyScore", score10Opts, "", "1-10")},
-      value ${chip("valueScore", score10Opts, "", "1-10")}.
-      Vibe: ${chip("vibe", vibeFelt, "", "?")}.
-      Verdict: ${chip("verdict", verdictOpts, "", "would I book again?")}.
+      for ${chip("tripLength", tripDays, "", "how long?")}.
+
+      The lessons were ${chip("lessons", lessonsFelt, "", "?")},
+      the rental gear felt ${chip("gear", gearFelt, "", "?")},
+      and the instructor team was ${chip("team", teamFelt, "", "?")}.
+
+      Safety was ${chip("safety", safetyFelt, "", "?")},
+      and value for money ${chip("value", valueFelt, "", "?")}.
+      Overall vibe: ${chip("vibe", vibeFelt, "", "?")}.
+
+      Would I book again? ${chip("verdict", verdictOpts, "", "?")}.
     </p>`;
   } else { // stay
     // Stay-specific story reads as flowing prose rather than a numeric
@@ -2122,13 +2161,21 @@ function renderAccount() {
   // Pretty labels for the keys we know about. Anything not listed renders
   // with the raw key (graceful when we add new fields).
   const detailLabels = {
-    tripLength: "Stay length", daysSailed: "Days sailed",
+    tripLength: "Trip length", daysSailed: "Days sailed",
     travelGroup: "Travel group", crowd: "Crowd",
-    localism: "Locals", gear: "Gear", gearScore: "Gear",
-    lessonsScore: "Lessons", instructorScore: "Instructor",
-    safetyScore: "Safety", valueScore: "Value",
-    hostsScore: "Hosts", foodScore: "Food",
-    comfortScore: "Comfort", cleanlinessScore: "Cleanliness",
+    localism: "Locals",
+    // Spot/center: gear chip; both old (gearScore) and new (gear) keys
+    gear: "Gear", gearScore: "Gear",
+    // Center prose chips
+    lessons: "Lessons", lessonsScore: "Lessons",
+    team: "Instructor / team", instructorScore: "Instructor",
+    safety: "Safety", safetyScore: "Safety",
+    value: "Value", valueScore: "Value",
+    // Stay prose chips
+    hosts: "Hosts", hostsScore: "Hosts",
+    food: "Food", foodScore: "Food",
+    comfort: "Comfort", comfortScore: "Comfort",
+    cleanliness: "Cleanliness", cleanlinessScore: "Cleanliness",
     vibe: "Vibe", distance: "Distance",
     verdict: "Verdict", level: "Reviewer level",
     discipline: "Discipline"
