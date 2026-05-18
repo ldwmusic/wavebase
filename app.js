@@ -2431,53 +2431,62 @@ function compareScoreboardHTML(items) {
   }));
   if (!dims.length) return "";
 
+  // Renders one cell value depending on dimension mode + special-cases the
+  // 1-to-5 score dimensions as stars instead of plain text.
+  const fiveStar = (val) => {
+    const v = Math.max(0, Math.min(5, Number(val) || 0));
+    const full = Math.floor(v);
+    const half = (v - full) >= 0.5;
+    const empty = 5 - full - (half ? 1 : 0);
+    return `<span class="sb-stars" title="${v.toFixed(1)} / 5">
+      ${"★".repeat(full)}${half ? "<span class=\"sb-star-half\">★</span>" : ""}${"☆".repeat(empty)}
+    </span>`;
+  };
+  const renderCell = (d, val) => {
+    if (val == null) return `<td class="sb-cell empty">—</td>`;
+    if (d.mode === "label") {
+      return `<td class="sb-cell"><span class="sb-chip">${escHTML(val)}</span></td>`;
+    }
+    if (d.mode === "levels") {
+      const set = new Set(val);
+      const pills = ["beginner","intermediate","advanced"]
+        .map(k => `<span class="sb-level-pill${set.has(k)?" on":""}">${cap(k)}</span>`)
+        .join("");
+      return `<td class="sb-cell"><span class="sb-level-set">${pills}</span></td>`;
+    }
+    // 1-to-5 score dimensions → stars
+    if (d.max === 5 && /\/\s*5/.test(d.unit || "")) {
+      return `<td class="sb-cell">${fiveStar(val)}</td>`;
+    }
+    const fmt = d.fmt || (x => Math.round(x));
+    const text = d.labelFor ? d.labelFor(val) : (fmt(val) + (d.unit || ""));
+    return `<td class="sb-cell">${escHTML(text)}</td>`;
+  };
+
+  // Header row: dimension column header (empty) + one entry-name per column.
+  const headerCells = items.map(e => `<th class="sb-entry-header">
+    <div class="sb-entry-name">${escHTML(e.name)}</div>
+    <div class="sb-entry-sub muted">${escHTML(e.town)}</div>
+  </th>`).join("");
+
+  // Body rows: dimension label + one value cell per compared entry.
   const rows = dims.map(d => {
-    const cells = items.map(e => ({ e, val: d.get(e) }));
-    const cellHtml = cells.map(c => {
-      // Label mode: categorical chip, no bar.
-      if (d.mode === "label") {
-        return `<div class="sb-row-cell sb-row-cell-label">
-          <span class="sb-entry-name">${escHTML(c.e.name)}</span>
-          <span class="sb-chip">${escHTML(c.val)}</span>
-        </div>`;
-      }
-      // Levels mode: three discrete pills with the full word, lit if accepted.
-      if (d.mode === "levels") {
-        const set = new Set(c.val);
-        const pills = ["beginner","intermediate","advanced"]
-          .map(k => `<span class="sb-level-pill${set.has(k)?" on":""}">${cap(k)}</span>`)
-          .join("");
-        return `<div class="sb-row-cell sb-row-cell-label">
-          <span class="sb-entry-name">${escHTML(c.e.name)}</span>
-          <span class="sb-level-set">${pills}</span>
-        </div>`;
-      }
-      let barInner;
-      if (d.mode === "range") {
-        const loPct = ((c.val.lo - 1) / d.max) * 100;
-        const hiPct = (c.val.hi / d.max) * 100;
-        const widthPct = Math.max(8, hiPct - loPct);
-        barInner = `<span class="sb-bar-fill" style="left:${loPct}%; width:${widthPct}%"></span>`;
-      } else {
-        const pct = Math.max(4, Math.min(100, (c.val / d.max) * 100));
-        barInner = `<span class="sb-bar-fill" style="left:0; width:${pct}%"></span>`;
-      }
-      const fmt = d.fmt || (x => Math.round(x));
-      const labelText = d.labelFor ? d.labelFor(c.val) : (fmt(c.val) + (d.unit || ""));
-      return `<div class="sb-row-cell">
-        <span class="sb-entry-name">${escHTML(c.e.name)}</span>
-        <span class="sb-bar">${barInner}</span>
-        <span class="sb-value">${labelText}</span>
-      </div>`;
-    }).join("");
-    return `<div class="sb-row">
-      <div class="sb-dim">
+    const cells = items.map(e => renderCell(d, d.get(e))).join("");
+    return `<tr>
+      <th class="sb-dim-cell">
         <span class="sb-dim-icon" aria-hidden="true">${d.icon}</span>
         <span class="sb-dim-label">${d.label}</span>
-      </div>
-      <div class="sb-row-cells">${cellHtml}</div>
-    </div>`;
+      </th>
+      ${cells}
+    </tr>`;
   }).join("");
+
+  const tableHTML = `<div class="sb-table-wrap">
+    <table class="sb-table">
+      <thead><tr><th></th>${headerCells}</tr></thead>
+      <tbody>${rows}</tbody>
+    </table>
+  </div>`;
 
   const monthHint = type === "spot"
     ? `${monthNames[m]} numbers from each entry's data. `
@@ -2514,10 +2523,10 @@ function compareScoreboardHTML(items) {
   return `<section class="cmp-scoreboard">
     <header class="sb-head">
       <h2>Scoreboard</h2>
-      <p class="muted form-note">${monthHint}Longer bar means more of that dimension. You decide what's "better" for your trip.</p>
+      <p class="muted form-note">${monthHint}You decide what's "better" for your trip.</p>
       ${inferredNote}
     </header>
-    ${rows}
+    ${tableHTML}
     ${sourcesHTML}
   </section>`;
 }
