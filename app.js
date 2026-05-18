@@ -401,17 +401,16 @@ function monthlyChartHTML(e) {
   const userMonth = userSelectedMonth();
   const monthLabels = ["J","F","M","A","M","J","J","A","S","O","N","D"];
 
-  // Wave-type spots get a primary wave-height chart; wind-type spots have
-  // no primary chart (avg wind / gust info is surfaced in the at-a-glance
-  // facts above). All spots get the temperature chart.
-  //   temperature chart: bar = daytime air °C (the value most surfers
-  //   intuitively expect to be highest); overlay line = sea water °C.
+  // Two side-by-side bar charts on the at-a-glance: wind (left) and
+  // temperature (right). Each is dual-bar per month (avg + gust for wind,
+  // air + water for temp). Wave-type spots also get a single-bar wave-
+  // height chart in front (so primary = wave; then wind; then temp).
   if (stats && Array.isArray(stats.monthlyWaterC)) {
     const chartType = stats.chartType || (Array.isArray(stats.monthlyWindKn) ? "wind" : null);
-    let primaryChart = null;
+    let waveChart = null;
 
     if (chartType === "wave" && Array.isArray(stats.monthlyWaveM)) {
-      primaryChart = buildSingleMetricChart(stats.monthlyWaveM, {
+      waveChart = buildSingleMetricChart(stats.monthlyWaveM, {
         stats, userMonth, monthLabels,
         label: "Wave height",
         sublabel: "daytime avg, metres",
@@ -426,8 +425,24 @@ function monthlyChartHTML(e) {
       });
     }
 
-    // Temperature chart always renders (whenever water data exists). When
-    // air-temp data is present, render as paired bars (air | water) per month.
+    // Wind chart (left): per-month dual bars — average wind + gust (we use
+    // monthlyDailyPeakKn = typical daily-peak gust, which is the gust value
+    // a surfer actually feels at peak afternoon — more session-relevant than
+    // the 9-hour gust avg).
+    const hasWind = Array.isArray(stats.monthlyWindKn);
+    const gustsArr = Array.isArray(stats.monthlyDailyPeakKn)
+      ? stats.monthlyDailyPeakKn
+      : (Array.isArray(stats.monthlyGustKn) ? stats.monthlyGustKn : null);
+    const windChart = (hasWind && gustsArr) ? buildDualBarChart({
+      stats, userMonth, monthLabels,
+      label: "Wind",
+      sublabel: "kn per month — average vs typical daily-peak gust",
+      unit: " kn", maxValue: 45, axisTicks: ["45 kn", "22 kn", "0"],
+      barA: { arr: stats.monthlyWindKn, label: "Average", colorClass: "color-wind-avg" },
+      barB: { arr: gustsArr,            label: "Gust",    colorClass: "color-wind-gust" }
+    }) : null;
+
+    // Temperature chart (right): per-month dual bars — air + water.
     const hasAir = Array.isArray(stats.monthlyAirC);
     const tempChart = hasAir
       ? buildDualBarChart({
@@ -453,10 +468,15 @@ function monthlyChartHTML(e) {
     const chartNote = notes.length
       ? `<p class="chart-note">${notes.join(" ")}</p>` : "";
 
-    const charts = primaryChart ? `${primaryChart}${tempChart}` : tempChart;
-    const wrapClass = primaryChart ? "monthly-chart split" : "monthly-chart single";
+    // Compose: [wave][wind][temp], collapsing any null. Layout class adapts
+    // to how many panes there are (split = 2 across, trio = 3 across,
+    // single = full width).
+    const parts = [waveChart, windChart, tempChart].filter(Boolean);
+    const wrapClass = parts.length >= 3 ? "monthly-chart trio"
+      : parts.length === 2 ? "monthly-chart split"
+      : "monthly-chart single";
     return `<div class="${wrapClass}">
-      <div class="chart-pair">${charts}</div>
+      <div class="chart-pair">${parts.join("")}</div>
       ${chartNote}
     </div>`;
   }

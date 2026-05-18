@@ -849,6 +849,15 @@ table.cal td.host { color: var(--clay); }
   grid-template-columns: 1fr 1fr;
   gap: 24px;
 }
+/* Trio layout — wave + wind + temp on wave-type spots */
+.monthly-chart.trio .chart-pair {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  gap: 18px;
+}
+@media (max-width: 920px) {
+  .monthly-chart.trio .chart-pair { grid-template-columns: 1fr; gap: 22px; }
+}
 /* Single chart layout — used when there's only the temp chart (wind-type
    spots no longer render a primary chart). Takes the full container width. */
 .monthly-chart.single .chart-pair {
@@ -927,6 +936,8 @@ table.cal td.host { color: var(--clay); }
 }
 .month-bar.dual .dual-bar.color-air   { background: var(--clay); } /* warm */
 .month-bar.dual .dual-bar.color-water { background: var(--sea); }  /* cool */
+.month-bar.dual .dual-bar.color-wind-avg  { background: var(--sea); }   /* steady wind */
+.month-bar.dual .dual-bar.color-wind-gust { background: var(--amber); } /* gust = punchier accent */
 .month-bar.dual.off-season .dual-bar  { opacity: 0.45; }
 .month-bar.dual.is-user {
   /* keep the is-user highlight visible around the paired bars */
@@ -951,6 +962,8 @@ table.cal td.host { color: var(--clay); }
 }
 .chart-legend .legend-swatch.color-air   { background: var(--clay); }
 .chart-legend .legend-swatch.color-water { background: var(--sea); }
+.chart-legend .legend-swatch.color-wind-avg  { background: var(--sea); }
+.chart-legend .legend-swatch.color-wind-gust { background: var(--amber); }
 .month-bar.off-season .month-bar-fill { opacity: 0.45; }
 .month-bar.off-season .month-bar-label { color: var(--ink-soft); font-style: italic; }
 
