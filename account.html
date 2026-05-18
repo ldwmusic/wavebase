@@ -23,19 +23,26 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600&family=DM+Sans:wght@400;500;600&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
-  <link rel="stylesheet" href="styles.css?v=85">
+  <link rel="stylesheet" href="styles.css?v=130">
 </head>
 <body>
 
   <header class="site-header">
     <div class="wrap">
       <a href="index.html" class="logo">Wave<span>Base</span></a>
+      <div class="header-search header-search-permanent">
+        <div class="searchbar">
+          <span class="searchbar-icon" aria-hidden="true">🔍</span>
+          <input type="search" id="f-header-search" placeholder="Search by city, beach, country, spot or center…" autocomplete="off" enterkeyhint="search" aria-label="Search spots, centers and stays">
+          <button type="button" class="searchbar-clear" id="f-header-search-clear" aria-label="Clear search" hidden>&times;</button>
+        </div>
+      </div>
       <nav class="site-nav">
         <a href="index.html">Discover</a>
         <a href="kaart.html">Map</a>
         <a href="compare.html" id="nav-compare">Compare</a>
-        <a href="account.html" class="active" id="nav-account">My WaveBase</a>
         <a href="about.html">About</a>
+        <a href="account.html" class="active" id="nav-account">My WaveBase</a>
       </nav>
     </div>
   </header>
@@ -54,9 +61,9 @@
   </footer>
 
   <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
-  <script src="data.js?v=85"></script>
-  <script src="account.js?v=85"></script>
-  <script src="app.js?v=85"></script>
+  <script src="data.js?v=130"></script>
+  <script src="account.js?v=130"></script>
+  <script src="app.js?v=130"></script>
   <!-- Cloudflare Web Analytics --><script defer src='https://static.cloudflareinsights.com/beacon.min.js' data-cf-beacon='{"token": "62ad05eecbb8442ba571b2d4db28b8b5"}'></script><!-- End Cloudflare Web Analytics -->
 </body>
 </html>

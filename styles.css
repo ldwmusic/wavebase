@@ -1111,6 +1111,385 @@ table.cal td.host { color: var(--clay); }
 }
 .plan-trip-sub { font-size: 13.5px; color: var(--ink-soft); }
 
+/* ===================== LANDING EXTRAS =====================
+   Stats ticker sits right under the hero / plan-trip strip on the
+   home page. The peaking carousel and world map live further down,
+   AFTER the empty state — those are context, not the primary CTA.
+   ============================================================ */
+.landing-extras {
+  display: flex;
+  flex-direction: column;
+  gap: 30px;
+  margin: 22px auto 10px;
+}
+
+/* Home-only blocks: visible only when no country picked and no query
+   typed (runSearch() toggles `is-home` on <body>). */
+body:not(.is-home) .hero,
+body:not(.is-home) .plan-trip-strip,
+body:not(.is-home) .landing-extras,
+body:not(.is-home) .searchbar-wrap { display: none; }
+
+/* When filtered, runSearch() moves .searchbar into the header slot. */
+.header-search {
+  flex: 1 1 auto;
+  min-width: 0;
+  max-width: 520px;
+  margin: 0 24px;
+}
+.header-search:empty { display: none; }
+.header-search .searchbar {
+  margin: 0;
+  padding: 4px 6px 4px 14px;
+  box-shadow: none;
+  max-width: none;
+}
+.header-search .searchbar input[type="search"] {
+  font-size: 14px;
+  padding: 6px 4px;
+}
+.header-search .searchbar-icon { font-size: 14px; }
+.header-search .searchbar-clear {
+  width: 26px; height: 26px; font-size: 16px;
+}
+@media (max-width: 720px) {
+  .header-search { display: none; }
+}
+
+/* Full-bleed sections (peaking carousel + world map) span the viewport
+   edge-to-edge but keep internal content padded for readability. */
+.full-bleed {
+  width: 100%;
+  padding: 0 28px;
+  margin: 36px 0 0;
+  box-sizing: border-box;
+}
+.full-bleed:last-of-type { margin-bottom: 28px; }
+@media (max-width: 600px) {
+  .full-bleed { padding: 0 14px; margin-top: 24px; }
+}
+
+/* ---- numbers ticker ---- */
+.stats-ticker {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  font-size: 14.5px;
+  color: var(--ink-soft);
+}
+.stat-chip {
+  display: inline-flex;
+  align-items: baseline;
+  gap: 6px;
+  padding: 7px 14px;
+  border-radius: 999px;
+  background: var(--paper);
+  border: 1px solid var(--sand);
+  font-family: 'DM Sans', sans-serif;
+  white-space: nowrap;
+}
+.stat-chip strong {
+  font-family: 'Fraunces', Georgia, serif;
+  font-size: 18px;
+  color: var(--ink);
+  font-weight: 600;
+}
+.stat-chip.stat-live {
+  background: var(--sea-soft);
+  border-color: #b6cdd2;
+}
+.stat-chip.stat-live strong { color: var(--sea); }
+.stat-chip.stat-soon {
+  background: #fff;
+  border-style: dashed;
+  color: var(--ink-soft);
+}
+.stat-sep { color: var(--ink-soft); opacity: .45; font-size: 16px; }
+@media (max-width: 540px) {
+  .stat-sep { display: none; }
+  .stats-ticker { gap: 8px; font-size: 13px; }
+  .stat-chip { padding: 6px 11px; }
+  .stat-chip strong { font-size: 16px; }
+}
+
+/* ---- mini world map (inline SVG) ----
+   Layout: title in a normal-width wrap, then an IMMERSIVE full-bleed
+   section whose sea-grey background flows edge-to-edge. The map
+   content inside stays capped at 1400px and centered, so the ocean
+   tide "frames" the page on wide screens. */
+.world-map-intro {
+  margin-top: 36px;
+}
+.world-map-head {
+  display: flex; flex-wrap: wrap;
+  align-items: baseline; justify-content: space-between;
+  gap: 4px 14px; margin-bottom: 12px;
+}
+.world-map-title {
+  font-family: 'Fraunces', Georgia, serif;
+  font-size: 19px; font-weight: 600;
+  color: var(--ink);
+}
+.world-map-sub {
+  font-size: 13px;
+  color: var(--ink-soft);
+}
+.world-map-wrap.immersive {
+  background: #c4cfd5;             /* sea-grey, bleeds edge to edge */
+  padding: 24px 28px 22px;
+  margin: 0 0 28px;
+}
+.world-map-wrap.immersive .world-map-inner {
+  max-width: 1400px;
+  margin: 0 auto;
+}
+/* Stage wraps the SVG so the hover label can be absolutely positioned. */
+.worldmap-stage {
+  position: relative;
+  /* Sea-grey lives on the section in immersive mode; stage is transparent. */
+  background: transparent;
+  padding: 0;
+}
+#mini-world-map {
+  width: 100%;
+  /* aspect ratio matches the source SVG (784x458 ≈ 1.71:1) */
+  aspect-ratio: 784 / 458;
+}
+.worldmap-svg {
+  width: 100%;
+  height: 100%;
+  display: block;
+}
+.worldmap-svg .country {
+  fill: #fdfaf2;                   /* warm white land — same for every country */
+  stroke: #c4cfd5;                 /* sea-color hairline so countries don't fuse */
+  stroke-width: 0.4;
+  cursor: pointer;
+  transition: fill .14s ease;
+}
+.worldmap-svg .country.is-hover {
+  fill: var(--clay-soft);          /* clay tint for the hovered continent */
+}
+/* Drop-pin overlay */
+.worldmap-pins .worldmap-pin {
+  cursor: pointer;
+  pointer-events: auto;
+}
+.worldmap-pins .pin-body {
+  fill: #1c1a17;                   /* near-black drop pin */
+  filter: drop-shadow(0 1px 1.5px rgba(0,0,0,.35));
+}
+.worldmap-pins .pin-dot {
+  fill: #fdfaf2;
+}
+.worldmap-pins .is-live { transform-origin: center; }
+.worldmap-pins .is-live .pin-body {
+  fill: var(--sea);                /* live = sea-color pin */
+}
+/* Floating hover label, follows the user's eye over the map. */
+.worldmap-hover-label {
+  position: absolute;
+  left: 50%; top: 14px;
+  transform: translateX(-50%);
+  background: rgba(28, 26, 23, .92);
+  color: #fdfaf2;
+  font-size: 12.5px;
+  padding: 5px 12px;
+  border-radius: 999px;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity .12s ease;
+  white-space: nowrap;
+  letter-spacing: .01em;
+}
+.worldmap-hover-label.is-visible { opacity: 1; }
+.worldmap-credit {
+  text-align: right;
+  font-size: 11px;
+  color: var(--ink);
+  margin: 8px 2px 0;
+  opacity: .55;
+}
+.worldmap-credit a { color: inherit; text-decoration: underline; }
+.worldmap-fallback {
+  padding: 40px 20px;
+  text-align: center;
+  color: var(--ink-soft);
+  font-size: 14px;
+}
+@media (max-width: 600px) {
+  .world-map-frame { padding: 14px 14px 10px; }
+  .worldmap-hover-label { top: 8px; font-size: 11.5px; padding: 4px 10px; }
+}
+
+/* ---- peaking-right-now carousel ---- */
+.peaking-frame {
+  /* Match the world-map content width so cards stay centered on wide
+     viewports and the sport pills align with the right edge of the
+     last card instead of the far page edge. */
+  max-width: 1400px;
+  margin: 0 auto;
+}
+.peaking-head {
+  display: flex; flex-wrap: wrap;
+  align-items: center; justify-content: space-between;
+  gap: 10px 18px; margin: 0 4px 14px;
+}
+.peaking-head-text {
+  display: flex; flex-direction: column; gap: 2px;
+  min-width: 0;
+}
+.peaking-title {
+  font-family: 'Fraunces', Georgia, serif;
+  font-size: 22px; font-weight: 600;
+  color: var(--ink);
+}
+.peaking-sub {
+  font-size: 13px;
+  color: var(--ink-soft);
+}
+/* Sport filter pills on the peaking carousel header */
+.peaking-sport-pills {
+  display: flex; flex-wrap: wrap; gap: 6px;
+}
+.peaking-sport-pill {
+  font-family: 'DM Sans', sans-serif;
+  font-size: 13px;
+  padding: 6px 13px;
+  border-radius: 999px;
+  border: 1px solid var(--sand);
+  background: var(--paper);
+  color: var(--ink-soft);
+  cursor: pointer;
+  transition: background .14s ease, border-color .14s ease, color .14s ease;
+}
+.peaking-sport-pill:hover { background: var(--sand); color: var(--ink); }
+.peaking-sport-pill.active {
+  background: var(--sea);
+  border-color: var(--sea);
+  color: #fff;
+}
+.peaking-row {
+  display: flex;
+  gap: 22px;
+  overflow-x: auto;
+  scroll-snap-type: x mandatory;
+  padding: 4px 4px 18px;
+  margin: 0 -4px;          /* let the snapped card hug the wrap edge */
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: thin;
+  scrollbar-color: var(--sand-deep) transparent;
+}
+.peaking-row .card {
+  flex: 0 0 320px;
+  scroll-snap-align: start;
+}
+.peaking-row:empty {
+  /* render nothing — JS already injected the explanatory sub-text */
+  padding: 0;
+}
+.peaking-row::-webkit-scrollbar { height: 8px; }
+.peaking-row::-webkit-scrollbar-track { background: transparent; }
+.peaking-row::-webkit-scrollbar-thumb {
+  background: var(--sand-deep); border-radius: 999px;
+}
+@media (max-width: 600px) {
+  .peaking-row .card { flex-basis: 280px; }
+  .peaking-title { font-size: 20px; }
+}
+
+/* ===================== CONTINENT PAGE =====================
+   One page per continent: list of countries with their live/queued
+   status. Live countries link to Discover filtered to them; queued
+   countries are dim cards (no link). Reached from the mini-world-map
+   on Discover by clicking a continent region.
+   ============================================================ */
+.continent-back { margin: 16px 0 0; font-size: 14px; }
+.continent-back a { color: var(--ink-soft); }
+.continent-back a:hover { color: var(--sea); text-decoration: underline; }
+
+.continent-head { margin: 16px 0 12px; text-align: center; }
+.continent-kicker {
+  font-family: 'Fraunces', Georgia, serif;
+  font-size: 13px; letter-spacing: .14em;
+  text-transform: uppercase;
+  color: var(--clay);
+  margin: 0 0 4px;
+}
+.continent-head h1 {
+  font-family: 'Fraunces', Georgia, serif;
+  font-size: 44px; font-weight: 600;
+  margin: 0 0 6px;
+  color: var(--ink);
+}
+.continent-sub {
+  color: var(--ink-soft);
+  font-size: 15px;
+  margin: 0;
+}
+.continent-sub strong {
+  color: var(--ink);
+  font-weight: 600;
+}
+.continent-section-h {
+  font-family: 'Fraunces', Georgia, serif;
+  font-size: 22px; font-weight: 600;
+  margin: 32px 0 14px;
+  color: var(--ink);
+}
+.continent-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 14px;
+  padding-bottom: 12px;
+}
+.continent-country {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 16px 18px;
+  background: var(--paper);
+  border: 1px solid var(--sand);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow-sm);
+  text-decoration: none;
+  color: var(--ink);
+  transition: transform .18s ease, box-shadow .18s ease, border-color .18s ease;
+}
+.continent-country.live:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--shadow);
+  border-color: var(--sea);
+}
+.continent-country.soon {
+  background: #fffcf6;
+  border-style: dashed;
+  cursor: default;
+}
+.cc-flag { font-size: 30px; line-height: 1; flex-shrink: 0; }
+.cc-body { display: flex; flex-direction: column; gap: 2px; flex: 1; min-width: 0; }
+.cc-name {
+  font-family: 'Fraunces', Georgia, serif;
+  font-size: 19px; font-weight: 600;
+}
+.cc-count {
+  color: var(--ink-soft);
+  font-size: 13.5px;
+}
+.cc-go {
+  color: var(--sea);
+  font-size: 14px;
+  font-weight: 500;
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+.continent-country.soon .cc-name { color: var(--ink-soft); font-weight: 500; }
+@media (max-width: 540px) {
+  .continent-head h1 { font-size: 32px; }
+}
+
 /* Surfer reviews mock — UI-only preview. Storage starts with the backend. */
 .reviews-mock {
   margin: 36px 0 24px;
@@ -1378,17 +1757,31 @@ table.cal td.host { color: var(--clay); }
   align-self: center;
 }
 .map-filters-sports { margin-top: -6px; }
+/* Map page — intro + filters in the centered wrap; the map below grows
+   to fill the available height but keeps a small breathing gutter so it
+   doesn't fuse with the viewport edges. */
+.map-page { display: flex; flex-direction: column; }
+.map-stage {
+  margin: 12px 0 44px;
+  padding: 0 22px;
+  box-sizing: border-box;
+}
 #map {
-  height: 540px; border-radius: var(--radius);
-  border: 1px solid var(--sand); box-shadow: var(--shadow-sm);
-  margin-bottom: 40px;
+  width: 100%;
+  height: calc(100vh - 440px);
+  min-height: 460px;
+  margin: 0;
+  border: 1px solid var(--sand);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow-sm);
 }
 
 @media (max-width: 620px) {
   .site-nav { gap: 14px; }
   .profile-form { padding: 18px; }
   .profile-form input, .profile-form select { min-width: 0; width: 100%; }
-  #map { height: 420px; }
+  .map-stage { padding: 0 14px; margin-bottom: 28px; }
+  #map { height: calc(100vh - 360px); min-height: 380px; }
 }
 
 /* ===== ronde 3: spot-condities, in de buurt, coördinaat-noot ===== */

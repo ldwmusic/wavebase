@@ -10,18 +10,11 @@
   <link rel="manifest" href="manifest.json">
   <link rel="icon" type="image/svg+xml" href="icon.svg">
   <link rel="apple-touch-icon" href="icon.svg">
-  <title>WaveBase — surf spot, center or stay</title>
-  <meta name="description" content="Honest analysis of a surf spot, center or stay — by season, for your level — built from recent reviews.">
-  <meta property="og:type" content="article">
-  <meta property="og:site_name" content="WaveBase">
-  <meta property="og:title" content="WaveBase">
-  <meta property="og:description" content="Honest analysis of a surf spot, center or stay — by season, for your level.">
-  <meta property="og:image" content="https://wavebase.lode-b162.workers.dev/og-image.png">
-  <meta name="twitter:card" content="summary_large_image">
+  <title>Continent — WaveBase</title>
+  <meta name="description" content="WaveBase rollout by continent — see which countries are live, which are queued, and dive into each country's spots, centers and stays.">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600&family=DM+Sans:wght@400;500;600&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
   <link rel="stylesheet" href="styles.css?v=130">
 </head>
 <body>
@@ -29,13 +22,6 @@
   <header class="site-header">
     <div class="wrap">
       <a href="index.html" class="logo">Wave<span>Base</span></a>
-      <div class="header-search header-search-permanent">
-        <div class="searchbar">
-          <span class="searchbar-icon" aria-hidden="true">🔍</span>
-          <input type="search" id="f-header-search" placeholder="Search by city, beach, country, spot or center…" autocomplete="off" enterkeyhint="search" aria-label="Search spots, centers and stays">
-          <button type="button" class="searchbar-clear" id="f-header-search-clear" aria-label="Clear search" hidden>&times;</button>
-        </div>
-      </div>
       <nav class="site-nav">
         <a href="index.html">Discover</a>
         <a href="kaart.html">Map</a>
@@ -47,19 +33,21 @@
   </header>
 
   <main>
-    <section class="wrap detail">
-      <div id="detail-root"></div>
+    <section class="wrap">
+      <div class="continent-back">
+        <a href="index.html">&larr; Back to Discover</a>
+      </div>
+      <div id="continent-root"></div>
     </section>
   </main>
 
   <footer class="site-footer">
     <div class="wrap">
       <div>WaveBase &mdash; quick-and-dirty prototype</div>
-      <div class="note">Honest surf info based on recent reviews, with labelled area data for surf conditions. Work in progress — Tamraght &amp; Taghazout (Morocco) and east Crete (Greece) live; the rest to follow.</div>
+      <div class="note">Honest surf info based on recent reviews, with labelled area data for surf conditions. Work in progress &mdash; Tamraght &amp; Taghazout (Morocco) and east Crete (Greece) live; the rest to follow.</div>
     </div>
   </footer>
 
-  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
   <script src="data.js?v=130"></script>
   <script src="account.js?v=130"></script>
   <script src="app.js?v=130"></script>

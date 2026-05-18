@@ -27,19 +27,20 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600&family=DM+Sans:wght@400;500;600&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="styles.css?v=85">
+  <link rel="stylesheet" href="styles.css?v=130">
 </head>
-<body>
+<body class="is-home">
 
   <header class="site-header">
     <div class="wrap">
       <a href="index.html" class="logo">Wave<span>Base</span></a>
+      <div class="header-search" id="header-search-slot"></div>
       <nav class="site-nav">
         <a href="index.html" class="active">Discover</a>
         <a href="kaart.html">Map</a>
         <a href="compare.html" id="nav-compare">Compare</a>
-        <a href="account.html" id="nav-account">My WaveBase</a>
         <a href="about.html">About</a>
+        <a href="account.html" id="nav-account">My WaveBase</a>
       </nav>
     </div>
   </header>
@@ -61,7 +62,11 @@
       </div>
     </section>
 
-    <section class="wrap searchbar-wrap">
+    <section class="wrap landing-extras">
+      <div class="stats-ticker" id="stats-ticker" role="status" aria-label="WaveBase coverage"></div>
+    </section>
+
+    <section class="wrap searchbar-wrap" id="hero-search-slot">
       <div class="searchbar">
         <span class="searchbar-icon" aria-hidden="true">🔍</span>
         <input type="search" id="f-search" placeholder="Search by city, beach, country, spot or center…" autocomplete="off" enterkeyhint="search" aria-label="Search spots, centers and stays">
@@ -111,6 +116,35 @@
     <section class="wrap">
       <div id="results"></div>
     </section>
+
+    <section class="peaking-wrap full-bleed">
+      <div class="peaking-frame">
+        <div class="peaking-head">
+          <div class="peaking-head-text">
+            <span class="peaking-title">Peaking right now</span>
+            <span class="peaking-sub" id="peaking-sub"></span>
+          </div>
+          <div class="peaking-sport-pills" id="peaking-sport-pills"></div>
+        </div>
+        <div class="peaking-row" id="peaking-carousel"></div>
+      </div>
+    </section>
+
+    <section class="wrap world-map-intro">
+      <div class="world-map-head">
+        <span class="world-map-title">The worldwide map</span>
+        <span class="world-map-sub">Pins are live destinations. Click any continent to see what's there.</span>
+      </div>
+    </section>
+    <section class="world-map-wrap immersive">
+      <div class="world-map-inner">
+        <div class="worldmap-stage">
+          <div id="mini-world-map" aria-label="Mini world map of WaveBase destinations"></div>
+          <div id="worldmap-hover-label" class="worldmap-hover-label"></div>
+        </div>
+        <p class="worldmap-credit">Map: Al MacDonald · <a href="https://creativecommons.org/licenses/by-sa/3.0/" target="_blank" rel="noopener">CC BY-SA 3.0</a></p>
+      </div>
+    </section>
   </main>
 
   <footer class="site-footer">
@@ -120,9 +154,9 @@
     </div>
   </footer>
 
-  <script src="data.js?v=85"></script>
-  <script src="account.js?v=85"></script>
-  <script src="app.js?v=85"></script>
+  <script src="data.js?v=130"></script>
+  <script src="account.js?v=130"></script>
+  <script src="app.js?v=130"></script>
   <!-- Cloudflare Web Analytics --><script defer src='https://static.cloudflareinsights.com/beacon.min.js' data-cf-beacon='{"token": "62ad05eecbb8442ba571b2d4db28b8b5"}'></script><!-- End Cloudflare Web Analytics -->
 </body>
 </html>

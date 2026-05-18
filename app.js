@@ -987,6 +987,24 @@ function runSearch() {
   const results = document.getElementById("results");
   const longSport = { all: "All surf sports", wave: "Wave surfing", wind: "Windsurfing", kite: "Kitesurfing", wing: "Wing foiling" };
 
+  // "Home state" — when the user hasn't picked a country or typed a query.
+  // Plan-trip strip and the stats ticker only show in this state; other
+  // landing blocks (peaking, world map) stay visible once filtered, since
+  // they're context, not the primary CTA.
+  const isHome = !country && !query;
+  document.body.classList.toggle("is-home", isHome);
+
+  // Once filtered, the prominent hero searchbar slides up into the sticky
+  // header (between logo and nav). On home it lives in the hero again.
+  // Single DOM node moved between two slots — no input value sync needed.
+  const heroSlot   = document.getElementById("hero-search-slot");
+  const headerSlot = document.getElementById("header-search-slot");
+  const searchbar  = document.querySelector(".searchbar");
+  if (searchbar && heroSlot && headerSlot) {
+    const wantHost = isHome ? heroSlot : headerSlot;
+    if (searchbar.parentElement !== wantHost) wantHost.appendChild(searchbar);
+  }
+
   // keep URL in sync — country + filters + sport + free-text query — so links are shareable AND back-navigation restores the state
   const url = new URL(window.location.href);
   const setParam = (k, v, isDefault) => {
@@ -1180,6 +1198,413 @@ function wireSectionJumper(container) {
   });
 }
 
+/* ===================== LANDING EXTRAS =====================
+   First-touch elements above the searcher: a live numbers ticker, a
+   mini world map showing live and queued countries, and a "peaking
+   right now" carousel. Built from existing data so they stay accurate
+   as inventory and rollout change.
+   =========================================================== */
+
+// Approximate country center coords (lat, lng) for the mini-world-map.
+// Just enough precision to drop a recognizable pin per country — we're not
+// drawing borders. Sourced from public geo references.
+const COUNTRY_COORDS = {
+  "Greece": [39.07, 21.83], "Portugal": [39.40, -8.22], "Spain": [40.46, -3.75],
+  "France": [46.23, 2.21], "Italy": [41.87, 12.57], "Ireland": [53.41, -8.24],
+  "United Kingdom": [54.38, -2.44], "Norway": [60.47, 8.47], "Iceland": [64.96, -19.02],
+  "Morocco": [31.79, -7.09], "South Africa": [-30.56, 22.94], "Senegal": [14.50, -14.45],
+  "Namibia": [-22.96, 18.49], "Mozambique": [-18.67, 35.53], "Cape Verde": [16.54, -23.05],
+  "Indonesia": [-0.79, 113.92], "Sri Lanka": [7.87, 80.77], "Philippines": [12.88, 121.77],
+  "Maldives": [3.20, 73.22], "Japan": [36.20, 138.25], "India": [20.59, 78.96],
+  "United States": [37.09, -95.71], "Mexico": [23.63, -102.55], "Canada": [56.13, -106.35],
+  "Costa Rica": [9.75, -83.75], "Nicaragua": [12.86, -85.21], "Panama": [8.54, -80.78],
+  "El Salvador": [13.79, -88.90], "Barbados": [13.19, -59.54],
+  "Brazil": [-14.24, -51.93], "Peru": [-9.19, -75.02], "Chile": [-35.68, -71.54],
+  "Ecuador": [-1.83, -78.18],
+  "Australia": [-25.27, 133.78], "New Zealand": [-40.90, 174.89], "Fiji": [-17.71, 178.07],
+  "French Polynesia": [-17.65, -149.43], "Samoa": [-13.76, -172.10]
+};
+
+// ISO 3166-1 alpha-2 code → continent name. Used to tint the right
+// continent when the cursor enters any country path in the inline
+// SVG world map. Bridges to the SVG's path IDs (which use ISO codes)
+// from the continent groupings in WAVEBASE_DESTINATIONS.
+const ISO_TO_CONTINENT = {
+  // Europe
+  "al":"Europe","ad":"Europe","at":"Europe","by":"Europe","be":"Europe","ba":"Europe",
+  "bg":"Europe","hr":"Europe","cy":"Europe","cz":"Europe","dk":"Europe","ee":"Europe",
+  "fo":"Europe","fi":"Europe","fr":"Europe","de":"Europe","gi":"Europe","gr":"Europe",
+  "hu":"Europe","is":"Europe","ie":"Europe","im":"Europe","it":"Europe","lv":"Europe",
+  "li":"Europe","lt":"Europe","lu":"Europe","mk":"Europe","mt":"Europe","md":"Europe",
+  "mc":"Europe","me":"Europe","nl":"Europe","no":"Europe","pl":"Europe","pt":"Europe",
+  "ro":"Europe","ru":"Europe","sm":"Europe","rs":"Europe","sk":"Europe","si":"Europe",
+  "es":"Europe","se":"Europe","ch":"Europe","ua":"Europe","gb":"Europe","va":"Europe",
+  "xk":"Europe","gg":"Europe","je":"Europe",
+  // Africa
+  "dz":"Africa","ao":"Africa","bj":"Africa","bw":"Africa","bf":"Africa","bi":"Africa",
+  "cv":"Africa","cm":"Africa","cf":"Africa","td":"Africa","km":"Africa","cg":"Africa",
+  "cd":"Africa","ci":"Africa","dj":"Africa","eg":"Africa","gq":"Africa","er":"Africa",
+  "sz":"Africa","et":"Africa","ga":"Africa","gm":"Africa","gh":"Africa","gn":"Africa",
+  "gw":"Africa","ke":"Africa","ls":"Africa","lr":"Africa","ly":"Africa","mg":"Africa",
+  "mw":"Africa","ml":"Africa","mr":"Africa","mu":"Africa","ma":"Africa","mz":"Africa",
+  "na":"Africa","ne":"Africa","ng":"Africa","rw":"Africa","st":"Africa","sn":"Africa",
+  "sc":"Africa","sl":"Africa","so":"Africa","za":"Africa","ss":"Africa","sd":"Africa",
+  "tz":"Africa","tg":"Africa","tn":"Africa","ug":"Africa","zm":"Africa","zw":"Africa",
+  "_somaliland":"Africa","eh":"Africa",
+  // Asia (incl. Middle East)
+  "af":"Asia","am":"Asia","az":"Asia","bh":"Asia","bd":"Asia","bt":"Asia","bn":"Asia",
+  "kh":"Asia","cn":"Asia","ge":"Asia","in":"Asia","id":"Asia","ir":"Asia","iq":"Asia",
+  "il":"Asia","jp":"Asia","jo":"Asia","kz":"Asia","kp":"Asia","kr":"Asia","kw":"Asia",
+  "kg":"Asia","la":"Asia","lb":"Asia","my":"Asia","mv":"Asia","mn":"Asia","mm":"Asia",
+  "np":"Asia","om":"Asia","pk":"Asia","ps":"Asia","ph":"Asia","qa":"Asia","sa":"Asia",
+  "sg":"Asia","lk":"Asia","sy":"Asia","tw":"Asia","tj":"Asia","th":"Asia","tl":"Asia",
+  "tr":"Asia","tm":"Asia","ae":"Asia","uz":"Asia","vn":"Asia","ye":"Asia",
+  // North America
+  "ca":"North America","gl":"North America","mx":"North America","us":"North America",
+  "bm":"North America","pm":"North America",
+  // Central America & Caribbean
+  "ag":"Central America & Caribbean","bs":"Central America & Caribbean",
+  "bb":"Central America & Caribbean","bz":"Central America & Caribbean",
+  "cr":"Central America & Caribbean","cu":"Central America & Caribbean",
+  "dm":"Central America & Caribbean","do":"Central America & Caribbean",
+  "sv":"Central America & Caribbean","gd":"Central America & Caribbean",
+  "gt":"Central America & Caribbean","ht":"Central America & Caribbean",
+  "hn":"Central America & Caribbean","jm":"Central America & Caribbean",
+  "ni":"Central America & Caribbean","pa":"Central America & Caribbean",
+  "kn":"Central America & Caribbean","lc":"Central America & Caribbean",
+  "vc":"Central America & Caribbean","tt":"Central America & Caribbean",
+  "pr":"Central America & Caribbean",
+  // South America
+  "ar":"South America","bo":"South America","br":"South America","cl":"South America",
+  "co":"South America","ec":"South America","fk":"South America","gf":"South America",
+  "gy":"South America","py":"South America","pe":"South America","sr":"South America",
+  "uy":"South America","ve":"South America",
+  // Oceania
+  "au":"Oceania","fj":"Oceania","ki":"Oceania","mh":"Oceania","fm":"Oceania","nr":"Oceania",
+  "nz":"Oceania","pw":"Oceania","pg":"Oceania","ws":"Oceania","sb":"Oceania","to":"Oceania",
+  "tv":"Oceania","vu":"Oceania","pf":"Oceania","nc":"Oceania","gu":"Oceania"
+};
+
+// Country name → ISO 3166-1 alpha-2. Used to drop pin markers on the
+// inline SVG and to mark a country path as live/queued.
+const COUNTRY_TO_ISO = {
+  "Greece":"gr", "Portugal":"pt", "Spain":"es", "France":"fr", "Italy":"it",
+  "Ireland":"ie", "United Kingdom":"gb", "Norway":"no", "Iceland":"is",
+  "Morocco":"ma", "South Africa":"za", "Senegal":"sn", "Namibia":"na",
+  "Mozambique":"mz", "Cape Verde":"cv",
+  "Indonesia":"id", "Sri Lanka":"lk", "Philippines":"ph", "Maldives":"mv",
+  "Japan":"jp", "India":"in",
+  "United States":"us", "Mexico":"mx", "Canada":"ca",
+  "Costa Rica":"cr", "Nicaragua":"ni", "Panama":"pa", "El Salvador":"sv",
+  "Barbados":"bb",
+  "Brazil":"br", "Peru":"pe", "Chile":"cl", "Ecuador":"ec",
+  "Australia":"au", "New Zealand":"nz", "Fiji":"fj",
+  "French Polynesia":"pf", "Samoa":"ws"
+};
+
+function continentCounts(name) {
+  const cont = (typeof WAVEBASE_DESTINATIONS !== "undefined")
+    ? WAVEBASE_DESTINATIONS.find(c => c.continent === name) : null;
+  if (!cont) return { live: 0, soon: 0 };
+  return {
+    live: cont.countries.filter(c => c.status === "live").length,
+    soon: cont.countries.filter(c => c.status !== "live").length
+  };
+}
+
+function flattenDestinations() {
+  if (typeof WAVEBASE_DESTINATIONS === "undefined") return [];
+  const out = [];
+  WAVEBASE_DESTINATIONS.forEach(cont => {
+    cont.countries.forEach(co => out.push(Object.assign({}, co, { continent: cont.continent })));
+  });
+  return out;
+}
+
+// Stats ticker. Pulled live from WAVEBASE_DATA + WAVEBASE_DESTINATIONS so
+// the numbers stay honest as inventory grows.
+function renderStatsTicker() {
+  const host = document.getElementById("stats-ticker");
+  if (!host) return;
+  const spots   = WAVEBASE_DATA.filter(e => e.type === "spot").length;
+  const stays   = WAVEBASE_DATA.filter(e => e.type === "stay").length;
+  const centers = WAVEBASE_DATA.filter(e => e.type === "center").length;
+  const dests   = flattenDestinations();
+  const live    = dests.filter(d => d.status === "live").length;
+  const soon    = dests.filter(d => d.status !== "live").length;
+  host.innerHTML = `
+    <span class="stat-chip"><strong>${spots}</strong> spots</span>
+    <span class="stat-chip"><strong>${stays}</strong> stays</span>
+    <span class="stat-chip"><strong>${centers}</strong> centers</span>
+    <span class="stat-sep" aria-hidden="true">·</span>
+    <span class="stat-chip stat-live"><strong>${live}</strong> ${live === 1 ? "country" : "countries"} live</span>
+    <span class="stat-chip stat-soon"><strong>${soon}</strong> queued</span>
+  `;
+}
+
+// Mini world map. Inline SVG (no Leaflet) so we get the design-magazine
+// look from the reference: white country silhouettes on a soft sea-grey
+// sea, continent regions tint clay on hover, pin-shape markers sit on
+// top of the live countries. Each country path's data-continent attr is
+// derived from ISO_TO_CONTINENT; hovering any country tints all paths
+// sharing its continent, and clicking navigates to continent.html.
+// World-map SVG: "Simple World Map" by Al MacDonald, CC BY-SA 3.0,
+// via github.com/cablop/simple-world-map-by-continents — attribution
+// appears under the map.
+function renderMiniWorldMap() {
+  const host = document.getElementById("mini-world-map");
+  if (!host) return;
+  // Skip if already rendered (e.g. re-entry during dev hot-reload)
+  if (host.dataset.rendered === "1") return;
+
+  fetch("worldmap.svg")
+    .then(r => r.ok ? r.text() : Promise.reject(r.status))
+    .then(svgText => {
+      host.innerHTML = svgText;
+      host.dataset.rendered = "1";
+      const svg = host.querySelector("svg");
+      if (!svg) return;
+      // Make the SVG fill its container responsively.
+      svg.removeAttribute("width");
+      svg.removeAttribute("height");
+      svg.setAttribute("preserveAspectRatio", "xMidYMid meet");
+      svg.classList.add("worldmap-svg");
+
+      // Tag each country path/group with its continent so CSS+JS can
+      // operate continent-wide. Live destinations get a marker class
+      // and an SVG-native pin overlay rendered on top.
+      const liveCountries = new Set();
+      const soonCountries = new Set();
+      if (typeof WAVEBASE_DESTINATIONS !== "undefined") {
+        WAVEBASE_DESTINATIONS.forEach(c =>
+          c.countries.forEach(co => {
+            (co.status === "live" ? liveCountries : soonCountries).add(co.name);
+          }));
+      }
+      const isoToCountryName = {};
+      Object.keys(COUNTRY_TO_ISO).forEach(name => {
+        isoToCountryName[COUNTRY_TO_ISO[name]] = name;
+      });
+
+      // Walk every top-level <g> / <path> with an id (one per country)
+      // and tag it with continent + live/queued/inactive metadata.
+      const countryNodes = svg.querySelectorAll("[id]");
+      countryNodes.forEach(node => {
+        const iso = node.getAttribute("id");
+        if (!iso) return;
+        const continent = ISO_TO_CONTINENT[iso];
+        if (!continent) return;
+        node.classList.add("country");
+        node.setAttribute("data-continent", continent);
+        const cName = isoToCountryName[iso];
+        if (cName && liveCountries.has(cName)) {
+          node.classList.add("country-live");
+          node.setAttribute("data-country", cName);
+        } else if (cName && soonCountries.has(cName)) {
+          node.classList.add("country-soon");
+          node.setAttribute("data-country", cName);
+        }
+      });
+
+      // Build a pin overlay group rendered on top of all country paths
+      // so the drop-pin shape never sits behind a country fill. One
+      // pin per live country, anchored to the country path's centroid.
+      const svgNS = "http://www.w3.org/2000/svg";
+      const pinLayer = document.createElementNS(svgNS, "g");
+      pinLayer.setAttribute("class", "worldmap-pins");
+      svg.appendChild(pinLayer);
+
+      const addPin = (countryName, kind) => {
+        const iso = COUNTRY_TO_ISO[countryName];
+        if (!iso) return;
+        const path = svg.getElementById(iso);
+        if (!path || !path.getBBox) return;
+        let bbox;
+        try { bbox = path.getBBox(); } catch (e) { return; }
+        const cx = bbox.x + bbox.width  / 2;
+        const cy = bbox.y + bbox.height / 2;
+        const g = document.createElementNS(svgNS, "g");
+        g.setAttribute("class", `worldmap-pin ${kind === "live" ? "is-live" : "is-soon"}`);
+        g.setAttribute("transform", `translate(${cx},${cy})`);
+        g.setAttribute("data-country", countryName);
+        g.setAttribute("data-continent", ISO_TO_CONTINENT[iso] || "");
+        // Drop-pin silhouette (teardrop) + inner circle. Anchor at tip.
+        const tear = document.createElementNS(svgNS, "path");
+        tear.setAttribute("d", "M0 2 C-4 -3 -7 -6 -7 -9 C-7 -13 -3 -16 0 -16 C3 -16 7 -13 7 -9 C7 -6 4 -3 0 2 Z");
+        tear.setAttribute("class", "pin-body");
+        const dot = document.createElementNS(svgNS, "circle");
+        dot.setAttribute("cx", "0"); dot.setAttribute("cy", "-9");
+        dot.setAttribute("r", "2.4");
+        dot.setAttribute("class", "pin-dot");
+        const title = document.createElementNS(svgNS, "title");
+        title.textContent = `${countryName} — ${kind === "live" ? "live" : "coming"}`;
+        g.appendChild(tear);
+        g.appendChild(dot);
+        g.appendChild(title);
+        pinLayer.appendChild(g);
+      };
+      liveCountries.forEach(name => addPin(name, "live"));
+
+      // Hover: tint the whole continent the cursor is over.
+      let hoveredContinent = null;
+      const continentName = el => el.closest("[data-continent]")
+        && el.closest("[data-continent]").getAttribute("data-continent");
+
+      const setHover = name => {
+        if (hoveredContinent === name) return;
+        if (hoveredContinent) {
+          svg.querySelectorAll(`[data-continent="${cssEscape(hoveredContinent)}"]`)
+             .forEach(n => n.classList.remove("is-hover"));
+        }
+        hoveredContinent = name;
+        if (name) {
+          svg.querySelectorAll(`[data-continent="${cssEscape(name)}"]`)
+             .forEach(n => n.classList.add("is-hover"));
+        }
+        // Update overlay label
+        const label = document.getElementById("worldmap-hover-label");
+        if (label) {
+          if (!name) {
+            label.textContent = "";
+            label.classList.remove("is-visible");
+          } else {
+            const counts = continentCounts(name);
+            label.textContent = `${name} — ${counts.live} live · ${counts.soon} queued`;
+            label.classList.add("is-visible");
+          }
+        }
+      };
+
+      svg.addEventListener("mousemove", ev => {
+        const target = ev.target;
+        if (target && target.closest) {
+          const cont = continentName(target);
+          setHover(cont || null);
+        }
+      });
+      svg.addEventListener("mouseleave", () => setHover(null));
+
+      // Click anywhere in a continent (country path OR a pin) → continent page
+      svg.addEventListener("click", ev => {
+        const node = ev.target && ev.target.closest("[data-continent]");
+        if (!node) return;
+        const cont = node.getAttribute("data-continent");
+        if (cont) {
+          window.location.href = `continent.html?name=${encodeURIComponent(cont)}`;
+        }
+      });
+    })
+    .catch(err => {
+      // Fail silent — the page works without the map. Log so dev sees it.
+      // eslint-disable-next-line no-console
+      console.warn("World map SVG failed to load:", err);
+      host.innerHTML = `<div class="worldmap-fallback">Map didn't load — pick a country below.</div>`;
+    });
+}
+
+// Defensive CSS.escape shim — older browsers may not have CSS.escape.
+function cssEscape(s) {
+  if (window.CSS && typeof window.CSS.escape === "function") return window.CSS.escape(s);
+  return String(s).replace(/["\\]/g, "\\$&");
+}
+
+// "Peaking right now" carousel. Header reads e.g. "Peaking right now —
+// May 2026"; cards reuse the regular renderer so the carousel always
+// matches the rest of the site. Only spots + centers (stays aren't
+// condition-bound). Falls back to shoulder-season entries if nothing
+// is in peak/high. Filterable by sport: default comes from the user's
+// account profile if they've picked exactly one sport, else "all".
+
+// Per-carousel sport pref. Survives within a session via localStorage;
+// otherwise inherits from the user's account profile.
+function getPeakingSport() {
+  try {
+    const stored = localStorage.getItem("wavebase_peaking_sport");
+    if (stored) return stored;
+  } catch (e) { /* ignore */ }
+  if (typeof WaveBaseAccount !== "undefined") {
+    const p = WaveBaseAccount.getProfile();
+    if (Array.isArray(p.surfType) && p.surfType.length === 1) {
+      return p.surfType[0];
+    }
+  }
+  return "all";
+}
+function setPeakingSport(s) {
+  try {
+    if (s && s !== "all") localStorage.setItem("wavebase_peaking_sport", s);
+    else localStorage.removeItem("wavebase_peaking_sport");
+  } catch (e) { /* ignore */ }
+}
+
+function renderPeakingSportPills() {
+  const host = document.getElementById("peaking-sport-pills");
+  if (!host) return;
+  const active = getPeakingSport();
+  const sports = [
+    { key: "all",  label: "All" },
+    { key: "wave", label: "Wave" },
+    { key: "wind", label: "Wind" },
+    { key: "kite", label: "Kite" },
+    { key: "wing", label: "Wing" }
+  ];
+  host.innerHTML = sports.map(s =>
+    `<button type="button" class="peaking-sport-pill${s.key === active ? " active" : ""}"
+             data-sport="${s.key}" aria-pressed="${s.key === active ? "true" : "false"}">${s.label}</button>`
+  ).join("");
+  host.querySelectorAll(".peaking-sport-pill").forEach(btn => {
+    btn.addEventListener("click", () => {
+      setPeakingSport(btn.dataset.sport);
+      renderPeakingSportPills();
+      renderPeakingCarousel();
+    });
+  });
+}
+
+function renderPeakingCarousel() {
+  const row = document.getElementById("peaking-carousel");
+  const sub = document.getElementById("peaking-sub");
+  if (!row) return;
+  const month = userSelectedMonth();
+  const monthLabel = WAVEBASE_MONTHS[month];
+  const year = new Date().getFullYear();
+  const sport = getPeakingSport();
+  // Spots only — stays and centers don't peak on their own conditions.
+  const isSpot = e => e.type === "spot";
+  const klass = e => {
+    if (!isSpot(e)) return null;
+    const s = seasonForMonth(getStatsFor(e), month);
+    return s ? s.klass : null;
+  };
+  const score = k => k === "peak" ? 3 : k === "high" ? 2 : k === "shoulder" ? 1 : 0;
+  const matchesSport = e => sport === "all" || entrySports(e).includes(sport);
+  let list = WAVEBASE_DATA
+    .map(e => ({ e, k: klass(e) }))
+    .filter(x => (x.k === "peak" || x.k === "high") && matchesSport(x.e))
+    .sort((a, b) => score(b.k) - score(a.k));
+  let fallback = false;
+  if (list.length === 0) {
+    fallback = true;
+    list = WAVEBASE_DATA
+      .map(e => ({ e, k: klass(e) }))
+      .filter(x => x.k === "shoulder" && matchesSport(x.e));
+  }
+  const top = list.slice(0, 5).map(x => x.e);
+  if (sub) {
+    const sportLabel = sport === "all" ? "" :
+      ({ wave: " for wave surfing", wind: " for windsurfing", kite: " for kitesurfing", wing: " for wing foiling" })[sport] || "";
+    if (top.length === 0) {
+      sub.textContent = `${monthLabel} ${year}${sportLabel} — nothing's peaking right now.`;
+    } else if (fallback) {
+      sub.textContent = `${monthLabel} ${year}${sportLabel} — shoulder season everywhere; here's what's still rideable.`;
+    } else {
+      sub.textContent = `${monthLabel} ${year}${sportLabel} — ${top.length} ${top.length === 1 ? "place" : "places"} in season right now.`;
+    }
+  }
+  row.innerHTML = top.map(e => cardHTML(e)).join("");
+  wireCards(row);
+}
+
 function initIndex() {
   const mSel = document.getElementById("f-month");
   for (let i = 1; i <= 12; i++) {
@@ -1294,6 +1719,16 @@ function initIndex() {
     wrap.innerHTML = sportPillsHTML(getSportPref());
     searcherSection.parentNode.insertBefore(wrap, searcherSection);
     wireSportPills(wrap);
+  }
+
+  // Landing extras: ticker, mini-world-map, peaking-right-now carousel.
+  renderStatsTicker();
+  renderMiniWorldMap();
+  renderPeakingSportPills();
+  renderPeakingCarousel();
+  // Keep the peaking carousel in sync with the month selector.
+  if (fMonth) {
+    fMonth.addEventListener("change", renderPeakingCarousel);
   }
 
   runSearch();
@@ -2837,18 +3272,21 @@ function initMobileTabbar() {
     /kaart\.html$/.test(path) ? "map" :
     /compare\.html$/.test(path) ? "compare" :
     /account\.html$/.test(path) ? "me" :
+    /about\.html$/.test(path) ? "about" :
     "discover";
 
   const ico = {
     discover: '<svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><polygon points="16,8 13,14 8,16 11,10"/></svg>',
     map: '<svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 1 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>',
     compare: '<svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="17 1 21 5 17 9"/><path d="M3 11V9a4 4 0 0 1 4-4h14"/><polyline points="7 23 3 19 7 15"/><path d="M21 13v2a4 4 0 0 1-4 4H3"/></svg>',
-    me: '<svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>'
+    me: '<svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>',
+    about: '<svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>'
   };
   const tabs = [
     { route: "discover", href: "index.html", label: "Discover" },
     { route: "map", href: "kaart.html", label: "Map" },
     { route: "compare", href: "compare.html", label: "Compare" },
+    { route: "about", href: "about.html", label: "About" },
     { route: "me", href: "account.html", label: "Me" }
   ];
 
@@ -2870,14 +3308,127 @@ function initMobileTabbar() {
   }
 }
 
+/* ---- Continent page — list of countries in one continent ----
+   Live countries get a prominent linked card showing spot/stay/center
+   counts (click → Discover filtered to that country); queued countries
+   render as dim dashed cards with "coming soon". */
+function initContinent() {
+  const root = document.getElementById("continent-root");
+  if (!root) return;
+  const params = new URLSearchParams(window.location.search);
+  const name = params.get("name");
+  if (!name) {
+    root.innerHTML = `<p class="empty">No continent picked. <a href="index.html">Back to Discover</a>.</p>`;
+    return;
+  }
+  const continent = (typeof WAVEBASE_DESTINATIONS !== "undefined")
+    ? WAVEBASE_DESTINATIONS.find(c => c.continent === name) : null;
+  if (!continent) {
+    root.innerHTML = `<p class="empty">Unknown continent &mdash; <a href="index.html">back to Discover</a>.</p>`;
+    return;
+  }
+  document.title = `${continent.continent} — WaveBase`;
+
+  const live = continent.countries.filter(c => c.status === "live");
+  const soon = continent.countries.filter(c => c.status !== "live");
+  const countryEntries = co => WAVEBASE_DATA.filter(e => entryCountry(e) === co.name);
+
+  let html = `
+    <header class="continent-head">
+      <p class="continent-kicker">Continent</p>
+      <h1>${escHTML(continent.continent)}</h1>
+      <p class="continent-sub">
+        <strong>${live.length}</strong> ${live.length === 1 ? "country" : "countries"} live ·
+        <strong>${soon.length}</strong> queued
+      </p>
+    </header>
+  `;
+
+  if (live.length) {
+    html += `<h2 class="continent-section-h">Live now</h2>`;
+    html += `<div class="continent-grid">`;
+    live.forEach(co => {
+      const entries = countryEntries(co);
+      const spots   = entries.filter(e => e.type === "spot").length;
+      const stays   = entries.filter(e => e.type === "stay").length;
+      const centers = entries.filter(e => e.type === "center").length;
+      const parts = [];
+      if (spots)   parts.push(`${spots} ${spots === 1 ? "spot" : "spots"}`);
+      if (stays)   parts.push(`${stays} ${stays === 1 ? "stay" : "stays"}`);
+      if (centers) parts.push(`${centers} ${centers === 1 ? "center" : "centers"}`);
+      html += `
+        <a class="continent-country live" href="index.html?country=${encodeURIComponent(co.name)}">
+          <span class="cc-flag">${co.flag}</span>
+          <span class="cc-body">
+            <strong class="cc-name">${escHTML(co.name)}</strong>
+            <span class="cc-count">${parts.join(" · ") || "Live"}</span>
+          </span>
+          <span class="cc-go">Explore &rarr;</span>
+        </a>
+      `;
+    });
+    html += `</div>`;
+  }
+
+  if (soon.length) {
+    html += `<h2 class="continent-section-h">Coming next</h2>`;
+    html += `<div class="continent-grid">`;
+    soon.forEach(co => {
+      html += `
+        <div class="continent-country soon">
+          <span class="cc-flag">${co.flag}</span>
+          <span class="cc-body">
+            <strong class="cc-name">${escHTML(co.name)}</strong>
+            <span class="cc-count">Coming soon</span>
+          </span>
+        </div>
+      `;
+    });
+    html += `</div>`;
+  }
+
+  root.innerHTML = html;
+}
+
+/* ---- Persistent header search ----
+   On non-Discover pages the searchbar lives permanently in the header.
+   It doesn't filter the current page (there's nothing to filter on a
+   detail page); pressing Enter hops to Discover with the query so the
+   user lands in the full search results. */
+function wireHeaderSearch() {
+  const input = document.getElementById("f-header-search");
+  const clear = document.getElementById("f-header-search-clear");
+  if (!input) return;
+  const go = () => {
+    const q = input.value.trim();
+    if (q) window.location.href = `index.html?q=${encodeURIComponent(q)}`;
+  };
+  input.addEventListener("keydown", ev => {
+    if (ev.key === "Enter") { ev.preventDefault(); go(); }
+    else if (ev.key === "Escape") { input.value = ""; if (clear) clear.hidden = true; }
+  });
+  input.addEventListener("input", () => {
+    if (clear) clear.hidden = !input.value;
+  });
+  if (clear) {
+    clear.addEventListener("click", () => {
+      input.value = "";
+      clear.hidden = true;
+      input.focus();
+    });
+  }
+}
+
 /* ---- router ---- */
 document.addEventListener("DOMContentLoaded", () => {
   updateNav();
   initDestinations();
   initMobileTabbar();
+  wireHeaderSearch();
   if (document.getElementById("results")) initIndex();
   if (document.getElementById("detail-root")) initSpot();
   if (document.getElementById("map")) initMap();
   if (document.getElementById("account-root")) renderAccount();
   if (document.getElementById("compare-root")) renderCompare();
+  if (document.getElementById("continent-root")) initContinent();
 });
