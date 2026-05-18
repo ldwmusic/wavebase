@@ -137,6 +137,40 @@ a:hover { text-decoration: underline; }
 }
 .about-section em { font-style: italic; color: var(--ink-soft); }
 .about-section strong { font-weight: 600; }
+
+/* About — "Then & Now" photo diptych. One landscape, one portrait, each
+   fills its equal-height column via object-fit cover. Stacks on mobile. */
+.about-photos {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 18px;
+  margin: 22px 0 18px;
+}
+.about-photos figure {
+  margin: 0;
+}
+.about-photos img {
+  width: 100%;
+  height: 380px;
+  object-fit: cover;
+  object-position: center 30%;
+  border-radius: var(--radius);
+  display: block;
+  box-shadow: var(--shadow-sm);
+}
+.about-photos figcaption {
+  margin-top: 8px;
+  font-family: 'Fraunces', Georgia, serif;
+  font-size: 14px;
+  color: var(--ink-soft);
+  font-style: italic;
+  text-align: center;
+  letter-spacing: 0.02em;
+}
+@media (max-width: 600px) {
+  .about-photos { grid-template-columns: 1fr; gap: 14px; }
+  .about-photos img { height: 300px; }
+}
 .about-list, .about-labels, .about-live {
   list-style: none;
   padding: 0;
