@@ -2201,6 +2201,32 @@ function compareScoreboardHTML(items) {
   const inferredNote = type === "stay"
     ? `<p class="muted form-note">⚠ Food / Hosts / Comfort / Cleanliness / Value / Style / Vibe are inferred from the reviewer prose — not yet verified against fresh reviews. Refine if you disagree.</p>`
     : "";
+
+  // Sources block at the bottom — same self-documentation as the at-a-glance
+  // panel on detail pages. For spots/centers we surface stats.source; for
+  // stays we describe how distance, rating, and scores were derived.
+  let sourcesHTML = "";
+  if (type === "spot" || type === "center") {
+    const lines = items.map(e => {
+      const s = (getStatsFor(e) || {}).source;
+      return `<li><strong>${escHTML(e.name)}</strong> &mdash; ${escHTML(s || "no source listed")}</li>`;
+    }).join("");
+    sourcesHTML = `<div class="sb-sources">
+      <h3>Sources</h3>
+      <ul class="sb-sources-list">${lines}</ul>
+    </div>`;
+  } else if (type === "stay") {
+    sourcesHTML = `<div class="sb-sources">
+      <h3>Sources</h3>
+      <ul class="sb-sources-list">
+        <li><strong>Distance to surf spot</strong> &mdash; parsed from each stay's <code>verblijf.afstandSpot</code> prose.</li>
+        <li><strong>Review rating</strong> &mdash; parsed from each stay's <code>verblijf.rating</code> prose (TripAdvisor / Booking / Google / Hostelworld figures).</li>
+        <li><strong>Things to do</strong> &mdash; count of comma- or and-separated items in <code>verblijf.activiteiten</code>.</li>
+        <li><strong>Food / Hosts / Comfort / Cleanliness / Value / Style / Vibe</strong> &mdash; inferred by Claude from each stay's samenvatting / verhaal / lagen reviewer prose. See per-stay bron-strength labels (SOLID / MOSTLY SOLID / STALE) on the detail page for confidence.</li>
+      </ul>
+    </div>`;
+  }
+
   return `<section class="cmp-scoreboard">
     <header class="sb-head">
       <h2>Scoreboard</h2>
@@ -2208,6 +2234,7 @@ function compareScoreboardHTML(items) {
       ${inferredNote}
     </header>
     ${rows}
+    ${sourcesHTML}
   </section>`;
 }
 
