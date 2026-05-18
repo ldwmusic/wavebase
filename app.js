@@ -1,5 +1,34 @@
-/* WaveBase — QnD logic (English). One script, routes per page:
-   index (search + split lists), spot (detail), map, account, compare. */
+/* ============================================================
+   WaveBase — app.js
+   ============================================================
+   One script for the whole site. The router at the bottom of the
+   file picks the right `init*()` to run based on which page DOM
+   elements are present.
+
+   Rough table of contents (for grep & sanity):
+
+   - Top helpers                      cap, byId, distanceKm, fmtKm
+   - Stats helpers                    getStatsFor, userSelectedMonth,
+                                      seasonForMonth, periodColumnHTML
+   - Cards & search                   cardHTML, runSearch, renderResultsSections
+   - Monthly charts                   buildDualBarChart, buildSingleMetricChart,
+                                      monthlyChartHTML, wireChartTooltips
+   - Landing-page extras              COUNTRY_COORDS, ISO_TO_CONTINENT,
+                                      renderStatsTicker, renderMiniWorldMap,
+                                      renderPeakingCarousel
+   - Page initializers                initIndex, initSpot, initMap,
+                                      renderAccount, renderCompare,
+                                      initContinent
+   - Header / nav / destinations      initDestinations, openDestinationsMenu,
+                                      initMobileTabbar, wireHeaderSearch
+   - Router                           DOMContentLoaded at the very bottom
+
+   Data lives in `data.js` (WAVEBASE_DATA + WAVEBASE_DESTINATIONS +
+   WAVEBASE_TOWNS + WAVEBASE_MONTHS). Account state lives in
+   `account.js` (WaveBaseAccount, localStorage only).
+
+   See README.md for the higher-level project map and edit recipes.
+   ============================================================ */
 
 function cap(s) { return s.charAt(0).toUpperCase() + s.slice(1); }
 function byId(id) { return WAVEBASE_DATA.find(x => x.id === id); }
@@ -246,6 +275,10 @@ function periodColumnHTML(period, label, monthLabel, isPeak, stats, targetMonth)
   </div>`;
 }
 
+// The "At a glance" block at the top of every spot detail page.
+// Renders the top facts (wave, bottom, wind dir, crowd, locals) + period
+// comparison + the monthly bar charts. Returns empty string when the
+// entry has no stats (e.g. a stay — those don't render this block).
 function statsPanelHTML(e) {
   const s = getStatsFor(e);
   if (!s) return "";
@@ -800,6 +833,12 @@ function closeCardTripPopover() {
   if (p) p.remove();
 }
 
+// Attach interaction handlers to every .card inside `container`:
+// - whole-card click → navigate to its detail page
+// - save/compare/trip-add buttons → call account helpers (don't navigate)
+// Re-runs are safe; this is the standard wiring after any HTML re-render
+// that contains cards (Discover results, related sections, account saved
+// places, etc.).
 function wireCards(container) {
   container.querySelectorAll(".card").forEach(card => {
     card.addEventListener("click", ev => {
@@ -1030,6 +1069,14 @@ function renderResultsSections(matches, gridClass) {
   return html;
 }
 
+/* The Discover-page search/filter brain. Fires on every filter change
+   AND on page load. Three execution paths:
+   1. Free-text query → search all entries by name/text, ignore country
+   2. No country picked → render the "Pick a country" empty state
+   3. Country picked → render filtered results for that country
+   Also toggles `is-home` on <body> to hide the hero/plan-trip/stats
+   blocks once the user has filtered anything, and slides the searchbar
+   from the hero slot into the sticky header. */
 function runSearch() {
   const country = document.getElementById("f-country").value;
   const level = document.getElementById("f-level").value;
@@ -2279,6 +2326,23 @@ function tripViewLinkHTML(entryId) {
   return `<a class="trip-view-link" href="account.html#trips" title="Open your trips on the account page">View ${containing.length} trips ↗</a>`;
 }
 
+/* Spot detail page renderer (used for spots, stays AND centers — same
+   template, different sections shown based on `e.type`). The page reads
+   the entry id from `?id=…` in the URL.
+
+   Render order (top → bottom):
+   - Hero image / placeholder + back link
+   - Type-specific title block (spot/center/stay)
+   - Action row (Save, Compare, Add to trip)
+   - Mini-map of this spot's coords
+   - "At a glance" block (statsPanelHTML — spots/centers only)
+   - Story + summary + layered detail (verhaal / samenvatting / lagen)
+   - Centers/stays nearby (relatedSectionsForDetail)
+   - More in country
+   - Reviews mock
+
+   Editing copy on spot pages? Most prose comes from `data.js` (per-entry
+   `verhaal`, `samenvatting`, `lagen` fields), NOT from this function. */
 function initSpot() {
   const root = document.getElementById("detail-root");
   const id = new URLSearchParams(window.location.search).get("id");
