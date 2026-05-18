@@ -1505,52 +1505,159 @@ function townPanelHTML(townName) {
   </section>`;
 }
 
-// Mock surfer-reviews section — UI only, no storage. Lets us validate
-// the design + collect "would you submit?" signal before any backend lands.
-// All submissions are dropped on the floor with a "coming soon" confirmation.
+// Surfer-reviews mock — per-type story-prose forms with inline chip
+// dropdowns (spot / center / stay each have their own structure). UI
+// only for now: submissions persist locally as previews. Backend turns
+// them into shared reviews in phase 2.
 function reviewsMockHTML(e) {
   const typeWord = e.type === "stay" ? "stay" : (e.type === "center" ? "center" : "spot");
+  const profile = WaveBaseAccount.getProfile();
+
+  // Helper: build a chip-select with options. selected is auto-applied if
+  // it matches one of the option values, so account pre-fills carry over.
+  const chip = (name, opts, selected, placeholder) => {
+    const optionsHtml = (placeholder ? `<option value="">${escHTML(placeholder)}</option>` : "") +
+      opts.map(o => `<option value="${escHTML(o.value)}" ${o.value === selected ? "selected" : ""}>${escHTML(o.label)}</option>`).join("");
+    return `<select class="review-chip" name="${name}">${optionsHtml}</select>`;
+  };
+
+  // Common option sets
+  const yearOpts = (() => {
+    const now = new Date().getFullYear();
+    return Array.from({ length: 6 }, (_, i) => ({ value: String(now - i), label: String(now - i) }));
+  })();
+  const monthOpts = WAVEBASE_MONTHS.slice(1).map((m, i) => ({ value: String(i + 1), label: m }));
+  const levelOpts = [
+    { value: "beginner",     label: "beginner" },
+    { value: "intermediate", label: "intermediate" },
+    { value: "advanced",     label: "advanced" }
+  ];
+  const disciplineOpts = [
+    { value: "surfer",     label: "surfer" },
+    { value: "windsurfer", label: "windsurfer" },
+    { value: "kitesurfer", label: "kitesurfer" },
+    { value: "wingfoiler", label: "wingfoiler" }
+  ];
+  const score10Opts = Array.from({ length: 10 }, (_, i) => ({ value: String(i + 1), label: `${i + 1}/10` }));
+  const tripDays   = ["1","2","3","4","5","6","7","10","14","21","30+"].map(v => ({ value: v, label: `${v} day${v === "1" ? "" : "s"}` }));
+  const nights     = ["1","2","3","4","5","6","7","10","14","21","30+"].map(v => ({ value: v, label: `${v} night${v === "1" ? "" : "s"}` }));
+  const verdictOpts = [
+    { value: "would-go-again", label: "would go again" },
+    { value: "maybe",          label: "maybe" },
+    { value: "no",             label: "wouldn't go again" }
+  ];
+  const travelOpts = [
+    { value: "solo",    label: "solo" },
+    { value: "couple",  label: "as a couple" },
+    { value: "friends", label: "with friends" },
+    { value: "family",  label: "with family" }
+  ];
+  const vibeFelt = [
+    { value: "chill",   label: "chill" },
+    { value: "social",  label: "social" },
+    { value: "party",   label: "party" },
+    { value: "family",  label: "family" },
+    { value: "pro",     label: "pro / focused" }
+  ];
+  const distanceFelt = [
+    { value: "close",   label: "right by the spot" },
+    { value: "ok",      label: "ok-ish, manageable" },
+    { value: "too-far", label: "felt too far" }
+  ];
+
+  // Pre-fill defaults from account profile
+  const preLevel = profile.level || "";
+  const preDiscipline = Array.isArray(profile.surfType) && profile.surfType.length ? profile.surfType[0] : "";
+  const preTravel = profile.travelStyle ? profile.travelStyle.toLowerCase() : "";
+  const preName = profile.name || "";
+
+  // Stars + date row — always present, common to all types.
+  const starsRow = `<div class="review-stars" role="radiogroup" aria-label="Star rating">
+    ${[1,2,3,4,5].map(n => `<button type="button" class="review-star" data-stars="${n}" role="radio" aria-label="${n} star${n>1?'s':''}">★</button>`).join("")}
+  </div>`;
+  const dateRow = `<span class="review-date">
+    ${chip("monthVisited", monthOpts, "", "month")}
+    ${chip("yearVisited",  yearOpts,  String(new Date().getFullYear()), null)}
+  </span>`;
+
+  // The "Reviewing as ..." sub-line — pre-filled from account where possible.
+  const profileLine = `<p class="review-as">Reviewing as
+    ${chip("level", levelOpts, preLevel, "your level")}
+    ${chip("discipline", disciplineOpts, preDiscipline, "discipline")}
+    ${profile.name ? ` &middot; <span class="muted">${escHTML(profile.name)}</span>` : ""}
+  </p>`;
+
+  // Build the type-specific story prose
+  let story;
+  if (e.type === "spot") {
+    story = `<p class="review-story">
+      I went to <strong>${escHTML(e.name)}</strong> in ${dateRow}
+      for ${chip("tripLength", tripDays, "", "?")},
+      sailed ${chip("daysSailed", tripDays, "", "?")} of them.
+      Crowd was ${chip("crowd", score10Opts, "", "1-10")},
+      locals ${chip("localism", score10Opts, "", "1-10")},
+      gear ${chip("gear", score10Opts, "", "1-10")}.
+      Verdict: ${chip("verdict", verdictOpts, "", "would I go back?")}.
+    </p>`;
+  } else if (e.type === "center") {
+    story = `<p class="review-story">
+      I trained at <strong>${escHTML(e.name)}</strong> in ${dateRow}
+      for ${chip("tripLength", tripDays, "", "?")}.
+      Lessons ${chip("lessonsScore", score10Opts, "", "1-10")},
+      rental gear ${chip("gearScore", score10Opts, "", "1-10")},
+      instructor/team ${chip("instructorScore", score10Opts, "", "1-10")},
+      safety ${chip("safetyScore", score10Opts, "", "1-10")},
+      value ${chip("valueScore", score10Opts, "", "1-10")}.
+      Vibe: ${chip("vibe", vibeFelt, "", "?")}.
+      Verdict: ${chip("verdict", verdictOpts, "", "would I book again?")}.
+    </p>`;
+  } else { // stay
+    story = `<p class="review-story">
+      I stayed at <strong>${escHTML(e.name)}</strong> in ${dateRow}
+      for ${chip("tripLength", nights, "", "?")} ${chip("travelGroup", travelOpts, preTravel, "with whom?")}.
+      Hosts ${chip("hostsScore", score10Opts, "", "1-10")},
+      food ${chip("foodScore", score10Opts, "", "1-10")},
+      comfort ${chip("comfortScore", score10Opts, "", "1-10")},
+      cleanliness ${chip("cleanlinessScore", score10Opts, "", "1-10")},
+      value ${chip("valueScore", score10Opts, "", "1-10")}.
+      Vibe: ${chip("vibe", vibeFelt, "", "?")}.
+      Distance from spot: ${chip("distance", distanceFelt, "", "?")}.
+      Verdict: ${chip("verdict", verdictOpts, "", "would I stay again?")}.
+    </p>`;
+  }
+
   return `<section class="reviews-mock" id="reviews">
     <header class="reviews-head">
       <h2>Surfer reviews <span class="reviews-soon-tag">coming soon</span></h2>
-      <p class="muted">Have you been to this ${typeWord}? Tell us how it matched our write-up.
-        The form below works as a preview — your input won't be saved yet (backend is phase 2),
-        but it shows what's coming.</p>
+      <p class="muted">Have you been to this ${typeWord}? Drop a quick review.
+        The form below works as a preview — saved on this device, will become a
+        real shared review once the backend lands.</p>
     </header>
 
-    <form class="review-form" data-mock-target="${e.id}" autocomplete="off">
+    <form class="review-form" data-entry-id="${e.id}" data-entry-type="${e.type}" autocomplete="off">
+      <div class="review-top">${starsRow}${profileLine}</div>
+      ${story}
+
       <div class="review-field">
-        <label>Your rating</label>
-        <div class="review-stars" role="radiogroup" aria-label="Star rating">
-          ${[1,2,3,4,5].map(n => `<button type="button" class="review-star" data-stars="${n}" role="radio" aria-label="${n} star${n>1?'s':''}">★</button>`).join("")}
+        <label for="review-text">Your honest take <span class="muted">— this is the part that really helps other surfers</span></label>
+        <textarea id="review-text" name="text" rows="5" placeholder="What surprised you? What worked? Anything off? Talk to a friend who's about to go there."></textarea>
+      </div>
+
+      <div class="review-bottom">
+        <label class="review-name-field">First name or initials
+          <input type="text" name="name" placeholder="e.g. Lode D." value="${escHTML(preName)}">
+        </label>
+        <div class="review-matches">
+          <span class="muted">Does our write-up match?</span>
+          <label class="review-radio"><input type="radio" name="matches" value="yes"> yes</label>
+          <label class="review-radio"><input type="radio" name="matches" value="partial"> partly</label>
+          <label class="review-radio"><input type="radio" name="matches" value="no"> no</label>
         </div>
-      </div>
-
-      <div class="review-field">
-        <label>Does our write-up match what you found?</label>
-        <div class="review-radio-row">
-          <label class="review-radio"><input type="radio" name="matches" value="yes"> Yes, on the nose</label>
-          <label class="review-radio"><input type="radio" name="matches" value="partial"> Partly</label>
-          <label class="review-radio"><input type="radio" name="matches" value="no"> No, my experience differed</label>
-        </div>
-      </div>
-
-      <div class="review-field">
-        <label for="review-text">Your honest take <span class="muted">(any month, any year — we'll show date + month with the review)</span></label>
-        <textarea id="review-text" name="text" rows="4" placeholder="What surprised you? Anything off?"></textarea>
-      </div>
-
-      <div class="review-field review-field-row">
-        <label class="review-name-field">First name or initials <input type="text" name="name" placeholder="e.g. Lode D."></label>
         <button type="submit" class="btn">Submit (preview)</button>
       </div>
 
       <p class="review-feedback" hidden></p>
     </form>
-
-    <div class="review-empty">
-      <em>No reviews yet — the list will fill up once the backend goes live and surfers start posting.</em>
-    </div>
   </section>`;
 }
 
@@ -1719,7 +1826,8 @@ function initSpot() {
 
   // Reviews mock — stars highlight on click; submit persists the preview
   // locally (so it shows on My WaveBase → My reviews) and clears the form.
-  // No data leaves the browser; real shared reviews land with the backend.
+  // The story-prose chips and free text all serialise into a `details`
+  // object on the saved review so future readers see the full context.
   const reviewForm = root.querySelector(".review-form");
   if (reviewForm) {
     let chosenStars = 0;
@@ -1736,12 +1844,24 @@ function initSpot() {
       const fb = reviewForm.querySelector(".review-feedback");
       if (!fb) return;
       const fd = new FormData(reviewForm);
+      // Fields handled at top level: stars, year, month, matches, text, name.
+      // Everything else gets bundled into details — that's the per-type chip data.
+      const TOP = new Set(["yearVisited", "monthVisited", "matches", "text", "name"]);
+      const details = {};
+      for (const [k, v] of fd.entries()) {
+        if (TOP.has(k) || !v) continue;
+        details[k] = v;
+      }
       WaveBaseAccount.addReview({
         entryId: e.id,
+        entryType: e.type,
         stars: chosenStars,
+        yearVisited:  fd.get("yearVisited"),
+        monthVisited: fd.get("monthVisited"),
         matches: fd.get("matches") || "",
-        text: fd.get("text") || "",
-        name: fd.get("name") || ""
+        text:    fd.get("text") || "",
+        name:    fd.get("name") || "",
+        details
       });
       fb.hidden = false;
       fb.innerHTML = `Thanks — your preview review is saved on this device. See it on <a href="account.html#my-reviews">My WaveBase → My reviews</a>. Real, shared reviews land when the backend goes live.`;
@@ -1937,6 +2057,26 @@ function renderAccount() {
     : `<p class="muted">No trips yet.</p>`;
 
   const matchesLabel = { yes: "Matched our write-up", partial: "Partly matched", no: "Differed from our write-up" };
+  // Pretty labels for the keys we know about. Anything not listed renders
+  // with the raw key (graceful when we add new fields).
+  const detailLabels = {
+    tripLength: "Stay length", daysSailed: "Days sailed",
+    travelGroup: "Travel group", crowd: "Crowd",
+    localism: "Locals", gear: "Gear", gearScore: "Gear",
+    lessonsScore: "Lessons", instructorScore: "Instructor",
+    safetyScore: "Safety", valueScore: "Value",
+    hostsScore: "Hosts", foodScore: "Food",
+    comfortScore: "Comfort", cleanlinessScore: "Cleanliness",
+    vibe: "Vibe", distance: "Distance",
+    verdict: "Verdict", level: "Reviewer level",
+    discipline: "Discipline"
+  };
+  const detailValueFmt = (k, v) => {
+    // 1-10 scores show as "N/10". Verdict/vibe/etc as plain word.
+    if (/Score$|crowd|localism|gear$/i.test(k) && /^\d+$/.test(v)) return `${v}/10`;
+    if (k === "verdict") return v === "would-go-again" ? "would go again" : v === "maybe" ? "maybe" : "wouldn't go again";
+    return v;
+  };
   const reviewsHTML = reviews.length
     ? `<ul class="my-reviews">${reviews.map(r => {
         const entry = byId(r.entryId);
@@ -1946,15 +2086,23 @@ function renderAccount() {
         const date = r.when ? new Date(r.when).toISOString().slice(0, 10) : "";
         const stars = r.stars
           ? `<span class="my-review-stars" aria-label="${r.stars} stars">${"★".repeat(r.stars)}${"☆".repeat(Math.max(0, 5 - r.stars))}</span>` : "";
+        const visited = (r.monthVisited && r.yearVisited)
+          ? ` <span class="muted">&middot; visited ${WAVEBASE_MONTHS[r.monthVisited]} ${r.yearVisited}</span>` : "";
         const matchTag = r.matches && matchesLabel[r.matches]
           ? `<span class="my-review-match match-${r.matches}">${matchesLabel[r.matches]}</span>` : "";
         const author = r.name ? ` &mdash; ${escHTML(r.name)}` : "";
+        // Render details as pill list
+        const detailPills = r.details
+          ? Object.entries(r.details).filter(([k, v]) => v).map(([k, v]) =>
+              `<span class="my-review-detail"><span class="muted">${escHTML(detailLabels[k] || k)}:</span> ${escHTML(detailValueFmt(k, v))}</span>`).join("")
+          : "";
         return `<li class="my-review" data-review="${r.id}">
           <div class="my-review-head">
             <div class="my-review-where">${where}</div>
             <button class="link-btn" data-del-review="${r.id}" aria-label="Delete review">remove</button>
           </div>
-          <div class="my-review-meta">${stars} ${matchTag} <span class="muted">${date}${author}</span></div>
+          <div class="my-review-meta">${stars} ${matchTag} <span class="muted">${date}${author}${visited}</span></div>
+          ${detailPills ? `<div class="my-review-details">${detailPills}</div>` : ""}
           ${r.text ? `<p class="my-review-text">${escHTML(r.text)}</p>` : ""}
         </li>`;
       }).join("")}</ul>`

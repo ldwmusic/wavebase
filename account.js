@@ -124,19 +124,25 @@ const WaveBaseAccount = (function () {
       write(s);
     },
 
-    /* reviews — local previews of submissions. Persist what the user typed
-       so they can see their drafts on the account page until the backend
-       lands and turns them into real, shared reviews. */
+    /* reviews — local previews of submissions. Persist the full review
+       payload so the My-reviews page can display the rich tagged context
+       a user wrote. Backend (phase 2) turns these into real shared reviews. */
     getReviews() { return state().reviews; },
     addReview(review) {
       const s = state();
       const entry = {
         id: "r" + Date.now() + Math.floor(Math.random() * 1000),
-        entryId: review.entryId,
-        stars: Number(review.stars) || 0,
-        matches: review.matches || "",
-        text: (review.text || "").trim(),
-        name: (review.name || "").trim(),
+        entryId:   review.entryId,
+        entryType: review.entryType || "spot",  // spot / center / stay
+        stars:     Number(review.stars) || 0,
+        yearVisited:  Number(review.yearVisited) || null,
+        monthVisited: Number(review.monthVisited) || null,
+        matches:   review.matches || "",
+        text:      (review.text || "").trim(),
+        name:      (review.name || "").trim(),
+        // Type-specific tags live here as an open dict so we can add more
+        // fields per type without changing the schema.
+        details:   (review.details && typeof review.details === "object") ? review.details : {},
         when: new Date().toISOString()
       };
       s.reviews.unshift(entry);
