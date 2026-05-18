@@ -160,7 +160,7 @@ a:hover { text-decoration: underline; }
 /* Per-photo focal points — faces sit slightly above the geometric center
    on the young photo; on the Morocco photo the two of us stand roughly
    in the centre after the recrop. */
-.about-photos .ph-then img { object-position: center 25%; }
+.about-photos .ph-then img { object-position: 30% 25%; }
 .about-photos .ph-now  img { object-position: center 55%; }
 .about-photos figcaption {
   margin-top: 8px;
