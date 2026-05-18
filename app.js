@@ -662,6 +662,7 @@ function cardHTML(e, distKm) {
   <article class="card" data-href="${spotHref(e.id)}">
     <div class="thumb ${e.type}${e.photo ? " has-photo" : ""}"${thumbStyle(e)}>
       <span class="badge">${typeBadge(e.type)}</span>
+      ${seasonChip}
       ${e.type === "stay" ? "" : sportIconsHTML(entrySports(e))}
       <button class="trip-btn ${inAnyTrip ? "on" : ""}" data-trip-add="${e.id}" aria-label="Add to a trip" title="${inAnyTrip ? "In a trip — click to add to another" : "Add to a trip"}">${inAnyTrip ? '<svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="4 12 10 18 20 6"/></svg>' : '<svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>'}</button>
       <button class="compare-btn ${comparing ? "on" : ""}" data-compare="${e.id}" aria-label="Compare" title="${comparing ? "In your compare list" : "Add to compare"}">⇄</button>
@@ -671,7 +672,7 @@ function cardHTML(e, distKm) {
       <div class="place">${e.town}${distHint}</div>
       <h3>${e.name}</h3>
       <p class="tag">${e.tagline}</p>
-      <div class="meta">${seasonChip}${pills}</div>
+      <div class="meta">${pills}</div>
     </div>
   </article>`;
 }
