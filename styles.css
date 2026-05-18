@@ -1542,6 +1542,17 @@ table.cal td.host { color: var(--clay); }
   white-space: nowrap;
 }
 
+/* Levels pills (B / I / A) on the scoreboard — three discrete slots, lit
+   if the entry accepts that level. Clearer than a band visualisation. */
+.sb-level-set { display: inline-flex; gap: 4px; }
+.sb-level-pill {
+  display: inline-flex; align-items: center; justify-content: center;
+  width: 26px; height: 26px; border-radius: 999px;
+  background: var(--sand); color: var(--ink-soft);
+  font-size: 12px; font-weight: 700;
+}
+.sb-level-pill.on { background: var(--sea); color: #fff; }
+
 /* Sources block at the bottom of the scoreboard — same self-documentation
    pattern as the at-a-glance panel on detail pages. Small, muted, italic. */
 .sb-sources {

@@ -2037,19 +2037,8 @@ function compareScoreboardHTML(items) {
   //                  null → no winner (preference-driven)
   let all;
   const levelsDim = {
-    icon: "🎓", label: "Levels welcome", mode: "range", max: 3,
-    labelFor: r => {
-      const map = ["", "B", "I", "A"];
-      if (r.lo === r.hi) return cap(["", "beginner", "intermediate", "advanced"][r.lo] || "");
-      return `${map[r.lo]} → ${map[r.hi]}`;
-    },
-    get: e => {
-      if (!Array.isArray(e.levels) || !e.levels.length) return null;
-      const pos = { beginner: 1, intermediate: 2, advanced: 3 };
-      const ps = e.levels.map(l => pos[l]).filter(Boolean);
-      if (!ps.length) return null;
-      return { lo: Math.min(...ps), hi: Math.max(...ps) };
-    }
+    icon: "🎓", label: "Levels welcome", mode: "levels",
+    get: e => Array.isArray(e.levels) && e.levels.length ? e.levels : null
   };
 
   if (type === "spot") {
@@ -2144,6 +2133,7 @@ function compareScoreboardHTML(items) {
     if (val == null) return false;
     if (d.mode === "range") return val.lo != null && val.hi != null;
     if (d.mode === "label") return typeof val === "string" && val.length > 0;
+    if (d.mode === "levels") return Array.isArray(val) && val.length > 0;
     return !isNaN(val);
   }));
   if (!dims.length) return "";
@@ -2165,6 +2155,17 @@ function compareScoreboardHTML(items) {
         return `<div class="sb-row-cell sb-row-cell-label">
           <span class="sb-entry-name">${escHTML(c.e.name)}</span>
           <span class="sb-chip">${escHTML(c.val)}</span>
+        </div>`;
+      }
+      // Levels mode: three discrete pills B / I / A, lit if accepted.
+      if (d.mode === "levels") {
+        const set = new Set(c.val);
+        const pills = [["beginner","B"],["intermediate","I"],["advanced","A"]]
+          .map(([k, lab]) => `<span class="sb-level-pill${set.has(k)?" on":""}" title="${cap(k)}">${lab}</span>`)
+          .join("");
+        return `<div class="sb-row-cell sb-row-cell-label">
+          <span class="sb-entry-name">${escHTML(c.e.name)}</span>
+          <span class="sb-level-set">${pills}</span>
         </div>`;
       }
       let barInner;
