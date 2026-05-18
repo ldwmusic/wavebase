@@ -1935,17 +1935,16 @@ function renderAccount() {
 
 /* ---- COMPARE ---- */
 // Scoreboard above the text cards. Bar direction is always "less = left,
-// more = right" — so a calm spot has a short bar and a busy one is long;
-// a beginner-only spot has a short bar starting at the left, an advanced-
-// only one has a band on the right. Winner clay-accent only applies to
-// dimensions where "more = unambiguously better" (Wind / Gust / Wave).
-// Other dimensions are user preference and stay sea-blue both ways.
+// more = right" — short bar for "less of this dimension", long for more.
+// winnerDirection per dimension says which extreme is "better" for the
+// clay accent: "higher" = longest bar wins, "lower" = shortest bar wins
+// (e.g. distance to spot), null = no winner (preference-driven).
 function compareScoreboardHTML(items) {
   if (items.length < 2) return "";
   const types = new Set(items.map(i => i.type));
   if (types.size > 1) return "";
   const type = items[0].type;
-  if (type !== "spot" && type !== "center") return "";
+  if (type !== "spot" && type !== "center" && type !== "stay") return "";
 
   const m = userSelectedMonth() - 1;
   const monthNames = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
@@ -1961,16 +1960,44 @@ function compareScoreboardHTML(items) {
     return parts.length || null;
   };
 
-  // mode: "fill" (left edge to value, default) | "range" (band from lo to hi)
-  // winner: true → highest value gets clay accent
+  // Parse a distance string like "~2 km from Kouremenos" or "50 m from beach"
+  // into meters. Returns null if no distance is parseable.
+  const parseDistance = (text) => {
+    if (!text || typeof text !== "string") return null;
+    const m = text.match(/(\d+(?:\.\d+)?)\s*(km|m)\b/i);
+    if (!m) return null;
+    const n = parseFloat(m[1]);
+    return m[2].toLowerCase() === "km" ? n * 1000 : n;
+  };
+  const fmtDistance = (mtrs) => mtrs >= 1000 ? `${(mtrs / 1000).toFixed(1)} km` : `${Math.round(mtrs)} m`;
+
+  // mode: "fill" (default) | "range"
+  // winnerDirection: "higher" → longest bar wins · "lower" → shortest wins ·
+  //                  null → no winner (preference-driven)
   let all;
+  const levelsDim = {
+    icon: "🎓", label: "Levels welcome", mode: "range", max: 3,
+    labelFor: r => {
+      const map = ["", "B", "I", "A"];
+      if (r.lo === r.hi) return cap(["", "beginner", "intermediate", "advanced"][r.lo] || "");
+      return `${map[r.lo]} → ${map[r.hi]}`;
+    },
+    get: e => {
+      if (!Array.isArray(e.levels) || !e.levels.length) return null;
+      const pos = { beginner: 1, intermediate: 2, advanced: 3 };
+      const ps = e.levels.map(l => pos[l]).filter(Boolean);
+      if (!ps.length) return null;
+      return { lo: Math.min(...ps), hi: Math.max(...ps) };
+    }
+  };
+
   if (type === "spot") {
     all = [
-      { icon: "🌬️", label: "Wind", max: 30, unit: " kn", winner: true,
+      { icon: "🌬️", label: "Wind", max: 30, unit: " kn", winnerDirection: "higher",
         get: e => v((getStatsFor(e) || {}).monthlyWindKn) },
-      { icon: "💨", label: "Gust (typical peak)", max: 40, unit: " kn", winner: true,
+      { icon: "💨", label: "Gust (typical peak)", max: 40, unit: " kn", winnerDirection: "higher",
         get: e => v((getStatsFor(e) || {}).monthlyDailyPeakKn) },
-      { icon: "🌊", label: "Wave height", max: 3, unit: " m", fmt: x => x.toFixed(1), winner: true,
+      { icon: "🌊", label: "Wave height", max: 3, unit: " m", fmt: x => x.toFixed(1), winnerDirection: "higher",
         get: e => v((getStatsFor(e) || {}).monthlyWaveM) },
       { icon: "🌡️", label: "Water warmth", max: 30, unit: " °C",
         get: e => v((getStatsFor(e) || {}).monthlyWaterC) },
@@ -1983,46 +2010,53 @@ function compareScoreboardHTML(items) {
                  || (getStatsFor(e) && getStatsFor(e).crowd);
           return crowdLow(c);
         } },
-      { icon: "🎓", label: "Levels welcome", mode: "range", max: 3,
-        labelFor: r => {
-          const map = ["", "B", "I", "A"];
-          if (r.lo === r.hi) return cap(["", "beginner", "intermediate", "advanced"][r.lo] || "");
-          return `${map[r.lo]} → ${map[r.hi]}`;
-        },
-        get: e => {
-          if (!Array.isArray(e.levels) || !e.levels.length) return null;
-          const pos = { beginner: 1, intermediate: 2, advanced: 3 };
-          const ps = e.levels.map(l => pos[l]).filter(Boolean);
-          if (!ps.length) return null;
-          return { lo: Math.min(...ps), hi: Math.max(...ps) };
-        } }
+      levelsDim
     ];
-  } else { // center
+  } else if (type === "center") {
     all = [
-      { icon: "🎓", label: "Levels welcome", mode: "range", max: 3,
-        labelFor: r => {
-          const map = ["", "B", "I", "A"];
-          if (r.lo === r.hi) return cap(["", "beginner", "intermediate", "advanced"][r.lo] || "");
-          return `${map[r.lo]} → ${map[r.hi]}`;
-        },
-        get: e => {
-          if (!Array.isArray(e.levels) || !e.levels.length) return null;
-          const pos = { beginner: 1, intermediate: 2, advanced: 3 };
-          const ps = e.levels.map(l => pos[l]).filter(Boolean);
-          if (!ps.length) return null;
-          return { lo: Math.min(...ps), hi: Math.max(...ps) };
-        } },
-      { icon: "🏄", label: "Sports taught", max: 4, unit: "", winner: true,
+      levelsDim,
+      { icon: "🏄", label: "Sports taught", max: 4, unit: "", winnerDirection: "higher",
         labelFor: x => x + " sport" + (x > 1 ? "s" : ""),
         get: e => Array.isArray(e.sports) ? e.sports.length : null },
-      { icon: "📚", label: "Lessons variety", max: 6, unit: " types", winner: true,
+      { icon: "📚", label: "Lessons variety", max: 6, unit: " types", winnerDirection: "higher",
         get: e => itemCount(e.diensten && e.diensten.lessen) },
-      { icon: "🛹", label: "Rental variety", max: 6, unit: " items", winner: true,
+      { icon: "🛹", label: "Rental variety", max: 6, unit: " items", winnerDirection: "higher",
         get: e => itemCount(e.diensten && e.diensten.rental) },
-      { icon: "🏷️", label: "Gear brands", max: 5, unit: "", winner: true,
+      { icon: "🏷️", label: "Gear brands", max: 5, unit: "", winnerDirection: "higher",
         get: e => itemCount(e.diensten && e.diensten.brands) },
-      { icon: "🛠️", label: "Facilities", max: 8, unit: " items", winner: true,
+      { icon: "🛠️", label: "Facilities", max: 8, unit: " items", winnerDirection: "higher",
         get: e => itemCount(e.diensten && e.diensten.faciliteiten) }
+    ];
+  } else { // stay
+    // Optional manual 1-5 scores: each stay can add
+    //   verblijf.scores: { food: 4, hosts: 5, comfort: 4, vibe: 5, value: 3 }
+    // and those dimensions get rendered as bars on a 0-5 scale. Skipped per
+    // dimension when no stay in the comparison has that score.
+    const scoreDims = [
+      { key: "food",     icon: "🍽️", label: "Food" },
+      { key: "hosts",    icon: "🤝", label: "Hosts" },
+      { key: "comfort",  icon: "🛏️", label: "Comfort" },
+      { key: "vibe",     icon: "✨", label: "Vibe" },
+      { key: "cleanliness", icon: "🧼", label: "Cleanliness" },
+      { key: "value",    icon: "💶", label: "Value for money" }
+    ].map(sd => ({
+      icon: sd.icon, label: sd.label, max: 5, unit: " / 5", winnerDirection: "higher",
+      fmt: x => x.toFixed(1),
+      get: e => {
+        const s = e.verblijf && e.verblijf.scores;
+        return (s && typeof s[sd.key] === "number") ? s[sd.key] : null;
+      }
+    }));
+
+    all = [
+      // Closer to the spot wins — short bar = close, long bar = far away.
+      { icon: "📍", label: "Distance to surf spot", max: 5000, unit: "", winnerDirection: "lower",
+        labelFor: mtrs => fmtDistance(mtrs),
+        get: e => parseDistance(e.verblijf && e.verblijf.afstandSpot) },
+      // Things to do counts comma/and-separated items in activiteiten.
+      { icon: "🗺️", label: "Things to do nearby", max: 8, unit: " items", winnerDirection: "higher",
+        get: e => itemCount(e.verblijf && e.verblijf.activiteiten) },
+      ...scoreDims
     ];
   }
 
@@ -2036,14 +2070,16 @@ function compareScoreboardHTML(items) {
 
   const rows = dims.map(d => {
     const cells = items.map(e => ({ e, val: d.get(e) }));
-    // Numeric "top" for winner highlight (skipped for range mode)
-    let top = -Infinity, someBelow = false;
-    if (d.winner && d.mode !== "range") {
+    // Find the winner cell index based on winnerDirection. Range mode never
+    // has a winner (it's a level span, not a single value).
+    let winnerIdx = -1;
+    if (d.mode !== "range" && d.winnerDirection) {
       const vals = cells.map(c => c.val);
-      top = Math.max(...vals);
-      someBelow = vals.some(x => x < top);
+      const ext = d.winnerDirection === "lower" ? Math.min(...vals) : Math.max(...vals);
+      const hasContrast = vals.some(x => x !== ext);
+      if (hasContrast) winnerIdx = vals.indexOf(ext);
     }
-    const cellHtml = cells.map(c => {
+    const cellHtml = cells.map((c, ci) => {
       let barInner;
       if (d.mode === "range") {
         const loPct = ((c.val.lo - 1) / d.max) * 100;
@@ -2054,7 +2090,7 @@ function compareScoreboardHTML(items) {
         const pct = Math.max(4, Math.min(100, (c.val / d.max) * 100));
         barInner = `<span class="sb-bar-fill" style="left:0; width:${pct}%"></span>`;
       }
-      const winner = d.winner && d.mode !== "range" && someBelow && c.val === top;
+      const winner = ci === winnerIdx;
       const fmt = d.fmt || (x => Math.round(x));
       const labelText = d.labelFor ? d.labelFor(c.val) : (fmt(c.val) + (d.unit || ""));
       return `<div class="sb-row-cell${winner ? " is-winner" : ""}">
