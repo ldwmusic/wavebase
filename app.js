@@ -321,8 +321,12 @@ function buildDualBarChart(opts) {
     const va = barA.arr[i], vb = barB.arr[i];
     const pctA = (va != null && !isNaN(va)) ? Math.max(2, Math.min(100, (va / maxValue) * 100)) : 0;
     const pctB = (vb != null && !isNaN(vb)) ? Math.max(2, Math.min(100, (vb / maxValue) * 100)) : 0;
-    const tip = `${m}: ${barA.label} ${va}${unit} · ${barB.label} ${vb}${unit}`;
-    return `<div class="month-bar dual ${seasonClass}${isUser ? " is-user" : ""}" title="${tip}">
+    const fullMonth = WAVEBASE_MONTHS[monthNum] || m;
+    const tipHTML = `<strong>${fullMonth}</strong>` +
+      `<span class="bt-row"><span class="bt-swatch ${barA.colorClass}"></span>${barA.label}<b>${va == null ? "—" : va + unit}</b></span>` +
+      `<span class="bt-row"><span class="bt-swatch ${barB.colorClass}"></span>${barB.label}<b>${vb == null ? "—" : vb + unit}</b></span>` +
+      (period && period.name ? `<span class="bt-sub">${escHTML(period.name)}${inSeason ? "" : " · off-season"}</span>` : "");
+    return `<div class="month-bar dual ${seasonClass}${isUser ? " is-user" : ""}" data-tooltip="${escHTML(tipHTML)}">
       <span class="dual-bars">
         <span class="dual-bar ${barA.colorClass}" style="height: ${pctA}%;"></span>
         <span class="dual-bar ${barB.colorClass}" style="height: ${pctB}%;"></span>
@@ -369,10 +373,16 @@ function buildSingleMetricChart(metricArr, opts) {
     const pct = Math.max(2, Math.min(100, (v / maxValue) * 100));
     const ov = overlayArr ? overlayArr[i] : null;
     const ovPct = (ov != null && !isNaN(ov)) ? Math.max(2, Math.min(100, (ov / maxValue) * 100)) : null;
-    const tip = tooltipFor ? tooltipFor(monthNum, v, ov) : `${m}: ${v}${unit}`;
+    const fullMonth = WAVEBASE_MONTHS[monthNum] || m;
+    const customTip = tooltipFor ? tooltipFor(monthNum, v, ov) : null;
+    const tipHTML = customTip
+      ? `<strong>${fullMonth}</strong><span class="bt-sub">${escHTML(customTip)}</span>`
+      : `<strong>${fullMonth}</strong>` +
+        `<span class="bt-row"><span class="bt-swatch ${colorClass}"></span>${label || "Value"}<b>${v == null ? "—" : v + unit}</b></span>` +
+        (period && period.name ? `<span class="bt-sub">${escHTML(period.name)}${inSeason ? "" : " · off-season"}</span>` : "");
     const overlay = ovPct != null
       ? `<span class="month-bar-overlay" style="bottom: ${ovPct}%;"></span>` : "";
-    return `<div class="month-bar ${colorClass} ${seasonClass}${isUser ? " is-user" : ""}" title="${tip}">
+    return `<div class="month-bar ${colorClass} ${seasonClass}${isUser ? " is-user" : ""}" data-tooltip="${escHTML(tipHTML)}">
       <span class="month-bar-fill" style="height: ${pct}%;"></span>
       ${overlay}
       <span class="month-bar-label">${m}</span>
@@ -384,8 +394,12 @@ function buildSingleMetricChart(metricArr, opts) {
   const gridlines = `<div class="y-gridlines" aria-hidden="true">${
     axisTicks.map(() => `<span class="y-gridline"></span>`).join("")
   }</div>`;
+  // Empty legend placeholder so single-metric charts line up vertically
+  // with dual-metric charts (Wind + Temperature) that render a real legend.
+  const legendSpacer = `<div class="chart-legend chart-legend-empty" aria-hidden="true">&nbsp;</div>`;
   return `<div class="single-chart">
     <h3>${label}${sublabel ? ` <span class="muted">— ${sublabel}</span>` : ""}</h3>
+    ${legendSpacer}
     <div class="chart-body">
       ${yAxis}
       <div class="chart-plot">
@@ -394,6 +408,46 @@ function buildSingleMetricChart(metricArr, opts) {
       </div>
     </div>
   </div>`;
+}
+
+// Floating popover that follows hover over a .month-bar[data-tooltip].
+// Single global tooltip element reused across charts. Positioned above
+// the bar, centered horizontally, with a downward-pointing arrow.
+function wireChartTooltips(root) {
+  if (!root) return;
+  const bars = root.querySelectorAll(".month-bar[data-tooltip]");
+  if (!bars.length) return;
+  let tip = document.getElementById("bar-tooltip");
+  if (!tip) {
+    tip = document.createElement("div");
+    tip.id = "bar-tooltip";
+    tip.className = "bar-tooltip";
+    tip.hidden = true;
+    document.body.appendChild(tip);
+  }
+  const show = bar => {
+    tip.innerHTML = bar.dataset.tooltip || "";
+    tip.hidden = false;
+    const r = bar.getBoundingClientRect();
+    // Position above the bar, centered horizontally; clamp inside viewport.
+    const tr = tip.getBoundingClientRect();
+    let left = window.scrollX + r.left + r.width / 2 - tr.width / 2;
+    const top = window.scrollY + r.top - tr.height - 10;
+    const minLeft = window.scrollX + 6;
+    const maxLeft = window.scrollX + window.innerWidth - tr.width - 6;
+    left = Math.max(minLeft, Math.min(maxLeft, left));
+    tip.style.left = left + "px";
+    tip.style.top  = top  + "px";
+  };
+  const hide = () => { tip.hidden = true; };
+  bars.forEach(bar => {
+    bar.addEventListener("mouseenter", () => show(bar));
+    bar.addEventListener("mouseleave", hide);
+    // Touch: tap shows briefly
+    bar.addEventListener("touchstart", () => show(bar), { passive: true });
+  });
+  // Hide on scroll so the tooltip doesn't drift away from its anchor.
+  window.addEventListener("scroll", hide, { passive: true });
 }
 
 function monthlyChartHTML(e) {
@@ -2325,6 +2379,9 @@ function initSpot() {
     wireCards(root);
     wireDetailViewToggles(root);
   }
+
+  // Hover popovers on the monthly wind/temperature/wave bar charts.
+  wireChartTooltips(root);
 
   document.getElementById("save-toggle").addEventListener("click", function () {
     const on = WaveBaseAccount.toggleSave(e.id);

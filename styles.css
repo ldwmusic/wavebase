@@ -889,6 +889,11 @@ table.cal td.host { color: var(--clay); }
 .single-chart h3 {
   font-size: 12px; font-weight: 700; letter-spacing: 0.1em;
   text-transform: uppercase; color: var(--ink-soft); margin-bottom: 12px;
+  /* Reserve 2 lines so a chart with a short sublabel (e.g. Wave height
+     "daytime avg, metres") aligns vertically with one whose sublabel
+     wraps (Wind, Temperature). */
+  min-height: 2.6em;
+  line-height: 1.3;
 }
 .single-chart h3 .muted {
   font-weight: 500; text-transform: none; letter-spacing: 0; font-size: 11.5px;
@@ -989,6 +994,71 @@ table.cal td.host { color: var(--clay); }
 .chart-legend .legend-swatch.color-wind-gust { background: var(--amber); }
 .month-bar.off-season .month-bar-fill { opacity: 0.45; }
 .month-bar.off-season .month-bar-label { color: var(--ink-soft); font-style: italic; }
+
+/* Hover popover on month bars — rendered into <body> by JS, positioned
+   above whichever bar is hovered. */
+.bar-tooltip {
+  position: absolute;
+  background: rgba(28, 26, 23, 0.96);
+  color: #fdfaf2;
+  font-family: 'DM Sans', sans-serif;
+  font-size: 12.5px;
+  line-height: 1.45;
+  padding: 9px 12px;
+  border-radius: 8px;
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.22);
+  z-index: 200;
+  pointer-events: none;
+  min-width: 130px;
+  max-width: 240px;
+  white-space: nowrap;
+}
+.bar-tooltip[hidden] { display: none; }
+.bar-tooltip::after {
+  content: "";
+  position: absolute;
+  left: 50%; bottom: -5px;
+  transform: translateX(-50%);
+  width: 0; height: 0;
+  border-left: 6px solid transparent;
+  border-right: 6px solid transparent;
+  border-top: 6px solid rgba(28, 26, 23, 0.96);
+}
+.bar-tooltip strong {
+  display: block;
+  font-family: 'Fraunces', Georgia, serif;
+  font-size: 14.5px;
+  font-weight: 600;
+  margin-bottom: 5px;
+  color: #fdfaf2;
+}
+.bar-tooltip .bt-row {
+  display: flex; align-items: center; gap: 7px;
+  font-size: 12.5px;
+}
+.bar-tooltip .bt-row b {
+  margin-left: auto;
+  color: #fdfaf2;
+  font-weight: 600;
+}
+.bar-tooltip .bt-swatch {
+  display: inline-block;
+  width: 10px; height: 10px;
+  border-radius: 2px;
+  flex-shrink: 0;
+}
+.bar-tooltip .bt-swatch.color-air        { background: var(--clay); }
+.bar-tooltip .bt-swatch.color-water      { background: var(--sea); }
+.bar-tooltip .bt-swatch.color-wind-avg   { background: var(--sea); }
+.bar-tooltip .bt-swatch.color-wind-gust  { background: var(--amber); }
+.bar-tooltip .bt-swatch.color-wind       { background: var(--sea); }
+.bar-tooltip .bt-sub {
+  display: block;
+  margin-top: 4px;
+  font-size: 11.5px;
+  opacity: 0.7;
+  font-style: italic;
+}
 
 @media (max-width: 700px) {
   .monthly-chart.split .chart-pair { grid-template-columns: 1fr; gap: 22px; }
