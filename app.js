@@ -1960,14 +1960,24 @@ function compareScoreboardHTML(items) {
     return parts.length || null;
   };
 
-  // Parse a distance string like "~2 km from Kouremenos" or "50 m from beach"
-  // into meters. Returns null if no distance is parseable.
-  const parseDistance = (text) => {
+  // Parse a distance string into meters. Returns null when nothing parseable.
+  // Handles: explicit "X km" / "X m"; "Zero" or "middle of beach" or "On X
+  // beach" → 0 m; "X-minute walk" → X * 80 m (~80 m / min walking pace);
+  // "walking distance" / "short walk" → ~250 m fuzzy fallback. Stays can
+  // also set verblijf.distanceM: <number> for an explicit override.
+  const parseDistance = (text, structured) => {
+    if (typeof structured === "number" && !isNaN(structured)) return structured;
     if (!text || typeof text !== "string") return null;
-    const m = text.match(/(\d+(?:\.\d+)?)\s*(km|m)\b/i);
-    if (!m) return null;
-    const n = parseFloat(m[1]);
-    return m[2].toLowerCase() === "km" ? n * 1000 : n;
+    if (/\bzero\b/i.test(text)) return 0;
+    if (/\b(?:on|middle of)\b[^.,;]*\bbeach\b/i.test(text)) return 0;
+    const mw = text.match(/(\d+)[\s-]+minute(?:s)?\s+walk/i);
+    if (mw) return parseInt(mw[1], 10) * 80;
+    const km = text.match(/(\d+(?:\.\d+)?)\s*km\b/i);
+    if (km) return parseFloat(km[1]) * 1000;
+    const mr = text.match(/(\d+(?:\.\d+)?)\s*m\b/i);
+    if (mr) return parseFloat(mr[1]);
+    if (/walking distance|short walk/i.test(text)) return 250;
+    return null;
   };
   const fmtDistance = (mtrs) => mtrs >= 1000 ? `${(mtrs / 1000).toFixed(1)} km` : `${Math.round(mtrs)} m`;
 
@@ -2052,7 +2062,7 @@ function compareScoreboardHTML(items) {
       // Closer to the spot wins — short bar = close, long bar = far away.
       { icon: "📍", label: "Distance to surf spot", max: 5000, unit: "", winnerDirection: "lower",
         labelFor: mtrs => fmtDistance(mtrs),
-        get: e => parseDistance(e.verblijf && e.verblijf.afstandSpot) },
+        get: e => parseDistance(e.verblijf && e.verblijf.afstandSpot, e.verblijf && e.verblijf.distanceM) },
       // Things to do counts comma/and-separated items in activiteiten.
       { icon: "🗺️", label: "Things to do nearby", max: 8, unit: " items", winnerDirection: "higher",
         get: e => itemCount(e.verblijf && e.verblijf.activiteiten) },
