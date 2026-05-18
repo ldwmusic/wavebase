@@ -611,6 +611,7 @@ function cardHTML(e, distKm) {
   const pills = e.levels.map(l => `<span class="pill">${cap(l)}</span>`).join("");
   const saved = WaveBaseAccount.isSaved(e.id);
   const comparing = WaveBaseAccount.isComparing(e.id);
+  const inAnyTrip = WaveBaseAccount.getTrips().some(t => Array.isArray(t.spotIds) && t.spotIds.includes(e.id));
   const distHint = (distKm != null && isFinite(distKm))
     ? ` <span class="muted">· ${fmtKm(distKm)} away</span>` : "";
   return `
@@ -618,6 +619,7 @@ function cardHTML(e, distKm) {
     <div class="thumb ${e.type}${e.photo ? " has-photo" : ""}"${thumbStyle(e)}>
       <span class="badge">${typeBadge(e.type)}</span>
       ${e.type === "stay" ? "" : sportIconsHTML(entrySports(e))}
+      <button class="trip-btn ${inAnyTrip ? "on" : ""}" data-trip-add="${e.id}" aria-label="Add to a trip" title="${inAnyTrip ? "In a trip — click to add to another" : "Add to a trip"}">${inAnyTrip ? "✓" : "+"}</button>
       <button class="compare-btn ${comparing ? "on" : ""}" data-compare="${e.id}" aria-label="Compare" title="${comparing ? "In your compare list" : "Add to compare"}">⇄</button>
       <button class="save-btn ${saved ? "on" : ""}" data-save="${e.id}" aria-label="Save" title="${saved ? "Saved" : "Save this place"}">${saved ? "♥" : "♡"}</button>
     </div>
@@ -630,11 +632,87 @@ function cardHTML(e, distKm) {
   </article>`;
 }
 
+// Floating mini-popover anchored under a card's "+" button. Lists trips
+// (with ✓ for ones already containing this entry) + a "New trip…" option
+// at the bottom. Auto-closes on next outside click. Rendered into body
+// so card overflow doesn't clip it.
+function openCardTripPopover(btn) {
+  closeCardTripPopover();
+  const entryId = btn.dataset.tripAdd;
+  const trips = WaveBaseAccount.getTrips();
+  const inSet = new Set(trips
+    .filter(t => Array.isArray(t.spotIds) && t.spotIds.includes(entryId))
+    .map(t => t.id));
+  const items = trips.map(t => {
+    const isIn = inSet.has(t.id);
+    return `<li><button type="button" class="trip-pop-item${isIn ? " is-in" : ""}"
+      data-pop-trip="${t.id}">${isIn ? "✓ " : ""}${escHTML(t.name)}</button></li>`;
+  }).join("");
+  const newItem = `<li><button type="button" class="trip-pop-item trip-pop-new"
+    data-pop-trip="__new">＋ New trip…</button></li>`;
+  const wrapper = document.createElement("div");
+  wrapper.className = "trip-popover";
+  wrapper.innerHTML = `<ul class="trip-pop-list">${items}${newItem}</ul>`;
+  document.body.appendChild(wrapper);
+
+  // Position under the button, clamped to the viewport.
+  const r = btn.getBoundingClientRect();
+  const top = window.scrollY + r.bottom + 6;
+  let left = window.scrollX + r.left;
+  document.body.appendChild(wrapper); // already there, but ensure
+  wrapper.style.top = `${top}px`;
+  wrapper.style.left = `${left}px`;
+  // After insert, clamp right edge to viewport
+  requestAnimationFrame(() => {
+    const w = wrapper.getBoundingClientRect();
+    if (w.right > window.innerWidth - 8) {
+      left = window.scrollX + window.innerWidth - w.width - 8;
+      wrapper.style.left = `${left}px`;
+    }
+  });
+
+  wrapper.querySelectorAll(".trip-pop-item").forEach(item => {
+    item.addEventListener("click", (ev) => {
+      ev.stopPropagation();
+      const tid = item.dataset.popTrip;
+      if (tid === "__new") {
+        const name = window.prompt("Name your new trip:", "My trip");
+        if (!name) { closeCardTripPopover(); return; }
+        const t = WaveBaseAccount.addTrip(name);
+        WaveBaseAccount.addToTrip(t.id, entryId);
+      } else {
+        WaveBaseAccount.addToTrip(tid, entryId);
+      }
+      btn.textContent = "✓";
+      btn.classList.add("on");
+      btn.title = "In a trip — click to add to another";
+      updateNav();
+      closeCardTripPopover();
+    });
+  });
+
+  // Close on next outside click
+  setTimeout(() => {
+    document.addEventListener("click", closeCardTripPopover, { once: true });
+  }, 0);
+}
+function closeCardTripPopover() {
+  const p = document.querySelector(".trip-popover");
+  if (p) p.remove();
+}
+
 function wireCards(container) {
   container.querySelectorAll(".card").forEach(card => {
     card.addEventListener("click", ev => {
-      if (ev.target.closest(".save-btn") || ev.target.closest(".compare-btn")) return;
+      if (ev.target.closest(".save-btn") || ev.target.closest(".compare-btn") ||
+          ev.target.closest(".trip-btn") || ev.target.closest(".trip-popover")) return;
       window.location.href = card.dataset.href;
+    });
+  });
+  container.querySelectorAll(".trip-btn").forEach(btn => {
+    btn.addEventListener("click", ev => {
+      ev.stopPropagation();
+      openCardTripPopover(btn);
     });
   });
   container.querySelectorAll(".save-btn").forEach(btn => {

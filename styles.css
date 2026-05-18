@@ -1399,6 +1399,44 @@ table.cal td.host { color: var(--clay); }
 .compare-btn:hover { transform: scale(1.1); }
 .compare-btn.on { background: var(--sea); color: #fff; }
 
+/* "+ Add to a trip" button — sits left of the ⇄ compare button. Click
+   opens a small popover with the user's trips + a "New trip…" option. */
+.trip-btn {
+  position: absolute; top: 12px; right: 96px; z-index: 2;
+  width: 34px; height: 34px; border-radius: 999px; border: none;
+  background: rgba(255,255,255,0.92); color: var(--sea);
+  font-size: 18px; line-height: 1; cursor: pointer; font-weight: 600;
+  box-shadow: 0 2px 8px -2px rgba(0,0,0,0.3);
+  transition: transform 0.12s ease;
+  display: flex; align-items: center; justify-content: center;
+}
+.trip-btn:hover { transform: scale(1.1); }
+.trip-btn.on { background: var(--clay); color: #fff; font-size: 15px; }
+
+/* Floating popover for trip selection from a card. Rendered into body, so
+   no clipping by the card's overflow. */
+.trip-popover {
+  position: absolute; z-index: 9000;
+  background: var(--paper); color: var(--ink);
+  border: 1px solid var(--sand); border-radius: 12px;
+  box-shadow: 0 10px 30px -8px rgba(0,0,0,0.25);
+  min-width: 180px; max-width: 260px;
+  padding: 6px 0;
+}
+.trip-pop-list { list-style: none; margin: 0; padding: 0; }
+.trip-pop-list li { margin: 0; }
+.trip-pop-item {
+  display: block; width: 100%; text-align: left;
+  padding: 8px 14px; background: none; border: none; cursor: pointer;
+  font-family: 'DM Sans', sans-serif; font-size: 14px; color: var(--ink);
+}
+.trip-pop-item:hover { background: var(--sea-soft); }
+.trip-pop-item.is-in { color: var(--ink-soft); }
+.trip-pop-item.trip-pop-new {
+  border-top: 1px solid var(--sand);
+  color: var(--clay); font-weight: 600;
+}
+
 /* photo slots */
 .thumb.has-photo { background-size: cover; background-position: center; }
 .detail-photo {
@@ -2012,13 +2050,16 @@ table.cal td.host { color: var(--clay); }
   font-size: 10.5px; padding: 3px 9px;
 }
 .grid.list-view .card .save-btn,
-.grid.list-view .card .compare-btn {
+.grid.list-view .card .compare-btn,
+.grid.list-view .card .trip-btn {
   width: 30px; height: 30px;
   font-size: 13px;
   top: 10px;
 }
-.grid.list-view .card .save-btn { right: 10px; }
+.grid.list-view .card .save-btn    { right: 10px; }
 .grid.list-view .card .compare-btn { right: 46px; }
+.grid.list-view .card .trip-btn    { right: 82px; font-size: 16px; }
+.grid.list-view .card .trip-btn.on { font-size: 13px; }
 .grid.list-view .card .sport-icons { bottom: 10px; left: 10px; gap: 3px; }
 .grid.list-view .card .sport-icon svg { width: 28px; height: 28px; }
 .grid.list-view .card .body {
