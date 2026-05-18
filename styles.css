@@ -1405,13 +1405,15 @@ table.cal td.host { color: var(--clay); }
   position: absolute; top: 12px; right: 96px; z-index: 2;
   width: 34px; height: 34px; border-radius: 999px; border: none;
   background: rgba(255,255,255,0.92); color: var(--sea);
-  font-size: 18px; line-height: 1; cursor: pointer; font-weight: 600;
+  line-height: 1; cursor: pointer;
   box-shadow: 0 2px 8px -2px rgba(0,0,0,0.3);
   transition: transform 0.12s ease;
   display: flex; align-items: center; justify-content: center;
+  padding: 0;
 }
 .trip-btn:hover { transform: scale(1.1); }
-.trip-btn.on { background: var(--clay); color: #fff; font-size: 15px; }
+.trip-btn.on { background: var(--clay); color: #fff; }
+.trip-btn svg { display: block; }
 
 /* Floating popover for trip selection from a card. Rendered into body, so
    no clipping by the card's overflow. */
@@ -2058,8 +2060,8 @@ table.cal td.host { color: var(--clay); }
 }
 .grid.list-view .card .save-btn    { right: 10px; }
 .grid.list-view .card .compare-btn { right: 46px; }
-.grid.list-view .card .trip-btn    { right: 82px; font-size: 16px; }
-.grid.list-view .card .trip-btn.on { font-size: 13px; }
+.grid.list-view .card .trip-btn    { right: 82px; }
+.grid.list-view .card .trip-btn svg { width: 12px; height: 12px; }
 .grid.list-view .card .sport-icons { bottom: 10px; left: 10px; gap: 3px; }
 .grid.list-view .card .sport-icon svg { width: 28px; height: 28px; }
 .grid.list-view .card .body {

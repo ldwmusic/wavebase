@@ -619,7 +619,7 @@ function cardHTML(e, distKm) {
     <div class="thumb ${e.type}${e.photo ? " has-photo" : ""}"${thumbStyle(e)}>
       <span class="badge">${typeBadge(e.type)}</span>
       ${e.type === "stay" ? "" : sportIconsHTML(entrySports(e))}
-      <button class="trip-btn ${inAnyTrip ? "on" : ""}" data-trip-add="${e.id}" aria-label="Add to a trip" title="${inAnyTrip ? "In a trip — click to add to another" : "Add to a trip"}">${inAnyTrip ? "✓" : "+"}</button>
+      <button class="trip-btn ${inAnyTrip ? "on" : ""}" data-trip-add="${e.id}" aria-label="Add to a trip" title="${inAnyTrip ? "In a trip — click to add to another" : "Add to a trip"}">${inAnyTrip ? '<svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="4 12 10 18 20 6"/></svg>' : '<svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>'}</button>
       <button class="compare-btn ${comparing ? "on" : ""}" data-compare="${e.id}" aria-label="Compare" title="${comparing ? "In your compare list" : "Add to compare"}">⇄</button>
       <button class="save-btn ${saved ? "on" : ""}" data-save="${e.id}" aria-label="Save" title="${saved ? "Saved" : "Save this place"}">${saved ? "♥" : "♡"}</button>
     </div>
@@ -683,7 +683,7 @@ function openCardTripPopover(btn) {
       } else {
         WaveBaseAccount.addToTrip(tid, entryId);
       }
-      btn.textContent = "✓";
+      btn.innerHTML = '<svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="4 12 10 18 20 6"/></svg>';
       btn.classList.add("on");
       btn.title = "In a trip — click to add to another";
       updateNav();
