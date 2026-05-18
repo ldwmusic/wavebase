@@ -626,6 +626,23 @@ function relatedSectionsForDetail(e) {
   return "";
 }
 
+// Pick the period (Peak / High / Shoulder / Off / etc.) that contains a
+// given month. Returns { name, klass } where klass is a normalised CSS hook.
+function seasonForMonth(stats, monthNum) {
+  if (!stats || !Array.isArray(stats.periods) || !monthNum) return null;
+  const p = stats.periods.find(pp => Array.isArray(pp.months) && pp.months.includes(monthNum));
+  if (!p) return null;
+  const lower = (p.name || "").toLowerCase();
+  let klass = "neutral";
+  if (lower.includes("peak"))          klass = "peak";
+  else if (lower.includes("high"))     klass = "high";
+  else if (lower.includes("shoulder")) klass = "shoulder";
+  else if (lower.includes("summer") && p.inSeason !== false) klass = "shoulder";
+  else if (lower.includes("storm"))    klass = "peak";
+  else if (lower.includes("off") || p.inSeason === false) klass = "off";
+  return { name: p.name, klass };
+}
+
 /* ---- card ---- */
 function cardHTML(e, distKm) {
   const pills = e.levels.map(l => `<span class="pill">${cap(l)}</span>`).join("");
@@ -634,6 +651,13 @@ function cardHTML(e, distKm) {
   const inAnyTrip = WaveBaseAccount.getTrips().some(t => Array.isArray(t.spotIds) && t.spotIds.includes(e.id));
   const distHint = (distKm != null && isFinite(distKm))
     ? ` <span class="muted">· ${fmtKm(distKm)} away</span>` : "";
+  // Season tag based on the user-selected month (Peak / High / Shoulder /
+  // Off — pulled from each spot's own `periods`). Skipped for stays.
+  let seasonChip = "";
+  if (e.type !== "stay") {
+    const season = seasonForMonth(getStatsFor(e), userSelectedMonth());
+    if (season) seasonChip = `<span class="season-chip season-${season.klass}">${escHTML(season.name)}</span>`;
+  }
   return `
   <article class="card" data-href="${spotHref(e.id)}">
     <div class="thumb ${e.type}${e.photo ? " has-photo" : ""}"${thumbStyle(e)}>
@@ -647,7 +671,7 @@ function cardHTML(e, distKm) {
       <div class="place">${e.town}${distHint}</div>
       <h3>${e.name}</h3>
       <p class="tag">${e.tagline}</p>
-      <div class="meta">${pills}</div>
+      <div class="meta">${seasonChip}${pills}</div>
     </div>
   </article>`;
 }
