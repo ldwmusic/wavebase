@@ -10,30 +10,34 @@
   <link rel="manifest" href="manifest.json">
   <link rel="icon" type="image/svg+xml" href="icon.svg">
   <link rel="apple-touch-icon" href="icon.svg">
-  <title>Continent — WaveBase</title>
-  <meta name="description" content="WaveBase rollout by continent — see which countries are live, which are queued, and dive into each country's spots, centers and stays.">
+  <title>Not found — WaveBase</title>
+  <meta name="description" content="Wrong wave — this page doesn't exist on WaveBase. Head back to Discover or browse the world map.">
+  <meta name="robots" content="noindex">
   <meta property="og:type" content="website">
   <meta property="og:site_name" content="WaveBase">
-  <meta property="og:title" content="WaveBase — honest surf guide by continent">
-  <meta property="og:description" content="See which surf destinations are live and which are queued, by continent.">
+  <meta property="og:title" content="Not found — WaveBase">
+  <meta property="og:description" content="Wrong wave — this page doesn't exist (yet).">
   <meta property="og:image" content="https://wavebase.lode-b162.workers.dev/og-image.png">
-  <meta property="og:image:secure_url" content="https://wavebase.lode-b162.workers.dev/og-image.png">
   <meta property="og:image:type" content="image/png">
   <meta property="og:image:width" content="1200">
   <meta property="og:image:height" content="630">
-  <meta property="og:image:alt" content="WaveBase — surfing, told honestly">
-  <meta name="twitter:card" content="summary_large_image">
-  <meta name="twitter:image" content="https://wavebase.lode-b162.workers.dev/og-image.png">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600&family=DM+Sans:wght@400;500;600&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="styles.css?v=134">
 </head>
-<body>
+<body class="is-home">
 
   <header class="site-header">
     <div class="wrap">
       <a href="index.html" class="logo">Wave<span>Base</span></a>
+      <div class="header-search header-search-permanent">
+        <div class="searchbar">
+          <span class="searchbar-icon" aria-hidden="true">🔍</span>
+          <input type="search" id="f-header-search" placeholder="Search by city, beach, country, spot or center…" autocomplete="off" enterkeyhint="search" aria-label="Search spots, centers and stays">
+          <button type="button" class="searchbar-clear" id="f-header-search-clear" aria-label="Clear search" hidden>&times;</button>
+        </div>
+      </div>
       <nav class="site-nav">
         <a href="index.html">Discover</a>
         <a href="kaart.html">Map</a>
@@ -45,11 +49,15 @@
   </header>
 
   <main>
-    <section class="wrap">
-      <div class="continent-back">
-        <a href="index.html">&larr; Back to Discover</a>
+    <section class="hero wrap notfound-hero">
+      <p class="kicker">404 — wrong wave</p>
+      <h1>This page <span class="ul">isn't here</span></h1>
+      <p class="lead">Maybe the link is old, maybe a typo crept in — or maybe WaveBase just doesn't cover this spot yet. We're rolling out worldwide step by step.</p>
+      <div class="notfound-actions">
+        <a class="btn" href="index.html">Back to Discover &rarr;</a>
+        <a class="btn btn-quiet" href="kaart.html">Open the map</a>
+        <a class="btn btn-quiet" href="about.html">About WaveBase</a>
       </div>
-      <div id="continent-root"></div>
     </section>
   </main>
 

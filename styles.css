@@ -335,6 +335,25 @@ a:hover { text-decoration: underline; }
   border: 1px solid var(--sea);
 }
 .btn.ghost:hover { background: var(--sea-soft); }
+.btn.btn-quiet {
+  background: transparent;
+  color: var(--ink);
+  border: 1px solid var(--sand-deep);
+  font-weight: 500;
+}
+.btn.btn-quiet:hover { background: var(--paper); border-color: var(--ink-soft); }
+
+/* 404 page — uses the existing hero block plus an action row underneath. */
+.notfound-hero { padding-bottom: 64px; }
+.notfound-actions {
+  display: flex; flex-wrap: wrap;
+  justify-content: center;
+  gap: 12px;
+  margin-top: 28px;
+}
+@media (max-width: 540px) {
+  .notfound-actions .btn { padding: 11px 22px; font-size: 14px; }
+}
 
 /* ---- results ---- */
 .results-head {

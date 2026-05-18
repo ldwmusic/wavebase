@@ -2348,8 +2348,9 @@ function initSpot() {
   const id = new URLSearchParams(window.location.search).get("id");
   const e = byId(id);
   if (!e) {
-    root.innerHTML = `<p class="empty"><strong>Not found.</strong><br>
-      <a href="index.html">Back to all places</a></p>`;
+    // Hand off to the dedicated 404 page so the user sees a real not-found
+    // experience instead of an in-line "Not found" line.
+    window.location.replace("404.html");
     return;
   }
   applySpotSEO(e);
@@ -3439,13 +3440,13 @@ function initContinent() {
   const params = new URLSearchParams(window.location.search);
   const name = params.get("name");
   if (!name) {
-    root.innerHTML = `<p class="empty">No continent picked. <a href="index.html">Back to Discover</a>.</p>`;
+    window.location.replace("404.html");
     return;
   }
   const continent = (typeof WAVEBASE_DESTINATIONS !== "undefined")
     ? WAVEBASE_DESTINATIONS.find(c => c.continent === name) : null;
   if (!continent) {
-    root.innerHTML = `<p class="empty">Unknown continent &mdash; <a href="index.html">back to Discover</a>.</p>`;
+    window.location.replace("404.html");
     return;
   }
   document.title = `${continent.continent} — WaveBase`;
