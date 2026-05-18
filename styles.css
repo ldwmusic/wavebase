@@ -1473,49 +1473,15 @@ table.cal td.host { color: var(--clay); }
 .cmp-body h3 a { color: var(--ink); }
 .cmp-body .tag { font-size: 14px; color: var(--ink-soft); margin-bottom: 10px; }
 .cmp-row {
-  display: flex; flex-direction: column; gap: 4px;
-  padding: 10px 0; border-top: 1px solid var(--sand);
+  display: flex; flex-direction: column; gap: 2px;
+  padding: 8px 0; border-top: 1px solid var(--sand);
 }
 .cmp-k {
   font-size: 11px; letter-spacing: 0.05em; text-transform: uppercase;
   color: var(--ink-soft); font-weight: 600;
 }
-.cmp-widget { display: block; min-height: 18px; }
 .cmp-v { font-size: 14px; color: var(--ink); }
 .cmp-body .link-btn { margin-top: 12px; }
-/* Differs row: subtle clay-soft left-border tag + bold value so the eye
-   immediately lands on what's NOT the same between the compared entries. */
-.cmp-row.differs {
-  padding-left: 10px;
-  margin-left: -10px;
-  border-left: 3px solid var(--clay);
-  background: linear-gradient(to right, var(--clay-soft) 0%, transparent 40%);
-}
-.cmp-row.differs .cmp-v { font-weight: 600; color: var(--clay); }
-
-/* Range bar widget — for wave height + water temp ranges. 0..max scale,
-   highlighted band sits where the entry's range falls. */
-.cmp-range {
-  display: block; position: relative;
-  height: 8px; border-radius: 4px;
-  background: var(--sand);
-}
-.cmp-range-fill {
-  position: absolute; top: 0; bottom: 0;
-  background: var(--sea); border-radius: 4px;
-}
-.cmp-row.differs .cmp-range-fill { background: var(--clay); }
-
-/* Level pills — three small chips, lit if the entry welcomes that level. */
-.cmp-levels { display: inline-flex; gap: 4px; }
-.cmp-level {
-  display: inline-flex; align-items: center; justify-content: center;
-  width: 22px; height: 22px; border-radius: 999px;
-  background: var(--sand); color: var(--ink-soft);
-  font-size: 11px; font-weight: 700;
-}
-.cmp-level.on { background: var(--sea); color: #fff; }
-.cmp-row.differs .cmp-level.on { background: var(--clay); }
 
 @media (max-width: 620px) {
   .detail-photo { height: 200px; }

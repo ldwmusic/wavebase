@@ -1934,63 +1934,36 @@ function renderAccount() {
 }
 
 /* ---- COMPARE ---- */
-// Range bar: parse "0.5–1.5 m" / "19-25 °C" / "~16–22 °C year-round" out of
-// text and render a horizontal bar showing where that band sits on a 0..max
-// scale. Returns "" when no range can be parsed (so the cell falls back to
-// text only without an empty bar artifact).
-function cmpRangeBar(text, max) {
-  if (!text || typeof text !== "string") return "";
-  const m = text.match(/(\d+(?:\.\d+)?)\s*[-–~]+\s*(\d+(?:\.\d+)?)/);
-  if (!m) return "";
-  const lo = parseFloat(m[1]), hi = parseFloat(m[2]);
-  if (!isFinite(lo) || !isFinite(hi) || hi < lo) return "";
-  const leftPct  = Math.max(0, Math.min(100, (lo / max) * 100));
-  const widthPct = Math.max(2, Math.min(100 - leftPct, ((hi - lo) / max) * 100));
-  return `<span class="cmp-range"><span class="cmp-range-fill" style="left:${leftPct}%; width:${widthPct}%;"></span></span>`;
-}
-// 3 pills (B / I / A) — lit if the entry includes that level. Lets the eye
-// hit "this spot welcomes beginners; that one is advanced-only" instantly.
-function cmpLevelPills(levelsArr) {
-  const set = new Set(Array.isArray(levelsArr) ? levelsArr : []);
-  const order = [["beginner", "B"], ["intermediate", "I"], ["advanced", "A"]];
-  return `<span class="cmp-levels">${order.map(([k, label]) => {
-    const on = set.has(k);
-    return `<span class="cmp-level${on ? " on" : ""}" title="${cap(k)}">${label}</span>`;
-  }).join("")}</span>`;
-}
-
 function compareKeyPoints(e) {
   if (e.type === "spot") {
     const c = e.condities || {};
-    const crowd = c.drukte ? c.drukte.niveau : null;
     return [
-      { k: "Wave type",   v: c.golftype   || "—" },
-      { k: "Wave height", v: c.golfhoogte || "—", widget: cmpRangeBar(c.golfhoogte, 3) },
-      { k: "Crowd",       v: crowd ? crowdLabel(crowd) : "—", widget: crowd ? druktelIndicator(crowd) : "" },
-      { k: "Levels",      v: e.levels.map(cap).join(", "), widget: cmpLevelPills(e.levels) },
-      { k: "Water",       v: c.water || "—", widget: cmpRangeBar(c.water, 30) }
+      ["Wave type", c.golftype || "—"],
+      ["Wave height", c.golfhoogte || "—"],
+      ["Crowd", c.drukte ? crowdLabel(c.drukte.niveau) : "—"],
+      ["Levels", e.levels.map(cap).join(", ")],
+      ["Water", c.water || "—"]
     ];
   }
   if (e.type === "center") {
     const d = e.diensten || {};
     return [
-      { k: "Lessons",     v: d.lessen        || "—" },
-      { k: "Rental",      v: d.rental        || "—" },
-      { k: "Gear brands", v: d.brands        || "—" },
-      { k: "Facilities",  v: d.faciliteiten  || "—" },
-      { k: "Team & vibe", v: d.team          || "—" },
-      { k: "Levels",      v: e.levels.map(cap).join(", "), widget: cmpLevelPills(e.levels) }
+      ["Lessons", d.lessen || "—"],
+      ["Rental", d.rental || "—"],
+      ["Gear brands", d.brands || "—"],
+      ["Facilities", d.faciliteiten || "—"],
+      ["Team & vibe", d.team || "—"]
     ];
   }
   const v = e.verblijf || {};
   return [
-    { k: "Food",                    v: v.eten         || "—" },
-    { k: "Distance from surf spot", v: v.afstandSpot  || "—" },
-    { k: "Gear rental",             v: v.verhuur      || "—" },
-    { k: "Lessons available?",      v: v.lessen       || "—" },
-    { k: "Rating",                  v: v.rating       || "—" },
-    { k: "Chill or party",          v: v.sfeer        || "—" },
-    { k: "Other activities",        v: v.activiteiten || "—" }
+    ["Food", v.eten || "—"],
+    ["Distance from surf spot", v.afstandSpot || "—"],
+    ["Gear rental", v.verhuur || "—"],
+    ["Lessons available?", v.lessen || "—"],
+    ["Rating", v.rating || "—"],
+    ["Chill or party", v.sfeer || "—"],
+    ["Other activities", v.activiteiten || "—"]
   ];
 }
 
@@ -2002,30 +1975,9 @@ function renderCompare() {
       <p class="muted">Nothing to compare yet. Tap the "⇄" button on a spot or stay, then come back here.</p>`;
     return;
   }
-
-  // Collect all rows up-front so we can detect which keys DIFFER across the
-  // compared entries — those rows get a subtle highlight so the eye lands
-  // on the differences first, instead of scanning identical text columns.
-  const allRows = items.map(e => compareKeyPoints(e));
-  const keyMax = Math.max(...allRows.map(r => r.length));
-  const differsByIndex = [];
-  for (let i = 0; i < keyMax; i++) {
-    const vals = allRows.map(rows => rows[i] ? String(rows[i].v) : "");
-    differsByIndex[i] = items.length > 1 && !vals.every(v => v === vals[0]);
-  }
-
-  const cols = items.map((e, colIdx) => {
-    const rows = allRows[colIdx];
-    const pts = rows.map((p, i) => {
-      if (!p.v) return "";
-      const widget = p.widget ? `<span class="cmp-widget">${p.widget}</span>` : "";
-      const diffClass = differsByIndex[i] ? " differs" : "";
-      return `<div class="cmp-row${diffClass}">
-        <span class="cmp-k">${p.k}</span>
-        ${widget}
-        <span class="cmp-v">${p.v}</span>
-      </div>`;
-    }).join("");
+  const cols = items.map(e => {
+    const pts = compareKeyPoints(e).map(([k, v]) =>
+      v ? `<div class="cmp-row"><span class="cmp-k">${k}</span><span class="cmp-v">${v}</span></div>` : "").join("");
     return `<div class="cmp-col">
       <div class="thumb ${e.type}${e.photo ? " has-photo" : ""}"${thumbStyle(e)}>
         <span class="badge">${typeBadge(e.type)}</span>
