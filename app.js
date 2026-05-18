@@ -1960,6 +1960,35 @@ function compareScoreboardHTML(items) {
     return parts.length || null;
   };
 
+  // Parse a "Rating" prose string. Stays often have something like
+  //   "TripAdvisor 4.7/5 over 23 reviews"
+  //   "10+ Booking reviews 2023-2026 (most 9.0-10.0)"
+  // Picks the first "/5" or "/10" pattern it sees and normalizes to a /5
+  // scale. Returns null when nothing parseable is found.
+  const parseRating = (text, structured) => {
+    if (typeof structured === "number" && !isNaN(structured)) return structured;
+    if (!text || typeof text !== "string") return null;
+    // Explicit X.X/5
+    const five = text.match(/(\d(?:\.\d+)?)\s*\/\s*5\b/);
+    if (five) return Math.min(5, Math.max(0, parseFloat(five[1])));
+    // Explicit X.X/10 — halve to /5
+    const ten = text.match(/(\d(?:\.\d+)?)\s*\/\s*10\b/);
+    if (ten) return Math.min(5, Math.max(0, parseFloat(ten[1]) / 2));
+    // "TripAdvisor X.X" without explicit "/5" — TripAdvisor's scale IS /5
+    const ta = text.match(/TripAdvisor\s+(\d(?:\.\d+)?)\b/i);
+    if (ta) return Math.min(5, Math.max(0, parseFloat(ta[1])));
+    // "Booking X.X" or "Google X.X" without explicit "/10" — assume /10
+    const bg = text.match(/(?:Booking|Google|Hostelworld)\s*(?:\.com\s*)?(\d(?:\.\d+)?)\b/i);
+    if (bg) return Math.min(5, Math.max(0, parseFloat(bg[1]) / 2));
+    // "most 9.0-10.0" Booking range — assume /10
+    const range = text.match(/most\s+(\d(?:\.\d+)?)[\s–-]+(\d(?:\.\d+)?)/i);
+    if (range) {
+      const mid = (parseFloat(range[1]) + parseFloat(range[2])) / 2;
+      return Math.min(5, Math.max(0, mid / 2));
+    }
+    return null;
+  };
+
   // Parse a distance string into meters. Returns null when nothing parseable.
   // Handles: explicit "X km" / "X m"; "Zero" or "middle of beach" or "On X
   // beach" → 0 m; "X-minute walk" → X * 80 m (~80 m / min walking pace);
@@ -2063,6 +2092,11 @@ function compareScoreboardHTML(items) {
       { icon: "📍", label: "Distance to surf spot", max: 5000, unit: "", winnerDirection: "lower",
         labelFor: mtrs => fmtDistance(mtrs),
         get: e => parseDistance(e.verblijf && e.verblijf.afstandSpot, e.verblijf && e.verblijf.distanceM) },
+      // Aggregate review rating, parsed from the rating prose into a /5 scale.
+      // Stays can override with verblijf.ratingScore: <0..5>.
+      { icon: "⭐", label: "Review rating", max: 5, unit: " / 5", winnerDirection: "higher",
+        fmt: x => x.toFixed(1),
+        get: e => parseRating(e.verblijf && e.verblijf.rating, e.verblijf && e.verblijf.ratingScore) },
       // Things to do counts comma/and-separated items in activiteiten.
       { icon: "🗺️", label: "Things to do nearby", max: 8, unit: " items", winnerDirection: "higher",
         get: e => itemCount(e.verblijf && e.verblijf.activiteiten) },
