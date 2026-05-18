@@ -3541,8 +3541,126 @@ function wireHeaderSearch() {
   }
 }
 
+/* ============================================================
+   Cookie consent + Cloudflare Web Analytics loader
+   ============================================================
+   Strict-necessary localStorage (saved spots, trips, compare,
+   reviews mock) runs always — it's part of how the site works
+   and stays on the user's device. Analytics is opt-in: the
+   Cloudflare beacon is only injected after the user clicks
+   Accept (or Customize → Analytics on). Choice persists in
+   `wavebase_consent_v1`. The footer link re-opens the banner. */
+const CONSENT_KEY = "wavebase_consent_v1";
+const CF_BEACON_TOKEN = "62ad05eecbb8442ba571b2d4db28b8b5";
+
+function readConsent() {
+  try {
+    const raw = localStorage.getItem(CONSENT_KEY);
+    return raw ? JSON.parse(raw) : null;
+  } catch (e) { return null; }
+}
+function writeConsent(obj) {
+  try {
+    const entry = Object.assign({ ts: new Date().toISOString() }, obj);
+    localStorage.setItem(CONSENT_KEY, JSON.stringify(entry));
+  } catch (e) { /* ignore */ }
+}
+function loadCloudflareBeacon() {
+  if (document.getElementById("cf-beacon-loaded")) return;
+  const s = document.createElement("script");
+  s.id = "cf-beacon-loaded";
+  s.defer = true;
+  s.src = "https://static.cloudflareinsights.com/beacon.min.js";
+  s.setAttribute("data-cf-beacon", JSON.stringify({ token: CF_BEACON_TOKEN }));
+  document.body.appendChild(s);
+}
+
+function renderConsentBanner(opts) {
+  opts = opts || {};
+  closeConsentBanner();
+  const current = readConsent() || { analytics: true };
+  const wrap = document.createElement("div");
+  wrap.id = "consent-banner";
+  wrap.className = "consent-banner";
+  wrap.setAttribute("role", "dialog");
+  wrap.setAttribute("aria-live", "polite");
+  wrap.setAttribute("aria-label", "Cookie and tracking preferences");
+  wrap.innerHTML = `
+    <div class="consent-inner">
+      <div class="consent-body">
+        <strong>A word on cookies.</strong>
+        Your saved places, trips and compare list stay in this browser only
+        &mdash; they never leave your device. We also count anonymous visits
+        with Cloudflare Web Analytics (no cookies, no profiles) so we can
+        see which pages people actually use. You can switch that off.
+        <a href="privacy.html">Read the privacy policy</a>.
+      </div>
+      <div class="consent-options" hidden id="consent-customize">
+        <label class="consent-row">
+          <input type="checkbox" checked disabled>
+          <span><strong>Strictly necessary</strong> &mdash; needed for the site to work (always on).</span>
+        </label>
+        <label class="consent-row">
+          <input type="checkbox" id="consent-analytics" ${current.analytics ? "checked" : ""}>
+          <span><strong>Anonymous analytics</strong> &mdash; Cloudflare Web Analytics, no cookies, no individual tracking.</span>
+        </label>
+      </div>
+      <div class="consent-actions">
+        <button type="button" class="btn" data-consent="accept">Accept all</button>
+        <button type="button" class="btn btn-quiet" data-consent="reject">Reject analytics</button>
+        <button type="button" class="btn btn-quiet" data-consent="customize">Customize</button>
+      </div>
+    </div>
+  `;
+  document.body.appendChild(wrap);
+  wrap.querySelector('[data-consent="accept"]').addEventListener("click", () => {
+    writeConsent({ analytics: true });
+    loadCloudflareBeacon();
+    closeConsentBanner();
+  });
+  wrap.querySelector('[data-consent="reject"]').addEventListener("click", () => {
+    writeConsent({ analytics: false });
+    closeConsentBanner();
+  });
+  wrap.querySelector('[data-consent="customize"]').addEventListener("click", () => {
+    const box = document.getElementById("consent-customize");
+    if (box.hidden) {
+      box.hidden = false;
+      // Replace the three-button row with a single save button when expanded.
+      const actions = wrap.querySelector(".consent-actions");
+      actions.innerHTML =
+        '<button type="button" class="btn" data-consent="save">Save my choice</button>' +
+        '<button type="button" class="btn btn-quiet" data-consent="cancel">Cancel</button>';
+      actions.querySelector('[data-consent="save"]').addEventListener("click", () => {
+        const analytics = !!document.getElementById("consent-analytics").checked;
+        writeConsent({ analytics });
+        if (analytics) loadCloudflareBeacon();
+        closeConsentBanner();
+      });
+      actions.querySelector('[data-consent="cancel"]').addEventListener("click", closeConsentBanner);
+    }
+  });
+}
+function closeConsentBanner() {
+  const el = document.getElementById("consent-banner");
+  if (el) el.remove();
+}
+function initConsent() {
+  const current = readConsent();
+  if (!current) {
+    renderConsentBanner();
+  } else if (current.analytics) {
+    loadCloudflareBeacon();
+  }
+}
+// Footer link wires here.
+function openConsentPreferences() {
+  renderConsentBanner({ reopen: true });
+}
+
 /* ---- router ---- */
 document.addEventListener("DOMContentLoaded", () => {
+  initConsent();
   updateNav();
   initDestinations();
   initMobileTabbar();

@@ -5,6 +5,10 @@
   <url><loc>https://wavebase.lode-b162.workers.dev/kaart.html</loc><changefreq>monthly</changefreq><priority>0.7</priority></url>
   <url><loc>https://wavebase.lode-b162.workers.dev/compare.html</loc><changefreq>yearly</changefreq><priority>0.3</priority></url>
   <url><loc>https://wavebase.lode-b162.workers.dev/about.html</loc><changefreq>monthly</changefreq><priority>0.6</priority></url>
+  <url><loc>https://wavebase.lode-b162.workers.dev/privacy.html</loc><changefreq>yearly</changefreq><priority>0.3</priority></url>
+  <url><loc>https://wavebase.lode-b162.workers.dev/legal.html</loc><changefreq>yearly</changefreq><priority>0.3</priority></url>
+  <url><loc>https://wavebase.lode-b162.workers.dev/continent.html?name=Europe</loc><changefreq>monthly</changefreq><priority>0.5</priority></url>
+  <url><loc>https://wavebase.lode-b162.workers.dev/continent.html?name=Africa</loc><changefreq>monthly</changefreq><priority>0.5</priority></url>
   <url><loc>https://wavebase.lode-b162.workers.dev/spot.html?id=sunset-surfhouse</loc><priority>0.8</priority></url>
   <url><loc>https://wavebase.lode-b162.workers.dev/spot.html?id=chillout-surf-hostel</loc><priority>0.8</priority></url>
   <url><loc>https://wavebase.lode-b162.workers.dev/spot.html?id=solid-surf-house</loc><priority>0.8</priority></url>
