@@ -1628,17 +1628,63 @@ function reviewsMockHTML(e) {
       Verdict: ${chip("verdict", verdictOpts, "", "would I book again?")}.
     </p>`;
   } else { // stay
+    // Stay-specific story reads as flowing prose rather than a numeric
+    // checklist. Each chip is a descriptive word so the sentence makes
+    // sense on its own (e.g. "the hosts felt warm and the food was great").
+    const hostsFelt = [
+      { value: "warm",         label: "warm" },
+      { value: "friendly",     label: "friendly" },
+      { value: "professional", label: "professional" },
+      { value: "cool",         label: "cool/distant" },
+      { value: "off-putting",  label: "off-putting" }
+    ];
+    const foodFelt = [
+      { value: "excellent",     label: "excellent" },
+      { value: "good",          label: "good" },
+      { value: "fine",          label: "fine" },
+      { value: "disappointing", label: "disappointing" },
+      { value: "n/a",           label: "self-catering / no food" }
+    ];
+    const comfortFelt = [
+      { value: "very-comfortable", label: "very comfortable" },
+      { value: "comfortable",      label: "comfortable" },
+      { value: "ok",               label: "ok" },
+      { value: "cramped",          label: "cramped" },
+      { value: "poor",             label: "poor" }
+    ];
+    const cleanFelt = [
+      { value: "spotless", label: "spotless" },
+      { value: "clean",    label: "clean" },
+      { value: "fine",     label: "fine" },
+      { value: "patchy",   label: "patchy" },
+      { value: "poor",     label: "poor" }
+    ];
+    const valueFelt = [
+      { value: "great-value", label: "great value" },
+      { value: "fair",        label: "fair" },
+      { value: "pricey",      label: "pricey" },
+      { value: "overpriced",  label: "overpriced" }
+    ];
+    const distanceFeltPhrased = [
+      { value: "right-at-spot", label: "right by the spot" },
+      { value: "short-drive",   label: "a short drive away" },
+      { value: "too-far",       label: "a hassle to reach" }
+    ];
     story = `<p class="review-story">
       I stayed at <strong>${escHTML(e.name)}</strong> in ${dateRow}
-      for ${chip("tripLength", nights, "", "?")} ${chip("travelGroup", travelOpts, preTravel, "with whom?")}.
-      Hosts ${chip("hostsScore", score10Opts, "", "1-10")},
-      food ${chip("foodScore", score10Opts, "", "1-10")},
-      comfort ${chip("comfortScore", score10Opts, "", "1-10")},
-      cleanliness ${chip("cleanlinessScore", score10Opts, "", "1-10")},
-      value ${chip("valueScore", score10Opts, "", "1-10")}.
-      Vibe: ${chip("vibe", vibeFelt, "", "?")}.
-      Distance from spot: ${chip("distance", distanceFelt, "", "?")}.
-      Verdict: ${chip("verdict", verdictOpts, "", "would I stay again?")}.
+      for ${chip("tripLength", nights, "", "how long?")},
+      ${chip("travelGroup", travelOpts, preTravel, "with whom?")}.
+
+      The hosts felt ${chip("hosts", hostsFelt, "", "?")}
+      and the food was ${chip("food", foodFelt, "", "?")}.
+      Rooms were ${chip("comfort", comfortFelt, "", "?")},
+      and the place was ${chip("cleanliness", cleanFelt, "", "?")}.
+      Value for money: ${chip("value", valueFelt, "", "?")}.
+
+      The overall vibe was ${chip("vibe", vibeFelt, "", "?")},
+      and the stay was ${chip("distance", distanceFeltPhrased, "", "?")} from the surf.
+
+      Would I stay again? ${chip("verdict", verdictOpts, "", "?")}.
     </p>`;
   }
 
