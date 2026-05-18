@@ -578,7 +578,7 @@ function moreInCountryHTML(currentEntry) {
       <h2>More in ${escHTML(country)}</h2>
       <a class="more-in-country-all" href="index.html?country=${encodeURIComponent(country)}">See all &rarr;</a>
     </header>
-    <div class="grid list-view">${picks.map(cardHTML).join("")}</div>
+    <div class="grid list-view">${picks.map(p => cardHTML(p)).join("")}</div>
   </section>`;
 }
 
@@ -847,7 +847,7 @@ function renderResultsSections(matches, gridClass) {
         <span class="section-chev" aria-hidden="true">▾</span>
         <h2>${s.label} <span class="seccount">${s.items.length}</span></h2>
       </button>
-      <div class="${gridClass} section-body" id="body-${s.key}">${s.items.map(cardHTML).join("")}</div>
+      <div class="${gridClass} section-body" id="body-${s.key}">${s.items.map(e => cardHTML(e)).join("")}</div>
     </section>`;
   });
   return html;
@@ -1766,7 +1766,7 @@ function renderAccount() {
   ).join("");
 
   const savedHTML = saved.length
-    ? `<div class="grid">${saved.map(cardHTML).join("")}</div>`
+    ? `<div class="grid">${saved.map(e => cardHTML(e)).join("")}</div>`
     : `<p class="muted">Nothing saved yet. Tap the heart on a spot or stay.</p>`;
 
   const tripsHTML = trips.length
