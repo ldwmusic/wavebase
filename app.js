@@ -981,12 +981,33 @@ function runSearch() {
   }
 
   // Apply the secondary filters (level / month / type) inside the country×sport set
-  const matches = liveCountrySportEntries.filter(e => {
+  let matches = liveCountrySportEntries.filter(e => {
     const okL = level === "all" || e.levels.includes(level);
     const okM = month === "all" || e.goodMonths.includes(parseInt(month, 10));
     const okT = type === "all" || e.type === type;
     return okL && okM && okT;
   });
+
+  // Soft fallback: when the picked month wipes out every entry, drop the
+  // month filter and show what we have with an "off-season" banner. Lets
+  // the user see the live region's content even when they picked a month
+  // outside the local peak season — they can decide for themselves.
+  let offSeasonBanner = "";
+  if (matches.length === 0 && month !== "all") {
+    const relaxed = liveCountrySportEntries.filter(e => {
+      const okL = level === "all" || e.levels.includes(level);
+      const okT = type === "all" || e.type === type;
+      return okL && okT;
+    });
+    if (relaxed.length > 0) {
+      matches = relaxed;
+      const monthLabel = WAVEBASE_MONTHS[parseInt(month, 10)] || month;
+      offSeasonBanner = `<div class="off-season-banner">
+        <strong>${monthLabel} is off-season here.</strong>
+        Showing the live ${escHTML(country)} entries anyway — check each one's at-a-glance to see when it actually peaks.
+      </div>`;
+    }
+  }
 
   const heading = countryHeading(country);
   let html = "";
@@ -999,6 +1020,7 @@ function runSearch() {
   } else {
     html += `<div class="results-head"><h2>${heading}</h2>${viewToggleHTML(pref)}</div>`;
     html += townStripHTML(country);
+    if (offSeasonBanner) html += offSeasonBanner;
     html += renderResultsSections(matches, gridClass);
   }
 
@@ -2140,16 +2162,7 @@ function compareScoreboardHTML(items) {
 
   const rows = dims.map(d => {
     const cells = items.map(e => ({ e, val: d.get(e) }));
-    // Find the winner cell index based on winnerDirection. Range mode never
-    // has a winner (it's a level span, not a single value).
-    let winnerIdx = -1;
-    if (d.mode !== "range" && d.winnerDirection) {
-      const vals = cells.map(c => c.val);
-      const ext = d.winnerDirection === "lower" ? Math.min(...vals) : Math.max(...vals);
-      const hasContrast = vals.some(x => x !== ext);
-      if (hasContrast) winnerIdx = vals.indexOf(ext);
-    }
-    const cellHtml = cells.map((c, ci) => {
+    const cellHtml = cells.map(c => {
       // Label mode: categorical chip, no bar.
       if (d.mode === "label") {
         return `<div class="sb-row-cell sb-row-cell-label">
@@ -2157,11 +2170,11 @@ function compareScoreboardHTML(items) {
           <span class="sb-chip">${escHTML(c.val)}</span>
         </div>`;
       }
-      // Levels mode: three discrete pills B / I / A, lit if accepted.
+      // Levels mode: three discrete pills with the full word, lit if accepted.
       if (d.mode === "levels") {
         const set = new Set(c.val);
-        const pills = [["beginner","B"],["intermediate","I"],["advanced","A"]]
-          .map(([k, lab]) => `<span class="sb-level-pill${set.has(k)?" on":""}" title="${cap(k)}">${lab}</span>`)
+        const pills = ["beginner","intermediate","advanced"]
+          .map(k => `<span class="sb-level-pill${set.has(k)?" on":""}">${cap(k)}</span>`)
           .join("");
         return `<div class="sb-row-cell sb-row-cell-label">
           <span class="sb-entry-name">${escHTML(c.e.name)}</span>
@@ -2178,10 +2191,9 @@ function compareScoreboardHTML(items) {
         const pct = Math.max(4, Math.min(100, (c.val / d.max) * 100));
         barInner = `<span class="sb-bar-fill" style="left:0; width:${pct}%"></span>`;
       }
-      const winner = ci === winnerIdx;
       const fmt = d.fmt || (x => Math.round(x));
       const labelText = d.labelFor ? d.labelFor(c.val) : (fmt(c.val) + (d.unit || ""));
-      return `<div class="sb-row-cell${winner ? " is-winner" : ""}">
+      return `<div class="sb-row-cell">
         <span class="sb-entry-name">${escHTML(c.e.name)}</span>
         <span class="sb-bar">${barInner}</span>
         <span class="sb-value">${labelText}</span>
@@ -2231,7 +2243,7 @@ function compareScoreboardHTML(items) {
   return `<section class="cmp-scoreboard">
     <header class="sb-head">
       <h2>Scoreboard</h2>
-      <p class="muted form-note">${monthHint}Longer bar means more of that dimension. Clay accent marks the winner where "more" is unambiguously better.</p>
+      <p class="muted form-note">${monthHint}Longer bar means more of that dimension. You decide what's "better" for your trip.</p>
       ${inferredNote}
     </header>
     ${rows}

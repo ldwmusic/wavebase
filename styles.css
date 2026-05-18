@@ -1527,9 +1527,22 @@ table.cal td.host { color: var(--clay); }
   transition: width 0.2s ease;
 }
 .sb-value { font-size: 13px; color: var(--ink); font-variant-numeric: tabular-nums; white-space: nowrap; }
-.sb-row-cell.is-winner .sb-bar-fill { background: var(--clay); }
-.sb-row-cell.is-winner .sb-value    { color: var(--clay); font-weight: 700; }
-.sb-row-cell.is-winner .sb-entry-name { color: var(--clay); font-weight: 600; }
+/* (winner clay-accent removed per LDW — bars stay sea-blue across the board) */
+
+/* Off-season banner: shown above results when the picked month doesn't
+   include any entries in the live region. We relax the month filter and
+   list everything anyway, with this note so the user knows. */
+.off-season-banner {
+  background: var(--amber-soft);
+  border: 1px solid #e8c98a;
+  border-left: 4px solid var(--amber);
+  border-radius: var(--radius);
+  padding: 12px 16px;
+  margin: 12px 0 18px;
+  font-size: 13.5px;
+  color: var(--ink);
+}
+.off-season-banner strong { color: var(--ink); }
 
 /* Label-mode cell: categorical chip instead of a bar. Used for Style/Vibe
    on stay scoreboards — the essence in a glance, not a numeric value. */
@@ -1544,12 +1557,13 @@ table.cal td.host { color: var(--clay); }
 
 /* Levels pills (B / I / A) on the scoreboard — three discrete slots, lit
    if the entry accepts that level. Clearer than a band visualisation. */
-.sb-level-set { display: inline-flex; gap: 4px; }
+.sb-level-set { display: inline-flex; gap: 6px; flex-wrap: wrap; }
 .sb-level-pill {
   display: inline-flex; align-items: center; justify-content: center;
-  width: 26px; height: 26px; border-radius: 999px;
+  padding: 4px 12px; border-radius: 999px;
   background: var(--sand); color: var(--ink-soft);
-  font-size: 12px; font-weight: 700;
+  font-size: 12px; font-weight: 600;
+  white-space: nowrap;
 }
 .sb-level-pill.on { background: var(--sea); color: #fff; }
 
