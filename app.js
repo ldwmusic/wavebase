@@ -2054,14 +2054,14 @@ function compareScoreboardHTML(items) {
 
   if (type === "spot") {
     all = [
-      // Daily-peak gust = the typical session-relevant wind speed (avg of
-      // each day's peak gust over 5 years). The 9-hour avg in monthlyWindKn
-      // includes calm mornings and underestimates what surfers actually feel.
-      { icon: "🌬️", label: "Typical session wind", max: 45, unit: " kn", winnerDirection: "higher",
+      // Typical wind = 9-hour daytime average. Honest "what blows on
+      // average across the surf window" number, not a flattering peak.
+      { icon: "🌬️", label: "Wind (typical)", max: 30, unit: " kn", winnerDirection: "higher",
+        get: e => v((getStatsFor(e) || {}).monthlyWindKn) },
+      // Typical peak gust = avg of daily max gust (the strongest moment of
+      // a typical day). Not the 5-year storm extreme.
+      { icon: "💨", label: "Gust (typical peak)", max: 40, unit: " kn", winnerDirection: "higher",
         get: e => v((getStatsFor(e) || {}).monthlyDailyPeakKn) },
-      // Storm-day max gust over the 5-year window.
-      { icon: "💨", label: "Storm-day max gust (5y)", max: 60, unit: " kn", winnerDirection: "higher",
-        get: e => v((getStatsFor(e) || {}).monthlyGustPeakKn) },
       { icon: "🌊", label: "Wave height", max: 3, unit: " m", fmt: x => x.toFixed(1), winnerDirection: "higher",
         get: e => v((getStatsFor(e) || {}).monthlyWaveM) },
       { icon: "🌡️", label: "Water warmth", max: 30, unit: " °C",
