@@ -2523,10 +2523,31 @@ body:not(.is-home) .searchbar-wrap { display: none; }
   font-size: 13px;
   color: var(--ink-soft);
 }
-.rml-key {
+/* Legend keys double as click-toggles for layer visibility. Each key is
+   a real <button> — accessible via keyboard, dimmed + strikethrough when
+   the corresponding type is hidden on the map. */
+button.rml-key {
   display: inline-flex;
   align-items: center;
   gap: 6px;
+  border: 1px solid transparent;
+  background: transparent;
+  padding: 4px 10px;
+  border-radius: 999px;
+  cursor: pointer;
+  font: inherit;
+  color: var(--ink-soft);
+  transition: background 0.12s, opacity 0.12s, border-color 0.12s;
+  user-select: none;
+}
+button.rml-key:hover  { background: rgba(0,0,0,.04); border-color: var(--line); }
+button.rml-key:focus-visible { outline: 2px solid var(--sea); outline-offset: 2px; }
+button.rml-key.off {
+  opacity: 0.45;
+  text-decoration: line-through;
+}
+button.rml-key.off .rml-dot {
+  background: var(--ink-soft) !important;
 }
 .rml-dot {
   display: inline-block;

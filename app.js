@@ -1409,20 +1409,26 @@ function wireTierPills(container) {
 /* Combined mini-map at the top of Discover results. One map, all visible
    entries (spots + centers + stays) as type-colored pins. Lets the user
    see the geographic spread in 1 glance, click a pin → detail page.
+   The legend keys are clickable: click "4 spots" to hide just the spot
+   pins, click again to bring them back. Useful for isolating one type.
    Skipped if <2 entries with coords — one pin alone isn't worth a map. */
 function resultsMiniMapHTML(matches) {
   const withCoords = matches.filter(e => Array.isArray(e.coords));
   if (withCoords.length < 2) return "";
   const counts = { spot: 0, center: 0, stay: 0 };
   withCoords.forEach(e => { if (counts[e.type] !== undefined) counts[e.type]++; });
-  const legend = [];
-  if (counts.spot)   legend.push(`<span class="rml-key"><span class="rml-dot spot"></span> ${counts.spot} ${counts.spot === 1 ? "spot" : "spots"}</span>`);
-  if (counts.center) legend.push(`<span class="rml-key"><span class="rml-dot center"></span> ${counts.center} ${counts.center === 1 ? "center" : "centers"}</span>`);
-  if (counts.stay)   legend.push(`<span class="rml-key"><span class="rml-dot stay"></span> ${counts.stay} ${counts.stay === 1 ? "stay" : "stays"}</span>`);
+  const keyBtn = (type, n, singular, plural) => n
+    ? `<button type="button" class="rml-key" data-type="${type}" aria-pressed="true" title="Click to toggle ${plural} on the map"><span class="rml-dot ${type}"></span> ${n} ${n === 1 ? singular : plural}</button>`
+    : "";
+  const legend = [
+    keyBtn("spot",   counts.spot,   "spot",   "spots"),
+    keyBtn("center", counts.center, "center", "centers"),
+    keyBtn("stay",   counts.stay,   "stay",   "stays")
+  ].filter(Boolean).join("");
   return `<section class="results-map-frame" aria-label="Map of results">
     <div class="results-map-head">
       <span class="results-map-title">In one glance, on the map</span>
-      <div class="results-map-legend">${legend.join("")}</div>
+      <div class="results-map-legend">${legend}</div>
     </div>
     <div id="results-mini-map" class="results-mini-map-stage" role="application" aria-label="Mini map of all visible results"></div>
   </section>`;
@@ -1440,8 +1446,11 @@ function initResultsMiniMap(matches) {
     attribution: "&copy; OpenStreetMap contributors", maxZoom: 19
   }).addTo(map);
 
+  // One Leaflet layer per type → toggling is a single addLayer/removeLayer call.
+  const layers = { spot: L.layerGroup(), center: L.layerGroup(), stay: L.layerGroup() };
   const allCoords = [];
   withCoords.forEach(e => {
+    if (!layers[e.type]) return;
     allCoords.push(e.coords);
     const m = L.circleMarker(e.coords, {
       radius: 9, color: "#fff", weight: 2.5,
@@ -1450,12 +1459,30 @@ function initResultsMiniMap(matches) {
     const tipBody = `<strong>${escHTML(e.name)}</strong><br><span class="rml-tip-meta">${typeLabel(e.type)}${e.town ? " &middot; " + escHTML(e.town) : ""}</span>`;
     m.bindTooltip(tipBody, { direction: "top", offset: [0, -6], className: "rml-tooltip" });
     m.on("click", () => { window.location.href = spotHref(e.id); });
-    m.addTo(map);
+    m.addTo(layers[e.type]);
   });
+  layers.spot.addTo(map);
+  layers.center.addTo(map);
+  layers.stay.addTo(map);
   map.fitBounds(allCoords, { padding: [28, 28], maxZoom: 13 });
   // Leaflet sometimes mis-sizes when its container is initially hidden /
   // re-rendered via innerHTML; this nudges it to recompute once attached.
   setTimeout(() => map.invalidateSize(), 60);
+
+  // Wire legend toggles. Click "spots" → hide spot pins; click again → restore.
+  // State resets on each runSearch (re-render), which feels right — a new
+  // country search shouldn't keep types from the previous one hidden.
+  const visible = { spot: true, center: true, stay: true };
+  document.querySelectorAll(".results-map-frame .rml-key").forEach(btn => {
+    btn.addEventListener("click", () => {
+      const t = btn.dataset.type;
+      if (!layers[t]) return;
+      visible[t] = !visible[t];
+      if (visible[t]) layers[t].addTo(map); else map.removeLayer(layers[t]);
+      btn.classList.toggle("off", !visible[t]);
+      btn.setAttribute("aria-pressed", visible[t] ? "true" : "false");
+    });
+  });
 }
 
 function renderResultsSections(matches, gridClass) {
