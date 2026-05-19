@@ -3010,6 +3010,90 @@ body:not(.is-home) .searchbar-wrap { display: none; }
   border-color: var(--sea);
   color: #fff;
 }
+
+/* Tier (trip-type) pills — same family as sport pills, with a leading label */
+.tier-pills-wrap { padding-top: 10px; padding-bottom: 0; margin-bottom: 4px; }
+.tier-pills {
+  display: flex;
+  gap: 8px;
+  justify-content: center;
+  align-items: center;
+  flex-wrap: wrap;
+}
+.tier-pills-label {
+  font-size: 12px;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--ink-soft);
+  font-weight: 600;
+  margin-right: 4px;
+}
+.tier-pill {
+  font-family: 'DM Sans', sans-serif;
+  font-size: 13.5px;
+  font-weight: 500;
+  background: var(--paper);
+  border: 1px solid var(--sand);
+  border-radius: 999px;
+  padding: 7px 14px;
+  cursor: pointer;
+  color: var(--ink);
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  transition: background 0.15s ease, color 0.15s ease, border-color 0.15s ease;
+}
+.tier-pill:hover { background: var(--clay-soft); border-color: #ecd0c2; color: var(--clay); }
+.tier-pill.active {
+  background: var(--clay);
+  border-color: var(--clay);
+  color: #fff;
+}
+
+/* Tier chip on cards — visible price-tier label under tagline + pills */
+.card-price {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  margin-top: 4px;
+  flex-wrap: wrap;
+}
+.tier-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 3px 10px;
+  border-radius: 999px;
+  font-size: 12.5px;
+  font-weight: 500;
+  background: var(--paper);
+  border: 1px solid var(--sand);
+  color: var(--ink-soft);
+  white-space: nowrap;
+}
+.tier-chip.tier-budget      { background: #f0e5d0; color: #6f5a2c; border-color: #e0d4b7; }
+.tier-chip.tier-comfortable { background: var(--sea-soft); color: var(--sea); border-color: #b6cdd2; }
+.tier-chip.tier-premium     { background: var(--clay-soft); color: var(--clay); border-color: #ecd0c2; }
+.tier-chip.tier-luxury      { background: #efe3f2; color: #6f3d7b; border-color: #ddc5e4; }
+.card-price-val {
+  font-family: 'DM Sans', sans-serif;
+  font-size: 13.5px;
+  color: var(--ink);
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+}
+
+/* Pricing source line on the detail page — small print under the panel. */
+.price-source {
+  margin-top: 14px;
+  padding-top: 10px;
+  border-top: 1px dashed var(--sand);
+  font-size: 12.5px;
+  color: var(--ink-soft);
+  word-break: break-word;
+}
+.price-source strong { color: var(--ink); font-weight: 600; }
 .sport-pill.soon { color: var(--ink-soft); }
 .sport-pill.soon .soon-tag {
   font-size: 9.5px;

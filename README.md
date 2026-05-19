@@ -115,6 +115,28 @@ Same as a spot but:
 - Centers can have `linkedSpotId` — that links them to a spot so they
   inherit its wind/wave/temp data
 
+### Booking links — the source-matching rule
+
+**Where the data comes from = where the Book-now link goes.** If we
+quote rates pulled from Booking.com, the "Book now" button on that
+card MUST send the visitor to the Booking.com page (so the rate they
+see matches what we showed). If we quote rates from the property's
+own site (e.g. surf-camp packages), the link goes to the own site.
+
+This is set per entry via the `bookingUrl` field:
+
+```js
+{ id: "flamingo-apartments",
+  // data scraped from Booking → bookingUrl points to Booking
+  bookingUrl: "https://www.booking.com/hotel/gr/flamengo-apartments.html",
+  prices: { source: "Booking.com checked 2026-05-19 ..." },
+  // ...
+}
+```
+
+When adding a new stay/center: pick the data source first, then set
+the matching bookingUrl. Don't mix sources.
+
 ### Add a new country to the "soon" list
 
 Edit `WAVEBASE_DESTINATIONS` at the bottom of `data.js`. Find the

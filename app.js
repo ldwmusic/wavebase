@@ -930,6 +930,18 @@ function cardHTML(e, distKm) {
     const season = seasonForMonth(getStatsFor(e), userSelectedMonth());
     if (season) seasonChip = `<span class="season-chip season-${season.klass}">${escHTML(season.name)}</span>`;
   }
+  // Price line on cards — ONLY for stays. Centers get their pricing
+  // shown on the detail page instead (lessons + rentals from €X). Stays
+  // get tier chip + cheapest nightly rate.
+  let priceLine = "";
+  if (e.type === "stay" && e.prices && e.prices.tier) {
+    const meta = tierMeta(e.prices.tier);
+    const priceVal = priceDisplayShort(e);
+    priceLine = `<div class="card-price">
+      <span class="tier-chip tier-${e.prices.tier}" title="${meta ? meta.blurb : ""}">${meta ? meta.icon : ""} ${meta ? meta.label : e.prices.tier}</span>
+      ${priceVal ? `<span class="card-price-val">${priceVal}</span>` : ""}
+    </div>`;
+  }
   return `
   <article class="card" data-href="${spotHref(e.id)}">
     <div class="thumb ${e.type}${e.photo ? " has-photo" : ""}"${thumbStyle(e)}>
@@ -945,6 +957,7 @@ function cardHTML(e, distKm) {
       <h3>${e.name}</h3>
       <p class="tag">${e.tagline}</p>
       <div class="meta">${pills}</div>
+      ${priceLine}
     </div>
   </article>`;
 }
@@ -1072,6 +1085,132 @@ function findCountry(name) {
 /* Backward-compatible accessors — older Morocco entries lack country/sports fields */
 function entryCountry(e) { return e.country || "Morocco"; }
 function entrySports(e)  { return e.sports  || ["wave"]; }
+
+/* ============================================================
+   Price tiers + currency
+   ============================================================
+   Each stay/center carries a `prices` object. The `tier` is editorial
+   and country-relative: a "comfortable" stay in Morocco may cost €40,
+   in France €120 — same EXPERIENCE category, different absolute price.
+   The filter on Discover and the display labels use the tier; absolute
+   numbers (always sourced in EUR) are converted on-the-fly to whatever
+   currency the user prefers. */
+
+const PRICE_TIERS = ["budget", "comfortable", "premium", "luxury"];
+const TIER_META = {
+  "budget":      { icon: "🎒", label: "Budget",      blurb: "Hostels, dorms, bare bones — cheapest end in its country." },
+  "comfortable": { icon: "🏠", label: "Comfortable", blurb: "Private room, decent kit — surf-camp standard in its country." },
+  "premium":     { icon: "✨", label: "Premium",     blurb: "Boutique, pool, breakfast — high-end in its country." },
+  "luxury":      { icon: "🌟", label: "Luxury",      blurb: "Spa, gourmet, private service — top of its country." }
+};
+function tierMeta(t) { return TIER_META[t] || null; }
+function entryTier(e) {
+  return (e.prices && e.prices.tier) || null;
+}
+function tierRank(t) {
+  const i = PRICE_TIERS.indexOf(t);
+  return i === -1 ? 99 : i;
+}
+
+/* Currency. EUR is the storage baseline; rates updated quarterly.
+   Auto-detect from navigator.language on first visit, allow user to
+   override in the My-WaveBase profile. Persisted in localStorage. */
+const CURRENCY_RATES = {
+  EUR: { code: "EUR", symbol: "€",  rate: 1.00,  decimals: 0 },
+  USD: { code: "USD", symbol: "$",  rate: 1.08,  decimals: 0 },
+  GBP: { code: "GBP", symbol: "£",  rate: 0.85,  decimals: 0 },
+  CHF: { code: "CHF", symbol: "CHF",rate: 0.96,  decimals: 0 },
+  AUD: { code: "AUD", symbol: "A$", rate: 1.65,  decimals: 0 },
+  MAD: { code: "MAD", symbol: "DH", rate: 10.85, decimals: 0 }
+};
+const CURRENCY_RATES_UPDATED = "2026-05";
+
+function defaultCurrencyFromLocale() {
+  // Map common browser locales → reasonable default currency.
+  const loc = (navigator.language || "en-US").toLowerCase();
+  if (loc.startsWith("en-us") || loc.endsWith("-us")) return "USD";
+  if (loc.startsWith("en-gb") || loc.startsWith("cy") || loc.endsWith("-gb")) return "GBP";
+  if (loc.startsWith("de-ch") || loc.startsWith("fr-ch") || loc.startsWith("it-ch")) return "CHF";
+  if (loc.startsWith("en-au") || loc.endsWith("-au")) return "AUD";
+  if (loc.startsWith("ar-ma") || loc.endsWith("-ma")) return "MAD";
+  return "EUR"; // Belgium / NL / DE / FR / IT / ES / PT / IE / etc.
+}
+function getCurrencyPref() {
+  // Priority: profile.currency → localStorage → locale default
+  if (typeof WaveBaseAccount !== "undefined") {
+    const p = WaveBaseAccount.getProfile();
+    if (p && p.currency && CURRENCY_RATES[p.currency]) return p.currency;
+  }
+  try {
+    const ls = localStorage.getItem("wavebase_currency");
+    if (ls && CURRENCY_RATES[ls]) return ls;
+  } catch (e) { /* ignore */ }
+  const d = defaultCurrencyFromLocale();
+  try { localStorage.setItem("wavebase_currency", d); } catch (e) {}
+  return d;
+}
+function setCurrencyPref(code) {
+  if (!CURRENCY_RATES[code]) return;
+  try { localStorage.setItem("wavebase_currency", code); } catch (e) {}
+}
+function fmtCurrency(eurAmount, opts) {
+  if (eurAmount == null || isNaN(eurAmount)) return "—";
+  opts = opts || {};
+  const code = opts.code || getCurrencyPref();
+  const cur = CURRENCY_RATES[code] || CURRENCY_RATES.EUR;
+  const converted = eurAmount * cur.rate;
+  const rounded = converted.toFixed(cur.decimals);
+  // Symbol-before-number for most, except CHF which usually trails the number.
+  return code === "CHF" ? `${rounded} ${cur.symbol}` : `${cur.symbol}${rounded}`;
+}
+function fmtPriceRange(fromEUR, toEUR) {
+  if (fromEUR == null && toEUR == null) return "—";
+  if (toEUR == null || fromEUR === toEUR) return fmtCurrency(fromEUR);
+  return `${fmtCurrency(fromEUR)}–${fmtCurrency(toEUR)}`;
+}
+function priceForMonth(entry, monthNum) {
+  const p = entry && entry.prices;
+  if (!p) return null;
+  if (Array.isArray(p.monthlyEUR) && monthNum >= 1 && monthNum <= 12) {
+    const v = p.monthlyEUR[monthNum - 1];
+    if (v != null && !isNaN(v)) return v;
+  }
+  // Fall back to range midpoint
+  if (p.fromEUR != null && p.toEUR != null) return (p.fromEUR + p.toEUR) / 2;
+  return p.fromEUR != null ? p.fromEUR : null;
+}
+
+/* Compact price label for the card. Honestly reflects what we have:
+   - stay/center with a range → "from €X" or "€X–€Y"
+   - center with a group-lesson rate → "from €X / lesson"
+   - no public rate published → "By enquiry"
+   Always EUR baseline, converted to the user's currency at display time. */
+function priceDisplayShort(entry) {
+  const p = entry && entry.prices;
+  if (!p) return "";
+  // Centers prefer a per-lesson rate when available
+  if (entry.type === "center") {
+    if (p.groupLessonEUR != null) {
+      return `from ${fmtCurrency(p.groupLessonEUR)} / lesson`;
+    }
+    if (p.rentalDayEUR != null) {
+      return `from ${fmtCurrency(p.rentalDayEUR)} / day rental`;
+    }
+    return `By enquiry`;
+  }
+  // Stays: range when we have both bounds, "from" when only low, else by enquiry.
+  // Package-based pricing (full-board surf-camp deals) shows "from €X / package"
+  // so users don't read the number as a nightly rate.
+  const unit = (p.unit || "").toLowerCase();
+  const isPackage = unit.includes("package") || unit.includes("week");
+  if (p.fromEUR != null && p.toEUR != null && !isPackage) {
+    return `${fmtCurrency(p.fromEUR)}–${fmtCurrency(p.toEUR)}`;
+  }
+  if (p.fromEUR != null) {
+    return isPackage ? `from ${fmtCurrency(p.fromEUR)} / package` : `from ${fmtCurrency(p.fromEUR)}`;
+  }
+  return `By enquiry`;
+}
 
 /* HTML-escape user-supplied strings before injecting into innerHTML */
 function escHTML(s) {
@@ -1224,6 +1363,47 @@ function wireSportPills(container) {
   });
 }
 
+/* Price-tier preference — mirrors the sport-pref pattern. Affects which
+   stays/centers show in results (spots are price-less and pass through). */
+function getTierPref() {
+  const params = new URLSearchParams(window.location.search);
+  const fromUrl = params.get("tier");
+  if (fromUrl && (fromUrl === "all" || PRICE_TIERS.indexOf(fromUrl) !== -1)) return fromUrl;
+  try {
+    const stored = localStorage.getItem("wavebase_tier_pref");
+    if (stored && PRICE_TIERS.indexOf(stored) !== -1) return stored;
+  } catch (e) { /* ignore */ }
+  return "all";
+}
+function setTierPref(tier) {
+  try {
+    if (tier === "all") localStorage.removeItem("wavebase_tier_pref");
+    else localStorage.setItem("wavebase_tier_pref", tier);
+  } catch (e) { /* ignore */ }
+}
+function tierPillsHTML(active) {
+  const pills = [{ key: "all", label: "Any" }]
+    .concat(PRICE_TIERS.map(k => ({ key: k, label: `${TIER_META[k].icon} ${TIER_META[k].label}` })));
+  return `<div class="tier-pills" role="tablist" aria-label="Trip type">
+    <span class="tier-pills-label">Trip type:</span>
+    ${pills.map(p =>
+      `<button class="tier-pill ${p.key === active ? "active" : ""}" data-tier="${p.key}" role="tab" aria-selected="${p.key === active}">${p.label}</button>`
+    ).join("")}
+  </div>`;
+}
+function wireTierPills(container) {
+  container.querySelectorAll(".tier-pill").forEach(btn => {
+    btn.addEventListener("click", () => {
+      setTierPref(btn.dataset.tier);
+      const url = new URL(window.location.href);
+      if (btn.dataset.tier === "all") url.searchParams.delete("tier");
+      else url.searchParams.set("tier", btn.dataset.tier);
+      window.history.replaceState(null, "", url.toString());
+      runSearch();
+    });
+  });
+}
+
 /* Render the spots/centers/stays sections + sticky jumper bar shared between
    country-picker mode and free-text search mode. Returns the HTML string. */
 function renderResultsSections(matches, gridClass) {
@@ -1315,19 +1495,26 @@ function runSearch() {
     btn.classList.toggle("active", isActive);
     btn.setAttribute("aria-selected", isActive ? "true" : "false");
   });
+  // keep the trip-type dropdown in sync with the stored pref
+  const fTierEl = document.getElementById("f-tier");
+  if (fTierEl) fTierEl.value = getTierPref();
 
   const pref = getViewPref();
   const gridClass = pref === "list" ? "grid list-view" : "grid";
 
   // ============ FREE-TEXT SEARCH MODE — overrides the country picker ============
   if (query) {
+    const tierQ = getTierPref();
     const matches = WAVEBASE_DATA.filter(e => {
       if (!searchMatch(e, query)) return false;
       if (sport !== "all" && !entrySports(e).includes(sport)) return false;
       const okL = level === "all" || e.levels.includes(level);
       const okM = month === "all" || e.goodMonths.includes(parseInt(month, 10));
       const okT = type === "all" || e.type === type;
-      return okL && okM && okT;
+      const okTier = tierQ === "all"
+                  || e.type === "spot"
+                  || (e.prices && e.prices.tier === tierQ);
+      return okL && okM && okT && okTier;
     });
     let html = `<div class="results-head"><h2>Search: &ldquo;${escHTML(query)}&rdquo; <span class="seccount">${matches.length}</span></h2>${matches.length ? viewToggleHTML(pref) : ""}</div>`;
     if (matches.length === 0) {
@@ -1412,10 +1599,15 @@ function runSearch() {
   // filter and show all of them with a banner. Lets the user keep
   // browsing the full inventory while knowing what's actually peaking.
   const monthInt = parseInt(month, 10);
+  const tier = getTierPref();
   const passLevelType = e => {
     const okL = level === "all" || e.levels.includes(level);
     const okT = type === "all" || e.type === type;
-    return okL && okT;
+    // Tier filter only applies to stays + centers; spots have no price.
+    const okTier = tier === "all"
+                || e.type === "spot"
+                || (e.prices && e.prices.tier === tier);
+    return okL && okT && okTier;
   };
   const passMonth = e => month === "all" || e.goodMonths.includes(monthInt);
   const inSeason = liveCountrySportEntries.filter(e => passLevelType(e) && passMonth(e));
@@ -2006,6 +2198,19 @@ function initIndex() {
     searcherSection.parentNode.insertBefore(wrap, searcherSection);
     wireSportPills(wrap);
   }
+  // Wire the trip-type dropdown (inside the .searcher block).
+  const fTier = document.getElementById("f-tier");
+  if (fTier) {
+    fTier.value = getTierPref();
+    fTier.addEventListener("change", () => {
+      setTierPref(fTier.value);
+      const url = new URL(window.location.href);
+      if (fTier.value === "all") url.searchParams.delete("tier");
+      else url.searchParams.set("tier", fTier.value);
+      window.history.replaceState(null, "", url.toString());
+      runSearch();
+    });
+  }
 
   // Landing extras: ticker, mini-world-map, peaking-right-now carousel.
   renderStatsTicker();
@@ -2177,6 +2382,56 @@ function verblijfHTML(v) {
   return `<section class="condities">
     <h2>The stay at a glance</h2>
     <div class="cond-grid verblijf-grid">${items}</div>
+  </section>`;
+}
+
+/* Indicative-price panel for the detail page. Only renders if there's
+   verified data — empty otherwise. Honest about source + that rates
+   change. Used for both stays (per-night) and centers (per-lesson). */
+function pricesHTML(e) {
+  const p = e && e.prices;
+  if (!p) return "";
+  const rows = [];
+  if (e.type === "center") {
+    if (p.groupLessonEUR != null) {
+      rows.push(["Group lesson", `from ${fmtCurrency(p.groupLessonEUR)}${p.groupLessonNote ? ` <span class="muted">— ${escHTML(p.groupLessonNote)}</span>` : ""}`]);
+    }
+    if (p.privateLessonHourEUR != null) {
+      rows.push(["Private lesson", `from ${fmtCurrency(p.privateLessonHourEUR)} / hour`]);
+    }
+    if (p.rentalDayEUR != null) {
+      rows.push(["Equipment rental", `from ${fmtCurrency(p.rentalDayEUR)} / day`]);
+    }
+    if (p.packageEUR != null && p.packageDays != null) {
+      rows.push(["Package", `from ${fmtCurrency(p.packageEUR)} for ${p.packageDays} days${p.packageNote ? ` <span class="muted">— ${escHTML(p.packageNote)}</span>` : ""}`]);
+    }
+    if (rows.length === 0) {
+      rows.push(["Pricing", `<em class="muted">Rates not published online — direct enquiry only.</em>`]);
+    }
+  } else if (e.type === "stay") {
+    if (p.fromEUR != null && p.toEUR != null) {
+      rows.push(["Indicative price", `${fmtCurrency(p.fromEUR)}–${fmtCurrency(p.toEUR)} ${escHTML(p.unit || "per night")}`]);
+    } else if (p.fromEUR != null) {
+      rows.push(["Indicative price", `from ${fmtCurrency(p.fromEUR)} ${escHTML(p.unit || "per night")}`]);
+    } else {
+      rows.push(["Indicative price", `<em class="muted">No public rate — direct enquiry / check Booking on your dates.</em>`]);
+    }
+    if (p.tier) {
+      const meta = tierMeta(p.tier);
+      if (meta) rows.push(["Trip-type tier", `<span class="tier-chip tier-${p.tier}">${meta.icon} ${meta.label}</span> <span class="muted">— ${escHTML(meta.blurb)}</span>`]);
+    }
+  } else {
+    return "";
+  }
+  const verif = p.verified ? ` <span class="muted">verified ${escHTML(p.verified)}</span>` : "";
+  const src = p.source ? `<div class="price-source"><strong>Source:</strong> ${escHTML(p.source)}${verif}</div>` : "";
+  const items = rows.map(([k, val]) =>
+    `<div class="cond-item"><span class="cond-label">${k}</span><span class="cond-val">${val}</span></div>`
+  ).join("");
+  return `<section class="condities">
+    <h2>Pricing</h2>
+    <div class="cond-grid verblijf-grid">${items}</div>
+    ${src}
   </section>`;
 }
 
@@ -2590,6 +2845,7 @@ function initSpot() {
     ${conditiesHTML(e.condities)}
     ${verblijfHTML(e.verblijf)}
     ${dienstenHTML(e.diensten)}
+    ${pricesHTML(e)}
 
     <div class="verhaal">
       <h2>The honest story</h2>
@@ -2985,6 +3241,16 @@ function renderAccount() {
         <label>Travel style<select id="p-style"><option value="">—</option>${styleOpts}</select></label>
         <label>What you want from a trip<select id="p-intent"><option value="">—</option>${intentOpts}</select></label>
         <label class="form-wide">How did you find us?<select id="p-found"><option value="">—</option>${foundOpts}</select></label>
+        <label class="form-wide">Display currency
+          <select id="p-currency">
+            ${Object.keys(CURRENCY_RATES).map(code => {
+              const cur = CURRENCY_RATES[code];
+              const sel = code === getCurrencyPref() ? " selected" : "";
+              return `<option value="${code}"${sel}>${cur.symbol} ${cur.code}</option>`;
+            }).join("")}
+          </select>
+          <span class="muted" style="font-size:12px;">Rates updated ${CURRENCY_RATES_UPDATED} · auto-detected from your browser, override here.</span>
+        </label>
         <button class="btn" id="p-save">Save profile</button>
       </div>
     </section>
@@ -3015,6 +3281,7 @@ function renderAccount() {
   ).map(el => el.value);
 
   document.getElementById("p-save").addEventListener("click", () => {
+    const currency = document.getElementById("p-currency").value;
     WaveBaseAccount.setProfile({
       name: document.getElementById("p-name").value,
       email: document.getElementById("p-email").value,
@@ -3027,8 +3294,10 @@ function renderAccount() {
       tripIntent: document.getElementById("p-intent").value,
       surfType: readChecks("surfType"),
       discipline: readChecks("discipline"),
-      howDidYouFindUs: document.getElementById("p-found").value
+      howDidYouFindUs: document.getElementById("p-found").value,
+      currency
     });
+    setCurrencyPref(currency);
     updateNav();
     alert("Profile saved.");
   });

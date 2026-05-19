@@ -71,7 +71,16 @@ const WAVEBASE_DATA = [
       ]
     },
     ideaalVoor: "Solo travellers, beginner–intermediate, and anyone who wants a homely social base over a polished resort.",
-    nietIdeaalAls: "You want a quiet, private, high-comfort stay — or you're advanced and coming in summer for serious waves."
+    nietIdeaalAls: "You want a quiet, private, high-comfort stay — or you're advanced and coming in summer for serious waves.",
+    prices: {
+      tier:        "comfortable",
+      fromEUR:     360,
+      toEUR:       1020,
+      unit:        "per person, surf-camp package (5–14 nights, lessons + meals + transport included)",
+      verified:    "2026-05",
+      source:      "sunset-surfhousemorocco.com — published packages: shared €360/5n to single €1020/14n. Room-only on Booking is a different product."
+    },
+    bookingUrl: "https://sunset-surfhousemorocco.com/"
   },
 
   {
@@ -129,7 +138,16 @@ const WAVEBASE_DATA = [
     ],
     vergelijking: null,
     ideaalVoor: "Anyone who wants all-inclusive ease and a social group vibe at a sharp price — solo travellers and groups alike.",
-    nietIdeaalAls: "You're after quiet and privacy, you care about strict cleanliness, or you don't enjoy a busy group house."
+    nietIdeaalAls: "You're after quiet and privacy, you care about strict cleanliness, or you don't enjoy a busy group house.",
+    prices: {
+      tier:        "budget",
+      fromEUR:     null,
+      toEUR:       null,
+      unit:        "per night, dorm bed",
+      verified:    "2026-05",
+      source:      "TODO — Hostelworld listing requires date input for live rate. hostelworld.com/hostels/p/290344/chilloutsurf-hostel-and-yoga"
+    },
+    bookingUrl: "https://www.hostelworld.com/hostels/p/290344/chilloutsurf-hostel-and-yoga/"
   },
 
   {
@@ -188,7 +206,16 @@ const WAVEBASE_DATA = [
     ],
     vergelijking: null,
     ideaalVoor: "Anyone who wants a quieter villa with a pool and structured coaching, and doesn't mind a walk to the beach.",
-    nietIdeaalAls: "You specifically want to be on the beach, or you're sensitive to shaky organisation."
+    nietIdeaalAls: "You specifically want to be on the beach, or you're sensitive to shaky organisation.",
+    prices: {
+      tier:        "comfortable",
+      fromEUR:     349,
+      toEUR:       549,
+      unit:        "per person per week, surf-camp package",
+      verified:    "2026-05",
+      source:      "solidsurfhouse.com/surfcamp/morocco/ — €349 shared room / €549 full all-incl"
+    },
+    bookingUrl: "https://solidsurfhouse.com/surfcamp/morocco/"
   },
 
   /* ===================== STAYS — TAGHAZOUT ===================== */
@@ -248,7 +275,16 @@ const WAVEBASE_DATA = [
     ],
     vergelijking: null,
     ideaalVoor: "Solo travellers and anyone who wants a cheap, central, social base with breaks within walking distance.",
-    nietIdeaalAls: "You want quiet, privacy or hotel-grade cleanliness."
+    nietIdeaalAls: "You want quiet, privacy or hotel-grade cleanliness.",
+    prices: {
+      tier:        "budget",
+      fromEUR:     null,
+      toEUR:       null,
+      unit:        "per night, dorm bed",
+      verified:    "2026-05",
+      source:      "TODO — Hostelworld requires date for live rate. hostelworld.com/hostels/p/55544/the-surf-hostel"
+    },
+    bookingUrl: "https://www.hostelworld.com/hostels/p/55544/the-surf-hostel/"
   },
 
   {
@@ -307,7 +343,16 @@ const WAVEBASE_DATA = [
     ],
     vergelijking: null,
     ideaalVoor: "Anyone who wants a stylish, food-led surf-and-yoga base and doesn't need a big party scene.",
-    nietIdeaalAls: "You want a rowdy social hostel, or a rock-bottom backpacker price."
+    nietIdeaalAls: "You want a rowdy social hostel, or a rock-bottom backpacker price.",
+    prices: {
+      tier:        "comfortable",
+      fromEUR:     18,
+      toEUR:       45,
+      unit:        "per night, hostel room",
+      verified:    "2026-05",
+      source:      "booking.com/hotel/ma/amayour-surf — $18–$46/night range across seasons; €58/night all-incl package option"
+    },
+    bookingUrl: "https://www.booking.com/hotel/ma/amayour-surf.html"
   },
 
   {
@@ -366,7 +411,16 @@ const WAVEBASE_DATA = [
     ],
     vergelijking: null,
     ideaalVoor: "Anyone who wants a small, cosy, well-run base near the beach — beginner or beyond.",
-    nietIdeaalAls: "You want a big social scene, or you need rental gear sorted in advance."
+    nietIdeaalAls: "You want a big social scene, or you need rental gear sorted in advance.",
+    prices: {
+      tier:        "comfortable",
+      fromEUR:     65,
+      toEUR:       80,
+      unit:        "per night, comfort room (2 adults)",
+      verified:    "2026-05",
+      source:      "Booking.com checked 2026-05-19 — Aug 2026 €473/week discounted (€68/night) for Comfort triple room"
+    },
+    bookingUrl: "https://www.booking.com/hotel/ma/dar-imim-surf-house.html"
   },
 
   /* ===================== SURF SPOTS — TAMRAGHT ===================== */
@@ -2440,7 +2494,7 @@ const WAVEBASE_DATA = [
     coords: [35.207305, 26.2690837],
     coordsLabel: "Verified via Google Maps pin (LDW). Right on Kouremenos beach.",
     photo: "",
-    bookingUrl: "https://gonesurfing.gr/",
+    bookingUrl: "https://gonesurfing.gr/home",
     diensten: {
       lessen: "Windsurfing, wing foiling, wind foiling, tandem windsurfing, SUP — beginners through advanced. Owners Christos and Maria teach personally; reviewers describe Christos as \"may speak less, but every piece of advice is invaluable\".",
       rental: "Windsurf, wing foil, SUP. \"Plenty to chose from, in fact you could swap and change as much as you wanted\" (2023 reviewer). Range of foil types, board sizes and wing sizes.",
@@ -2480,7 +2534,20 @@ const WAVEBASE_DATA = [
     ],
     vergelijking: null,
     ideaalVoor: "Wing-foilers and windsurfers wanting quality teaching, current foil gear and an intimate owner-run center; people who like a small \"know us by name\" vibe.",
-    nietIdeaalAls: "You want maximum booking flexibility on multi-day packages (rent by the hour instead), or you want a big-station infrastructure (food, sun beds, bikes — the larger station on the beach fits that better)."
+    nietIdeaalAls: "You want maximum booking flexibility on multi-day packages (rent by the hour instead), or you want a big-station infrastructure (food, sun beds, bikes — the larger station on the beach fits that better).",
+    prices: {
+      tier:                  "comfortable",
+      groupLessonEUR:        45,
+      groupLessonNote:       "1h beginner group (2-3 people), material included",
+      privateLessonHourEUR:  55,
+      rentalDayEUR:          90,
+      packageEUR:            345,
+      packageDays:           7,
+      packageNote:           "Standard windsurf rental 6-7 days; +10% for SLS/Slalom boards, -12% for beginner kit",
+      unit:                  "per group lesson, 1h",
+      verified:              "2026-05",
+      source:                "gonesurfing.gr/windsurfing-lessons/ + gonesurfing.gr/en/windsurfing-rental — full published price list"
+    },
   },
 
   {
@@ -2539,7 +2606,20 @@ const WAVEBASE_DATA = [
     ],
     vergelijking: null,
     ideaalVoor: "Sailors wanting a full-service beach station with infrastructure (showers, food, sun beds, bikes, yoga, evening entertainment) and a wide multilingual team. Families and groups bringing non-sailing companions.",
-    nietIdeaalAls: "You want a quiet, small, owner-run center — the other center on the beach fits that better."
+    nietIdeaalAls: "You want a quiet, small, owner-run center — the other center on the beach fits that better.",
+    prices: {
+      tier:                 "comfortable",
+      groupLessonEUR:       40,
+      groupLessonNote:      "1h beginner group/semi-private, high season; €36-40 low season",
+      privateLessonHourEUR: 60,
+      rentalDayEUR:         70,
+      packageEUR:           300,
+      packageDays:          4,
+      packageNote:          "4-hour beginner private course; advanced 4h = €350",
+      unit:                 "per group lesson, 1h",
+      verified:             "2026-05",
+      source:               "freak-surf.com/crete/rentals/ — full price list published, low/high season tiers"
+    },
   },
 
   /* ----------------- STAYS — EAST CRETE ----------------- */
@@ -2556,7 +2636,7 @@ const WAVEBASE_DATA = [
     coords: [35.205648, 26.269349],
     coordsLabel: "Verified via Google Maps pin. On Kouremenos beach itself, next to Surf Beach Bar.",
     photo: "",
-    bookingUrl: "https://www.surfbeachapts.gr/",
+    bookingUrl: "https://www.booking.com/hotel/gr/surf-beach-apartments.html",
     verblijf: {
       eten: "Self-catering studios with kitchenettes. Surf Beach Bar next door for breakfast/snacks; village supermarkets 1.5 km inland in Palekastro. Sun beds and BBQ facilities on site.",
       afstandSpot: "Zero — middle of Kouremenos beach, next door to the windsurf centers. Walk in your wetsuit.",
@@ -2604,7 +2684,15 @@ const WAVEBASE_DATA = [
     ],
     vergelijking: null,
     ideaalVoor: "Independent windsurfers/wing-foilers who want zero distance to the launch and the strongest Booking-verified rating in the cluster.",
-    nietIdeaalAls: "You want a full surf-camp setup with lessons, food and group sessions included."
+    nietIdeaalAls: "You want a full surf-camp setup with lessons, food and group sessions included.",
+    prices: {
+      tier:        "comfortable",
+      fromEUR:     110,
+      toEUR:       135,
+      unit:        "per night, sea-view apartment (2 adults)",
+      verified:    "2026-05",
+      source:      "Booking.com checked 2026-05-19 — Sep 2026 €896/week (€128/night) for sea-view apartment; Aug 2026 unavailable"
+    },
   },
 
   {
@@ -2666,7 +2754,15 @@ const WAVEBASE_DATA = [
     ],
     vergelijking: null,
     ideaalVoor: "Travellers willing to take a chance on a property with a great location but no recent review trail — and who want to book direct rather than via a platform.",
-    nietIdeaalAls: "You want the picture grounded in recent guest experience — choose Villa Amalia, Surf Beach Apartments or Flamingo instead, each with 2022+ review coverage."
+    nietIdeaalAls: "You want the picture grounded in recent guest experience — choose Villa Amalia, Surf Beach Apartments or Flamingo instead, each with 2022+ review coverage.",
+    prices: {
+      tier:        "premium",
+      fromEUR:     null,
+      toEUR:       null,
+      unit:        "per night, studio (2 adults)",
+      verified:    "2026-05",
+      source:      "TODO — own site (akti-villas.gr) publishes no rates; Booking shows a different property called \"Kiani Akti Villas\" which LDW confirmed is NOT the same. Direct enquiry: +30 28430 61065 or virginie.tsantaki@gmail.com (wait — that\'s Villa Amalia, Akti Villas contact: from akti-villas.gr)."
+    },
   },
 
   {
@@ -2682,7 +2778,7 @@ const WAVEBASE_DATA = [
     coords: [35.1962405, 26.2638173],
     coordsLabel: "Verified via Google Maps pin. In Agathia hamlet (~900 m east of Palekastro village, on the road toward Kouremenos beach).",
     photo: "",
-    bookingUrl: "https://flamingo-apartments-palaikastro.gr/en/",
+    bookingUrl: "https://www.booking.com/hotel/gr/flamengo-apartments.html",
     verblijf: {
       eten: "Self-catering apartments + studios with full kitchenettes (per the property site). Tavernas, mini-market and supermarket nearby; Palekastro center ~12 min walk.",
       afstandSpot: "Near Kouremenos beach (a short drive); Chiona beach ~1–2 km. Rooms 1–3 (first floor) have sea-view balconies toward Chiona per a 2025 TripAdvisor insider tip.",
@@ -2729,7 +2825,15 @@ const WAVEBASE_DATA = [
     ],
     vergelijking: null,
     ideaalVoor: "Sailors travelling with their own gear who want a family-run base, multilingual hosts, on-site bike rental, and a sea view from the first-floor rooms.",
-    nietIdeaalAls: "You want to be ON the beach (it's a short drive) or you want a surf-camp atmosphere with lessons and shared dinners."
+    nietIdeaalAls: "You want to be ON the beach (it's a short drive) or you want a surf-camp atmosphere with lessons and shared dinners.",
+    prices: {
+      tier:        "comfortable",
+      fromEUR:     65,
+      toEUR:       75,
+      unit:        "per night, studio (2 adults)",
+      verified:    "2026-05",
+      source:      "Booking.com checked 2026-05-19 via Chrome session — Aug 2026 €458/week discounted (€65/night) + June 2026 €469/week (€67/night)"
+    },
   },
 
   {
@@ -2745,7 +2849,7 @@ const WAVEBASE_DATA = [
     coords: [35.2194294, 26.2566817],
     coordsLabel: "Verified via Google Maps pin. On the hillside north of Palekastro, overlooking Kouremenos Beach.",
     photo: "",
-    bookingUrl: "https://www.villa-amalia.com/",
+    bookingUrl: "https://www.booking.com/hotel/gr/villa-amalia.html",
     verblijf: {
       eten: "Self-catering: five apartments + two rooms with fully equipped kitchenettes (per the property's own site). Multiple 2022+ Booking reviewers cite the garden, BBQ area and welcome arrivals.",
       afstandSpot: "~2 km from Kouremenos beach on the hillside — short drive down. 10 min drive to Vai (per a 2024 reviewer).",
@@ -2791,7 +2895,15 @@ const WAVEBASE_DATA = [
     ],
     vergelijking: null,
     ideaalVoor: "Couples and small families wanting comfort, sea-view balconies and a quiet hillside perch above the bay. People who like a returning-guest atmosphere with named hosts.",
-    nietIdeaalAls: "You want to be ON the beach (it's a 2 km drive down), or you find a remote setting isolating rather than charming."
+    nietIdeaalAls: "You want to be ON the beach (it's a 2 km drive down), or you find a remote setting isolating rather than charming.",
+    prices: {
+      tier:        "comfortable",
+      fromEUR:     70,
+      toEUR:       85,
+      unit:        "per night, studio (2 adults)",
+      verified:    "2026-05",
+      source:      "Booking.com checked 2026-05-19 — Aug 2026 €511/week (€73/night) for studio with 1 double bed"
+    },
   },
 
   {
@@ -2853,7 +2965,15 @@ const WAVEBASE_DATA = [
     ],
     vergelijking: null,
     ideaalVoor: "Sailors who want to be on the bay with a beach grill and hands-on owners; people open to the sister Rousolakos option if they want a pool.",
-    nietIdeaalAls: "You want the deepest recent review base in the cluster — choose Surf Beach (Booking 9.1/30), Flamingo (4.5/19) or Villa Amalia (10+ recent Booking) for stronger sourcing."
+    nietIdeaalAls: "You want the deepest recent review base in the cluster — choose Surf Beach (Booking 9.1/30), Flamingo (4.5/19) or Villa Amalia (10+ recent Booking) for stronger sourcing.",
+    prices: {
+      tier:        "comfortable",
+      fromEUR:     80,
+      toEUR:       95,
+      unit:        "per night, studio (2 adults)",
+      verified:    "2026-05",
+      source:      "Booking.com checked 2026-05-19 — Sep 2026 from €332/4 nights (€83/night) for cheapest studio"
+    },
   }
 ];
 
