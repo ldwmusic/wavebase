@@ -2524,30 +2524,34 @@ body:not(.is-home) .searchbar-wrap { display: none; }
   color: var(--ink-soft);
 }
 /* Legend keys double as click-toggles for layer visibility. Each key is
-   a real <button> — accessible via keyboard, dimmed + strikethrough when
-   the corresponding type is hidden on the map. */
+   a real <button> — no pill chrome, no background, just plain text with
+   the colored dot. When OFF, only the dot goes hollow (white with a
+   faint grey ring); the text stays the same so the whole label remains
+   an obvious click target. */
 button.rml-key {
   display: inline-flex;
   align-items: center;
   gap: 6px;
-  border: 1px solid transparent;
+  border: none;
   background: transparent;
-  padding: 4px 10px;
-  border-radius: 999px;
+  padding: 2px 0;
   cursor: pointer;
   font: inherit;
   color: var(--ink-soft);
-  transition: background 0.12s, opacity 0.12s, border-color 0.12s;
   user-select: none;
+  transition: color 0.12s;
 }
-button.rml-key:hover  { background: rgba(0,0,0,.04); border-color: var(--line); }
-button.rml-key:focus-visible { outline: 2px solid var(--sea); outline-offset: 2px; }
-button.rml-key.off {
-  opacity: 0.45;
-  text-decoration: line-through;
+button.rml-key:hover  { color: var(--ink); }
+button.rml-key:focus-visible {
+  outline: 2px solid var(--sea);
+  outline-offset: 3px;
+  border-radius: 3px;
 }
+button.rml-key .rml-dot { transition: background 0.12s, box-shadow 0.12s, border-color 0.12s; }
 button.rml-key.off .rml-dot {
-  background: var(--ink-soft) !important;
+  background: #fff !important;
+  border-color: #fff;
+  box-shadow: 0 0 0 1px rgba(0,0,0,.18);
 }
 .rml-dot {
   display: inline-block;
