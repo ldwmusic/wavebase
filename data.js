@@ -531,6 +531,7 @@ const WAVEBASE_DATA = [
     levels: ["beginner", "intermediate"],
     goodMonths: [1,2,3,4,5,6,7,8,9,10,11,12],
     coords: [30.5069, -9.6882],
+    googleMapsQuery: "https://maps.app.goo.gl/FR5RdEnCPepEexEw7",
     photo: "",
     samenvatting: [
       "Sand-bottom beach break under a distinctive rock formation; A-frames, lefts and rights.",
@@ -1796,8 +1797,8 @@ const WAVEBASE_DATA = [
     tagline: "The swell magnet of the cape — powerful, and it holds the biggest swells.",
     levels: ["advanced"],
     goodMonths: [11,12,1,2,3],
-    coords: [30.5490, -9.7400],
-    googleMapsQuery: false,
+    coords: [30.5502, -9.7399],
+    googleMapsQuery: "https://maps.app.goo.gl/WNApE6NMKWADrYLf6",
     coordsLabel: "Two sources differ by ~300 m; both place it ~1 km north of Anchor Point on the cape. Navigate to ~30.549, -9.740, then walk the cliff.",
     photo: "",
     samenvatting: [
@@ -1894,8 +1895,8 @@ const WAVEBASE_DATA = [
     tagline: "A remote reef by the lighthouse — stays clean when everything else blows out.",
     levels: ["advanced"],
     goodMonths: [11,12,1,2,3],
-    coords: [30.6249, -9.8785],
-    googleMapsQuery: false,
+    coords: [30.6252, -9.8775],
+    googleMapsQuery: "https://maps.app.goo.gl/7qV2vSE6FRRbSKSC6",
     photo: "",
     samenvatting: [
       "Right-hand reef break over boulders — ~35–45 min north of Taghazout.",

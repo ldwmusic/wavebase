@@ -79,9 +79,12 @@ function googleMapsHref(entry) {
     return `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(entry.name || "")}&query_place_id=${encodeURIComponent(entry.googlePlaceId)}`;
   }
   // (2a) Explicit override via googleMapsQuery field:
-  //      - string  → use that query verbatim (good when our entry's
-  //        name differs from Google's canonical name, e.g. our
-  //        "Faneromeni (Papadiokambos)" vs Google's "Papadiokampos Beach")
+  //      - string starting with "https://" → full Google Maps URL, use as-is
+  //        (best when text queries are ambiguous and we have the canonical
+  //        shortlink from the user, e.g. https://maps.app.goo.gl/xxx)
+  //      - string (other) → use that as the ?q= search text verbatim
+  //        (good when our entry's name differs from Google's canonical name,
+  //        or when our name has an apostrophe that breaks the redirect)
   //      - false   → skip Google place search; use coord pin only
   //        (for spots Google has no business listing for, e.g. K17, Spiders)
   if (entry.googleMapsQuery === false) {
@@ -90,6 +93,9 @@ function googleMapsHref(entry) {
     }
   }
   if (typeof entry.googleMapsQuery === "string" && entry.googleMapsQuery) {
+    if (/^https?:\/\//i.test(entry.googleMapsQuery)) {
+      return entry.googleMapsQuery;
+    }
     return `https://www.google.com/maps?q=${encodeURIComponent(entry.googleMapsQuery)}`;
   }
   // (2b) Default: plain ?q=NAME+TOWN+COUNTRY — Google auto-redirects
