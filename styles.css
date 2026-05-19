@@ -339,13 +339,13 @@ a:hover { text-decoration: underline; }
 .searcher input[type="text"],
 .searcher input[type="search"],
 .searcher .sport-pill {
-  transition: padding 0.85s cubic-bezier(0.22, 0.61, 0.36, 1),
-              font-size 0.85s cubic-bezier(0.22, 0.61, 0.36, 1),
-              gap 0.85s cubic-bezier(0.22, 0.61, 0.36, 1),
-              margin 0.85s cubic-bezier(0.22, 0.61, 0.36, 1),
-              border-radius 0.85s cubic-bezier(0.22, 0.61, 0.36, 1),
-              box-shadow 0.85s cubic-bezier(0.22, 0.61, 0.36, 1),
-              max-width 0.85s cubic-bezier(0.22, 0.61, 0.36, 1);
+  transition: padding 0.42s cubic-bezier(0.22, 0.61, 0.36, 1),
+              font-size 0.42s cubic-bezier(0.22, 0.61, 0.36, 1),
+              gap 0.42s cubic-bezier(0.22, 0.61, 0.36, 1),
+              margin 0.42s cubic-bezier(0.22, 0.61, 0.36, 1),
+              border-radius 0.42s cubic-bezier(0.22, 0.61, 0.36, 1),
+              box-shadow 0.42s cubic-bezier(0.22, 0.61, 0.36, 1),
+              max-width 0.42s cubic-bezier(0.22, 0.61, 0.36, 1);
 }
 
 /* Pinned mode = left-side sidebar (was a top bar). The card lifts out
