@@ -2474,12 +2474,18 @@ function initIndex() {
     let triggerY = Infinity;
 
     function recomputeNatural() {
-      // Always measure off the in-flow wrap. We refuse to remeasure
-      // while pinned because the wrap is then position:fixed and its
-      // getBoundingClientRect reports viewport coords. The cached
-      // triggerY stays correct until we unpin and re-measure.
+      // Only measure when the wrap is in flow. Once pinned, the wrap is
+      // position:fixed (its rect lies about position) and the spacer's
+      // top doesn't match the wrap's old top (margin-collapse from the
+      // .searcher inside means the wrap visually starts ~40 px lower
+      // than the spacer). So we cache the trigger captured the last
+      // time we were unpinned, and trust it through the pinned cycle.
+      if (pinned) return;
       const r = searcherSection.getBoundingClientRect();
-      triggerY = Math.max(0, r.top + window.scrollY - headerH());
+      triggerY = r.top + window.scrollY - headerH();
+      // Tiny floor so very-near-top natural positions still leave a
+      // small "expanded" zone at the top of the page before pin kicks in.
+      if (triggerY < 30) triggerY = 30;
       spacer.style.height = searcherSection.offsetHeight + "px";
     }
 
@@ -2490,19 +2496,38 @@ function initIndex() {
 
     function checkPin() {
       const tooNarrow = window.innerWidth < FLOAT_MIN_WIDTH;
-      if (!pinned && !tooNarrow) recomputeNatural();
+      recomputeNatural();
       if (!pinned && !tooNarrow && window.scrollY > triggerY) {
         pinned = true;
         spacer.style.display = "";
         searcherSection.classList.add("is-fixed");
-      } else if (pinned && (tooNarrow || window.scrollY < triggerY - 5)) {
+      } else if (pinned && (tooNarrow || window.scrollY <= triggerY - 5)) {
         pinned = false;
         spacer.style.display = "none";
         searcherSection.classList.remove("is-fixed");
       }
     }
     window.addEventListener("scroll", checkPin, { passive: true });
-    window.addEventListener("resize", () => { if (!pinned) recomputeNatural(); checkPin(); });
+    window.addEventListener("resize", () => { recomputeNatural(); checkPin(); });
+
+    // Re-measure when the layout shifts under us (e.g. runSearch toggles
+    // is-home, the results grid renders, fonts settle). MutationObserver
+    // on <main> catches DOM changes; ResizeObserver catches reflows
+    // (covers font loading, image lazy-load, etc.). Both schedule a
+    // checkPin in the next frame so any pending paint can settle first.
+    let pending = false;
+    function schedulePinCheck() {
+      if (pending) return;
+      pending = true;
+      requestAnimationFrame(() => { pending = false; checkPin(); });
+    }
+    const mainEl = document.querySelector("main") || document.body;
+    if (typeof MutationObserver === "function") {
+      new MutationObserver(schedulePinCheck).observe(mainEl, { childList: true, subtree: true, attributes: true, attributeFilter: ["class", "style"] });
+    }
+    if (typeof ResizeObserver === "function") {
+      new ResizeObserver(schedulePinCheck).observe(mainEl);
+    }
     window.addEventListener("load", checkPin);
     // First check after any pending layout changes from initIndex / runSearch
     // (is-home toggling, etc.) settle in the next frame.
