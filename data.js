@@ -433,6 +433,7 @@ const WAVEBASE_DATA = [
     levels: ["beginner", "intermediate"],
     goodMonths: [1,2,3,4,5,6,7,8,9,10,11,12],
     coords: [30.5100, -9.6890],
+    googleMapsQuery: "Tamraght crocro beach",
     coordsLabel: "Approximate — Crocro is a stretch of beach (~300 m north of Devil's Rock), not an exact break point. Navigate to 'Crocro / Imouran beach'.",
     photo: "",
     samenvatting: [
@@ -1407,6 +1408,7 @@ const WAVEBASE_DATA = [
     levels: ["beginner", "intermediate"],
     goodMonths: [1,2,3,4,5,6,7,8,9,10,11,12],
     coords: [30.5443, -9.7118],
+    googleMapsQuery: false,
     photo: "",
     samenvatting: [
       "Right-hand point break right at the north edge of the village — maximum accessibility.",
@@ -1503,6 +1505,7 @@ const WAVEBASE_DATA = [
     levels: ["beginner", "intermediate"],
     goodMonths: [10,11,12,1,2,3,4],
     coords: [30.5423, -9.7062],
+    googleMapsQuery: false,
     coordsLabel: "Coordinate from two agreeing sources, but strikingly close to Mysteries' — possibly a database label error. Real-world anchor: Panorama's restaurant at the south end of Taghazout.",
     photo: "",
     samenvatting: [
@@ -1600,6 +1603,7 @@ const WAVEBASE_DATA = [
     levels: ["intermediate", "advanced"],
     goodMonths: [10,11,12,1,2,3,4],
     coords: [30.5428, -9.7064],
+    googleMapsQuery: false,
     photo: "",
     samenvatting: [
       "Point break over reef plateau and sand — a technical, \"sucky\" take-off.",
@@ -1696,6 +1700,7 @@ const WAVEBASE_DATA = [
     levels: ["intermediate"],
     goodMonths: [10,11,12,1,2,3,4],
     coords: [30.5489, -9.7332],
+    googleMapsQuery: false,
     photo: "",
     samenvatting: [
       "Reef break with lefts and rights (A-frames) — short but forgiving.",
@@ -1792,6 +1797,7 @@ const WAVEBASE_DATA = [
     levels: ["advanced"],
     goodMonths: [11,12,1,2,3],
     coords: [30.5490, -9.7400],
+    googleMapsQuery: false,
     coordsLabel: "Two sources differ by ~300 m; both place it ~1 km north of Anchor Point on the cape. Navigate to ~30.549, -9.740, then walk the cliff.",
     photo: "",
     samenvatting: [
@@ -1889,6 +1895,7 @@ const WAVEBASE_DATA = [
     levels: ["advanced"],
     goodMonths: [11,12,1,2,3],
     coords: [30.6249, -9.8785],
+    googleMapsQuery: false,
     photo: "",
     samenvatting: [
       "Right-hand reef break over boulders — ~35–45 min north of Taghazout.",
@@ -1985,6 +1992,7 @@ const WAVEBASE_DATA = [
     levels: ["beginner"],
     goodMonths: [1,2,3,4,5,6,7,8,9,10,11,12],
     coords: [30.5415, -9.7100],
+    googleMapsQuery: false,
     coordsLabel: "Approximate — this is the village beach itself (the strip with the colourful fishing boats), not a separate break point. Navigate to 'Taghazout beach'.",
     photo: "",
     samenvatting: [
@@ -3011,6 +3019,7 @@ const WAVEBASE_DATA = [
     levels: ["beginner", "intermediate", "advanced"],
     goodMonths: [4,5,6,7,8,9,10],
     coords: [50.9564, 3.5330],
+    googleMapsQuery: false,
     coordsLabel: "Centroid of the Florizoone water surface — where OSM places its \"Windsurfing Deinze\" water-body label.",
     photo: "",
     samenvatting: [
@@ -3108,6 +3117,7 @@ const WAVEBASE_DATA = [
     levels: ["beginner", "intermediate"],
     goodMonths: [3,4,5,6,7,8,9,10,11],
     coords: [51.1051, 2.5952],
+    googleMapsQuery: "Strand De Panne Belgium",
     coordsLabel: "Centre of De Panne beach near Zeedijk 90. Beach itself extends west to the French border (Bray-Dunes) and east toward Sint-Idesbald.",
     photo: "",
     samenvatting: [
@@ -3374,6 +3384,7 @@ const WAVEBASE_DATA = [
     levels: ["intermediate", "advanced"],
     goodMonths: [3,4,5,6,7,8,9,10,11],
     coords: [51.2193, 2.8853],
+    googleMapsQuery: "Mariakerke-Bad Oostende Belgium",
     coordsLabel: "Centre of Mariakerke beach (west of central Oostende). The Spuikom (separate inland-salt-lake watersport zone) is ~3 km northeast.",
     photo: "",
     samenvatting: [
@@ -3472,6 +3483,7 @@ const WAVEBASE_DATA = [
     levels: ["intermediate", "advanced"],
     goodMonths: [3,4,5,9,10,11],
     coords: [51.2727, 3.0326],
+    googleMapsQuery: "Strand De Haan Belgium",
     coordsLabel: "Centre of De Haan-aan-Zee beachfront. Wave windows tend to favour the eastern side toward Wenduine.",
     photo: "",
     samenvatting: [
@@ -3556,6 +3568,7 @@ const WAVEBASE_DATA = [
     levels: ["intermediate", "advanced"],
     goodMonths: [3,4,5,6,7,8,9,10,11],
     coords: [51.3305, 3.1841],
+    googleMapsQuery: "Strand Zeebrugge Belgium",
     coordsLabel: "Centre of Zeebrugge-Strand near the railway station. Beach extends east toward Knokke.",
     photo: "",
     samenvatting: [
