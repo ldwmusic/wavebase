@@ -51,8 +51,34 @@ function fmtKm(km) {
   if (km < 10) return `${km.toFixed(1)} km`;
   return `${Math.round(km)} km`;
 }
-function googleMapsHref(coords) {
-  return `https://www.google.com/maps?q=${coords[0]},${coords[1]}&z=15`;
+/* Build a "Open in Google Maps" URL for a WaveBase entry.
+   Prefers a name-based search so Google resolves to the actual business
+   listing (reviews, photos, opening hours, Street View). Falls back to
+   a coord pin only when name+town is missing — which only happens for
+   incomplete data. */
+function googleMapsHref(entry) {
+  // Backward-compat: callers that still pass a [lat, lng] array.
+  if (Array.isArray(entry)) {
+    return `https://www.google.com/maps?q=${entry[0]},${entry[1]}&z=15`;
+  }
+  if (!entry) return "https://www.google.com/maps";
+  // If we ever store a Google Place ID per entry, prefer that for
+  // direct place resolution (most precise).
+  if (entry.googlePlaceId) {
+    return `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(entry.name || "")}&query_place_id=${encodeURIComponent(entry.googlePlaceId)}`;
+  }
+  // Default: name + town + country as a search query. Google's place
+  // resolver maps this to the official business page for our centers,
+  // and to the closest named feature for beaches/spots.
+  if (entry.name) {
+    const q = encodeURIComponent(`${entry.name} ${entry.town || ""} ${entry.country || ""}`.trim());
+    return `https://www.google.com/maps/search/?api=1&query=${q}`;
+  }
+  // Last resort: coord pin (no business listing).
+  if (Array.isArray(entry.coords)) {
+    return `https://www.google.com/maps?q=${entry.coords[0]},${entry.coords[1]}&z=15`;
+  }
+  return "https://www.google.com/maps";
 }
 function bookingHref(e) {
   if (e.bookingUrl) return e.bookingUrl;
@@ -3511,7 +3537,7 @@ function initSpot() {
     </header>
 
     ${e.coords ? `<div class="detail-map" id="detail-map"></div>
-      <p class="map-actions"><a href="${googleMapsHref(e.coords)}" target="_blank" rel="noopener">Open in Google Maps ↗</a></p>` : ""}
+      <p class="map-actions"><a href="${googleMapsHref(e)}" target="_blank" rel="noopener">Open in Google Maps ↗</a></p>` : ""}
 
     ${statsPanelHTML(e)}
 
