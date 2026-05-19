@@ -2422,15 +2422,37 @@ function initIndex() {
     });
   }
 
-  // inject sport pills (Wave / Wind / Kite / Wing) above the searcher section
+  // Inject sport pills (Wave / Wind / Kite / Wing) inside the .searcher
+  // box (top row), so they live next to the other filter dropdowns. Falls
+  // back to a section above the searcher if the inline host is missing.
+  const pillHost = document.getElementById("searcher-sport-pills");
   const searcherEl = document.querySelector(".searcher");
   const searcherSection = searcherEl && searcherEl.closest("section");
-  if (searcherSection && !document.querySelector(".sport-pills")) {
+  if (pillHost && !document.querySelector(".sport-pills")) {
+    pillHost.innerHTML = sportPillsHTML(getSportPref());
+    wireSportPills(pillHost);
+  } else if (searcherSection && !document.querySelector(".sport-pills")) {
     const wrap = document.createElement("section");
     wrap.className = "wrap sport-pills-wrap";
     wrap.innerHTML = sportPillsHTML(getSportPref());
     searcherSection.parentNode.insertBefore(wrap, searcherSection);
     wireSportPills(wrap);
+  }
+
+  // Sticky searcher: when the user scrolls past the .searcher-wrap section,
+  // pin it to the top of the viewport in a compact horizontal mode. Uses
+  // an IntersectionObserver sentinel placed just above the section so we
+  // can flip a body class without scroll math. Header stays above (z>),
+  // pinned searcher stays right under it.
+  if (searcherSection && searcherSection.classList.contains("searcher-wrap")) {
+    const sentinel = document.createElement("div");
+    sentinel.className = "searcher-sentinel";
+    sentinel.setAttribute("aria-hidden", "true");
+    searcherSection.parentNode.insertBefore(sentinel, searcherSection);
+    const obs = new IntersectionObserver(([entry]) => {
+      document.body.classList.toggle("searcher-pinned", !entry.isIntersecting);
+    }, { rootMargin: "0px 0px 0px 0px", threshold: 0 });
+    obs.observe(sentinel);
   }
   // Wire the trip-type dropdown (inside the .searcher block).
   const fTier = document.getElementById("f-tier");

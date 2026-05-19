@@ -312,6 +312,77 @@ a:hover { text-decoration: underline; }
   padding: 28px 30px;
   margin: 40px auto 16px;
   max-width: 760px;
+  transition: padding 0.18s ease, max-width 0.18s ease;
+}
+/* Sport pills sit inside the searcher box as the first row. */
+.searcher-sport-row {
+  display: flex;
+  justify-content: center;
+  margin: 0 0 18px;
+}
+.searcher-sport-row .sport-pills { margin: 0; }
+
+/* ---- Sticky pinned mode ---- */
+/* When the user scrolls past the .searcher-wrap section, the searcher
+   pins below the header in a compact horizontal bar. Triggered by JS
+   adding body.searcher-pinned via an IntersectionObserver sentinel. */
+.searcher-wrap {
+  position: sticky;
+  top: 78px; /* below the sticky header */
+  z-index: 900;
+  transition: padding 0.18s ease;
+}
+.searcher-sentinel {
+  /* zero-height marker above .searcher-wrap; observed by JS to flip body
+     class. invisible, but takes part in scroll geometry. */
+  height: 1px;
+  margin-top: -1px;
+}
+body.searcher-pinned .searcher-wrap {
+  background: var(--cream);
+  border-bottom: 1px solid var(--sand);
+  box-shadow: 0 4px 12px rgba(0,0,0,0.06);
+  margin: 0;
+  padding: 8px 0;
+  max-width: none;
+  width: 100%;
+  left: 0;
+  right: 0;
+}
+body.searcher-pinned .searcher {
+  margin: 0 auto;
+  max-width: 1100px;
+  padding: 8px 16px;
+  border-radius: 12px;
+  box-shadow: none;
+  background: var(--paper);
+}
+body.searcher-pinned .searcher-sport-row { margin: 0 0 6px; }
+body.searcher-pinned .searcher-sport-row .sport-pill {
+  font-size: 12.5px;
+  padding: 5px 12px;
+}
+body.searcher-pinned .searcher .sentence {
+  font-size: 13.5px;
+  line-height: 1.4;
+  gap: 6px 14px;
+  justify-content: flex-start;
+}
+body.searcher-pinned .searcher .field { gap: 5px; }
+body.searcher-pinned .searcher select,
+body.searcher-pinned .searcher input[type="text"],
+body.searcher-pinned .searcher input[type="search"] {
+  font-size: 13px;
+  padding: 4px 10px;
+  border-radius: 8px;
+}
+body.searcher-pinned .searcher .actions {
+  display: none; /* search runs automatically on every filter change */
+}
+@media (max-width: 720px) {
+  body.searcher-pinned .searcher { padding: 6px 12px; }
+  body.searcher-pinned .searcher .sentence { font-size: 12.5px; gap: 5px 10px; }
+  body.searcher-pinned .searcher-sport-row { display: none; } /* save vertical space */
 }
 
 /* Free-text search bar — sits above the structured filters */
