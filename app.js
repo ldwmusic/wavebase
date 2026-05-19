@@ -505,36 +505,67 @@ function wireMonthPinning(root, entry) {
     if (chart && chart.parentNode) chart.parentNode.insertBefore(strip, chart.nextSibling);
   }
 
-  function rowsFor(monthNum) {
-    const i = monthNum - 1;
-    const rows = [];
-    const pick = (label, val, unit) => {
-      if (val == null || isNaN(val)) return;
-      rows.push(`<div class="mcc-row"><span>${label}</span><b>${val}${unit}</b></div>`);
-    };
-    if (Array.isArray(stats.monthlyWindKn)) pick("Wind",  stats.monthlyWindKn[i],       " kn");
+  // Each row in the scoreboard table: a label + a function that returns the
+  // cell value for a given month number. Only rows whose underlying data
+  // actually exists on this spot are kept.
+  function buildDimensions() {
+    const dims = [];
+    const fmt = (v, unit) => (v == null || isNaN(v)) ? "—" : `${v}${unit}`;
+    dims.push({
+      label: "Season",
+      get: (m) => {
+        const p = findPeriodForMonth(stats.periods, m);
+        return p && p.name ? escHTML(p.name) : "—";
+      }
+    });
+    if (Array.isArray(stats.monthlyWindKn)) {
+      dims.push({ label: "Wind",  get: m => fmt(stats.monthlyWindKn[m - 1], " kn") });
+    }
     const gustArr = Array.isArray(stats.monthlyDailyPeakKn) ? stats.monthlyDailyPeakKn
                   : Array.isArray(stats.monthlyGustKn)      ? stats.monthlyGustKn : null;
-    if (gustArr)                              pick("Gust",  gustArr[i],                  " kn");
-    if (Array.isArray(stats.monthlyWaveM))    pick("Wave",  stats.monthlyWaveM[i],       " m");
-    if (Array.isArray(stats.monthlyWaterC))   pick("Water", stats.monthlyWaterC[i],      " °C");
-    if (Array.isArray(stats.monthlyAirC))     pick("Air",   stats.monthlyAirC[i],        " °C");
-    return rows.join("");
-  }
-
-  function cardFor(monthNum) {
-    const period = findPeriodForMonth(stats.periods, monthNum);
-    const monthName = WAVEBASE_MONTHS[monthNum] || "";
-    const season = period && period.name ? escHTML(period.name) : "";
-    return `
-      <div class="mcc-card" data-month="${monthNum}">
-        <button type="button" class="mcc-remove" data-remove="${monthNum}" aria-label="Remove ${monthName}">&times;</button>
-        <div class="mcc-head">
-          <strong>${monthName}</strong>
-          ${season ? `<span class="mcc-season">${season}</span>` : ""}
-        </div>
-        <div class="mcc-body">${rowsFor(monthNum)}</div>
-      </div>`;
+    if (gustArr) {
+      dims.push({ label: "Gust", get: m => fmt(gustArr[m - 1], " kn") });
+    }
+    if (Array.isArray(stats.monthlyWindProb)) {
+      dims.push({
+        label: "Wind days",
+        sub: "≥4 Bft",
+        get: m => {
+          const v = stats.monthlyWindProb[m - 1];
+          return (v == null || isNaN(v)) ? "—" : `${Math.round(v * 100)}%`;
+        }
+      });
+    }
+    if (Array.isArray(stats.monthlyWaveM)) {
+      dims.push({ label: "Wave", get: m => fmt(stats.monthlyWaveM[m - 1], " m") });
+    }
+    if (Array.isArray(stats.monthlySwellProb)) {
+      dims.push({
+        label: "Swell days",
+        sub: "≥1 m",
+        get: m => {
+          const v = stats.monthlySwellProb[m - 1];
+          return (v == null || isNaN(v)) ? "—" : `${Math.round(v * 100)}%`;
+        }
+      });
+    }
+    if (Array.isArray(stats.monthlyWaterC)) {
+      dims.push({ label: "Water", get: m => fmt(stats.monthlyWaterC[m - 1], " °C") });
+    }
+    if (Array.isArray(stats.monthlyAirC)) {
+      dims.push({ label: "Air",   get: m => fmt(stats.monthlyAirC[m - 1], " °C") });
+    }
+    // Crowd is documented per-spot (not per-month). Same value across columns
+    // is OK — it tells the user "this spot is typically X-crowded when it's on".
+    const crowdLabel = crowdLabelText(stats.crowd);
+    if (crowdLabel && crowdLabel !== "—") {
+      dims.push({
+        label: "Crowd",
+        sub: "typical",
+        get: () => cap(crowdLabel)
+      });
+    }
+    return dims;
   }
 
   function syncBars() {
@@ -553,12 +584,49 @@ function wireMonthPinning(root, entry) {
       strip.classList.remove("is-visible");
       return;
     }
+    const dims = buildDimensions();
+    // Header row: empty corner cell + one column header per pinned month
+    // with its short name, season name, and a × remove button.
+    const headerCells = pinned.map(m => {
+      const monthName = WAVEBASE_MONTHS[m] || "";
+      const p = findPeriodForMonth(stats.periods, m);
+      const seasonName = p && p.name ? escHTML(p.name) : "";
+      return `
+        <th class="sb-entry-header mcc-col-head">
+          <button type="button" class="mcc-col-remove" data-remove="${m}" aria-label="Remove ${monthName}">&times;</button>
+          <span class="sb-entry-name">${monthName}</span>
+          ${seasonName ? `<div class="sb-entry-sub">${seasonName}</div>` : ""}
+        </th>`;
+    }).join("");
+
+    // Body rows: dimension label on the left, one cell per pinned month
+    const bodyRows = dims.map(d => {
+      const cells = pinned.map(m =>
+        `<td class="sb-cell">${d.get(m)}</td>`
+      ).join("");
+      const subHTML = d.sub ? `<span class="mcc-dim-sub">${d.sub}</span>` : "";
+      return `
+        <tr>
+          <th class="sb-dim-cell">
+            <span class="sb-dim-label">${d.label}</span>${subHTML}
+          </th>
+          ${cells}
+        </tr>`;
+    }).join("");
+
     strip.innerHTML = `
       <div class="mcc-head-row">
         <span class="mcc-kicker">Compare months</span>
         <button type="button" class="mcc-clear">Clear all</button>
       </div>
-      <div class="mcc-cards">${pinned.map(cardFor).join("")}</div>
+      <div class="sb-table-wrap mcc-table-wrap">
+        <table class="sb-table mcc-table">
+          <thead>
+            <tr><th class="sb-dim-cell mcc-corner"></th>${headerCells}</tr>
+          </thead>
+          <tbody>${bodyRows}</tbody>
+        </table>
+      </div>
     `;
     strip.classList.add("is-visible");
 

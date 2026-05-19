@@ -1314,71 +1314,66 @@ body.has-pinned-months .bar-tooltip .bt-hint { display: none; }
   text-decoration: underline;
 }
 .mcc-clear:hover { color: var(--sea); }
-.mcc-cards {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
-  gap: 12px;
-}
-.mcc-card {
+/* Month-compare strip uses the SAME table style as the Compare-tab
+   scoreboard (.sb-table) so visual familiarity carries over.
+   Dimensions = rows, pinned months = columns. */
+.mcc-table-wrap {
   background: var(--paper);
   border: 1px solid var(--sand);
-  border-radius: 10px;
-  padding: 14px 16px 12px;
-  position: relative;
+  border-radius: var(--radius);
   box-shadow: var(--shadow-sm);
+  overflow-x: auto;
 }
-.mcc-head {
-  display: flex;
-  flex-direction: column;
-  gap: 2px;
-  margin-bottom: 10px;
-  padding-right: 26px;
+.mcc-table {
+  margin: 0;
 }
-.mcc-head strong {
+.mcc-table .mcc-corner { width: 1%; padding: 12px 14px; }
+.mcc-table .mcc-col-head {
+  position: relative;
+  text-align: left;
+  padding-right: 32px;       /* room for the × remove button */
+  vertical-align: top;
+}
+.mcc-table .sb-entry-name {
   font-family: 'Fraunces', Georgia, serif;
-  font-size: 18px;
+  font-size: 16px;
   font-weight: 600;
   color: var(--ink);
 }
-.mcc-season {
-  font-size: 12px;
+.mcc-table .sb-entry-sub {
+  font-size: 11.5px;
   color: var(--ink-soft);
   font-style: italic;
+  letter-spacing: 0;
+  text-transform: none;
+  margin-top: 2px;
 }
-.mcc-remove {
+.mcc-col-remove {
   position: absolute;
-  top: 8px;
-  right: 8px;
-  width: 22px;
-  height: 22px;
+  top: 8px; right: 8px;
+  width: 22px; height: 22px;
   border-radius: 50%;
   background: var(--sand);
   border: none;
   color: var(--ink);
-  font-size: 16px;
+  font-size: 15px;
   line-height: 1;
   cursor: pointer;
   padding: 0;
   transition: background .12s ease, color .12s ease;
 }
-.mcc-remove:hover { background: var(--clay); color: #fff; }
-.mcc-body {
-  display: flex;
-  flex-direction: column;
-  gap: 4px;
-  font-size: 13px;
+.mcc-col-remove:hover { background: var(--clay); color: #fff; }
+.mcc-dim-sub {
+  display: block;
+  font-size: 11px;
+  color: var(--ink-soft);
+  font-weight: 400;
+  font-style: italic;
+  margin-top: 1px;
 }
-.mcc-row {
-  display: flex;
-  justify-content: space-between;
-  border-bottom: 1px dashed var(--sand);
-  padding-bottom: 4px;
-  padding-top: 4px;
-}
-.mcc-row:last-child { border-bottom: none; padding-bottom: 0; }
-.mcc-row:first-child { padding-top: 0; }
-.mcc-row span { color: var(--ink-soft); }
-.mcc-row b { color: var(--ink); font-weight: 600; }
+/* Hover row to make cross-row scanning easier */
+.mcc-table tbody tr:hover td { background: var(--cream); }
+.mcc-table tbody tr:hover th { background: var(--cream); }
 
 @media (max-width: 700px) {
   .monthly-chart.split .chart-pair { grid-template-columns: 1fr; gap: 22px; }
