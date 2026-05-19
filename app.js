@@ -2845,6 +2845,50 @@ function initIndex() {
   // Wire the price-range slider (replaces the old trip-type dropdown).
   initPriceRange();
 
+  // ---- Mobile filter drawer ----
+  // On narrow viewports (where the floating sidebar is disabled) the
+  // searcher sits in normal flow at the top of the page. To keep the
+  // filters reachable without scrolling all the way back up, we add a
+  // fixed "Filters" trigger button. Tap → slides the searcher-wrap up
+  // from the bottom as a sheet over a backdrop. Tap backdrop / close →
+  // slides back down and the wrap returns to its normal in-flow spot.
+  if (searcherSection && !document.querySelector(".mobile-filters-trigger")) {
+    const trigger = document.createElement("button");
+    trigger.type = "button";
+    trigger.className = "mobile-filters-trigger";
+    trigger.setAttribute("aria-label", "Open filters");
+    trigger.innerHTML = `<svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polygon points="3 4 21 4 14 13 14 20 10 20 10 13 3 4"/></svg><span>Filters</span>`;
+    document.body.appendChild(trigger);
+
+    const backdrop = document.createElement("div");
+    backdrop.className = "mobile-filters-backdrop";
+    backdrop.setAttribute("aria-hidden", "true");
+    document.body.appendChild(backdrop);
+
+    const closeBtn = document.createElement("button");
+    closeBtn.type = "button";
+    closeBtn.className = "mobile-filters-close";
+    closeBtn.setAttribute("aria-label", "Close filters");
+    closeBtn.innerHTML = "Close ✕";
+    searcherSection.appendChild(closeBtn);
+
+    function openMobileFilters() {
+      document.body.classList.add("mobile-filters-open");
+    }
+    function closeMobileFilters() {
+      document.body.classList.remove("mobile-filters-open");
+    }
+    trigger.addEventListener("click", openMobileFilters);
+    backdrop.addEventListener("click", closeMobileFilters);
+    closeBtn.addEventListener("click", closeMobileFilters);
+    // Close on Esc
+    document.addEventListener("keydown", ev => {
+      if (ev.key === "Escape" && document.body.classList.contains("mobile-filters-open")) {
+        closeMobileFilters();
+      }
+    });
+  }
+
   // Landing extras: ticker, mini-world-map, peaking-right-now carousel.
   renderStatsTicker();
   renderMiniWorldMap();
@@ -3727,6 +3771,50 @@ function initTripMaps(trips) {
   });
 }
 
+/* Quick at-a-glance summary for one trip: counts by entry type and
+   a low/high nightly budget range pulled from the stays in the trip.
+   Skips by-enquiry / package-priced stays from the budget math (they
+   aren't /night-comparable) but still counts them. */
+function tripSummary(items) {
+  const counts = { spot: 0, stay: 0, center: 0 };
+  let budgetLo = 0, budgetHi = 0, pricedStayCount = 0, otherStayCount = 0;
+  items.forEach(e => {
+    if (counts[e.type] != null) counts[e.type]++;
+    if (e.type !== "stay" || !e.prices) return;
+    if (typeof e.prices.fromEUR !== "number" || /package|week/i.test(e.prices.unit || "")) {
+      otherStayCount++;
+      return;
+    }
+    pricedStayCount++;
+    budgetLo += e.prices.fromEUR;
+    budgetHi += (typeof e.prices.toEUR === "number" ? e.prices.toEUR : e.prices.fromEUR);
+  });
+  return { counts, budgetLo, budgetHi, pricedStayCount, otherStayCount };
+}
+
+function tripSummaryHTML(items) {
+  if (!items.length) return "";
+  const s = tripSummary(items);
+  const parts = [];
+  if (s.counts.spot)   parts.push(`<span class="ts-pill"><span class="ts-dot ts-dot-spot"></span>${s.counts.spot} ${s.counts.spot === 1 ? "spot" : "spots"}</span>`);
+  if (s.counts.center) parts.push(`<span class="ts-pill"><span class="ts-dot ts-dot-center"></span>${s.counts.center} ${s.counts.center === 1 ? "center" : "centers"}</span>`);
+  if (s.counts.stay)   parts.push(`<span class="ts-pill"><span class="ts-dot ts-dot-stay"></span>${s.counts.stay} ${s.counts.stay === 1 ? "stay" : "stays"}</span>`);
+
+  let budgetStr = "";
+  if (s.pricedStayCount > 0) {
+    const lo = fmtCurrency(s.budgetLo);
+    const hi = fmtCurrency(s.budgetHi);
+    const note = s.otherStayCount ? ` <span class="ts-note">(+${s.otherStayCount} by enquiry / package)</span>` : "";
+    budgetStr = `<div class="ts-budget"><span class="ts-budget-label">Nightly budget</span><span class="ts-budget-val">${lo === hi ? lo : lo + " – " + hi}</span>${note}</div>`;
+  } else if (s.otherStayCount) {
+    budgetStr = `<div class="ts-budget"><span class="ts-budget-label">Nightly budget</span><span class="ts-budget-val">By enquiry / package</span></div>`;
+  }
+  return `<div class="trip-summary">
+    <div class="ts-pills">${parts.join("")}</div>
+    ${budgetStr}
+  </div>`;
+}
+
 /* ---- ACCOUNT (fake, local) ---- */
 function renderAccount() {
   const root = document.getElementById("account-root");
@@ -3781,8 +3869,10 @@ function renderAccount() {
               </div></li>`).join("")}</ol>`
           : `<p class="muted">Empty so far — add places from a detail page.</p>`;
         const mapDiv = located.length ? `<div class="trip-map" id="trip-map-${t.id}"></div>` : "";
+        const summary = tripSummaryHTML(items);
         return `<div class="trip" id="trip-${t.id}">
           <div class="trip-head"><h3>${t.name}</h3><button class="link-btn" data-del="${t.id}">remove</button></div>
+          ${summary}
           ${list}
           ${mapDiv}</div>`;
       }).join("")
