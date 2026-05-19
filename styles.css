@@ -1327,7 +1327,31 @@ body.has-pinned-months .bar-tooltip .bt-hint { display: none; }
 .mcc-table {
   margin: 0;
 }
-.mcc-table .mcc-corner { width: 1%; padding: 12px 14px; }
+.mcc-table .mcc-corner { min-width: 150px; padding: 12px 14px; }
+/* Override the generic .sb-dim-cell (width:1%) so the dimension column
+   has real breathing room between label and first month value. */
+.mcc-table .sb-dim-cell {
+  width: 150px;
+  min-width: 150px;
+  white-space: nowrap;
+  padding-right: 28px;
+}
+.mcc-table .sb-dim-cell .sb-dim-icon {
+  display: inline-block;
+  width: 22px;
+  font-size: 16px;
+  vertical-align: middle;
+  margin-right: 8px;
+  text-align: center;
+}
+.mcc-table .sb-dim-cell .sb-dim-label {
+  vertical-align: middle;
+  color: var(--ink);
+  font-weight: 600;
+}
+.mcc-table .sb-cell {
+  padding-left: 8px;
+}
 .mcc-table .mcc-col-head {
   position: relative;
   text-align: left;

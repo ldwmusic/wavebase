@@ -505,13 +505,14 @@ function wireMonthPinning(root, entry) {
     if (chart && chart.parentNode) chart.parentNode.insertBefore(strip, chart.nextSibling);
   }
 
-  // Each row in the scoreboard table: a label + a function that returns the
-  // cell value for a given month number. Only rows whose underlying data
-  // actually exists on this spot are kept.
+  // Each row in the scoreboard table: an icon + label + a function that
+  // returns the cell value for a given month number. Only rows whose
+  // underlying data actually exists on this spot are kept.
   function buildDimensions() {
     const dims = [];
     const fmt = (v, unit) => (v == null || isNaN(v)) ? "—" : `${v}${unit}`;
     dims.push({
+      icon: "📅",
       label: "Season",
       get: (m) => {
         const p = findPeriodForMonth(stats.periods, m);
@@ -519,17 +520,16 @@ function wireMonthPinning(root, entry) {
       }
     });
     if (Array.isArray(stats.monthlyWindKn)) {
-      dims.push({ label: "Wind",  get: m => fmt(stats.monthlyWindKn[m - 1], " kn") });
+      dims.push({ icon: "💨", label: "Wind", get: m => fmt(stats.monthlyWindKn[m - 1], " kn") });
     }
     const gustArr = Array.isArray(stats.monthlyDailyPeakKn) ? stats.monthlyDailyPeakKn
                   : Array.isArray(stats.monthlyGustKn)      ? stats.monthlyGustKn : null;
     if (gustArr) {
-      dims.push({ label: "Gust", get: m => fmt(gustArr[m - 1], " kn") });
+      dims.push({ icon: "⚡", label: "Gust", get: m => fmt(gustArr[m - 1], " kn") });
     }
     if (Array.isArray(stats.monthlyWindProb)) {
       dims.push({
-        label: "Wind days",
-        sub: "≥4 Bft",
+        icon: "📊", label: "Wind days", sub: "≥4 Bft",
         get: m => {
           const v = stats.monthlyWindProb[m - 1];
           return (v == null || isNaN(v)) ? "—" : `${Math.round(v * 100)}%`;
@@ -537,12 +537,11 @@ function wireMonthPinning(root, entry) {
       });
     }
     if (Array.isArray(stats.monthlyWaveM)) {
-      dims.push({ label: "Wave", get: m => fmt(stats.monthlyWaveM[m - 1], " m") });
+      dims.push({ icon: "🌊", label: "Wave", get: m => fmt(stats.monthlyWaveM[m - 1], " m") });
     }
     if (Array.isArray(stats.monthlySwellProb)) {
       dims.push({
-        label: "Swell days",
-        sub: "≥1 m",
+        icon: "📊", label: "Swell days", sub: "≥1 m",
         get: m => {
           const v = stats.monthlySwellProb[m - 1];
           return (v == null || isNaN(v)) ? "—" : `${Math.round(v * 100)}%`;
@@ -550,18 +549,17 @@ function wireMonthPinning(root, entry) {
       });
     }
     if (Array.isArray(stats.monthlyWaterC)) {
-      dims.push({ label: "Water", get: m => fmt(stats.monthlyWaterC[m - 1], " °C") });
+      dims.push({ icon: "💧", label: "Water", get: m => fmt(stats.monthlyWaterC[m - 1], " °C") });
     }
     if (Array.isArray(stats.monthlyAirC)) {
-      dims.push({ label: "Air",   get: m => fmt(stats.monthlyAirC[m - 1], " °C") });
+      dims.push({ icon: "☀️", label: "Air", get: m => fmt(stats.monthlyAirC[m - 1], " °C") });
     }
     // Crowd is documented per-spot (not per-month). Same value across columns
     // is OK — it tells the user "this spot is typically X-crowded when it's on".
     const crowdLabel = crowdLabelText(stats.crowd);
     if (crowdLabel && crowdLabel !== "—") {
       dims.push({
-        label: "Crowd",
-        sub: "typical",
+        icon: "👥", label: "Crowd", sub: "typical",
         get: () => cap(crowdLabel)
       });
     }
@@ -599,16 +597,17 @@ function wireMonthPinning(root, entry) {
         </th>`;
     }).join("");
 
-    // Body rows: dimension label on the left, one cell per pinned month
+    // Body rows: dimension icon + label on the left, one cell per pinned month
     const bodyRows = dims.map(d => {
       const cells = pinned.map(m =>
         `<td class="sb-cell">${d.get(m)}</td>`
       ).join("");
       const subHTML = d.sub ? `<span class="mcc-dim-sub">${d.sub}</span>` : "";
+      const iconHTML = d.icon ? `<span class="sb-dim-icon" aria-hidden="true">${d.icon}</span>` : "";
       return `
         <tr>
           <th class="sb-dim-cell">
-            <span class="sb-dim-label">${d.label}</span>${subHTML}
+            ${iconHTML}<span class="sb-dim-label">${d.label}</span>${subHTML}
           </th>
           ${cells}
         </tr>`;
