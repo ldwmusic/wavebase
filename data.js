@@ -3856,8 +3856,8 @@ const WAVEBASE_DATA = [
     tagline: "Pro-level kite school on the Middelkerke side of the coast — IKO-structured progression, wheelchair-accessible 'sit kite' program, founded 2012.",
     levels: ["beginner", "intermediate", "advanced"],
     goodMonths: [4,5,6,7,8,9,10],
-    coords: [51.1750, 2.7600],
-    coordsLabel: "Koning Ridderdijk 100/90, 8434 Middelkerke — Westende-side beach access (coords approximate; the school operates on the beach itself, address is the legal HQ).",
+    coords: [51.1694, 2.7704],
+    coordsLabel: "Koning Ridderdijk, Westende-Bad, Middelkerke — verified via Nominatim/OSM. The school operates from this seafront pedestrian street.",
     photo: "",
     bookingUrl: "https://www.saltykitesurfschool.com/",
     diensten: {
