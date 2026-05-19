@@ -539,15 +539,17 @@ a:hover { text-decoration: underline; }
 .mobile-filters-close { display: none; }
 
 @media (max-width: 560px) {
-  /* Floating "Filters" pill, bottom-right of the viewport */
+  /* Floating "Filters" pill, sits ABOVE the mobile tabbar (which is
+     fixed at bottom:0 with z-index 999). We use calc so it clears the
+     tabbar + the iPhone home-indicator safe area. */
   .mobile-filters-trigger {
     display: inline-flex;
     align-items: center;
     gap: 8px;
     position: fixed;
-    bottom: 18px;
+    bottom: calc(70px + env(safe-area-inset-bottom, 0px));
     right: 16px;
-    z-index: 800;
+    z-index: 1000;            /* above .mobile-tabbar (z-index 999) */
     background: var(--clay);
     color: #fff;
     border: none;
