@@ -3422,9 +3422,9 @@ button.rml-key.off .rml-dot {
   gap: 4px !important;
   min-width: 240px;
 }
+/* Inherit the sentence's font-family + size so "Budget?" matches the
+   other labels (Where? / For who? / ...). We only set color to match. */
 .price-range-field > span:first-child {
-  font-family: 'Fraunces', Georgia, serif;
-  font-size: 16px;
   color: var(--ink);
 }
 .price-range {
