@@ -196,6 +196,66 @@ function pickPeakPeriod(periods, monthlyWindProb) {
   })[0];
 }
 
+// Full month names for use in headings (WAVEBASE_MONTHS holds short
+// labels for charts and tooltips — "Sep" rather than "September").
+const WAVEBASE_MONTHS_FULL = ["", "January", "February", "March", "April", "May", "June",
+  "July", "August", "September", "October", "November", "December"];
+
+/* Primary "what makes this spot good" metric for a spot+month combo.
+   Used in two places:
+   1. Card chip: "💨 18 kn avg" or "🌊 1.4 m avg" so a user filtering on
+      sport+month can see the value without opening the spot page.
+   2. Sort order in renderResultsSections: when the user picks a month,
+      spots are sorted desc by their primary metric for that month —
+      best windsurf-in-September shows up first, weakest last.
+   Returns null when there's nothing useful to show (no month, no stats,
+   not a spot, etc.). */
+function primaryMetricForSpot(e, monthIdx, sportFilter) {
+  if (!e || e.type !== "spot" || !monthIdx) return null;
+  const stats = getStatsFor(e);
+  if (!stats) return null;
+  const i = monthIdx - 1;
+
+  // Which metric? Explicit sport filter wins; else fall back to the
+  // spot's own primary sport (first in its sports array).
+  let metricType;
+  if (sportFilter === "wave") metricType = "wave";
+  else if (sportFilter === "wind" || sportFilter === "kite" || sportFilter === "wing") metricType = "wind";
+  else {
+    const primary = entrySports(e)[0];
+    metricType = (primary === "wave") ? "wave" : "wind";
+  }
+
+  if (metricType === "wave") {
+    const v = stats.monthlyWaveM ? stats.monthlyWaveM[i] : null;
+    if (v == null) return null;
+    return { type: "wave", icon: "🌊", value: v, label: `${v.toFixed(1)} m avg`, sortValue: v };
+  } else {
+    const v = stats.monthlyWindKn ? stats.monthlyWindKn[i] : null;
+    if (v == null) return null;
+    return { type: "wind", icon: "💨", value: v, label: `${Math.round(v)} kn avg`, sortValue: v };
+  }
+}
+
+/* Smart heading for Discover results. Reads like Michiel suggested:
+   "Best spots for windsurfing in September · East Crete, Greece"
+   when both sport and month are picked. Falls back gracefully:
+     sport+month → "Best spots for X in M · Country"
+     sport only  → "Best spots for X · Country"
+     month only  → "Country in M"
+     neither     → "Country" */
+function smartResultsHeading(country, sport, month) {
+  const sportLabel = { wave: "wave surfing", wind: "windsurfing", kite: "kite surfing", wing: "wing foiling" };
+  const mIdx = parseInt(month, 10);
+  const mLabel = (mIdx >= 1 && mIdx <= 12) ? WAVEBASE_MONTHS_FULL[mIdx] : null;
+  const loc = countryHeading(country);
+  const hasSport = sport && sport !== "all" && sportLabel[sport];
+  if (hasSport && mLabel) return `Best spots for ${sportLabel[sport]} in ${mLabel} <span class="heading-loc">· ${escHTML(loc)}</span>`;
+  if (hasSport)           return `Best spots for ${sportLabel[sport]} <span class="heading-loc">· ${escHTML(loc)}</span>`;
+  if (mLabel)             return `${escHTML(loc)} in ${mLabel}`;
+  return escHTML(loc);
+}
+
 // What month should the panel highlight as "yours"?
 // Priority: ?month= URL param → localStorage pref → today's month.
 // localStorage lets the chosen month carry over from Discover to Compare,
@@ -916,7 +976,7 @@ function seasonForMonth(stats, monthNum) {
 }
 
 /* ---- card ---- */
-function cardHTML(e, distKm) {
+function cardHTML(e, distKm, monthIdx, sportFilter) {
   const pills = e.levels.map(l => `<span class="pill">${cap(l)}</span>`).join("");
   const saved = WaveBaseAccount.isSaved(e.id);
   const comparing = WaveBaseAccount.isComparing(e.id);
@@ -929,6 +989,18 @@ function cardHTML(e, distKm) {
   if (e.type !== "stay") {
     const season = seasonForMonth(getStatsFor(e), userSelectedMonth());
     if (season) seasonChip = `<span class="season-chip season-${season.klass}">${escHTML(season.name)}</span>`;
+  }
+  // Metric chip — only when the user has explicitly picked a month AND
+  // this is a spot. Shows avg wind (kn) or wave (m) for that month so the
+  // user can compare spots without opening each one.
+  let metricChip = "";
+  const metric = primaryMetricForSpot(e, monthIdx, sportFilter);
+  if (metric) {
+    const mFull = WAVEBASE_MONTHS_FULL[monthIdx] || "";
+    const tip = metric.type === "wave"
+      ? `Average wave height in ${mFull}`
+      : `Average wind in ${mFull}`;
+    metricChip = `<span class="metric-chip metric-${metric.type}" title="${escHTML(tip)}">${metric.icon} ${escHTML(metric.label)}</span>`;
   }
   // Price line on cards — ONLY for stays. Centers get their pricing
   // shown on the detail page instead (lessons + rentals from €X). Stays
@@ -956,6 +1028,7 @@ function cardHTML(e, distKm) {
       <div class="place">${e.town}${distHint}</div>
       <h3>${e.name}</h3>
       <p class="tag">${e.tagline}</p>
+      ${metricChip ? `<div class="metric-row">${metricChip}</div>` : ""}
       <div class="meta">${pills}</div>
       ${priceLine}
     </div>
@@ -1485,11 +1558,23 @@ function initResultsMiniMap(matches) {
   });
 }
 
-function renderResultsSections(matches, gridClass) {
+function renderResultsSections(matches, gridClass, monthIdx, sportFilter) {
   if (!matches.length) return "";
-  const spots   = matches.filter(e => e.type === "spot");
+  let spots     = matches.filter(e => e.type === "spot");
   const centers = matches.filter(e => e.type === "center");
   const stays   = matches.filter(e => e.type === "stay");
+  // When the user has picked a month: sort spots by their primary metric
+  // (avg wind for wind/kite/wing or sport=all if wind-spot, avg wave for
+  // wave or sport=all if wave-spot) descending. Best for that month first.
+  if (monthIdx) {
+    spots = spots.slice().sort((a, b) => {
+      const am = primaryMetricForSpot(a, monthIdx, sportFilter);
+      const bm = primaryMetricForSpot(b, monthIdx, sportFilter);
+      const av = am ? am.sortValue : -Infinity;
+      const bv = bm ? bm.sortValue : -Infinity;
+      return bv - av;
+    });
+  }
   const sections = [
     { key: "spots",   label: "Surf spots",   items: spots   },
     { key: "centers", label: "Surf centers", items: centers },
@@ -1507,7 +1592,7 @@ function renderResultsSections(matches, gridClass) {
         <span class="section-chev" aria-hidden="true">▾</span>
         <h2>${s.label} <span class="seccount">${s.items.length}</span></h2>
       </button>
-      <div class="${gridClass} section-body" id="body-${s.key}">${s.items.map(e => cardHTML(e)).join("")}</div>
+      <div class="${gridClass} section-body" id="body-${s.key}">${s.items.map(e => cardHTML(e, undefined, monthIdx, sportFilter)).join("")}</div>
     </section>`;
   });
   return html;
@@ -1595,6 +1680,7 @@ function runSearch() {
                   || (e.prices && e.prices.tier === tierQ);
       return okL && okM && okT && okTier;
     });
+    const qMonthIdx = (month !== "all") ? parseInt(month, 10) : null;
     let html = `<div class="results-head"><h2>Search: &ldquo;${escHTML(query)}&rdquo; <span class="seccount">${matches.length}</span></h2>${matches.length ? viewToggleHTML(pref) : ""}</div>`;
     if (matches.length === 0) {
       html += `<div class="empty">
@@ -1603,7 +1689,7 @@ function runSearch() {
       </div>`;
     } else {
       html += resultsMiniMapHTML(matches);
-      html += renderResultsSections(matches, gridClass);
+      html += renderResultsSections(matches, gridClass, qMonthIdx, sport);
     }
     results.innerHTML = html;
     initResultsMiniMap(matches);
@@ -1709,7 +1795,8 @@ function runSearch() {
         </div>`;
   }
 
-  const heading = countryHeading(country);
+  const heading = smartResultsHeading(country, sport, month);
+  const monthIdxForSort = (month !== "all") ? monthInt : null;
   let html = "";
 
   if (matches.length === 0) {
@@ -1722,7 +1809,7 @@ function runSearch() {
     html += townStripHTML(country);
     if (offSeasonBanner) html += offSeasonBanner;
     html += resultsMiniMapHTML(matches);
-    html += renderResultsSections(matches, gridClass);
+    html += renderResultsSections(matches, gridClass, monthIdxForSort, sport);
   }
 
   results.innerHTML = html;

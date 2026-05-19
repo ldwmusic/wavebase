@@ -3173,6 +3173,35 @@ button.rml-key.off .rml-dot {
   color: var(--ink-soft);
   white-space: nowrap;
 }
+
+/* Metric chip on spot cards. Shown when the user has picked a month so
+   each card shows the avg wind (kn) or wave (m) for that month — lets
+   the user compare at a glance without opening each spot page. */
+.metric-row {
+  margin-top: 6px;
+}
+.metric-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 3px 10px;
+  border-radius: 999px;
+  font-size: 13px;
+  font-weight: 600;
+  white-space: nowrap;
+  font-variant-numeric: tabular-nums;
+}
+.metric-chip.metric-wind { background: var(--sea-soft); color: var(--sea);  border: 1px solid #b6cdd2; }
+.metric-chip.metric-wave { background: var(--clay-soft); color: var(--clay); border: 1px solid #ecd0c2; }
+
+/* Smart-heading helper: dim and slightly smaller location suffix so the
+   primary phrase "Best spots for X in M" reads first, location second. */
+.results-head h2 .heading-loc {
+  color: var(--ink-soft);
+  font-weight: 400;
+  font-size: 0.85em;
+  letter-spacing: 0;
+}
 .tier-chip.tier-budget      { background: #f0e5d0; color: #6f5a2c; border-color: #e0d4b7; }
 .tier-chip.tier-comfortable { background: var(--sea-soft); color: var(--sea); border-color: #b6cdd2; }
 .tier-chip.tier-premium     { background: var(--clay-soft); color: var(--clay); border-color: #ecd0c2; }
