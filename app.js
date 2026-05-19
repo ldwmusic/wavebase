@@ -210,7 +210,7 @@ const WAVEBASE_MONTHS_FULL = ["", "January", "February", "March", "April", "May"
       best windsurf-in-September shows up first, weakest last.
    Returns null when there's nothing useful to show (no month, no stats,
    not a spot, etc.). */
-function primaryMetricForSpot(e, monthIdx, sportFilter) {
+function primaryMetricForSpot(e, monthIdx, sportFilter, useDaily) {
   if (!e || e.type !== "spot" || !monthIdx) return null;
   const stats = getStatsFor(e);
   if (!stats) return null;
@@ -227,14 +227,57 @@ function primaryMetricForSpot(e, monthIdx, sportFilter) {
   }
 
   if (metricType === "wave") {
+    // No daily-peak data exists for waves yet — fall back to typical
+    // (monthlyWaveM is itself a monthly mean). Phase 2: add wave-peak.
     const v = stats.monthlyWaveM ? stats.monthlyWaveM[i] : null;
     if (v == null) return null;
-    return { type: "wave", icon: "🌊", value: v, label: `${v.toFixed(1)} m avg`, sortValue: v };
+    return { type: "wave", icon: "🌊", value: v, label: `${v.toFixed(1)} m typical`, sortValue: v };
   } else {
-    const v = stats.monthlyWindKn ? stats.monthlyWindKn[i] : null;
+    // Wind: prefer the daily peak when asked (better headline number
+    // than the 24h mean — users care about the windiest stretch).
+    const arr = useDaily ? (stats.monthlyDailyPeakKn || stats.monthlyWindKn)
+                         : stats.monthlyWindKn;
+    if (!arr) return null;
+    const v = arr[i];
     if (v == null) return null;
-    return { type: "wind", icon: "💨", value: v, label: `${Math.round(v)} kn avg`, sortValue: v };
+    const suffix = (useDaily && stats.monthlyDailyPeakKn) ? "kn peak" : "kn avg";
+    return { type: "wind", icon: "💨", value: v, label: `${Math.round(v)} ${suffix}`, sortValue: v };
   }
+}
+
+/* Top-5 highlight block. Sits between the smart heading and the town
+   strip. Shows up to 5 spots from the current matches, sorted by their
+   peak metric (daily-peak wind kn for wind sports, typical wave m for
+   wave). Each card carries a metric chip so users see at a glance which
+   spots have the strongest signal in their picked month — without having
+   to open each one. Skipped when there are no matching spots. */
+function topSpotsBlockHTML(matches, monthIdx, sportFilter) {
+  if (!Array.isArray(matches)) return "";
+  const spots = matches.filter(e => e.type === "spot");
+  if (!spots.length) return "";
+  // Score every spot by its primary peak metric, then take top 5.
+  const scored = spots
+    .map(e => ({ e, m: primaryMetricForSpot(e, monthIdx, sportFilter, true) }))
+    .filter(x => x.m)
+    .sort((a, b) => b.m.sortValue - a.m.sortValue)
+    .slice(0, 5);
+  if (!scored.length) return "";
+  const subLabel = monthIdx
+    ? `Sorted by daily-peak wind / typical waves in ${WAVEBASE_MONTHS_FULL[monthIdx]}.`
+    : "Sorted by peak conditions.";
+  const cards = scored.map(x => cardHTML(x.e, undefined, {
+    showMetric: true,
+    monthIdx,
+    sportFilter,
+    useDailyPeak: true
+  })).join("");
+  return `<section class="top-spots" aria-label="Top spots for this filter">
+    <div class="top-spots-head">
+      <h3>Top ${scored.length} ${scored.length === 1 ? "spot" : "spots"}</h3>
+      <span class="top-spots-sub">${escHTML(subLabel)}</span>
+    </div>
+    <div class="top-spots-grid">${cards}</div>
+  </section>`;
 }
 
 /* Smart heading for Discover results. Reads like Michiel suggested:
@@ -808,6 +851,7 @@ function monthlyChartHTML(e) {
       : parts.length === 2 ? "monthly-chart split"
       : "monthly-chart single";
     return `<div class="${wrapClass}">
+      <p class="chart-pin-hint">👆 Click any month bar to pin it &mdash; compare months side-by-side below the charts.</p>
       <div class="chart-pair">${parts.join("")}</div>
       ${chartNote}
     </div>`;
@@ -976,7 +1020,12 @@ function seasonForMonth(stats, monthNum) {
 }
 
 /* ---- card ---- */
-function cardHTML(e, distKm, monthIdx, sportFilter) {
+function cardHTML(e, distKm, opts) {
+  // opts: { showMetric, monthIdx, sportFilter, useDailyPeak }
+  // Used to inject a wind/wave metric chip on the card. Off by default
+  // so the standard grid stays clean — only the "Top spots" highlight
+  // block at the top of results opts in.
+  const o = opts || {};
   const pills = e.levels.map(l => `<span class="pill">${cap(l)}</span>`).join("");
   const saved = WaveBaseAccount.isSaved(e.id);
   const comparing = WaveBaseAccount.isComparing(e.id);
@@ -990,17 +1039,18 @@ function cardHTML(e, distKm, monthIdx, sportFilter) {
     const season = seasonForMonth(getStatsFor(e), userSelectedMonth());
     if (season) seasonChip = `<span class="season-chip season-${season.klass}">${escHTML(season.name)}</span>`;
   }
-  // Metric chip — only when the user has explicitly picked a month AND
-  // this is a spot. Shows avg wind (kn) or wave (m) for that month so the
-  // user can compare spots without opening each one.
+  // Metric chip — opt-in. The "Top spots" block uses it; the regular
+  // section grid below does not (kept clean per LDW feedback).
   let metricChip = "";
-  const metric = primaryMetricForSpot(e, monthIdx, sportFilter);
-  if (metric) {
-    const mFull = WAVEBASE_MONTHS_FULL[monthIdx] || "";
-    const tip = metric.type === "wave"
-      ? `Average wave height in ${mFull}`
-      : `Average wind in ${mFull}`;
-    metricChip = `<span class="metric-chip metric-${metric.type}" title="${escHTML(tip)}">${metric.icon} ${escHTML(metric.label)}</span>`;
+  if (o.showMetric) {
+    const metric = primaryMetricForSpot(e, o.monthIdx, o.sportFilter, !!o.useDailyPeak);
+    if (metric) {
+      const mFull = WAVEBASE_MONTHS_FULL[o.monthIdx] || "";
+      const tip = metric.type === "wave"
+        ? `Typical wave height in ${mFull}`
+        : (o.useDailyPeak ? `Daily peak wind in ${mFull}` : `Average wind in ${mFull}`);
+      metricChip = `<span class="metric-chip metric-${metric.type}" title="${escHTML(tip)}">${metric.icon} ${escHTML(metric.label)}</span>`;
+    }
   }
   // Price line on cards — ONLY for stays. Centers get their pricing
   // shown on the detail page instead (lessons + rentals from €X). Stays
@@ -1592,7 +1642,7 @@ function renderResultsSections(matches, gridClass, monthIdx, sportFilter) {
         <span class="section-chev" aria-hidden="true">▾</span>
         <h2>${s.label} <span class="seccount">${s.items.length}</span></h2>
       </button>
-      <div class="${gridClass} section-body" id="body-${s.key}">${s.items.map(e => cardHTML(e, undefined, monthIdx, sportFilter)).join("")}</div>
+      <div class="${gridClass} section-body" id="body-${s.key}">${s.items.map(e => cardHTML(e)).join("")}</div>
     </section>`;
   });
   return html;
@@ -1806,6 +1856,7 @@ function runSearch() {
       Try loosening a filter — the live region only has so many entries for now.</div>`;
   } else {
     html += `<div class="results-head"><h2>${heading}</h2>${viewToggleHTML(pref)}</div>`;
+    html += topSpotsBlockHTML(matches, monthIdxForSort, sport);
     html += townStripHTML(country);
     if (offSeasonBanner) html += offSeasonBanner;
     html += resultsMiniMapHTML(matches);
@@ -3662,7 +3713,19 @@ function compareScoreboardHTML(items) {
       { icon: "🏷️", label: "Gear brands", max: 5, unit: "", winnerDirection: "higher",
         get: e => itemCount(e.diensten && e.diensten.brands) },
       { icon: "🛠️", label: "Facilities", max: 8, unit: " items", winnerDirection: "higher",
-        get: e => itemCount(e.diensten && e.diensten.faciliteiten) }
+        get: e => itemCount(e.diensten && e.diensten.faciliteiten) },
+      // ---- Prices (partial: kept even if not all centers have the field) ----
+      { icon: "🎟️", label: "Trip type", mode: "label", partial: true,
+        get: e => e.prices && e.prices.tier ? cap(e.prices.tier) : null },
+      { icon: "💶", label: "Group lesson", max: 100, partial: true, winnerDirection: "lower",
+        labelFor: x => "€" + x,
+        get: e => (e.prices && typeof e.prices.groupLessonEUR === "number") ? e.prices.groupLessonEUR : null },
+      { icon: "🛹", label: "Day rental", max: 120, partial: true, winnerDirection: "lower",
+        labelFor: x => "€" + x,
+        get: e => (e.prices && typeof e.prices.rentalDayEUR === "number") ? e.prices.rentalDayEUR : null },
+      { icon: "📦", label: "Package", max: 1500, partial: true, winnerDirection: "lower",
+        labelFor: x => "€" + x,
+        get: e => (e.prices && typeof e.prices.packageEUR === "number") ? e.prices.packageEUR : null }
     ];
   } else { // stay
     // Numeric scores (1-5) live on verblijf.scores, inferred from prose
@@ -3706,19 +3769,31 @@ function compareScoreboardHTML(items) {
       // Things to do counts comma/and-separated items in activiteiten.
       { icon: "🗺️", label: "Things to do nearby", max: 8, unit: " items", winnerDirection: "higher",
         get: e => itemCount(e.verblijf && e.verblijf.activiteiten) },
+      // ---- Prices (partial: kept even if some stays are "by enquiry") ----
+      { icon: "🎟️", label: "Trip type", mode: "label", partial: true,
+        get: e => e.prices && e.prices.tier ? cap(e.prices.tier) : null },
+      { icon: "💶", label: "Price from", max: 250, partial: true, winnerDirection: "lower",
+        labelFor: x => "€" + x,
+        get: e => (e.prices && typeof e.prices.fromEUR === "number") ? e.prices.fromEUR : null },
       ...numericDims,
       ...essenceDims
     ];
   }
 
-  const dims = all.filter(d => items.every(e => {
-    const val = d.get(e);
-    if (val == null) return false;
-    if (d.mode === "range") return val.lo != null && val.hi != null;
-    if (d.mode === "label") return typeof val === "string" && val.length > 0;
-    if (d.mode === "levels") return Array.isArray(val) && val.length > 0;
-    return !isNaN(val);
-  }));
+  const dims = all.filter(d => {
+    // `partial: true` rows are kept if AT LEAST ONE compared item has the
+    // value (the others render "—"). Used for price rows so a "by enquiry"
+    // stay doesn't hide the whole price row for everyone.
+    const checker = d.partial ? items.some.bind(items) : items.every.bind(items);
+    return checker(e => {
+      const val = d.get(e);
+      if (val == null) return false;
+      if (d.mode === "range") return val.lo != null && val.hi != null;
+      if (d.mode === "label") return typeof val === "string" && val.length > 0;
+      if (d.mode === "levels") return Array.isArray(val) && val.length > 0;
+      return !isNaN(val);
+    });
+  });
   if (!dims.length) return "";
 
   // Renders one cell value depending on dimension mode + special-cases the

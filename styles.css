@@ -1038,6 +1038,24 @@ table.cal td.host { color: var(--clay); }
 
 /* ---- Monthly chart — paired wind & water bars per month ---- */
 .monthly-chart { margin-top: 22px; }
+
+/* Click-to-pin hint banner above the monthly bar charts. Always visible
+   on first arrival, auto-hides once the user has pinned at least one
+   month (body.has-pinned-months toggled by wireMonthPinning). */
+.chart-pin-hint {
+  margin: 0 0 16px;
+  padding: 9px 14px;
+  background: var(--sea-soft);
+  color: var(--sea);
+  border-left: 3px solid var(--sea);
+  border-radius: 6px;
+  font-size: 13.5px;
+  line-height: 1.4;
+}
+body.has-pinned-months .chart-pin-hint { display: none; }
+@media (max-width: 720px) {
+  .chart-pin-hint { font-size: 12.5px; padding: 8px 12px; }
+}
 .monthly-chart h3 {
   font-size: 12px; font-weight: 700; letter-spacing: 0.1em;
   text-transform: uppercase; color: var(--ink-soft); margin-bottom: 12px;
@@ -3172,6 +3190,47 @@ button.rml-key.off .rml-dot {
   border: 1px solid var(--sand);
   color: var(--ink-soft);
   white-space: nowrap;
+}
+
+/* Top-5 highlight block, sits between the smart heading and the town
+   strip on Discover. Same cards as the regular grid, but in a slightly
+   tinted frame so it reads as a featured "what's best right now". */
+.top-spots {
+  margin: 16px 0 26px;
+  padding: 18px 18px 22px;
+  background: var(--sand-soft, var(--paper));
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+}
+.top-spots-head {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 12px;
+  flex-wrap: wrap;
+  margin: 0 2px 12px;
+}
+.top-spots-head h3 {
+  margin: 0;
+  font-family: 'Fraunces', Georgia, serif;
+  font-weight: 600;
+  font-size: 22px;
+  color: var(--ink);
+  letter-spacing: -0.01em;
+}
+.top-spots-sub {
+  font-size: 13px;
+  color: var(--ink-soft);
+}
+.top-spots-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 14px;
+}
+@media (max-width: 720px) {
+  .top-spots { padding: 14px 12px 16px; }
+  .top-spots-head h3 { font-size: 18px; }
+  .top-spots-grid { grid-template-columns: 1fr 1fr; gap: 10px; }
 }
 
 /* Metric chip on spot cards. Shown when the user has picked a month so
