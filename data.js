@@ -2996,8 +2996,8 @@ const WAVEBASE_DATA = [
     tagline: "An old sand-extraction pit turned freshwater windsurf playground — the home base where Lode learned. Flat water, light to medium wind, no salt, no waves.",
     levels: ["beginner", "intermediate", "advanced"],
     goodMonths: [4,5,6,7,8,9,10],
-    coords: [50.9605, 3.5340],
-    coordsLabel: "Centre of the Florizoone water surface, off Oudenaardsesteenweg 225, Petegem-aan-de-Leie / Deinze.",
+    coords: [50.9555, 3.5325],
+    coordsLabel: "Centre of the Florizoone water surface — south of the clubhouse, near the middle of the lake. OSM bounding box for the Windsurfing Deinze entity: 50.9551–50.9576 lat, 3.5314–3.5346 lon.",
     photo: "",
     samenvatting: [
       "Inland freshwater pit (formerly used for E17-highway sand), ~600 m × 300 m. Flat water, no chop.",
@@ -3726,8 +3726,8 @@ const WAVEBASE_DATA = [
     levels: ["beginner", "intermediate", "advanced"],
     goodMonths: [4,5,6,7,8,9,10],
     linkedSpotId: "florizoone-deinze",
-    coords: [50.9629, 3.5361],
-    coordsLabel: "Clubhouse at Oudenaardsesteenweg 225, 9800 Deinze — verified via Nominatim/OSM lookup of the street address.",
+    coords: [50.9564, 3.5330],
+    coordsLabel: "Clubhouse at Oudenaardsesteenweg 225, 9800 Deinze. OSM-verified by looking up the \"Windsurfing Deinze\" entity directly (not the street address — which previously pointed 700 m north-east of the actual building).",
     photo: "",
     bookingUrl: "https://www.windsurfingdeinze.be/",
     diensten: {
@@ -3847,6 +3847,128 @@ const WAVEBASE_DATA = [
   },
 
   {
+    id: "side-shore-surfers",
+    type: "center",
+    country: "Belgium",
+    sports: ["wind", "kite", "wing", "wave", "sup"],
+    name: "Side Shore Surfers",
+    town: "De Panne",
+    tagline: "Multi-discipline club embedded in the De Panne dunes — kite school run by 3× Belgian kite champion Steve Verelst. IKO certified, small groups by design.",
+    levels: ["beginner", "intermediate", "advanced"],
+    goodMonths: [4,5,6,7,8,9,10],
+    linkedSpotId: "de-panne-strand",
+    coords: [51.1009, 2.5818],
+    coordsLabel: "Zeedijk 109, 8660 De Panne — verified via Nominatim/OSM lookup.",
+    photo: "",
+    bookingUrl: "https://www.sideshoresurfers.be/",
+    diensten: {
+      lessen: "Windsurf, kitesurf (StevoKitesurf school inside the club, IKO), wave surf, wing foil, SUP. Initiations + camps + structured lessons in Dutch, English, French.",
+      rental: "Member rentals + equipment for lesson packages.",
+      brands: "Mixed — not a brand-specific showcase.",
+      faciliteiten: "Member-driven club, beach-side location embedded in the dunes, restaurant Leopold 1 on-site with a public webcam.",
+      team: "Kite school run by Steve Verelst (3× Belgian Freestyle Kitesurf Champion) and his wife Tineke. Self-described as the only IKO center in Belgium that explicitly avoids large groups — max 2 students per instructor."
+    },
+    samenvatting: [
+      "Multi-discipline beach club at Zeedijk 109, De Panne.",
+      "IKO-certified kite school inside (StevoKitesurf), small-group focus.",
+      "Run by Steve Verelst, 3× Belgian Freestyle Kitesurf Champion.",
+      "Lessons in NL/EN/FR.",
+      "Bron-strength: 🟢 SOLID — sideshoresurfers.be (own site) + Visit De Panne tourism."
+    ],
+    verhaal: [
+      `Side Shore Surfers is the De Panne anchor — a member-driven club embedded in the dunes at Zeedijk 109, with a beach restaurant (Leopold 1) and a multi-discipline offering. Windsurf, kite, wave surf, wing, SUP — all under one roof.`,
+      `Inside the club operates StevoKitesurf — the kite school of Steve Verelst, 3× Belgian Freestyle Kitesurf Champion. They publicly position themselves as the only IKO center in Belgium that explicitly avoids large groups: max 2 students per instructor, so each student gets practical water time rather than queueing.`,
+      `Honest fine print: it's a member-driven club. Walk-in lessons exist, but the social heart is the club community — bar, terrace, restaurant, webcam, weekend events.`
+    ],
+    lagen: [
+      {
+        titel: "Multi-discipline + IKO kite",
+        bron: "sideshoresurfers.be (own site)",
+        inhoud: [
+          { kop: "Sports", tekst: `Windsurf, kitesurf, wave surf, wing foil, SUP. Lessons available in Dutch / English / French.` },
+          { kop: "Kite school inside", tekst: `StevoKitesurf — IKO-certified, run by Steve Verelst. Max 2 students per instructor — explicitly small-group.` }
+        ]
+      }
+    ],
+    vergelijking: null,
+    ideaalVoor: "Multi-discipline learners + improvers wanting one club for all watersports; kiters who want a small-group IKO setup with a champion instructor.",
+    nietIdeaalAls: "You want a strict commercial school feel — this is a club-with-school first.",
+    prices: {
+      tier:                  "comfortable",
+      groupLessonEUR:        null,
+      privateLessonHourEUR:  null,
+      rentalDayEUR:          null,
+      packageEUR:            null,
+      packageDays:           null,
+      unit:                  "by enquiry",
+      verified:              "2026-05",
+      source:                "sideshoresurfers.be — own site doesn't publish a fixed price list. Contact club directly for current rates."
+    }
+  },
+
+  {
+    id: "surfclub-wn",
+    type: "center",
+    country: "Belgium",
+    sports: ["wind", "kite", "wing", "sup", "wave"],
+    name: "Surfclub Westende | Nieuwpoort",
+    town: "Westende",
+    tagline: "Family-style surfclub with TWO waters — sea at the De Kwinte beach in Westende, freshwater reservoir at Nieuwpoort. Practice on whichever the conditions favour.",
+    levels: ["beginner", "intermediate", "advanced"],
+    goodMonths: [4,5,6,7,8,9,10],
+    linkedSpotId: "westende-strand",
+    coords: [51.1694, 2.7704],
+    coordsLabel: "Westende location: De Kwinte, Sint-Laureinsstrand, Koning Ridderdijk 100, 8434 Westende — verified via Nominatim/OSM. Second location: Nieuwendammeweg 19, 8620 Nieuwpoort (spaarbekken reservoir, 51.1313, 2.7897).",
+    photo: "",
+    bookingUrl: "https://www.surfclubwn.be/",
+    diensten: {
+      lessen: "Windsurf, kitesurf (new in 2026), SUP, wave surf, land yacht, sea kayak. Group + private + camps.",
+      rental: "Hourly: windsurf €15/h or €25/2h, SUP same, wave surf gear same. Kite gear €60/session for graduates only.",
+      brands: "Mixed club kit.",
+      faciliteiten: "Two locations: De Kwinte beach club in Westende (sea, lockers, changing rooms, showers, surf bar, in-house lifeguard) + Nieuwpoort spaarbekken (inland freshwater reservoir). 'Family atmosphere' is core to their identity.",
+      team: "Volunteer-run non-profit. Certified instructors. Kiteschool new in 2026."
+    },
+    samenvatting: [
+      "Two-water club: De Kwinte beach (Westende, sea) + spaarbekken (Nieuwpoort, freshwater reservoir).",
+      "Most disciplines on offer: windsurf, kite (from 2026), SUP, wave surf, land yacht, sea kayak.",
+      "Annual membership: €115 adult / €70 youth / €200 family.",
+      "Family-style, non-profit, lifeguard on-site at De Kwinte.",
+      "Bron-strength: 🟢 SOLID — surfclubwn.be (own site) for full price list + Visit Middelkerke + Visit Nieuwpoort."
+    ],
+    verhaal: [
+      `Surfclub Westende | Nieuwpoort (WN) is the rare two-water club: De Kwinte beach in Westende (Sint-Laureinsstrand, open sea) AND the Nieuwpoort spaarbekken (an inland freshwater reservoir). When the sea is too rough or cold, the reservoir is the alternative — flat, predictable, year-round usable for members.`,
+      `Operating model: non-profit, volunteer-run, family atmosphere. The wide offering (windsurf, kite, SUP, wave surf, land yacht, sea kayak) makes it a community club rather than a single-sport school. Kiteschool launched in 2026 with structured lessons.`
+    ],
+    lagen: [
+      {
+        titel: "Two locations",
+        bron: "surfclubwn.be + Visit Nieuwpoort",
+        inhoud: [
+          { kop: "De Kwinte — Westende", tekst: `Sint-Laureinsstrand, Koning Ridderdijk 100, 8434 Westende. Open sea, lifeguard on duty, in-house first-aid post, lockers + showers + surf bar.` },
+          { kop: "Spaarbekken — Nieuwpoort", tekst: `Nieuwendammeweg 19, 8620 Nieuwpoort. Inland freshwater reservoir — sheltered, flat-water alternative when the sea is rough.` }
+        ]
+      }
+    ],
+    vergelijking: null,
+    ideaalVoor: "Families, club-style learners, anyone wanting both sea + sheltered options under one membership.",
+    nietIdeaalAls: "You want a brand-name retail school or destination-feel infrastructure.",
+    prices: {
+      tier:                  "budget",
+      groupLessonEUR:        60,
+      groupLessonNote:       "Kite duo lesson (2-on-1) — €60/person/hour. Private kite lesson €90/hour. Refresher coaching €80/hour. 2.5-hour blocks standard. (Membership required for non-kite lessons.)",
+      privateLessonHourEUR:  90,
+      rentalDayEUR:          null,
+      rentalNote:            "Hourly rental for members: windsurf / SUP / wave surf gear €15/hour or €25/2 hours (wetsuit included). Kite gear for graduated members: €60/session.",
+      packageEUR:            null,
+      packageDays:           null,
+      packageNote:           "Annual membership: €115 adult, €70 youth, €200 family — required for water access and discounted lessons.",
+      unit:                  "duo kite lesson, /person /hour",
+      verified:              "2026-05",
+      source:                "surfclubwn.be/tarieven — full published price list including memberships, rentals, and 2026 kite lessons."
+    }
+  },
+
+  {
     id: "salty-kitesurfschool",
     type: "center",
     country: "Belgium",
@@ -3901,6 +4023,185 @@ const WAVEBASE_DATA = [
       unit:                  "by enquiry",
       verified:              "2026-05",
       source:                "saltykitesurfschool.com — own site references a separate pricing page; rates not publicly listed in detail. Contact school for current quotes."
+    }
+  },
+
+  {
+    id: "windhaan-de-haan",
+    type: "center",
+    country: "Belgium",
+    sports: ["wind", "kite", "wing", "wave", "sail"],
+    name: "Windhaan",
+    town: "De Haan",
+    tagline: "All-disciplines watersports club at the east end of De Haan promenade — windsurf, kite, wave surf, catamaran sailing, land sailing. Beach pavilion + bar with terrace.",
+    levels: ["beginner", "intermediate", "advanced"],
+    goodMonths: [4,5,6,7,8,9,10],
+    linkedSpotId: "de-haan-strand",
+    coords: [51.2820, 3.0387],
+    coordsLabel: "Zeedijk – De Haan 50, 8421 De Haan — verified via Nominatim/OSM. Beach pavilion at the eastern end of the promenade.",
+    photo: "",
+    bookingUrl: "https://windhaan.be/en/",
+    diensten: {
+      lessen: "Windsurf, kitesurf, wave surf, catamaran sailing (group + private), land yacht. Surf camps + kids camps ('Kidscocktail').",
+      rental: "Club member rentals across the disciplines.",
+      brands: "Mixed club kit.",
+      faciliteiten: "Beach pavilion at the east end of the promenade — bar, terrace, showers, changing rooms, equipment storage, lockers, berths. Public webcam + meteorological data on the website.",
+      team: "Volunteer-run non-profit club, instructors per discipline (sail teachers + golfsurf instructors)."
+    },
+    samenvatting: [
+      "De Haan's watersports club — broadest discipline offering on the central coast.",
+      "Includes catamaran sailing + land yacht alongside wind / kite / wave.",
+      "Beach pavilion at the east end of the De Haan seafront, bar + terrace.",
+      "Bron-strength: 🟢 SOLID — windhaan.be (own site) + De Haan tourism."
+    ],
+    verhaal: [
+      `Windhaan is the local watersports club of De Haan — broader than a kite school, narrower than a tourist-resort facility. They cover the standard wind / kite / wave surf, plus catamaran sailing AND land yacht (a Belgian-coast specialty on the wide low-tide sand).`,
+      `Location is the eastern end of the De Haan promenade — beach pavilion with bar, terrace, lockers, changing rooms, and the typical beach-club community feel. Open mid-Apr to end-Sep when water temps cooperate.`
+    ],
+    lagen: [
+      {
+        titel: "Sports + facilities",
+        bron: "windhaan.be (own site)",
+        inhoud: [
+          { kop: "What's taught", tekst: `Windsurfing, kitesurfing, wave surfing, catamaran sailing (group + private), land yacht / strandzeilen. Kids camps under "Kidscocktail".` },
+          { kop: "Facilities", tekst: `Beach pavilion, bar with terrace, showers, changing rooms, lockers, equipment storage, berths. Webcam + weather data on-site.` }
+        ]
+      }
+    ],
+    vergelijking: null,
+    ideaalVoor: "Multi-sport learners + improvers, families wanting kids' camps, anyone who wants catamaran or land-yacht alongside wind sports.",
+    nietIdeaalAls: "You want a focused kite school (try Club North in Zeebrugge or Surfers Paradise in Knokke).",
+    prices: {
+      tier:                  "comfortable",
+      groupLessonEUR:        null,
+      privateLessonHourEUR:  null,
+      rentalDayEUR:          null,
+      packageEUR:            null,
+      packageDays:           null,
+      unit:                  "by enquiry",
+      verified:              "2026-05",
+      source:                "windhaan.be — own site doesn't publish a fixed price list; rates available on enquiry. Phone +32 (0)59 44 16 24."
+    }
+  },
+
+  {
+    id: "club-north-zeebrugge",
+    type: "center",
+    country: "Belgium",
+    sports: ["kite", "wing"],
+    name: "Club North by Icarus",
+    town: "Zeebrugge",
+    tagline: "IKO-style kite + wing school in Zeebrugge — max 2 students per instructor, online booking 7 days/week, structured progression from discovery to advanced.",
+    levels: ["beginner", "intermediate", "advanced"],
+    goodMonths: [4,5,6,7,8,9],
+    linkedSpotId: "zeebrugge-strand",
+    coords: [51.3275, 3.1717],
+    coordsLabel: "Zeedijk 50, 8380 Zeebrugge — verified via Nominatim/OSM (Icarus entity). West-central section of the Zeebrugge strand.",
+    photo: "",
+    bookingUrl: "https://www.clubnorthzeebrugge.be/kite-school",
+    diensten: {
+      lessen: "Kitesurf (Discovery / Learn to Fly / Learn to Kite / Refresher / Intermediate / Advanced), wing surf, kitefoil, kids kitesurf. Max 2 students per instructor.",
+      rental: "Equipment rental for graduated students + members.",
+      brands: "Not specified on own site as a brand-showcase.",
+      faciliteiten: "Online booking system 7 days/week (including evenings), bar/refreshments, public webcam + weather data, member events + team-building arrangements.",
+      team: "Icarus Surfclub team, IKO-style structured progression."
+    },
+    samenvatting: [
+      "Focused kite + wing school on the Zeebrugge strand.",
+      "Operates mid-Apr to end-Sep (water-temp ≥ 12 °C minimum).",
+      "Max 2 students per instructor — small-group standard.",
+      "Online booking flexibility — evenings + 7 days/week.",
+      "Bron-strength: 🟢 SOLID — clubnorthzeebrugge.be (own site, full price list) + hightech.be partner page."
+    ],
+    verhaal: [
+      `Club North by Icarus is the focused kite + wing school of Zeebrugge — Icarus Surfclub's kite-teaching arm. The pier-protected water of Zeebrugge (cleaner than the open coast on west winds) plus a small-group teaching standard (max 2 students per instructor) gives this place a steady reputation among Belgian kite learners.`,
+      `Honest fine print: it's a kite-focused school, not a multi-sport club. For windsurf or wave you'd look elsewhere on the coast.`
+    ],
+    lagen: [
+      {
+        titel: "Lessons + pricing",
+        bron: "clubnorthzeebrugge.be (own site)",
+        inhoud: [
+          { kop: "Kite progression", tekst: `Discovery (€75 / 1h) → Learn to Fly (€75) → Learn to Kite Duo (€100/person, 2h) → Private (€170, 2h) → Refresher (€190, 2h) → Intermediate / Advanced (€170-€190, 2h).` },
+          { kop: "Booking", tekst: `Online booking 7 days/week including evenings. Operating season mid-April to end-September, when water hits 12 °C minimum.` }
+        ]
+      }
+    ],
+    vergelijking: null,
+    ideaalVoor: "Kite + wing learners wanting structured small-group lessons with flexible booking; riders who prefer Zeebrugge's pier-cleaned wind.",
+    nietIdeaalAls: "You want windsurf or wave surf lessons (different schools on the coast).",
+    prices: {
+      tier:                  "comfortable",
+      groupLessonEUR:        100,
+      groupLessonNote:       "Duo kite lesson (2-on-1) — €100/person for 2 hours. Discovery / Learn-to-fly 1h = €75. Private 2h = €170.",
+      privateLessonHourEUR:  85,
+      rentalDayEUR:          null,
+      rentalNote:            "Rental available for graduated students + members.",
+      packageEUR:            null,
+      packageDays:           null,
+      unit:                  "duo kite lesson, /person /2h",
+      verified:              "2026-05",
+      source:                "clubnorthzeebrugge.be/kite-school — full published price list."
+    }
+  },
+
+  {
+    id: "surfers-paradise-center",
+    type: "center",
+    country: "Belgium",
+    sports: ["kite", "wing", "sup"],
+    name: "Surfers Paradise",
+    town: "Knokke-Heist",
+    tagline: "Belgium's flagship kite center — operating since 1988, kite school since 2000, Naish IKO-certified centre, hosted the PKRA world championships in 2002 + 2004.",
+    levels: ["beginner", "intermediate", "advanced"],
+    goodMonths: [4,5,6,7,8,9,10],
+    linkedSpotId: "surfers-paradise-knokke",
+    coords: [51.3612, 3.3273],
+    coordsLabel: "Surfers Paradise beach center, Knokke-Heist — verified via Nominatim/OSM. Same location as the spot entry (the center IS the beach club that gave the spot its name).",
+    photo: "",
+    bookingUrl: "https://www.surfersparadise.be/",
+    diensten: {
+      lessen: "Kitesurf (freeride, freestyle, waverider — all levels), wing foil, SUP, powerboat courses. Group lessons + camps + private + youth.",
+      rental: "Brand-new Naish kit refreshed every year. Members + graduates can rent.",
+      brands: "Naish (exclusive partner). The Naish Kitesurfing Centre badge is part of the IKO quality framework.",
+      faciliteiten: "Beach club + bar/restaurant, WiFi, lockers, member events, sister sport hostel 'Lakeside Paradise' for accommodation. Open daily Apr-Oct.",
+      team: "Operating since 1988 (the center), kite school since 2000. Hosted PKRA world championships in 2002 + 2004. Organised the first Belgian kite championships."
+    },
+    samenvatting: [
+      "Belgium's longest-running kite center — operating since 1988, kite school since 2000.",
+      "Naish exclusive partner; IKO-certified; brand-new kit refreshed annually.",
+      "PKRA world championship host in 2002 + 2004.",
+      "Open Apr–Oct, daily. Located in the eastern dunes of Knokke-Heist toward the Zwin nature reserve.",
+      "Bron-strength: 🟢 SOLID — surfersparadise.be (own site) + IKO international school registry + multi-source Belgian kite guides."
+    ],
+    verhaal: [
+      `Surfers Paradise is the historical anchor of Belgian kitesurfing. The center has been operating since 1988 — Belgium's longest-running watersports business of its kind. In 2000 they launched their kiteschool; in 2002 + 2004 they hosted the PKRA world championships (kite's professional circuit at the time).`,
+      `Today they're the Naish Kitesurfing Centre (an IKO quality-label partner with Naish as the gear sponsor) — brand-new kit refreshed every year, IKO-structured lessons, freeride / freestyle / waverider tracks for all levels. The beach club has the bar, restaurant, WiFi, lockers, and a sister sport hostel ('Lakeside Paradise') for accommodation.`,
+      `Honest fine print: it's Belgium's busiest kite spot in summer. The community is welcoming, but expect company on big-wind days. The setting itself — between dunes and the Zwin reserve — is the prettiest of any Belgian kite center.`
+    ],
+    lagen: [
+      {
+        titel: "History + status",
+        bron: "surfersparadise.be (own site)",
+        inhoud: [
+          { kop: "Long pedigree", tekst: `Center opened 1988. Kiteschool opened 2000. Organised first Belgian kite championships. Hosted PKRA world champs 2002 + 2004.` },
+          { kop: "Today", tekst: `Naish Kitesurfing Centre badge — gear partner is Naish, IKO quality framework. Brand-new fleet annually. Open daily Apr–Oct.` }
+        ]
+      }
+    ],
+    vergelijking: null,
+    ideaalVoor: "Serious kite + wing learners wanting the deepest pedigree on the coast, riders who value brand-new Naish gear, anyone after the biggest scene.",
+    nietIdeaalAls: "You want a small intimate vibe (try Club North in Zeebrugge or Side Shore Surfers in De Panne) or a non-kite focus (Inside Outside / Windhaan).",
+    prices: {
+      tier:                  "premium",
+      groupLessonEUR:        null,
+      privateLessonHourEUR:  null,
+      rentalDayEUR:          null,
+      packageEUR:            null,
+      packageDays:           null,
+      unit:                  "by enquiry",
+      verified:              "2026-05",
+      source:                "surfersparadise.be — own site lists packages + camps but doesn't publish a single fixed price list. Premium positioning relative to the wider Belgian-coast scene; contact center for current rates."
     }
   }
 ];
