@@ -2996,8 +2996,8 @@ const WAVEBASE_DATA = [
     tagline: "An old sand-extraction pit turned freshwater windsurf playground — the home base where Lode learned. Flat water, light to medium wind, no salt, no waves.",
     levels: ["beginner", "intermediate", "advanced"],
     goodMonths: [4,5,6,7,8,9,10],
-    coords: [50.9555, 3.5325],
-    coordsLabel: "Centre of the Florizoone water surface — south of the clubhouse, near the middle of the lake. OSM bounding box for the Windsurfing Deinze entity: 50.9551–50.9576 lat, 3.5314–3.5346 lon.",
+    coords: [50.9564, 3.5330],
+    coordsLabel: "Centroid of the Florizoone water surface — where OSM places its \"Windsurfing Deinze\" water-body label.",
     photo: "",
     samenvatting: [
       "Inland freshwater pit (formerly used for E17-highway sand), ~600 m × 300 m. Flat water, no chop.",
@@ -3726,8 +3726,8 @@ const WAVEBASE_DATA = [
     levels: ["beginner", "intermediate", "advanced"],
     goodMonths: [4,5,6,7,8,9,10],
     linkedSpotId: "florizoone-deinze",
-    coords: [50.9564, 3.5330],
-    coordsLabel: "Clubhouse at Oudenaardsesteenweg 225, 9800 Deinze. OSM-verified by looking up the \"Windsurfing Deinze\" entity directly (not the street address — which previously pointed 700 m north-east of the actual building).",
+    coords: [50.9576, 3.5333],
+    coordsLabel: "Clubhouse on the north shore of the Florizoone put, Oudenaardsesteenweg 225, 9800 Deinze. (OSM doesn't have the building tagged separately — pin is placed at the north edge of the water-body bbox, where the clubhouse sits on the shore.)",
     photo: "",
     bookingUrl: "https://www.windsurfingdeinze.be/",
     diensten: {
