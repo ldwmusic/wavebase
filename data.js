@@ -627,6 +627,8 @@ const WAVEBASE_DATA = [
     goodMonths: [10,11,12,1,2,3,4],
     coords: [30.5024, -9.6854],
     photo: "",
+    // Not indexed as a named place on Google Maps — fall back to coord pin.
+    googleMapsQuery: false,
     samenvatting: [
       "Shallow reef/slab — fast, hollow right-hand A-frames.",
       "Only works on swell above ~4 ft, low to mid-low tide.",
@@ -915,6 +917,8 @@ const WAVEBASE_DATA = [
     goodMonths: [10,11,12,1,2,3,4],
     coords: [30.4952, -9.6782],
     photo: "",
+    // KM-marker named — not on Google Maps as a named place.
+    googleMapsQuery: false,
     samenvatting: [
       "A deep reef that behaves like a friendly beach break — wide, crumbly waves.",
       "Punchy but forgiving; lefts and rights.",
@@ -1010,6 +1014,8 @@ const WAVEBASE_DATA = [
     levels: ["advanced"],
     goodMonths: [10,11,12,1,2,3,4],
     coords: [30.4915, -9.6768],
+    // KM-marker named — not on Google Maps as a named place.
+    googleMapsQuery: false,
     photo: "",
     samenvatting: [
       "Left-hand reef break — hollow, powerful, 'wedgy'; pitches fast and shallow.",
@@ -1106,6 +1112,8 @@ const WAVEBASE_DATA = [
     levels: ["beginner", "intermediate"],
     goodMonths: [1,2,3,4,5,6,7,8,9,10,11,12],
     coords: [30.5250, -9.7000],
+    // KM-marker named — not indexed as a named place on Google Maps.
+    googleMapsQuery: false,
     coordsLabel: "Approximate — K17 is a kilometre-long stretch of sand between Crocro and Panorama, not an exact break point. Navigate to the 17 km marker on the N1 / 'K17 surf'.",
     photo: "",
     samenvatting: [
@@ -1198,12 +1206,15 @@ const WAVEBASE_DATA = [
     id: "anza",
     type: "spot",
     name: "Anza",
-    town: "Tamraght",
+    town: "Anza",
     tagline: "Sand-and-reef A-frames near Agadir — works when everything else is flat.",
     levels: ["beginner", "intermediate", "advanced"],
     goodMonths: [1,2,3,4,5,6,7,8,9,10,11,12],
-    coords: [30.4503, -9.6631],
+    coords: [30.4483998, -9.6612647],
+    coordsLabel: "Google Maps-verified pin of Anza Beach itself.",
     photo: "",
+    // Google indexes this break as "Anza Beach".
+    googleMapsQuery: "Anza Beach Morocco",
     samenvatting: [
       "Sand-and-reef A-frames — picks up a lot of swell, works when other spots are flat.",
       "All levels: easy peaks through to shapier reef sections.",
@@ -2285,6 +2296,9 @@ const WAVEBASE_DATA = [
     goodMonths: [10,11,12,1,2,3,7,8],
     coords: [35.22528, 26.0399513],
     coordsLabel: "Google Maps-verified pin of Papadiokampos Beach itself (Faneromeni's alternate name). The expert windsurf launch is on the peninsula reached by gravel road from here.",
+    // Our name uses parens + an alternative spelling; Google indexes
+    // this beach as "Papadiokampos Beach".
+    googleMapsQuery: "Papadiokampos Beach Sitia Greece",
     photo: "",
     samenvatting: [
       "Crete's premier wave-sailing spot — called \"Greece's Pozo\" by locals.",
@@ -4221,6 +4235,16 @@ const WAVEBASE_TOWNS = {
     afstand: "A short drive north of Agadir city — about 20–25 min by road (a few km closer in than Taghazout). Agadir Al Massira Airport is ~50 min. Marrakech, the next major city, is ~250 km / ~3 hours to Agadir via the A7.",
     bron: "Public travel & transport guides, 2025–26; distances cross-checked across multiple sources."
   },
+  "Anza": {
+    naam: "Anza",
+    country: "Morocco",
+    intro: "A working fishing-and-port suburb on the southern edge of Agadir — much closer to the city than Tamraght/Taghazout. Less of a surf-trip destination, more of a day-trip break for people based in Agadir. The wave (Anza Beach) is sand-and-reef A-frames, picks up swell when other spots are flat.",
+    teDoen: "Beyond the wave: Agadir's huge Souk El Had market (~15 min), the Agadir Oufella ruins overlooking the bay, the Marina d'Agadir, the city beach. Anza itself is industrial/working — no real café scene; most people drive in from Agadir or Tamraght for the surf and back out.",
+    vervoer: "City bus 24 (Anza ↔ Agadir centre) runs frequently and cheap (~5 dirham). Grands taxis from Agadir share, ~10 min ride. By car: 10 min from Agadir port, 25 min from Tamraght (~10 km north along the corniche).",
+    afstand: "South of Agadir, on the corniche. ~10 km south of Tamraght, ~7 km north of Agadir port, ~30 min to Agadir Al Massira Airport (AGA).",
+    bron: "Public travel & transport guides + surf area knowledge, 2026."
+  },
+
   "Taghazout": {
     naam: "Taghazout",
     country: "Morocco",

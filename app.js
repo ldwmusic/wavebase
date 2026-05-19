@@ -78,10 +78,25 @@ function googleMapsHref(entry) {
   if (entry.googlePlaceId) {
     return `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(entry.name || "")}&query_place_id=${encodeURIComponent(entry.googlePlaceId)}`;
   }
-  // (2) Plain ?q=NAME+TOWN+COUNTRY — Google auto-redirects to the
-  //     matching place page. We use entryCountry() not entry.country
-  //     so the older Morocco entries (which predate the country
-  //     field and fall back to "Morocco") also get the country hint.
+  // (2a) Explicit override via googleMapsQuery field:
+  //      - string  → use that query verbatim (good when our entry's
+  //        name differs from Google's canonical name, e.g. our
+  //        "Faneromeni (Papadiokambos)" vs Google's "Papadiokampos Beach")
+  //      - false   → skip Google place search; use coord pin only
+  //        (for spots Google has no business listing for, e.g. K17, Spiders)
+  if (entry.googleMapsQuery === false) {
+    if (Array.isArray(entry.coords)) {
+      return `https://www.google.com/maps?q=${entry.coords[0]},${entry.coords[1]}&z=15`;
+    }
+  }
+  if (typeof entry.googleMapsQuery === "string" && entry.googleMapsQuery) {
+    return `https://www.google.com/maps?q=${encodeURIComponent(entry.googleMapsQuery)}`;
+  }
+  // (2b) Default: plain ?q=NAME+TOWN+COUNTRY — Google auto-redirects
+  //      to the matching place page. We use entryCountry() not
+  //      entry.country so the older Morocco entries (which predate
+  //      the country field and fall back to "Morocco") also get
+  //      the country hint.
   if (entry.name) {
     const parts = [entry.name];
     if (entry.town) parts.push(entry.town);
