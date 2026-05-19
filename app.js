@@ -685,9 +685,19 @@ function wireMonthPinning(root, entry) {
   }
 
   function renderStrip() {
+    // Empty state — always visible so the user knows the feature exists.
+    // Header + a friendly hint pointing back to the bar charts above.
     if (pinned.length === 0) {
-      strip.innerHTML = "";
-      strip.classList.remove("is-visible");
+      strip.innerHTML = `
+        <div class="mcc-head-row">
+          <span class="mcc-kicker">Compare months</span>
+        </div>
+        <div class="mcc-empty">
+          <span class="mcc-empty-icon" aria-hidden="true">👆</span>
+          <span class="mcc-empty-text">Click any month bar above to pin it here &mdash; compare 2 or more months side-by-side.</span>
+        </div>
+      `;
+      strip.classList.add("is-visible");
       return;
     }
     const dims = buildDimensions();
@@ -769,6 +779,10 @@ function wireMonthPinning(root, entry) {
     syncBars();
     renderStrip();
   });
+
+  // Initial render so the empty-state hint ("Click any month bar above
+  // to pin it here...") shows on first arrival.
+  renderStrip();
 }
 
 function monthlyChartHTML(e) {
@@ -851,7 +865,6 @@ function monthlyChartHTML(e) {
       : parts.length === 2 ? "monthly-chart split"
       : "monthly-chart single";
     return `<div class="${wrapClass}">
-      <p class="chart-pin-hint">👆 Click any month bar to pin it &mdash; compare months side-by-side below the charts.</p>
       <div class="chart-pair">${parts.join("")}</div>
       ${chartNote}
     </div>`;

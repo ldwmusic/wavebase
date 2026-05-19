@@ -1039,12 +1039,13 @@ table.cal td.host { color: var(--clay); }
 /* ---- Monthly chart — paired wind & water bars per month ---- */
 .monthly-chart { margin-top: 22px; }
 
-/* Click-to-pin hint banner above the monthly bar charts. Always visible
-   on first arrival, auto-hides once the user has pinned at least one
-   month (body.has-pinned-months toggled by wireMonthPinning). */
-.chart-pin-hint {
-  margin: 0 0 16px;
-  padding: 9px 14px;
+/* Empty-state hint inside the Compare months strip — visible whenever
+   no months are pinned yet, so the user knows the feature exists. */
+.mcc-empty {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 12px 14px;
   background: var(--sea-soft);
   color: var(--sea);
   border-left: 3px solid var(--sea);
@@ -1052,9 +1053,10 @@ table.cal td.host { color: var(--clay); }
   font-size: 13.5px;
   line-height: 1.4;
 }
-body.has-pinned-months .chart-pin-hint { display: none; }
+.mcc-empty-icon { font-size: 18px; flex-shrink: 0; }
+.mcc-empty-text { color: var(--sea); }
 @media (max-width: 720px) {
-  .chart-pin-hint { font-size: 12.5px; padding: 8px 12px; }
+  .mcc-empty { font-size: 12.5px; padding: 10px 12px; }
 }
 .monthly-chart h3 {
   font-size: 12px; font-weight: 700; letter-spacing: 0.1em;
@@ -3223,14 +3225,29 @@ button.rml-key.off .rml-dot {
   color: var(--ink-soft);
 }
 .top-spots-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  display: flex;
   gap: 14px;
+  overflow-x: auto;
+  scroll-snap-type: x mandatory;
+  padding: 4px 4px 12px;
+  margin: 0 -4px;
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: thin;
+  scrollbar-color: var(--sand-deep) transparent;
+}
+.top-spots-grid .card {
+  flex: 0 0 280px;
+  scroll-snap-align: start;
+}
+.top-spots-grid::-webkit-scrollbar { height: 8px; }
+.top-spots-grid::-webkit-scrollbar-track { background: transparent; }
+.top-spots-grid::-webkit-scrollbar-thumb {
+  background: var(--sand-deep); border-radius: 999px;
 }
 @media (max-width: 720px) {
   .top-spots { padding: 14px 12px 16px; }
   .top-spots-head h3 { font-size: 18px; }
-  .top-spots-grid { grid-template-columns: 1fr 1fr; gap: 10px; }
+  .top-spots-grid .card { flex-basis: 240px; }
 }
 
 /* Metric chip on spot cards. Shown when the user has picked a month so
