@@ -554,13 +554,18 @@ function wireMonthPinning(root, entry) {
     if (Array.isArray(stats.monthlyAirC)) {
       dims.push({ icon: "☀️", label: "Air", get: m => fmt(stats.monthlyAirC[m - 1], " °C") });
     }
-    // Crowd is documented per-spot (not per-month). Same value across columns
-    // is OK — it tells the user "this spot is typically X-crowded when it's on".
+    // Crowd: documented per-spot (not per-month), but we adjust for season —
+    // an off-season month means the centers are closed and the spot is mostly
+    // empty, so the "typical" crowd value doesn't apply.
     const crowdLabel = crowdLabelText(stats.crowd);
     if (crowdLabel && crowdLabel !== "—") {
       dims.push({
-        icon: "👥", label: "Crowd", sub: "typical",
-        get: () => cap(crowdLabel)
+        icon: "👥", label: "Crowd",
+        get: (m) => {
+          const p = findPeriodForMonth(stats.periods, m);
+          if (p && p.inSeason === false) return "Very quiet";
+          return cap(crowdLabel);
+        }
       });
     }
     return dims;
