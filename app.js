@@ -4488,6 +4488,67 @@ function compareKeyPoints(e) {
   ];
 }
 
+/* Compare-page mini-map. Same visual language as the Discover combined map
+   (type-colored circle markers, OSM tiles, click-to-detail), but each pin
+   carries a PERMANENT name label so users can correlate map pins with the
+   scoreboard/cards below. Skipped when fewer than 2 items have coords —
+   a single pin alone is wasted space. */
+function compareMapHTML(items) {
+  const withCoords = items.filter(e => Array.isArray(e.coords));
+  if (withCoords.length < 2) return "";
+  const counts = { spot: 0, center: 0, stay: 0 };
+  withCoords.forEach(e => { if (counts[e.type] !== undefined) counts[e.type]++; });
+  const keyChip = (type, n, singular, plural) => n
+    ? `<span class="rml-key" aria-hidden="true"><span class="rml-dot ${type}"></span> ${n} ${n === 1 ? singular : plural}</span>`
+    : "";
+  const legend = [
+    keyChip("spot",   counts.spot,   "spot",   "spots"),
+    keyChip("center", counts.center, "center", "centers"),
+    keyChip("stay",   counts.stay,   "stay",   "stays")
+  ].filter(Boolean).join("");
+  return `<section class="results-map-frame compare-map-frame" aria-label="Map of compared items">
+    <div class="results-map-head">
+      <span class="results-map-title">In one glance, on the map</span>
+      <div class="results-map-legend">${legend}</div>
+    </div>
+    <div id="compare-mini-map" class="results-mini-map-stage" role="application" aria-label="Mini map of compared items"></div>
+  </section>`;
+}
+
+function initCompareMap(items) {
+  if (typeof L === "undefined") return;
+  const el = document.getElementById("compare-mini-map");
+  if (!el) return;
+  const withCoords = items.filter(e => Array.isArray(e.coords));
+  if (withCoords.length < 2) return;
+
+  const map = L.map(el, { scrollWheelZoom: false, zoomControl: true });
+  L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
+    attribution: "&copy; OpenStreetMap contributors", maxZoom: 19
+  }).addTo(map);
+
+  const allCoords = [];
+  withCoords.forEach(e => {
+    allCoords.push(e.coords);
+    const m = L.circleMarker(e.coords, {
+      radius: 9, color: "#fff", weight: 2.5,
+      fillColor: typeColor(e.type), fillOpacity: 1
+    }).addTo(map);
+    // Permanent name label so the user can match map pins to scoreboard
+    // columns without clicking. Hover tooltip would force back-and-forth.
+    m.bindTooltip(escHTML(e.name), {
+      permanent: true, direction: "top", offset: [0, -8],
+      className: "cmp-map-label"
+    });
+    m.on("click", () => { window.location.href = spotHref(e.id); });
+  });
+  // fitBounds: tight padding works for clustered items (one country); for
+  // multi-country compares the maxZoom cap keeps it readable rather than
+  // zooming to street level around a single dense cluster.
+  map.fitBounds(allCoords, { padding: [40, 40], maxZoom: 12 });
+  setTimeout(() => map.invalidateSize(), 60);
+}
+
 function renderCompare() {
   const root = document.getElementById("compare-root");
   const items = WaveBaseAccount.getCompare().map(byId).filter(Boolean);
@@ -4518,8 +4579,10 @@ function renderCompare() {
       <h1>Compare <span class="seccount">${items.length}</span></h1>
       <button class="btn ghost" id="clear-compare">Clear all</button>
     </div>
+    ${compareMapHTML(items)}
     ${compareScoreboardHTML(items)}
     <div class="cmp-grid">${cols}</div>`;
+  initCompareMap(items);
   document.getElementById("clear-compare").addEventListener("click", () => {
     WaveBaseAccount.clearCompare(); updateNav(); renderCompare();
   });

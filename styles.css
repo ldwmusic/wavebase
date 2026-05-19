@@ -2973,6 +2973,26 @@ button.rml-key.off .rml-dot {
 .rml-tooltip strong { color: var(--ink); font-weight: 600; }
 .rml-tip-meta { color: var(--ink-soft); font-size: 12px; }
 
+/* Compare-page map: permanent name labels above each pin so the user
+   can correlate map pins with the column cards / scoreboard below in
+   one glance — no hover required. Slightly smaller, no arrow, subtle
+   shadow that matches the paper-cardboard feel of the rest of the UI. */
+.leaflet-tooltip.cmp-map-label {
+  background: #fff;
+  border: 1px solid rgba(0,0,0,.08);
+  box-shadow: 0 2px 6px -2px rgba(0,0,0,.18);
+  color: var(--ink);
+  font-family: 'DM Sans', system-ui, sans-serif;
+  font-size: 12px;
+  font-weight: 600;
+  padding: 3px 8px;
+  border-radius: 6px;
+  white-space: nowrap;
+}
+.leaflet-tooltip.cmp-map-label::before { display: none; }
+
+.compare-map-frame { margin: 8px 0 22px; }
+
 @media (max-width: 720px) {
   .results-mini-map-stage { height: 240px; }
   .results-map-head { flex-direction: column; align-items: flex-start; gap: 6px; }
