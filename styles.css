@@ -3435,8 +3435,8 @@ button.rml-key.off .rml-dot {
 }
 .grid.list-view .card:hover { transform: translateY(-1px); }
 .grid.list-view .card .thumb {
-  width: 150px;
-  min-width: 150px;
+  width: 200px;
+  min-width: 200px;
   height: auto;
   flex-shrink: 0;
   padding: 0;

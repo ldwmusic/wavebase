@@ -911,7 +911,7 @@ const WAVEBASE_DATA = [
     id: "k12",
     type: "spot",
     name: "K12 (Douze)",
-    town: "Tamraght",
+    town: "Aourir",
     tagline: "A wide, forgiving reef peak in front of Aourir — rarely busy.",
     levels: ["intermediate"],
     goodMonths: [10,11,12,1,2,3,4],
@@ -1009,7 +1009,7 @@ const WAVEBASE_DATA = [
     id: "k11",
     type: "spot",
     name: "K11 (Onze)",
-    town: "Tamraght",
+    town: "Aourir",
     tagline: "A left-hand reef that pitches — heavy, and it needs size.",
     levels: ["advanced"],
     goodMonths: [10,11,12,1,2,3,4],
@@ -4235,6 +4235,16 @@ const WAVEBASE_TOWNS = {
     afstand: "A short drive north of Agadir city — about 20–25 min by road (a few km closer in than Taghazout). Agadir Al Massira Airport is ~50 min. Marrakech, the next major city, is ~250 km / ~3 hours to Agadir via the A7.",
     bron: "Public travel & transport guides, 2025–26; distances cross-checked across multiple sources."
   },
+  "Aourir": {
+    naam: "Aourir",
+    country: "Morocco",
+    intro: "A traditional Berber town just north of Agadir and just south of Tamraght — the so-called \"Banana Village\" (named for the banana plantations along the river behind the beach). Less surf-trip-cliché than its neighbours, more local-Moroccan working town with a busy weekly market.",
+    teDoen: "Beyond the surf: the lively Saturday/Tuesday market in the town centre, banana plantations on the inland side, beach walks along Banana Beach into Tamraght, Agadir city ~15 min south, traditional bakeries and tagine spots in the old centre. The K11/K12 reefs and Banana Point break are all on this stretch of coast.",
+    vervoer: "City bus 32 (Agadir ↔ Taghazout) stops in Aourir. Grands taxis run frequently from Agadir, ~10–15 min, ~10 dirham. By car: 10 min from Agadir port, 5 min from Tamraght, 15 min from Taghazout.",
+    afstand: "Between Tamraght (north) and Anza (south) on the coast road. ~12 km from Agadir port, ~5 km from Tamraght, ~10 km from Taghazout, ~35 min from Agadir Al Massira Airport (AGA).",
+    bron: "Public travel & transport guides + surf area knowledge, 2026."
+  },
+
   "Anza": {
     naam: "Anza",
     country: "Morocco",

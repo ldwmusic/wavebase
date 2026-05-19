@@ -2168,7 +2168,7 @@ function wireSectionJumper(container) {
 // Just enough precision to drop a recognizable pin per country — we're not
 // drawing borders. Sourced from public geo references.
 const COUNTRY_COORDS = {
-  "Greece": [39.07, 21.83], "Portugal": [39.40, -8.22], "Spain": [40.46, -3.75],
+  "Greece": [39.07, 21.83], "Belgium": [50.50, 4.47], "Portugal": [39.40, -8.22], "Spain": [40.46, -3.75],
   "France": [46.23, 2.21], "Italy": [41.87, 12.57], "Ireland": [53.41, -8.24],
   "United Kingdom": [54.38, -2.44], "Norway": [60.47, 8.47], "Iceland": [64.96, -19.02],
   "Morocco": [31.79, -7.09], "South Africa": [-30.56, 22.94], "Senegal": [14.50, -14.45],
@@ -2247,7 +2247,7 @@ const ISO_TO_CONTINENT = {
 // Country name → ISO 3166-1 alpha-2. Used to drop pin markers on the
 // inline SVG and to mark a country path as live/queued.
 const COUNTRY_TO_ISO = {
-  "Greece":"gr", "Portugal":"pt", "Spain":"es", "France":"fr", "Italy":"it",
+  "Greece":"gr", "Belgium":"be", "Portugal":"pt", "Spain":"es", "France":"fr", "Italy":"it",
   "Ireland":"ie", "United Kingdom":"gb", "Norway":"no", "Iceland":"is",
   "Morocco":"ma", "South Africa":"za", "Senegal":"sn", "Namibia":"na",
   "Mozambique":"mz", "Cape Verde":"cv",
