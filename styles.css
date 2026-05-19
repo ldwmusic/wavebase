@@ -3436,30 +3436,57 @@ button.rml-key.off .rml-dot {
 .price-range[data-state="empty"] .pr-tiers,
 .price-range[data-state="empty"] .pr-slider { opacity: 0.35; pointer-events: none; }
 
-/* Tier zone labels — stacked above the histogram */
+/* Tier zone labels — stacked above the histogram. Bold, tinted
+   pill-strips with icon + name, anchored to the prices that fall in
+   each tier in the selected country. The thick top border doubles as
+   a positional marker so the user sees exactly where each tier sits
+   on the price axis. */
 .pr-tiers {
   position: relative;
-  height: 18px;
-  margin-bottom: 2px;
+  height: 30px;
+  margin-bottom: 4px;
 }
 .pr-tier-zone {
   position: absolute;
   top: 0;
-  font-size: 9.5px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  font-size: 12px;
   font-weight: 600;
-  letter-spacing: 0.02em;
-  text-transform: uppercase;
+  letter-spacing: 0.01em;
   white-space: nowrap;
   overflow: hidden;
   text-align: center;
-  border-top: 2px solid currentColor;
-  padding: 2px 2px 0;
+  border-top: 3px solid currentColor;
+  padding: 4px 6px 0;
   box-sizing: border-box;
+  height: 100%;
+  border-radius: 0 0 6px 6px;
 }
-.pr-tier-zone.tier-budget      { color: #8a6e2a; }
-.pr-tier-zone.tier-comfortable { color: var(--sea); }
-.pr-tier-zone.tier-premium     { color: var(--clay); }
-.pr-tier-zone.tier-luxury      { color: #6f3d7b; }
+.pr-tier-icon { font-size: 13px; line-height: 1; }
+.pr-tier-name { overflow: hidden; text-overflow: ellipsis; }
+
+.pr-tier-zone.tier-budget {
+  color: #6f5a2c;
+  background: rgba(240, 229, 208, 0.55);
+}
+.pr-tier-zone.tier-comfortable {
+  color: var(--sea);
+  background: rgba(63, 111, 125, 0.10);
+}
+.pr-tier-zone.tier-premium {
+  color: var(--clay);
+  background: rgba(189, 98, 66, 0.10);
+}
+.pr-tier-zone.tier-luxury {
+  color: #6f3d7b;
+  background: rgba(111, 61, 123, 0.10);
+}
+/* Hide the text and show only the icon when the zone is narrow */
+@container (max-width: 0) { } /* no-op — fallback for browsers without container queries */
+.pr-tier-zone.narrow .pr-tier-name { display: none; }
 
 /* Histogram bars */
 .pr-bars {
@@ -3581,7 +3608,13 @@ button.rml-key.off .rml-dot {
 }
 .searcher-wrap.is-fixed .price-range { padding: 0; }
 .searcher-wrap.is-fixed .pr-bars { height: 28px; }
-.searcher-wrap.is-fixed .pr-tier-zone { font-size: 8.5px; }
+.searcher-wrap.is-fixed .pr-tiers { height: 26px; }
+.searcher-wrap.is-fixed .pr-tier-zone {
+  font-size: 11px;
+  padding: 3px 4px 0;
+  gap: 3px;
+}
+.searcher-wrap.is-fixed .pr-tier-icon { font-size: 12px; }
 .searcher-wrap.is-fixed .pr-readout { font-size: 12.5px; }
 
 @media (max-width: 560px) {

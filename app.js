@@ -1712,7 +1712,7 @@ function renderTierZones(country, bounds) {
     const left = ((z.min - bounds.min) / total) * 100;
     const right = ((z.max - bounds.min) / total) * 100;
     const width = Math.max(10, right - left);
-    return `<span class="pr-tier-zone tier-${z.tier}" style="left: ${left}%; width: ${width}%;" title="${escHTML(z.meta.label)} · ${fmtCurrency(z.min)}–${fmtCurrency(z.max)} /n">${escHTML(z.meta.label)}</span>`;
+    return `<span class="pr-tier-zone tier-${z.tier}" style="left: ${left}%; width: ${width}%;" title="${escHTML(z.meta.label)} · ${fmtCurrency(z.min)}–${fmtCurrency(z.max)} /n"><span class="pr-tier-icon" aria-hidden="true">${z.meta.icon}</span><span class="pr-tier-name">${escHTML(z.meta.label)}</span></span>`;
   }).join("");
 }
 
