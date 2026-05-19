@@ -369,10 +369,17 @@ a:hover { text-decoration: underline; }
   padding: 10px 18px 12px;
   border-radius: 14px;
   box-shadow: 0 10px 24px rgba(0,0,0,0.14);
-  background: var(--paper);
+  /* Frosted-glass card: see the page softly through it.
+     Solid fallback for browsers without backdrop-filter. */
+  background: rgba(248, 244, 234, 0.78);
+  -webkit-backdrop-filter: saturate(160%) blur(10px);
+  backdrop-filter: saturate(160%) blur(10px);
   border-color: var(--sand-deep);
   /* let the select-arrow draw outside the card edge if needed */
   overflow: visible;
+}
+@supports not ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
+  .searcher-wrap.is-fixed .searcher { background: var(--paper); }
 }
 .searcher-wrap.is-fixed .searcher-sport-row {
   margin: 0 0 8px;
@@ -385,9 +392,9 @@ a:hover { text-decoration: underline; }
   font-size: 13px;
   line-height: 1.5;
   gap: 6px 14px;
-  justify-content: flex-start;
-  flex-wrap: wrap;          /* wrap to a second row before clipping */
-  overflow: visible;         /* never clip native select arrows */
+  justify-content: center;    /* symmetric whitespace left and right */
+  flex-wrap: wrap;            /* wrap to a second row before clipping */
+  overflow: visible;           /* never clip native select arrows */
   padding: 2px 0 4px;
 }
 .searcher-wrap.is-fixed .searcher .field {
