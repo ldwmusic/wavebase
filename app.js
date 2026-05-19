@@ -655,7 +655,8 @@ function wireMonthPinning(root, entry) {
       pinned.splice(idx, 1);
     } else {
       pinned.push(m);
-      if (pinned.length > 3) pinned.shift();   // FIFO at max 3
+      // No cap — only 12 months exist; the compare strip scrolls
+      // horizontally when more than ~4 are pinned.
     }
     syncBars();
     renderStrip();
