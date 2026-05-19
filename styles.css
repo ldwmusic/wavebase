@@ -327,45 +327,61 @@ a:hover { text-decoration: underline; }
    and inserts a same-height spacer in the flow. The card lifts out
    to position:fixed and floats below the header — centered, with a
    shadow, all filters in one row. Not a full-width sub-menu bar. */
-.searcher-wrap { transition: none; }
 .searcher-spacer { width: 100%; }
+
+/* Smooth shrink/grow when going pinned ⇄ unpinned. We transition the
+   size/spacing properties so the user doesn't see an abrupt snap.
+   The position change itself is instant (you can't animate fixed). */
+.searcher,
+.searcher .sentence,
+.searcher .field > span,
+.searcher select,
+.searcher input[type="text"],
+.searcher input[type="search"],
+.searcher .sport-pill {
+  transition: padding 0.28s ease, font-size 0.28s ease, gap 0.28s ease,
+              margin 0.28s ease, border-radius 0.28s ease,
+              box-shadow 0.28s ease, max-width 0.28s ease;
+}
 
 .searcher-wrap.is-fixed {
   position: fixed;
-  top: 78px;        /* below the sticky header */
+  top: var(--header-h, 78px);   /* sits flush below the sticky header */
   left: 0;
   right: 0;
   z-index: 900;
   margin: 0 auto;
-  padding: 6px 16px 0;
+  padding: 10px 16px 0;
   pointer-events: none; /* let clicks pass to gaps around the card */
 }
 .searcher-wrap.is-fixed .searcher {
   pointer-events: auto; /* re-enable on the card itself */
   margin: 0 auto;
   max-width: 1100px;
-  padding: 8px 16px;
+  padding: 10px 18px 12px;
   border-radius: 14px;
   box-shadow: 0 10px 24px rgba(0,0,0,0.14);
   background: var(--paper);
   border-color: var(--sand-deep);
+  /* let the select-arrow draw outside the card edge if needed */
+  overflow: visible;
 }
-.searcher-wrap.is-fixed .searcher-sport-row { margin: 0 0 6px; }
+.searcher-wrap.is-fixed .searcher-sport-row {
+  margin: 0 0 8px;
+}
 .searcher-wrap.is-fixed .searcher-sport-row .sport-pill {
   font-size: 12.5px;
   padding: 4px 12px;
 }
 .searcher-wrap.is-fixed .searcher .sentence {
   font-size: 13px;
-  line-height: 1.3;
-  gap: 4px 14px;
+  line-height: 1.5;
+  gap: 6px 14px;
   justify-content: flex-start;
-  flex-wrap: nowrap;     /* keep everything on one row */
-  overflow-x: auto;       /* graceful sideways scroll on narrow widths */
-  -webkit-overflow-scrolling: touch;
-  scrollbar-width: thin;
+  flex-wrap: wrap;          /* wrap to a second row before clipping */
+  overflow: visible;         /* never clip native select arrows */
+  padding: 2px 0 4px;
 }
-.searcher-wrap.is-fixed .searcher .sentence::-webkit-scrollbar { height: 4px; }
 .searcher-wrap.is-fixed .searcher .field {
   gap: 4px;
   flex-shrink: 0;
@@ -377,17 +393,42 @@ a:hover { text-decoration: underline; }
 .searcher-wrap.is-fixed .searcher input[type="text"],
 .searcher-wrap.is-fixed .searcher input[type="search"] {
   font-size: 12.5px;
-  padding: 4px 10px;
+  padding: 5px 26px 5px 10px; /* extra right padding for native chevron */
   border-radius: 8px;
 }
 .searcher-wrap.is-fixed .searcher .actions {
   display: none; /* search runs automatically on every filter change */
 }
-@media (max-width: 720px) {
-  .searcher-wrap.is-fixed { padding: 4px 10px 0; }
-  .searcher-wrap.is-fixed .searcher { padding: 6px 12px; }
-  .searcher-wrap.is-fixed .searcher .sentence { font-size: 12px; gap: 4px 10px; }
-  .searcher-wrap.is-fixed .searcher-sport-row .sport-pill { padding: 3px 10px; font-size: 11.5px; }
+
+/* Tablet / phone: card stays floating but allows multi-row wrap so
+   nothing flips off-screen and the page underneath keeps scrolling
+   normally. Discipline pills hide here (the dropdowns cover the same
+   info implicitly — sport=All vs picking one). */
+@media (max-width: 900px) {
+  .searcher-wrap.is-fixed { padding: 8px 10px 0; }
+  .searcher-wrap.is-fixed .searcher { padding: 8px 12px 10px; }
+  .searcher-wrap.is-fixed .searcher .sentence {
+    flex-wrap: wrap;          /* let it grow vertically instead of clipping */
+    overflow: visible;
+    gap: 4px 10px;
+    font-size: 12.5px;
+  }
+  .searcher-wrap.is-fixed .searcher-sport-row { display: none; }
+}
+@media (max-width: 560px) {
+  /* Very narrow: don't float — the on-page filters are enough, and a
+     floating card would eat most of the visible content. The header is
+     already sticky so users can always tap the logo/search there. */
+  .searcher-wrap.is-fixed {
+    position: static;
+    padding: 0;
+    pointer-events: auto;
+  }
+  .searcher-wrap.is-fixed .searcher {
+    box-shadow: var(--shadow);
+    max-width: none;
+  }
+  .searcher-spacer { display: none !important; }
 }
 
 /* Free-text search bar — sits above the structured filters */

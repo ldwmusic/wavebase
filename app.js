@@ -2453,7 +2453,17 @@ function initIndex() {
   // section itself (which is fixed when pinned and reports viewport
   // coords, not document coords).
   if (searcherSection && searcherSection.classList.contains("searcher-wrap")) {
-    const headerH = 78;
+    // Header height is dynamic (padding scales with viewport). Read it
+    // live and expose via a CSS variable so the pinned wrap's `top` can
+    // stay snug under the header at every breakpoint.
+    const header = document.querySelector(".site-header");
+    function headerH() { return header ? header.getBoundingClientRect().height : 78; }
+    function syncHeaderVar() {
+      document.documentElement.style.setProperty("--header-h", headerH() + "px");
+    }
+    syncHeaderVar();
+    window.addEventListener("resize", syncHeaderVar);
+
     const spacer = document.createElement("div");
     spacer.className = "searcher-spacer";
     spacer.setAttribute("aria-hidden", "true");
@@ -2469,17 +2479,23 @@ function initIndex() {
       // getBoundingClientRect reports viewport coords. The cached
       // triggerY stays correct until we unpin and re-measure.
       const r = searcherSection.getBoundingClientRect();
-      triggerY = Math.max(0, r.top + window.scrollY - headerH);
+      triggerY = Math.max(0, r.top + window.scrollY - headerH());
       spacer.style.height = searcherSection.offsetHeight + "px";
     }
 
+    // Below this viewport width the floating card is disabled — the
+    // card would eat too much vertical room and overflow-x scroll inside
+    // it conflicts with page scroll on touch. Filters stay in flow.
+    const FLOAT_MIN_WIDTH = 560;
+
     function checkPin() {
-      if (!pinned) recomputeNatural();
-      if (!pinned && window.scrollY > triggerY) {
+      const tooNarrow = window.innerWidth < FLOAT_MIN_WIDTH;
+      if (!pinned && !tooNarrow) recomputeNatural();
+      if (!pinned && !tooNarrow && window.scrollY > triggerY) {
         pinned = true;
         spacer.style.display = "";
         searcherSection.classList.add("is-fixed");
-      } else if (pinned && window.scrollY < triggerY - 5) {
+      } else if (pinned && (tooNarrow || window.scrollY < triggerY - 5)) {
         pinned = false;
         spacer.style.display = "none";
         searcherSection.classList.remove("is-fixed");
