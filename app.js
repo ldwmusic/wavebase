@@ -1406,6 +1406,56 @@ function wireTierPills(container) {
 
 /* Render the spots/centers/stays sections + sticky jumper bar shared between
    country-picker mode and free-text search mode. Returns the HTML string. */
+/* Per-section mini-maps on Discover results. Each result-section (spots,
+   centers, stays) gets its OWN small map showing only that type's entries.
+   Cleaner than one combined map when the user wants to see "where are the
+   spots" vs "where are the stays" without visual mixing. Skipped per section
+   if <2 entries with coords. */
+function sectionMiniMapHTML(items, key) {
+  const withCoords = items.filter(e => Array.isArray(e.coords));
+  if (withCoords.length < 2) return "";
+  return `<div class="section-map-frame">
+    <div id="section-map-${key}" class="section-map-stage" role="application" aria-label="Map of ${escHTML(key)} on this page"></div>
+  </div>`;
+}
+
+function initSectionMiniMaps(matches) {
+  if (typeof L === "undefined") return;
+  const sections = {
+    spots:   matches.filter(e => e.type === "spot"),
+    centers: matches.filter(e => e.type === "center"),
+    stays:   matches.filter(e => e.type === "stay")
+  };
+  Object.entries(sections).forEach(([key, items]) => {
+    const el = document.getElementById(`section-map-${key}`);
+    if (!el) return;
+    const withCoords = items.filter(e => Array.isArray(e.coords));
+    if (withCoords.length < 2) return;
+
+    const map = L.map(el, { scrollWheelZoom: false, zoomControl: true });
+    L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
+      attribution: "&copy; OpenStreetMap contributors", maxZoom: 19
+    }).addTo(map);
+
+    const allCoords = [];
+    withCoords.forEach(e => {
+      allCoords.push(e.coords);
+      const m = L.circleMarker(e.coords, {
+        radius: 9, color: "#fff", weight: 2.5,
+        fillColor: typeColor(e.type), fillOpacity: 1
+      });
+      const tipBody = `<strong>${escHTML(e.name)}</strong>${e.town ? `<br><span class="rml-tip-meta">${escHTML(e.town)}</span>` : ""}`;
+      m.bindTooltip(tipBody, { direction: "top", offset: [0, -6], className: "rml-tooltip" });
+      m.on("click", () => { window.location.href = spotHref(e.id); });
+      m.addTo(map);
+    });
+    map.fitBounds(allCoords, { padding: [22, 22], maxZoom: 14 });
+    // Leaflet sometimes mis-sizes when its container is initially hidden /
+    // re-rendered via innerHTML; this nudges it to recompute once attached.
+    setTimeout(() => map.invalidateSize(), 60);
+  });
+}
+
 function renderResultsSections(matches, gridClass) {
   if (!matches.length) return "";
   const spots   = matches.filter(e => e.type === "spot");
@@ -1428,6 +1478,7 @@ function renderResultsSections(matches, gridClass) {
         <span class="section-chev" aria-hidden="true">▾</span>
         <h2>${s.label} <span class="seccount">${s.items.length}</span></h2>
       </button>
+      ${sectionMiniMapHTML(s.items, s.key)}
       <div class="${gridClass} section-body" id="body-${s.key}">${s.items.map(e => cardHTML(e)).join("")}</div>
     </section>`;
   });
@@ -1526,6 +1577,7 @@ function runSearch() {
       html += renderResultsSections(matches, gridClass);
     }
     results.innerHTML = html;
+    initSectionMiniMaps(matches);
     wireCards(results);
     wireViewToggle(results);
     wireSectionToggle(results);
@@ -1644,6 +1696,7 @@ function runSearch() {
   }
 
   results.innerHTML = html;
+  initSectionMiniMaps(matches);
   wireCards(results);
   wireViewToggle(results);
   wireSectionToggle(results);

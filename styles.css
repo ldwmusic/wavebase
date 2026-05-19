@@ -2486,6 +2486,45 @@ body:not(.is-home) .searchbar-wrap { display: none; }
 }
 .off-season-banner strong { color: var(--ink); }
 
+/* ============================================================
+   Per-section mini-maps on Discover results
+   ============================================================
+   Each result-section (spots/centers/stays) gets its own small
+   Leaflet map, sitting between the section header and the cards.
+   Pins are colored by type, so each map is mono-color and the
+   section title is self-explanatory — no legend needed. */
+.section-map-frame {
+  margin: 4px 0 14px;
+  padding: 8px;
+  background: #fff;
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  box-shadow: 0 1px 0 rgba(0,0,0,.03);
+}
+.section-map-stage {
+  width: 100%;
+  height: 240px;
+  border-radius: 8px;
+  overflow: hidden;
+  background: #eef2f4;
+  z-index: 0;
+}
+.result-section.collapsed .section-map-frame { display: none; }
+
+/* Pin tooltip styling — used by all section maps + future combined maps */
+.rml-tooltip {
+  font-size: 12.5px !important;
+  font-family: 'DM Sans', system-ui, sans-serif !important;
+  padding: 6px 10px !important;
+  border-radius: 8px !important;
+}
+.rml-tooltip strong { color: var(--ink); font-weight: 600; }
+.rml-tip-meta { color: var(--ink-soft); font-size: 12px; }
+
+@media (max-width: 720px) {
+  .section-map-stage { height: 200px; }
+}
+
 /* Label-mode cell: categorical chip instead of a bar. Used for Style/Vibe
    on stay scoreboards — the essence in a glance, not a numeric value. */
 .sb-row-cell-label { grid-template-columns: minmax(120px, 1.2fr) 1fr; }

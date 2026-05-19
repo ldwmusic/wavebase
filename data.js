@@ -21,7 +21,7 @@ const WAVEBASE_DATA = [
       eten: "Home-cooked Moroccan meals by host Abdoul's wife — praised in nearly every review.",
       afstandSpot: "Walking distance to the Devil's Rock and Crocro beach breaks; 4–5 spots within 15 min.",
       verhuur: "Not confirmed in the available reviews — worth asking the house directly.",
-      lessen: "Yes — surf packages from ~€490/week, with local instructors (Salah, Younes, Amine).",
+      lessen: "Yes — surf packages from €360 (5 nights shared) to €1020 (14 nights single, all-inclusive), with local instructors (Salah, Younes, Amine).",
       rating: "TripAdvisor 5.0 (283 reviews, ~20 readable); Hostelworld 8.3. Booking.com & Google blocked.",
       sfeer: "Chill and homely — a family house, not a party hostel; lots of returning guests and long stays.",
       activiteiten: "Not a focus in the reviews — the draw is the house, the food and the host.",
@@ -54,7 +54,7 @@ const WAVEBASE_DATA = [
         titel: "The stay — Sunset Surfhouse",
         bron: "Recent reviews (TripAdvisor, ~20 of 283 readable; Hostelworld scores). Booking.com & Google: blocked.",
         inhoud: [
-          { kop: "What it is", tekst: `A simple, family-run surf guesthouse in the village. Dorms + a few private rooms. Budget — loose beds from ~€10–15/night, surf packages from ~€490/week.` },
+          { kop: "What it is", tekst: `A simple, family-run surf guesthouse in the village. Dorms + a few private rooms. Two ways to book: room-only via Booking from €20/night dorm or ~€36-40/night private double (incl. breakfast, low season), or all-in surf-camp packages via their own site (€360 shared / 5n up to €1020 single / 14n, with lessons, meals and transport).` },
           { kop: "The constants", tekst: `Host Abdoul is unanimously the strongest point — "the best host ever". His wife's cooking is praised in every review. Family-style, social atmosphere; instructors (Salah, Younes, Amine) know the local conditions.` },
           { kop: "Who stays here", tekst: `A broad mix — solo travellers, couples, groups, international. Lots of returning guests and long stays.` },
           { kop: "Weak spots", tekst: `Honestly: hard to find negatives — TripAdvisor shows 0 below "very good". The Hostelworld score (8.3) is lower than TripAdvisor (5.0), but I couldn't read why. One old gripe (2017): the mattresses — not repeated in recent reviews.` }
@@ -74,13 +74,13 @@ const WAVEBASE_DATA = [
     nietIdeaalAls: "You want a quiet, private, high-comfort stay — or you're advanced and coming in summer for serious waves.",
     prices: {
       tier:        "comfortable",
-      fromEUR:     360,
-      toEUR:       1020,
-      unit:        "per person, surf-camp package (5–14 nights, lessons + meals + transport included)",
+      fromEUR:     20,
+      toEUR:       40,
+      unit:        "per night, dorm bed to private double (room-only, incl. breakfast)",
       verified:    "2026-05",
-      source:      "sunset-surfhousemorocco.com — published packages: shared €360/5n to single €1020/14n. Room-only on Booking is a different product."
+      source:      "Booking.com checked 2026-05-19 (slug sunset-surfhouse-morocco), 1-2 Jun 2026, EUR: dorm bed €20, private double €36-40 (Genius -10%). Surf-camp packages with lessons+meals+transport from €360/5n to €1020/14n via sunset-surfhousemorocco.com — different product."
     },
-    bookingUrl: "https://sunset-surfhousemorocco.com/"
+    bookingUrl: "https://www.booking.com/hotel/ma/sunset-surfhouse-morocco.html"
   },
 
   {
@@ -346,13 +346,13 @@ const WAVEBASE_DATA = [
     nietIdeaalAls: "You want a rowdy social hostel, or a rock-bottom backpacker price.",
     prices: {
       tier:        "comfortable",
-      fromEUR:     18,
-      toEUR:       45,
-      unit:        "per night, hostel room",
+      fromEUR:     null,
+      toEUR:       null,
+      unit:        "by enquiry",
       verified:    "2026-05",
-      source:      "booking.com/hotel/ma/amayour-surf — $18–$46/night range across seasons; €58/night all-incl package option"
+      source:      "Booking.com listing exists (slug amayour-surf, 80022 Taghazout) but currently shows 'not accepting reservations' for all 2026 dates checked (1-2 Feb and 1-2 Jun). Contact Amayour Surf & Yoga Camp directly via amayoursurf.com or Instagram for rates."
     },
-    bookingUrl: "https://www.booking.com/hotel/ma/amayour-surf.html"
+    bookingUrl: "https://www.amayoursurf.com/"
   },
 
   {
@@ -414,11 +414,11 @@ const WAVEBASE_DATA = [
     nietIdeaalAls: "You want a big social scene, or you need rental gear sorted in advance.",
     prices: {
       tier:        "comfortable",
-      fromEUR:     65,
+      fromEUR:     18,
       toEUR:       80,
-      unit:        "per night, comfort room (2 adults)",
+      unit:        "per night, dorm bed to comfort room",
       verified:    "2026-05",
-      source:      "Booking.com checked 2026-05-19 — Aug 2026 €473/week discounted (€68/night) for Comfort triple room"
+      source:      "Booking.com checked 2026-05-19 (slug dar-imim-surf-house, Rle Mhand Idir, 80022 Taghazout). 1-2 Jun 2026, EUR: mixed/women's dorm bed €18-21 (Genius -10%), original €20-23. Aug 2026 comfort triple room ~€65-80/night (€473/week discounted)."
     },
     bookingUrl: "https://www.booking.com/hotel/ma/dar-imim-surf-house.html"
   },
