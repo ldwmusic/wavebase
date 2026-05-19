@@ -1517,54 +1517,203 @@ function setTierPref(tier) {
     else localStorage.setItem("wavebase_tier_pref", tier);
   } catch (e) { /* ignore */ }
 }
-/* Country-aware tier dropdown labels. The four tier names (Budget,
-   Comfortable, Premium, Luxury) are abstract — Michiel's feedback: hard
-   to know what they cost at first glance. We don't want a single
-   absolute number on each (a "Comfortable" stay is ~€40 in Morocco,
-   ~€90 in France), so instead we inject country-relative price ranges
-   into the dropdown options whenever a country is selected. With no
-   country picked we keep the labels generic — there's no single range
-   that makes sense.
+/* ============================================================
+   Price range slider (replaces the tier dropdown)
+   ============================================================
+   Two-handle slider with a histogram of stay prices and tier zone
+   labels above the track. Lets the user pick a min/max budget per
+   night, while keeping the per-country "what's cheap and what's
+   pricey" insight that the tier system gave us — by overlaying
+   Budget / Comfortable / Premium / Luxury labels on the price scale.
 
-   Format: "🏠 Comfortable · €40–€80 /n" — the currency converter the
-   user has selected is respected via fmtCurrency. */
-function updateTierDropdownLabels(country) {
-  const sel = document.getElementById("f-tier");
-  if (!sel) return;
-  // For each tier, compute min(fromEUR) and max(toEUR ?? fromEUR) across
-  // stays in this country with this tier and a known nightly rate. We
-  // skip "by enquiry" entries (fromEUR == null) — they'd skew the range.
-  const ranges = {};
-  PRICE_TIERS.forEach(t => {
-    const matching = WAVEBASE_DATA.filter(e =>
-      e.type === "stay"
-      && (!country || entryCountry(e) === country)
-      && e.prices && e.prices.tier === t
-      && typeof e.prices.fromEUR === "number"
-      // skip package-priced entries (unit = "per week", etc.) — they
-      // aren't comparable to a /night number
-      && !/package|week/i.test(e.prices.unit || "")
-    );
-    if (!matching.length) return;
-    const froms = matching.map(s => s.prices.fromEUR);
-    const tos   = matching.map(s => (typeof s.prices.toEUR === "number" ? s.prices.toEUR : s.prices.fromEUR));
-    ranges[t] = { min: Math.min(...froms), max: Math.max(...tos) };
+   Tiers (Budget, Comfortable, Premium, Luxury) are still stored on
+   each stay's `prices.tier` and shown as a chip on cards. They just
+   don't drive the filter anymore. */
+const PR_KEY = "wavebase_price_range";
+
+function getPriceRange() {
+  try {
+    const p = JSON.parse(localStorage.getItem(PR_KEY) || "null");
+    if (p && typeof p.min === "number" && typeof p.max === "number") return p;
+  } catch (e) {}
+  return null;
+}
+function setPriceRange(r) {
+  try {
+    if (!r) localStorage.removeItem(PR_KEY);
+    else localStorage.setItem(PR_KEY, JSON.stringify(r));
+  } catch (e) {}
+}
+
+// All stays in a country that have a known nightly fromEUR. Skips
+// "by enquiry" (no number) and package/per-week pricing (not /night
+// comparable). These categories always pass the filter — they're a
+// different product, not part of the price-range pool.
+function priceDataForCountry(country) {
+  return WAVEBASE_DATA.filter(e =>
+    e.type === "stay"
+    && (!country || entryCountry(e) === country)
+    && e.prices && typeof e.prices.fromEUR === "number"
+    && !/package|week/i.test(e.prices.unit || "")
+  );
+}
+
+function priceBoundsForCountry(country) {
+  const stays = priceDataForCountry(country);
+  if (!stays.length) return null;
+  const all = [];
+  stays.forEach(s => {
+    all.push(s.prices.fromEUR);
+    if (typeof s.prices.toEUR === "number") all.push(s.prices.toEUR);
   });
-  // Update each <option> label
-  [...sel.options].forEach(opt => {
-    const tier = opt.value;
-    if (tier === "all") { opt.textContent = "Any trip type"; return; }
-    const meta = TIER_META[tier];
-    if (!meta) return;
-    const r = ranges[tier];
-    if (r && country) {
-      const lo = fmtCurrency(r.min);
-      const hi = fmtCurrency(r.max);
-      opt.textContent = `${meta.icon} ${meta.label} · ${lo === hi ? lo : lo + "–" + hi} /n`;
+  const lo = Math.min(...all);
+  const hi = Math.max(...all);
+  // Snap to round-€5 boundaries with a small headroom on either side.
+  return {
+    min: Math.max(0, Math.floor((lo - 5) / 5) * 5),
+    max: Math.ceil((hi + 5) / 5) * 5
+  };
+}
+
+function passesPriceFilter(e) {
+  if (e.type !== "stay") return true;
+  const range = getPriceRange();
+  if (!range) return true;
+  if (!e.prices) return true;
+  // by-enquiry and package stays always pass — they're not /night.
+  if (typeof e.prices.fromEUR !== "number") return true;
+  if (/package|week/i.test(e.prices.unit || "")) return true;
+  return e.prices.fromEUR >= range.min && e.prices.fromEUR <= range.max;
+}
+
+function initPriceRange() {
+  const root  = document.getElementById("price-range");
+  const minIn = document.getElementById("pr-min");
+  const maxIn = document.getElementById("pr-max");
+  const fill  = document.getElementById("pr-fill");
+  const label = document.getElementById("pr-label");
+  const reset = document.getElementById("pr-reset");
+  if (!root || !minIn || !maxIn || !fill || !label || !reset) return;
+
+  function syncFill() {
+    const lo = parseFloat(minIn.value), hi = parseFloat(maxIn.value);
+    const min = parseFloat(minIn.min), max = parseFloat(minIn.max);
+    const total = max - min || 1;
+    fill.style.left  = ((lo - min) / total) * 100 + "%";
+    fill.style.width = ((hi - lo) / total) * 100 + "%";
+  }
+  function syncLabel() {
+    const lo = parseFloat(minIn.value), hi = parseFloat(maxIn.value);
+    const min = parseFloat(minIn.min), max = parseFloat(minIn.max);
+    if (root.dataset.state === "empty") return;
+    if (lo <= min && hi >= max) {
+      label.textContent = "Any budget";
+      reset.hidden = true;
     } else {
-      opt.textContent = `${meta.icon} ${meta.label}`;
+      label.textContent = `${fmtCurrency(lo)} – ${fmtCurrency(hi)} / night`;
+      reset.hidden = false;
     }
+  }
+  function enforceOrder(src) {
+    let lo = parseFloat(minIn.value), hi = parseFloat(maxIn.value);
+    if (lo > hi) {
+      if (src === minIn) maxIn.value = lo;
+      else minIn.value = hi;
+    }
+  }
+  function onChange(src) {
+    enforceOrder(src);
+    syncFill();
+    syncLabel();
+    const lo = parseFloat(minIn.value), hi = parseFloat(maxIn.value);
+    const min = parseFloat(minIn.min), max = parseFloat(minIn.max);
+    if (lo <= min && hi >= max) setPriceRange(null);
+    else setPriceRange({ min: lo, max: hi });
+    runSearch();
+  }
+  minIn.addEventListener("input", () => onChange(minIn));
+  maxIn.addEventListener("input", () => onChange(maxIn));
+  reset.addEventListener("click", () => {
+    minIn.value = minIn.min;
+    maxIn.value = maxIn.max;
+    onChange(minIn);
   });
+  // Expose for redraws on country change
+  root._syncFill = syncFill;
+  root._syncLabel = syncLabel;
+}
+
+function updatePriceRangeForCountry(country) {
+  const root  = document.getElementById("price-range");
+  const minIn = document.getElementById("pr-min");
+  const maxIn = document.getElementById("pr-max");
+  const bars  = document.getElementById("pr-bars");
+  const tiers = document.getElementById("pr-tiers");
+  const label = document.getElementById("pr-label");
+  const reset = document.getElementById("pr-reset");
+  if (!root || !minIn || !maxIn || !bars || !tiers) return;
+
+  const bounds = priceBoundsForCountry(country);
+  if (!bounds) {
+    root.dataset.state = "empty";
+    label.textContent = country ? "No priced stays here yet" : "Pick a country first";
+    reset.hidden = true;
+    bars.innerHTML = "";
+    tiers.innerHTML = "";
+    return;
+  }
+  root.dataset.state = "ready";
+  minIn.min = bounds.min;  minIn.max = bounds.max;
+  maxIn.min = bounds.min;  maxIn.max = bounds.max;
+
+  const stored = getPriceRange();
+  if (stored && stored.min >= bounds.min && stored.max <= bounds.max) {
+    minIn.value = stored.min; maxIn.value = stored.max;
+  } else {
+    minIn.value = bounds.min; maxIn.value = bounds.max;
+    setPriceRange(null);
+  }
+  renderHistogram(country, bounds);
+  renderTierZones(country, bounds);
+  if (root._syncFill) root._syncFill();
+  if (root._syncLabel) root._syncLabel();
+}
+
+function renderHistogram(country, bounds) {
+  const bars = document.getElementById("pr-bars");
+  if (!bars) return;
+  const NBUCKETS = 22;
+  const bucketSize = (bounds.max - bounds.min) / NBUCKETS;
+  const buckets = Array(NBUCKETS).fill(0);
+  priceDataForCountry(country).forEach(s => {
+    const v = s.prices.fromEUR;
+    let i = Math.floor((v - bounds.min) / bucketSize);
+    i = Math.max(0, Math.min(NBUCKETS - 1, i));
+    buckets[i]++;
+  });
+  const peak = Math.max(1, ...buckets);
+  bars.innerHTML = buckets.map(c =>
+    `<span class="pr-bar" style="height: ${Math.max(8, (c / peak) * 100)}%"></span>`
+  ).join("");
+}
+
+function renderTierZones(country, bounds) {
+  const tiersEl = document.getElementById("pr-tiers");
+  if (!tiersEl) return;
+  const total = bounds.max - bounds.min || 1;
+  const zones = PRICE_TIERS.map(t => {
+    const stays = priceDataForCountry(country).filter(e => e.prices.tier === t);
+    if (!stays.length) return null;
+    const froms = stays.map(s => s.prices.fromEUR);
+    const tos = stays.map(s => typeof s.prices.toEUR === "number" ? s.prices.toEUR : s.prices.fromEUR);
+    return { tier: t, min: Math.min(...froms), max: Math.max(...tos), meta: TIER_META[t] };
+  }).filter(Boolean);
+  tiersEl.innerHTML = zones.map(z => {
+    const left = ((z.min - bounds.min) / total) * 100;
+    const right = ((z.max - bounds.min) / total) * 100;
+    const width = Math.max(10, right - left);
+    return `<span class="pr-tier-zone tier-${z.tier}" style="left: ${left}%; width: ${width}%;" title="${escHTML(z.meta.label)} · ${fmtCurrency(z.min)}–${fmtCurrency(z.max)} /n">${escHTML(z.meta.label)}</span>`;
+  }).join("");
 }
 
 function tierPillsHTML(active) {
@@ -1772,30 +1921,22 @@ function runSearch() {
     btn.classList.toggle("active", isActive);
     btn.setAttribute("aria-selected", isActive ? "true" : "false");
   });
-  // keep the trip-type dropdown in sync with the stored pref + refresh
-  // its labels to show country-relative price ranges
-  const fTierEl = document.getElementById("f-tier");
-  if (fTierEl) {
-    updateTierDropdownLabels(country);
-    fTierEl.value = getTierPref();
-  }
+  // refresh the price-range slider for the current country (bounds,
+  // histogram, tier zones)
+  updatePriceRangeForCountry(country);
 
   const pref = getViewPref();
   const gridClass = pref === "list" ? "grid list-view" : "grid";
 
   // ============ FREE-TEXT SEARCH MODE — overrides the country picker ============
   if (query) {
-    const tierQ = getTierPref();
     const matches = WAVEBASE_DATA.filter(e => {
       if (!searchMatch(e, query)) return false;
       if (sport !== "all" && !entrySports(e).includes(sport)) return false;
       const okL = level === "all" || e.levels.includes(level);
       const okM = month === "all" || e.goodMonths.includes(parseInt(month, 10));
       const okT = type === "all" || e.type === type;
-      const okTier = tierQ === "all"
-                  || e.type === "spot"
-                  || (e.prices && e.prices.tier === tierQ);
-      return okL && okM && okT && okTier;
+      return okL && okM && okT && passesPriceFilter(e);
     });
     const qMonthIdx = (month !== "all") ? parseInt(month, 10) : null;
     let html = `<div class="results-head"><h2>Search: &ldquo;${escHTML(query)}&rdquo; <span class="seccount">${matches.length}</span></h2>${matches.length ? viewToggleHTML(pref) : ""}</div>`;
@@ -1883,15 +2024,10 @@ function runSearch() {
   // filter and show all of them with a banner. Lets the user keep
   // browsing the full inventory while knowing what's actually peaking.
   const monthInt = parseInt(month, 10);
-  const tier = getTierPref();
   const passLevelType = e => {
     const okL = level === "all" || e.levels.includes(level);
     const okT = type === "all" || e.type === type;
-    // Tier filter only applies to stays + centers; spots have no price.
-    const okTier = tier === "all"
-                || e.type === "spot"
-                || (e.prices && e.prices.tier === tier);
-    return okL && okT && okTier;
+    return okL && okT && passesPriceFilter(e);
   };
   const passMonth = e => month === "all" || e.goodMonths.includes(monthInt);
   const inSeason = liveCountrySportEntries.filter(e => passLevelType(e) && passMonth(e));
@@ -2706,19 +2842,8 @@ function initIndex() {
     // (is-home toggling, etc.) settle in the next frame.
     requestAnimationFrame(checkPin);
   }
-  // Wire the trip-type dropdown (inside the .searcher block).
-  const fTier = document.getElementById("f-tier");
-  if (fTier) {
-    fTier.value = getTierPref();
-    fTier.addEventListener("change", () => {
-      setTierPref(fTier.value);
-      const url = new URL(window.location.href);
-      if (fTier.value === "all") url.searchParams.delete("tier");
-      else url.searchParams.set("tier", fTier.value);
-      window.history.replaceState(null, "", url.toString());
-      runSearch();
-    });
-  }
+  // Wire the price-range slider (replaces the old trip-type dropdown).
+  initPriceRange();
 
   // Landing extras: ticker, mini-world-map, peaking-right-now carousel.
   renderStatsTicker();

@@ -3409,6 +3409,185 @@ button.rml-key.off .rml-dot {
   white-space: nowrap;
 }
 
+/* ============================================================
+   Price-range slider (replaces tier dropdown)
+   ============================================================
+   Two-handle range slider with a histogram of stay prices above
+   and tier zone labels stacked on top, so users keep the
+   "what's cheap and what's pricey here" insight from tiers
+   while picking concrete numbers. */
+.price-range-field {
+  flex-direction: column;
+  align-items: stretch;
+  gap: 4px !important;
+  min-width: 240px;
+}
+.price-range-field > span:first-child {
+  font-family: 'Fraunces', Georgia, serif;
+  font-size: 16px;
+  color: var(--ink);
+}
+.price-range {
+  width: 100%;
+  min-width: 220px;
+  padding: 2px 4px;
+}
+.price-range[data-state="empty"] .pr-bars,
+.price-range[data-state="empty"] .pr-tiers,
+.price-range[data-state="empty"] .pr-slider { opacity: 0.35; pointer-events: none; }
+
+/* Tier zone labels — stacked above the histogram */
+.pr-tiers {
+  position: relative;
+  height: 18px;
+  margin-bottom: 2px;
+}
+.pr-tier-zone {
+  position: absolute;
+  top: 0;
+  font-size: 9.5px;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  text-transform: uppercase;
+  white-space: nowrap;
+  overflow: hidden;
+  text-align: center;
+  border-top: 2px solid currentColor;
+  padding: 2px 2px 0;
+  box-sizing: border-box;
+}
+.pr-tier-zone.tier-budget      { color: #8a6e2a; }
+.pr-tier-zone.tier-comfortable { color: var(--sea); }
+.pr-tier-zone.tier-premium     { color: var(--clay); }
+.pr-tier-zone.tier-luxury      { color: #6f3d7b; }
+
+/* Histogram bars */
+.pr-bars {
+  display: flex;
+  align-items: flex-end;
+  gap: 1px;
+  height: 36px;
+  margin-bottom: 4px;
+}
+.pr-bar {
+  flex: 1;
+  background: var(--sand-deep);
+  border-radius: 1px 1px 0 0;
+  min-height: 4px;
+  opacity: 0.55;
+}
+
+/* Slider track + handles */
+.pr-slider {
+  position: relative;
+  height: 28px;
+  margin: 0 8px;
+}
+.pr-track,
+.pr-fill {
+  position: absolute;
+  top: 50%;
+  height: 4px;
+  border-radius: 2px;
+  transform: translateY(-50%);
+  pointer-events: none;
+}
+.pr-track {
+  left: 0; right: 0;
+  background: var(--sand-deep);
+  opacity: 0.6;
+}
+.pr-fill {
+  background: var(--clay);
+}
+.pr-handle {
+  -webkit-appearance: none;
+  appearance: none;
+  position: absolute;
+  top: 0;
+  left: -8px;
+  right: -8px;
+  width: calc(100% + 16px);
+  height: 28px;
+  background: transparent;
+  pointer-events: none; /* only the thumb captures pointer */
+}
+.pr-handle::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  pointer-events: auto;
+  width: 18px;
+  height: 18px;
+  background: var(--clay);
+  border: 3px solid #fff;
+  border-radius: 50%;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.25);
+  cursor: grab;
+}
+.pr-handle::-webkit-slider-thumb:active { cursor: grabbing; }
+.pr-handle::-moz-range-thumb {
+  pointer-events: auto;
+  width: 18px;
+  height: 18px;
+  background: var(--clay);
+  border: 3px solid #fff;
+  border-radius: 50%;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.25);
+  cursor: grab;
+}
+.pr-handle::-moz-range-track { background: transparent; }
+.pr-handle:focus { outline: none; }
+.pr-handle:focus-visible::-webkit-slider-thumb {
+  box-shadow: 0 0 0 3px rgba(189, 98, 66, 0.25), 0 1px 3px rgba(0,0,0,0.25);
+}
+
+/* Readout: selected range label + reset button */
+.pr-readout {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  margin-top: 4px;
+  font-size: 13.5px;
+  font-family: 'DM Sans', sans-serif;
+  color: var(--ink);
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+}
+.pr-label { flex: 1; }
+.pr-reset {
+  border: 1px solid var(--sand-deep);
+  background: var(--paper);
+  color: var(--ink-soft);
+  font-family: 'DM Sans', sans-serif;
+  font-size: 12px;
+  font-weight: 500;
+  padding: 3px 10px;
+  border-radius: 999px;
+  cursor: pointer;
+}
+.pr-reset:hover { background: var(--sand); color: var(--ink); }
+
+/* Sidebar pinned mode — slider as its own full-width row */
+.searcher-wrap.is-fixed .price-range-field {
+  flex-direction: column;
+  align-items: stretch;
+  gap: 4px !important;
+  min-width: 0;
+}
+.searcher-wrap.is-fixed .price-range-field > span:first-child {
+  flex: 0 0 auto;
+  font-family: 'Fraunces', Georgia, serif;
+  font-size: 13.5px;
+}
+.searcher-wrap.is-fixed .price-range { padding: 0; }
+.searcher-wrap.is-fixed .pr-bars { height: 28px; }
+.searcher-wrap.is-fixed .pr-tier-zone { font-size: 8.5px; }
+.searcher-wrap.is-fixed .pr-readout { font-size: 12.5px; }
+
+@media (max-width: 560px) {
+  .price-range-field { min-width: 0; }
+}
+
 /* Top-5 highlight block, sits between the smart heading and the town
    strip on Discover. Same cards as the regular grid, but in a slightly
    tinted frame so it reads as a featured "what's best right now". */

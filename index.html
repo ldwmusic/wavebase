@@ -30,7 +30,7 @@
   <meta name="twitter:description" content="Honest, season-by-season surf info — based on recent reviews. Morocco &amp; east Crete live.">
   <meta name="twitter:image" content="https://wavebase.lode-b162.workers.dev/og-image.png">
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin="">
-  <link rel="stylesheet" href="styles.css?v=179">
+  <link rel="stylesheet" href="styles.css?v=180">
 </head>
 <body class="is-home">
 
@@ -110,15 +110,22 @@
               <option value="all">Doesn't matter</option>
             </select>
           </span>
-          <span class="field">
-            <span>Trip type?</span>
-            <select id="f-tier">
-              <option value="all">Any trip type</option>
-              <option value="budget">🎒 Budget</option>
-              <option value="comfortable">🏠 Comfortable</option>
-              <option value="premium">✨ Premium</option>
-              <option value="luxury">🌟 Luxury</option>
-            </select>
+          <span class="field price-range-field">
+            <span>Budget?</span>
+            <div class="price-range" id="price-range" data-state="empty">
+              <div class="pr-tiers" id="pr-tiers" aria-hidden="true"></div>
+              <div class="pr-bars" id="pr-bars" aria-hidden="true"></div>
+              <div class="pr-slider">
+                <div class="pr-track"></div>
+                <div class="pr-fill" id="pr-fill"></div>
+                <input type="range" id="pr-min" class="pr-handle pr-handle-min" min="0" max="200" value="0" step="5" aria-label="Minimum budget per night">
+                <input type="range" id="pr-max" class="pr-handle pr-handle-max" min="0" max="200" value="200" step="5" aria-label="Maximum budget per night">
+              </div>
+              <div class="pr-readout">
+                <span id="pr-label" class="pr-label">Pick a country first</span>
+                <button type="button" class="pr-reset" id="pr-reset" hidden>Any</button>
+              </div>
+            </div>
           </span>
         </p>
         <div class="actions">
@@ -175,8 +182,8 @@
   </footer>
 
   <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
-  <script src="data.js?v=179"></script>
-  <script src="account.js?v=179"></script>
-  <script src="app.js?v=179"></script>
+  <script src="data.js?v=180"></script>
+  <script src="account.js?v=180"></script>
+  <script src="app.js?v=180"></script>
 </body>
 </html>
