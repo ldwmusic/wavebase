@@ -1386,7 +1386,8 @@ function getLiveCombos() {
 function countryHeading(country) {
   const map = {
     "Morocco": "Tamraght & Taghazout, Morocco",
-    "Greece":  "East Crete, Greece"
+    "Greece":  "East Crete, Greece",
+    "Belgium": "Belgian coast & Deinze, Belgium"
   };
   return map[country] || country;
 }

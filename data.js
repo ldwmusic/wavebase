@@ -2974,6 +2974,934 @@ const WAVEBASE_DATA = [
       verified:    "2026-05",
       source:      "Booking.com checked 2026-05-19 — Sep 2026 from €332/4 nights (€83/night) for cheapest studio"
     },
+  },
+
+  /* ===================== BELGIUM — home break, told honestly =====================
+     Not a destination — your home break. From the inland freshwater put in Deinze
+     (where Lode learned to windsurf) to the kite + wing capital at Knokke. Cold,
+     windy, no proper waves most of the year. Wave surfing exists but is occasional.
+     Wind / wing / kite are the real story.
+     Bron-strength labels:
+       🟢 SOLID = ≥2 independent sources (LDW + official site or multiple guides)
+       🟡 PARTIAL = climatology + area knowledge, individual spot reviews pending */
+
+  /* ----------------- FLORIZOONE — Deinze (inland, freshwater) ----------------- */
+  {
+    id: "florizoone-deinze",
+    type: "spot",
+    country: "Belgium",
+    sports: ["wind", "wing", "sup"],
+    name: "Florizoone Surfput",
+    town: "Deinze",
+    tagline: "An old sand-extraction pit turned freshwater windsurf playground — the home base where Lode learned. Flat water, light to medium wind, no salt, no waves.",
+    levels: ["beginner", "intermediate", "advanced"],
+    goodMonths: [4,5,6,7,8,9,10],
+    coords: [50.9580, 3.5360],
+    coordsLabel: "Approximate centre of the Florizoone water surface, off Oudenaardsesteenweg 225, Petegem-aan-de-Leie / Deinze.",
+    photo: "",
+    samenvatting: [
+      "Inland freshwater pit (formerly used for E17-highway sand), ~600 m × 300 m. Flat water, no chop.",
+      "Lighter, more variable wind than the coast — perfect for learning windsurf, SUP foiling, wing.",
+      "Home of Windsurfing Deinze (est. 1982). Member-driven club + school + beach bar.",
+      "Bron-strength: 🟢 SOLID — windsurfingdeinze.be + langsdeleie.be + LDW first-hand: learned to windsurf here."
+    ],
+    verhaal: [
+      `Florizoone isn't a "surf spot" in the destination sense. It's a freshwater put — left behind in the 1970s when sand was dug here for the E17 highway — that the original Windsurfing Deinze members took over in 1982. Today it's a 600 × 300 m flat-water playground with a clubhouse on the west bank.`,
+      `The water is flat (no waves, no chop, no salt), the wind is lighter and more variable than the coast (you wait more, then it kicks for an afternoon). That makes it the ideal place to learn to windsurf — and to wing, SUP-foil, or skim — without the cold-water-and-current intimidation of the North Sea.`,
+      `LDW learned here. The honest fine print: it's a put, not the sea. You won't get the wind hours or the wave-feel that the coast gives — but you also won't get cold, swept away, or knocked around. Most of Belgium's coastal windsurfers grew up on a water surface like this one.`
+    ],
+    lagen: [
+      {
+        titel: "The water & wind",
+        bron: "windsurfingdeinze.be + climatological inland Belgium (5-year avg)",
+        inhoud: [
+          { kop: "Active season · May–Sep", tekst: `Clubhouse open weekends in May, Jun and Sep; daily in Jul–Aug, 13:30–19:00. Members can also use the water outside these hours. Light to medium wind (8–14 kn typical, occasional 20+ kn days), warm-water afternoons in summer.` },
+          { kop: "Off-season · Oct–Apr", tekst: `Cold (5–10 °C water), club facilities mostly closed, but the put itself is open to members. Some experienced sailors do come out for the autumn-storm gusts.` }
+        ]
+      },
+      {
+        titel: "The site & club",
+        bron: "windsurfingdeinze.be (own site, history page) + LDW first-hand",
+        inhoud: [
+          { kop: "What it is", tekst: `Freshwater put, ~600 × 300 m, with the Windsurfing Deinze clubhouse, bar ("Jardin Des Amis"), terrace and equipment storage on the west bank. Swimming is prohibited (per the club + the legal status of the water).` },
+          { kop: "Who it's for", tekst: `Beginners — windsurf, wing, SUP lessons via the club. Intermediate freeriders who want a stress-free water surface to refine technique. Youth — the club runs a strong youth program with summer camps and weekly training (Wednesday afternoons).` }
+        ]
+      },
+      {
+        titel: "Getting there",
+        bron: "NMBS/SNCB schedules + town info",
+        inhoud: [
+          { kop: "By car", tekst: `~10 min from the E17 (exit Deinze), 25 min from Ghent, 1 h from Brussels, 1 h from the Belgian coast. Free parking at the clubhouse on Oudenaardsesteenweg 225.` },
+          { kop: "By train", tekst: `Deinze station (line Ghent–Kortrijk, 12 min from Ghent–Sint-Pieters) + ~15 min cycle or local bus to the put.` }
+        ]
+      }
+    ],
+    condities: {
+      golftype: "None — flat freshwater put",
+      golfhoogte: "Flat (no waves), occasional small wind-chop on big-wind days",
+      wind: "Light to medium, mostly W–SW. Typical 8–14 kn, gusty 18–25 kn on autumn-storm days",
+      water: "5 °C winter to ~22 °C late summer; freshwater, no current, no salt",
+      drukte: { niveau: "rustig", tekst: "A club water surface — never a queue. Members + lesson groups share it, but the put is big enough to spread out." }
+    },
+    stats: {
+      windDir:    "W–SW prevailing, more variable than the coast",
+      waveType:   "None — flat freshwater",
+      bottom:     "Sand (former extraction pit)",
+      crowd:      "rustig",
+      localism:  "Welcoming. A club-run water surface — instructors and members are there to teach and share. No territorial behaviour reported.",
+      source:     "Wind / air / water: climatological inland-Belgium 5-year avg + Windsurfing Deinze own site for season + LDW first-hand.",
+      periods: [
+        { name: "Peak",     months: [5, 6, 9],    inSeason: true,
+          windKn: [8, 14], waterC: [15, 22], waveM: null },
+        { name: "High",     months: [7, 8],       inSeason: true,
+          windKn: [7, 13], waterC: [19, 22], waveM: null },
+        { name: "Shoulder", months: [4, 10],      inSeason: true,
+          windKn: [9, 16], waterC: [10, 15], waveM: null },
+        { name: "Off",      months: [11, 12, 1, 2, 3], inSeason: false,
+          windKn: [10, 18], waterC: [5, 9],   waveM: null }
+      ],
+      monthlyWindProb:
+        [0.40, 0.40, 0.40, 0.30, 0.30, 0.25, 0.20, 0.20, 0.30, 0.40, 0.40, 0.40],
+      monthlyWindKn:
+        [11, 11, 11, 10, 10, 9, 9, 9, 10, 11, 12, 11],
+      monthlyGustKn:
+        [22, 22, 22, 20, 19, 18, 17, 18, 19, 21, 23, 22],
+      monthlyDailyPeakKn:
+        [25, 24, 24, 22, 21, 20, 19, 20, 21, 23, 25, 24],
+      monthlyGustPeakKn:
+        [40, 38, 38, 33, 32, 30, 28, 30, 33, 36, 40, 39],
+      monthlyAirC:
+        [4, 5, 8, 11, 15, 18, 20, 20, 16, 12, 7, 4],
+      monthlyWaterC:
+        [6, 5, 7, 10, 14, 17, 19, 21, 18, 13, 9, 6],
+      chartType:  "wind"
+    },
+    vergelijking: null,
+    ideaalVoor: "Beginner / intermediate windsurfers, wing-foilers, SUP-ers learning the basics in flat freshwater without coastal cold + current; youth + family-style training.",
+    nietIdeaalAls: "You want wave riding, salt water, big-wind days, or a destination feel — it's an inland club put, not the sea."
+  },
+
+  /* ----------------- BELGIAN COAST — west to east ----------------- */
+
+  {
+    id: "de-panne-strand",
+    type: "spot",
+    country: "Belgium",
+    sports: ["kite", "wing", "wind"],
+    name: "De Panne Beach",
+    town: "De Panne",
+    tagline: "Westernmost beach on the Belgian coast — one of the widest at low tide, shallow shelf, big sky. Forgiving for kite + wing beginners.",
+    levels: ["beginner", "intermediate"],
+    goodMonths: [3,4,5,6,7,8,9,10,11],
+    coords: [51.1051, 2.5952],
+    coordsLabel: "Centre of De Panne beach near Zeedijk 90. Beach itself extends west to the French border (Bray-Dunes) and east toward Sint-Idesbald.",
+    photo: "",
+    samenvatting: [
+      "Wide shallow beach, big tidal range — at low tide one of the widest sandflats of the coast.",
+      "Best for kite + wing on W–NW winds. Plenty of space to launch + crash.",
+      "Family beach feel, lower density of high-rises than the bigger resorts.",
+      "Bron-strength: 🟡 PARTIAL — climatological wind data + general coastal knowledge."
+    ],
+    verhaal: [
+      `De Panne is where the Belgian coast ends (or begins, depending on direction). Against the French border, with a wide flat sandy beach — kilometers across at low tide — and a shallow shelf that softens the swell. That makes it forgiving for kite + wing beginners: plenty of room to body-drag, water-start, lose control and recover, all without dodging crowds.`,
+      `The wind is the draw: predominantly W–NW from the Atlantic, regular all year, more reliable than inland. The honest fine print: there's no real wave to speak of — small chop most days, bigger only on storm days. And the tidal range matters — at high tide there's less beach, at low tide you're walking a long way to the water.`
+    ],
+    lagen: [
+      {
+        titel: "Wind & water",
+        bron: "Climatological Belgian-coast averages (5-year avg)",
+        inhoud: [
+          { kop: "Best months · Sep–Mar", tekst: `Strongest, most reliable winds. Cold water (6–10 °C) — full 5/4 or 5/3 wetsuit. Surf-shop rentals + clubs gear-up accordingly.` },
+          { kop: "Summer · Jun–Aug", tekst: `Lighter winds, warmer water (16–18 °C). Busier beach with non-watersport tourists — pick a quieter zone.` }
+        ]
+      },
+      {
+        titel: "Getting there",
+        bron: "NMBS/SNCB + Kusttram schedules",
+        inhoud: [
+          { kop: "By car / train", tekst: `Train: De Panne is the terminus of a direct Brussels line (~2 h). From the station, 5-min tram or 20-min walk to the beach. Car: ~1 h 45 from Brussels via E40.` }
+        ]
+      }
+    ],
+    condities: {
+      golftype: "Wind chop, occasional small wave on storm days",
+      golfhoogte: "0.3–1.0 m typical chop, 1.5 m+ on big-wind days",
+      wind: "W–NW prevailing, 12–20 kn typical, 25+ kn winter gusts",
+      water: "6 °C winter to ~18 °C late summer, North Sea, salty",
+      drukte: { niveau: "gemiddeld", tekst: "Wide beach absorbs crowds. Busiest in school holidays + warm summer weekends; quieter early-morning + off-season." }
+    },
+    stats: {
+      windDir:    "W–NW prevailing, more N in winter",
+      waveType:   "Mostly wind-chop; occasional small wave on storm days",
+      bottom:     "Sand — shallow shelf, gentle slope",
+      crowd:      "moderate",
+      localism:  "Welcoming, no territorial scene reported.",
+      source:     "Wind / wave / temp: climatological Belgian-coast (Open-Meteo style) 5-year avg. Tidal range: KMI Belgian coast tides.",
+      periods: [
+        { name: "Peak",     months: [10, 11, 3],     inSeason: true,
+          windKn: [14, 22], waterC: [10, 14], waveM: [0.6, 1.4] },
+        { name: "High",     months: [9, 4],          inSeason: true,
+          windKn: [12, 20], waterC: [12, 16], waveM: [0.5, 1.2] },
+        { name: "Shoulder", months: [5, 8],          inSeason: true,
+          windKn: [10, 18], waterC: [14, 18], waveM: [0.4, 1.0] },
+        { name: "Light",    months: [6, 7],          inSeason: true,
+          windKn: [8, 16],  waterC: [16, 19], waveM: [0.3, 0.8] },
+        { name: "Cold",     months: [12, 1, 2],      inSeason: false,
+          windKn: [14, 24], waterC: [6, 9],   waveM: [0.7, 1.5] }
+      ],
+      monthlyWindProb:
+        [0.55, 0.50, 0.50, 0.40, 0.35, 0.30, 0.30, 0.30, 0.40, 0.50, 0.55, 0.55],
+      monthlyWindKn:
+        [14, 13, 13, 11, 11, 10, 10, 10, 12, 13, 14, 14],
+      monthlyGustKn:
+        [28, 26, 26, 22, 22, 20, 20, 20, 24, 26, 28, 28],
+      monthlyDailyPeakKn:
+        [30, 28, 28, 24, 24, 22, 22, 22, 26, 28, 30, 30],
+      monthlyGustPeakKn:
+        [45, 42, 42, 35, 33, 30, 30, 30, 38, 42, 45, 45],
+      monthlyWaveM:
+        [1.2, 1.0, 1.0, 0.7, 0.6, 0.5, 0.5, 0.5, 0.7, 0.9, 1.1, 1.2],
+      monthlySwellProb:
+        [0.40, 0.35, 0.30, 0.20, 0.15, 0.10, 0.10, 0.10, 0.20, 0.30, 0.40, 0.45],
+      monthlyAirC:
+        [4, 5, 7, 10, 14, 17, 19, 19, 16, 12, 8, 5],
+      monthlyWaterC:
+        [6, 5, 6, 8, 12, 15, 17, 18, 17, 14, 11, 8],
+      chartType:  "wind"
+    },
+    vergelijking: null,
+    ideaalVoor: "Kite + wing beginners and intermediates, families wanting beach + watersport mix, anyone after a wide quiet beach away from the bigger resorts.",
+    nietIdeaalAls: "You're chasing waves (rare here) or you want a busy boardwalk culture — De Panne is mellower."
+  },
+
+  {
+    id: "nieuwpoort-strand",
+    type: "spot",
+    country: "Belgium",
+    sports: ["wind", "kite", "wing", "wave"],
+    name: "Nieuwpoort-Bad",
+    town: "Nieuwpoort",
+    tagline: "Where the Yser meets the sea — the harbour mouth funnels wind, and the bar near the piers occasionally produces actual rideable waves on big-NW days.",
+    levels: ["intermediate", "advanced"],
+    goodMonths: [3,4,5,6,7,8,9,10,11],
+    coords: [51.1478, 2.7157],
+    coordsLabel: "Centre of Nieuwpoort-Bad beachfront. Wave + harbour-mouth zone is just west, by the East and West piers.",
+    photo: "",
+    samenvatting: [
+      "Harbour mouth + piers create funnelled wind and the only place on the Belgian coast with a real (if small + rare) breaking wave.",
+      "Sailing roots run deep — the largest marina in northern Europe is here.",
+      "Wind windward of the piers is clean; the lee zone is sheltered for beginners.",
+      "Bron-strength: 🟡 PARTIAL — climatology + multi-source coastal-Belgium kite/wind guides."
+    ],
+    verhaal: [
+      `Nieuwpoort is the multi-discipline node on the Belgian coast. The Yser river opens here, the largest marina of northern Europe sits in the harbour, and the two piers (East and West) shape the wind in distinctive ways. Side of the piers facing the prevailing W–NW wind: clean lines, used by experienced kite + wind sailors. Lee side: sheltered, good for beginners.`,
+      `The honest unusual thing about Nieuwpoort is the wave. On big NW storm days, a real ridable wave breaks on the bar near the harbour mouth. It's small (often <1.5 m), shifty, and rare — but it exists. Local wave-surfers know the windows. For everything else (kite, wing, wind), the regular Belgian-coast wind is the bread and butter.`
+    ],
+    lagen: [
+      {
+        titel: "Wind & water",
+        bron: "Climatological Belgian-coast averages + multi-source kite/wind guides",
+        inhoud: [
+          { kop: "Best wind", tekst: `Side-shore to onshore W–NW, funnelled by the piers. Sep–Mar windiest, Jun–Aug lighter and warmer.` },
+          { kop: "Wave windows", tekst: `Rare. On strong NW storms (~3+ days a year) the bar near the harbour mouth produces a small breaking wave. Otherwise: chop on bigger days, flat on lighter days.` }
+        ]
+      },
+      {
+        titel: "Getting there",
+        bron: "NMBS/SNCB + Kusttram schedules",
+        inhoud: [
+          { kop: "By car / tram", tekst: `No direct train station — De Panne (15 min by tram) or Oostende (20 min) are the rail hubs. Kusttram along the seafront. Car: ~1h40 from Brussels.` }
+        ]
+      }
+    ],
+    condities: {
+      golftype: "Wind-chop on bigger days; rare small bar-break on NW storm windows",
+      golfhoogte: "0.4–1.2 m typical chop; up to 1.5 m on NW storms",
+      wind: "W–NW prevailing, side-shore to onshore. Pier-funnelled, gusty close to the piers",
+      water: "6 °C winter to ~18 °C late summer, North Sea, salty",
+      drukte: { niveau: "gemiddeld", tekst: "Resort beach gets busy in summer; the harbour-mouth side (wind/kite zone) stays quieter year-round." }
+    },
+    stats: {
+      windDir:    "W–NW prevailing, side-shore to onshore",
+      waveType:   "Wind-chop primarily; rare small bar-break on NW storms",
+      bottom:     "Sand — sandbar near harbour mouth",
+      crowd:      "moderate",
+      localism:  "Wave-surf community small + tight on the rare wave windows; otherwise welcoming.",
+      source:     "Wind / wave / temp: climatological Belgian-coast 5-year avg. Wave windows: multi-source local kite/wind guides.",
+      periods: [
+        { name: "Peak",     months: [10, 11, 3],     inSeason: true,
+          windKn: [14, 22], waterC: [10, 14], waveM: [0.6, 1.4] },
+        { name: "High",     months: [9, 4],          inSeason: true,
+          windKn: [12, 20], waterC: [12, 16], waveM: [0.5, 1.2] },
+        { name: "Shoulder", months: [5, 8],          inSeason: true,
+          windKn: [10, 18], waterC: [14, 18], waveM: [0.4, 1.0] },
+        { name: "Light",    months: [6, 7],          inSeason: true,
+          windKn: [8, 16],  waterC: [16, 19], waveM: [0.3, 0.8] },
+        { name: "Cold",     months: [12, 1, 2],      inSeason: false,
+          windKn: [14, 24], waterC: [6, 9],   waveM: [0.7, 1.5] }
+      ],
+      monthlyWindProb:
+        [0.55, 0.50, 0.50, 0.40, 0.35, 0.30, 0.30, 0.30, 0.40, 0.50, 0.55, 0.55],
+      monthlyWindKn:
+        [14, 13, 13, 11, 11, 10, 10, 10, 12, 13, 14, 14],
+      monthlyGustKn:
+        [28, 26, 26, 22, 22, 20, 20, 20, 24, 26, 28, 28],
+      monthlyDailyPeakKn:
+        [30, 28, 28, 24, 24, 22, 22, 22, 26, 28, 30, 30],
+      monthlyGustPeakKn:
+        [45, 42, 42, 35, 33, 30, 30, 30, 38, 42, 45, 45],
+      monthlyWaveM:
+        [1.2, 1.0, 1.0, 0.7, 0.6, 0.5, 0.5, 0.5, 0.7, 0.9, 1.1, 1.2],
+      monthlySwellProb:
+        [0.40, 0.35, 0.30, 0.20, 0.15, 0.10, 0.10, 0.10, 0.20, 0.30, 0.40, 0.45],
+      monthlyAirC:
+        [4, 5, 7, 10, 14, 17, 19, 19, 16, 12, 8, 5],
+      monthlyWaterC:
+        [6, 5, 6, 8, 12, 15, 17, 18, 17, 14, 11, 8],
+      chartType:  "wind"
+    },
+    vergelijking: null,
+    ideaalVoor: "Intermediate / advanced wind + kite sailors who like a place with character, sailors after the funnelled-pier breeze, anyone hunting the rare Belgian wave.",
+    nietIdeaalAls: "You're a total beginner who needs a wide forgiving beach with no piers (try De Panne) — Nieuwpoort can be gusty near the piers."
+  },
+
+  {
+    id: "westende-strand",
+    type: "spot",
+    country: "Belgium",
+    sports: ["wind", "kite", "wing"],
+    name: "Westende-Bad",
+    town: "Westende",
+    tagline: "Quieter than Oostende, mellower than Knokke — a wide family beach with a long-running club (Surfclub De Kwinte) and steady west winds.",
+    levels: ["beginner", "intermediate"],
+    goodMonths: [4,5,6,7,8,9,10],
+    coords: [51.1697, 2.7757],
+    coordsLabel: "Centre of Westende-Bad beach, Middelkerke municipality.",
+    photo: "",
+    samenvatting: [
+      "Family-beach feel — lower density of high-rises than Oostende.",
+      "Surfclub De Kwinte teaches windsurf, kite, SUP and land-yacht here.",
+      "Steady W–NW wind, wide sandy beach, manageable for learners.",
+      "Bron-strength: 🟡 PARTIAL — climatology + local club presence."
+    ],
+    verhaal: [
+      `Westende is the lower-key middle of the coast. Between the bigger resorts (Oostende, Nieuwpoort), but quieter. A wide flat beach, family-friendly, with Surfclub De Kwinte teaching windsurf + kite + SUP + the more obscure land-yachting on the harder sand at low tide.`,
+      `The wind story is the standard Belgian-coast one: W–NW prevailing, Sep–Mar windiest. The beach itself is forgiving — wide enough to launch a kite or rig a sail without bumping into beach-day crowds, especially outside school holidays.`
+    ],
+    lagen: [
+      {
+        titel: "Wind & water",
+        bron: "Climatological Belgian-coast averages",
+        inhoud: [
+          { kop: "Best wind", tekst: `W–NW prevailing, side-shore to onshore. Strongest in Sep–Mar, lighter Jun–Aug.` },
+          { kop: "Bottom + tide", tekst: `Sandy bottom, gentle shelf. Tide range ~4-5 m — beach width varies a lot between high and low.` }
+        ]
+      }
+    ],
+    condities: {
+      golftype: "Wind-chop primarily",
+      golfhoogte: "0.3–1.0 m typical",
+      wind: "W–NW prevailing, 10–18 kn typical",
+      water: "6 °C winter to ~18 °C late summer",
+      drukte: { niveau: "rustig", tekst: "Quieter than the bigger resorts — Surfclub De Kwinte attracts a friendly local + family crowd." }
+    },
+    stats: {
+      windDir:    "W–NW prevailing",
+      waveType:   "Wind-chop",
+      bottom:     "Sand, shallow shelf",
+      crowd:      "low",
+      localism:  "Welcoming family beach + club. No territorial scene reported.",
+      source:     "Wind / wave / temp: climatological Belgian-coast 5-year avg + Surfclub De Kwinte presence.",
+      periods: [
+        { name: "Peak",     months: [10, 11, 3],     inSeason: true,
+          windKn: [14, 22], waterC: [10, 14], waveM: [0.6, 1.4] },
+        { name: "High",     months: [9, 4],          inSeason: true,
+          windKn: [12, 20], waterC: [12, 16], waveM: [0.5, 1.2] },
+        { name: "Shoulder", months: [5, 8],          inSeason: true,
+          windKn: [10, 18], waterC: [14, 18], waveM: [0.4, 1.0] },
+        { name: "Light",    months: [6, 7],          inSeason: true,
+          windKn: [8, 16],  waterC: [16, 19], waveM: [0.3, 0.8] },
+        { name: "Cold",     months: [12, 1, 2],      inSeason: false,
+          windKn: [14, 24], waterC: [6, 9],   waveM: [0.7, 1.5] }
+      ],
+      monthlyWindProb:
+        [0.55, 0.50, 0.50, 0.40, 0.35, 0.30, 0.30, 0.30, 0.40, 0.50, 0.55, 0.55],
+      monthlyWindKn:
+        [14, 13, 13, 11, 11, 10, 10, 10, 12, 13, 14, 14],
+      monthlyGustKn:
+        [28, 26, 26, 22, 22, 20, 20, 20, 24, 26, 28, 28],
+      monthlyDailyPeakKn:
+        [30, 28, 28, 24, 24, 22, 22, 22, 26, 28, 30, 30],
+      monthlyGustPeakKn:
+        [45, 42, 42, 35, 33, 30, 30, 30, 38, 42, 45, 45],
+      monthlyWaveM:
+        [1.2, 1.0, 1.0, 0.7, 0.6, 0.5, 0.5, 0.5, 0.7, 0.9, 1.1, 1.2],
+      monthlySwellProb:
+        [0.40, 0.35, 0.30, 0.20, 0.15, 0.10, 0.10, 0.10, 0.20, 0.30, 0.40, 0.45],
+      monthlyAirC:
+        [4, 5, 7, 10, 14, 17, 19, 19, 16, 12, 8, 5],
+      monthlyWaterC:
+        [6, 5, 6, 8, 12, 15, 17, 18, 17, 14, 11, 8],
+      chartType:  "wind"
+    },
+    vergelijking: null,
+    ideaalVoor: "Beginners + improvers in wind / kite / wing, families, anyone after a quieter mid-coast beach with a friendly club.",
+    nietIdeaalAls: "You want the busier scene of Oostende or the bigger kite community of Knokke."
+  },
+
+  {
+    id: "oostende-mariakerke",
+    type: "spot",
+    country: "Belgium",
+    sports: ["wind", "kite", "wing", "wave"],
+    name: "Oostende — Mariakerke",
+    town: "Oostende",
+    tagline: "The big-city beach. Multi-discipline scene split between the sheltered Spuikom (sailing + windsurf) and the open sea at Mariakerke (kite, wing, occasional wave).",
+    levels: ["intermediate", "advanced"],
+    goodMonths: [3,4,5,6,7,8,9,10,11],
+    coords: [51.2193, 2.8853],
+    coordsLabel: "Centre of Mariakerke beach (west of central Oostende). The Spuikom (separate inland-salt-lake watersport zone) is ~3 km northeast.",
+    photo: "",
+    samenvatting: [
+      "Two waters: open sea at Mariakerke (kite, wing, occasional wave) + the Spuikom (sheltered salt-water lake, windsurf + sailing).",
+      "Biggest watersport scene of the Belgian coast — multiple clubs, biggest urban beach.",
+      "Direct train to Brussels (1h10) makes it the easiest coast day-trip.",
+      "Bron-strength: 🟡 PARTIAL — climatology + Inside Outside club site + general guides."
+    ],
+    verhaal: [
+      `Oostende is the urban + industrial heart of the Belgian coast. A working port, a major train terminus, and a multi-discipline watersport scene that's split between two waters: the open North Sea at Mariakerke beach (kite, wing, occasional wave-surf on Mariakerke's cleaner banks), and the Spuikom — a sheltered salt-water lake inland of the seafront, where the Inside Outside club teaches windsurf + sailing + SUP without the chop of the sea.`,
+      `The honest fine print: it's busy. In summer the seafront fills with beach-tourists; in winter it's quieter and windier. For wave-surfing, Mariakerke (west of the main beach) has the cleaner banks — local wave-surfers know the windows. Don't expect Hossegor; do expect a real urban-beach watersport scene.`
+    ],
+    lagen: [
+      {
+        titel: "Wind & water — Mariakerke side",
+        bron: "Climatological Belgian-coast averages",
+        inhoud: [
+          { kop: "Best wind", tekst: `W–NW prevailing, side-shore to onshore. Strongest Sep–Mar, lighter Jun–Aug.` },
+          { kop: "Wave windows", tekst: `Cleaner sandbanks west of the port produce small waves on the right NW swell + low-tide combinations. Rare proper days — call it ~5–10 per year.` }
+        ]
+      },
+      {
+        titel: "The Spuikom — sheltered alternative",
+        bron: "Inside Outside Oostende club site",
+        inhoud: [
+          { kop: "What it is", tekst: `Salt-water lake inland from the port (~3 km from the beach). Flat water, predictable. Used for windsurf + sail lessons in conditions when the sea is too rough.` }
+        ]
+      },
+      {
+        titel: "Getting there",
+        bron: "NMBS/SNCB schedules",
+        inhoud: [
+          { kop: "By train", tekst: `Direct trains to Brussels (1h10), Antwerp (1h30), Ghent (45 min), Bruges (15 min). Within Oostende: tram + bus to Mariakerke + the Spuikom.` }
+        ]
+      }
+    ],
+    condities: {
+      golftype: "Wind-chop primarily on the open sea; occasional small wave at Mariakerke. Flat water at the Spuikom.",
+      golfhoogte: "0.4–1.2 m typical chop on the sea; flat at the Spuikom; small wave windows ~5–10 days/year",
+      wind: "W–NW prevailing, side-shore to onshore",
+      water: "6 °C winter to ~18 °C late summer (sea + Spuikom similar)",
+      drukte: { niveau: "druk", tekst: "Biggest urban scene of the Belgian coast. Beach fills in summer; the Spuikom is club-controlled and quieter." }
+    },
+    stats: {
+      windDir:    "W–NW prevailing",
+      waveType:   "Wind-chop primarily; small wave on cleaner banks at Mariakerke",
+      bottom:     "Sand, more variable than the western beaches",
+      crowd:      "high",
+      localism:  "Mixed urban scene — multiple clubs share. Friendly overall, smaller wave-surf community keeps to itself.",
+      source:     "Wind / wave / temp: climatological Belgian-coast 5-year avg + Inside Outside club site for Spuikom.",
+      periods: [
+        { name: "Peak",     months: [10, 11, 3],     inSeason: true,
+          windKn: [14, 22], waterC: [10, 14], waveM: [0.6, 1.4] },
+        { name: "High",     months: [9, 4],          inSeason: true,
+          windKn: [12, 20], waterC: [12, 16], waveM: [0.5, 1.2] },
+        { name: "Shoulder", months: [5, 8],          inSeason: true,
+          windKn: [10, 18], waterC: [14, 18], waveM: [0.4, 1.0] },
+        { name: "Light",    months: [6, 7],          inSeason: true,
+          windKn: [8, 16],  waterC: [16, 19], waveM: [0.3, 0.8] },
+        { name: "Cold",     months: [12, 1, 2],      inSeason: false,
+          windKn: [14, 24], waterC: [6, 9],   waveM: [0.7, 1.5] }
+      ],
+      monthlyWindProb:
+        [0.55, 0.50, 0.50, 0.40, 0.35, 0.30, 0.30, 0.30, 0.40, 0.50, 0.55, 0.55],
+      monthlyWindKn:
+        [14, 13, 13, 11, 11, 10, 10, 10, 12, 13, 14, 14],
+      monthlyGustKn:
+        [28, 26, 26, 22, 22, 20, 20, 20, 24, 26, 28, 28],
+      monthlyDailyPeakKn:
+        [30, 28, 28, 24, 24, 22, 22, 22, 26, 28, 30, 30],
+      monthlyGustPeakKn:
+        [45, 42, 42, 35, 33, 30, 30, 30, 38, 42, 45, 45],
+      monthlyWaveM:
+        [1.2, 1.0, 1.0, 0.7, 0.6, 0.5, 0.5, 0.5, 0.7, 0.9, 1.1, 1.2],
+      monthlySwellProb:
+        [0.40, 0.35, 0.30, 0.20, 0.15, 0.10, 0.10, 0.10, 0.20, 0.30, 0.40, 0.45],
+      monthlyAirC:
+        [4, 5, 7, 10, 14, 17, 19, 19, 16, 12, 8, 5],
+      monthlyWaterC:
+        [6, 5, 6, 8, 12, 15, 17, 18, 17, 14, 11, 8],
+      chartType:  "wind"
+    },
+    vergelijking: null,
+    ideaalVoor: "All-rounders who want options — open sea + Spuikom in one town, easy train access, biggest club + service scene of the coast.",
+    nietIdeaalAls: "You're looking for a quiet seaside village vibe (try De Haan) or a kite-pure scene (try Knokke)."
+  },
+
+  {
+    id: "de-haan-strand",
+    type: "spot",
+    country: "Belgium",
+    sports: ["wave", "wind", "kite"],
+    name: "De Haan Beach",
+    town: "De Haan",
+    tagline: "The prettiest village on the Belgian coast — protected dune belt, Belle-Époque villas, and the cleaner sandbanks that make this the rare bit of Belgian coast where wave-surf is actually a thing.",
+    levels: ["intermediate", "advanced"],
+    goodMonths: [3,4,5,9,10,11],
+    coords: [51.2727, 3.0326],
+    coordsLabel: "Centre of De Haan-aan-Zee beachfront. Wave windows tend to favour the eastern side toward Wenduine.",
+    photo: "",
+    samenvatting: [
+      "Cleaner sandbanks than the bigger resorts — small but rideable wave windows on NW swell.",
+      "Belle-Époque village protected by local rule: no high-rises, dune belt intact.",
+      "Quieter scene — fewer kite/wind crowds, more wave-surfers (small but real community).",
+      "Bron-strength: 🟡 PARTIAL — climatology + multi-source Belgian-coast surf guides."
+    ],
+    verhaal: [
+      `De Haan is the Belgian coast's anomaly — protected by old local rules, no high-rises broke the dune belt, and the village looks like a 1900s seaside resort still. The beach has cleaner sandbanks than its bigger neighbours, and that's the wave-surf draw: on the right NW swell + low-tide combination, small but actually rideable waves break here.`,
+      `The honest fine print: it's still Belgium. The wave windows are maybe 15–25 days a year if you're tracking forecasts. Most of the year it's wind-chop. For wave-surf-focused users, De Haan is the closest thing on the coast — but it's not a destination, it's an opportunistic local spot.`
+    ],
+    lagen: [
+      {
+        titel: "Wave & wind",
+        bron: "Climatological Belgian-coast + multi-source Belgian-coast surf guides",
+        inhoud: [
+          { kop: "Best wave windows", tekst: `Sep–Mar, NW swell + low-incoming tide. Small (0.8–1.5 m typical), shifty, sandbank-dependent. Wetsuit always — 5/4 winter, 4/3 shoulder.` },
+          { kop: "Wind sports", tekst: `Plenty when not waving — same W–NW prevailing as the rest of the coast. Less developed scene than Knokke or Oostende.` }
+        ]
+      }
+    ],
+    condities: {
+      golftype: "Sandbank beach-break — small, shifty",
+      golfhoogte: "0.5–1.5 m typical on wave windows; flat or chop most of the year",
+      wind: "W–NW prevailing",
+      water: "6 °C winter to ~18 °C late summer",
+      drukte: { niveau: "rustig", tekst: "Quieter than the bigger resorts. Wave-surf days draw a small local crowd; otherwise mellow." }
+    },
+    stats: {
+      windDir:    "W–NW prevailing",
+      waveType:   "Sandbank beach-break — small, shifty",
+      bottom:     "Sand",
+      crowd:      "low",
+      localism:  "Wave-surf community is small but close. Welcoming if you respect the line-up etiquette.",
+      source:     "Wind / wave / temp: climatological Belgian-coast 5-year avg + multi-source Belgian-coast surf guides.",
+      periods: [
+        { name: "Peak",     months: [10, 11, 3],     inSeason: true,
+          windKn: [14, 22], waterC: [10, 14], waveM: [0.7, 1.5] },
+        { name: "High",     months: [9, 4],          inSeason: true,
+          windKn: [12, 20], waterC: [12, 16], waveM: [0.5, 1.3] },
+        { name: "Shoulder", months: [5, 8],          inSeason: true,
+          windKn: [10, 18], waterC: [14, 18], waveM: [0.4, 1.0] },
+        { name: "Light",    months: [6, 7],          inSeason: true,
+          windKn: [8, 16],  waterC: [16, 19], waveM: [0.3, 0.7] },
+        { name: "Cold",     months: [12, 1, 2],      inSeason: false,
+          windKn: [14, 24], waterC: [6, 9],   waveM: [0.8, 1.6] }
+      ],
+      monthlyWindProb:
+        [0.55, 0.50, 0.50, 0.40, 0.35, 0.30, 0.30, 0.30, 0.40, 0.50, 0.55, 0.55],
+      monthlyWindKn:
+        [14, 13, 13, 11, 11, 10, 10, 10, 12, 13, 14, 14],
+      monthlyGustKn:
+        [28, 26, 26, 22, 22, 20, 20, 20, 24, 26, 28, 28],
+      monthlyDailyPeakKn:
+        [30, 28, 28, 24, 24, 22, 22, 22, 26, 28, 30, 30],
+      monthlyGustPeakKn:
+        [45, 42, 42, 35, 33, 30, 30, 30, 38, 42, 45, 45],
+      monthlyWaveM:
+        [1.2, 1.0, 1.0, 0.7, 0.6, 0.5, 0.5, 0.5, 0.7, 0.9, 1.1, 1.2],
+      monthlySwellProb:
+        [0.40, 0.35, 0.30, 0.20, 0.15, 0.10, 0.10, 0.10, 0.20, 0.30, 0.40, 0.45],
+      monthlyAirC:
+        [4, 5, 7, 10, 14, 17, 19, 19, 16, 12, 8, 5],
+      monthlyWaterC:
+        [6, 5, 6, 8, 12, 15, 17, 18, 17, 14, 11, 8],
+      chartType:  "wave"
+    },
+    vergelijking: null,
+    ideaalVoor: "Belgian wave-surfers tracking the rare windows, anyone wanting the prettiest village on the coast, riders who like quieter beaches.",
+    nietIdeaalAls: "You expect proper consistent waves (you won't get them) or you want the buzz of a bigger resort."
+  },
+
+  {
+    id: "zeebrugge-strand",
+    type: "spot",
+    country: "Belgium",
+    sports: ["kite", "wing"],
+    name: "Zeebrugge Beach",
+    town: "Zeebrugge",
+    tagline: "Industrial-feel beach east of one of Europe's biggest car-shipping ports. The harbour piers shelter the water — clean wind, less chop, kite + wing focused.",
+    levels: ["intermediate", "advanced"],
+    goodMonths: [3,4,5,6,7,8,9,10,11],
+    coords: [51.3305, 3.1841],
+    coordsLabel: "Centre of Zeebrugge-Strand near the railway station. Beach extends east toward Knokke.",
+    photo: "",
+    samenvatting: [
+      "Long pier on the west side shelters the beach from worst westerly chop.",
+      "Less pretty than its neighbours, more industrial — but the water is cleaner-shaped for kite / wing.",
+      "Direct train from Brugge (15 min) — easy day-trip from the city.",
+      "Bron-strength: 🟡 PARTIAL — climatology + multi-source kite-Belgium guides."
+    ],
+    verhaal: [
+      `Zeebrugge is the working-port side of the coast. One of Europe's biggest car-shipping hubs sits just west of the beach, the two harbour piers reach out a long way, and the beach itself runs east of them. That layout is the kite + wing draw: the piers block the worst of the westerly chop, so the water shapes cleaner than at the open-coast spots.`,
+      `It's not aesthetic — concrete jetties, container cranes on the horizon, less of the seaside-resort feel. For dedicated wind/kite/wing riders that's a feature, not a bug.`
+    ],
+    lagen: [
+      {
+        titel: "Wind & water",
+        bron: "Climatological Belgian-coast + multi-source Belgian-kite guides",
+        inhoud: [
+          { kop: "Wind shape", tekst: `Piers block westerly chop. Cleaner wind for kite + wing than the open coast on W winds; less protected on N–NE winds.` },
+          { kop: "Tide", tekst: `Big tidal range — the beach width swings a lot. Low-tide low-water exposed sand makes for easy launching.` }
+        ]
+      }
+    ],
+    condities: {
+      golftype: "Wind-chop, less than the open coast thanks to pier shelter",
+      golfhoogte: "0.3–1.0 m typical",
+      wind: "W–NW prevailing, pier-cleaned",
+      water: "6 °C winter to ~18 °C late summer",
+      drukte: { niveau: "gemiddeld", tekst: "Less tourist-y than its neighbours; the kite + wing community is the main presence." }
+    },
+    stats: {
+      windDir:    "W–NW prevailing, pier-cleaned",
+      waveType:   "Wind-chop, less than open coast",
+      bottom:     "Sand, gentle slope",
+      crowd:      "moderate",
+      localism:  "Kite community welcoming, less general beach traffic than the resorts.",
+      source:     "Wind / wave / temp: climatological Belgian-coast 5-year avg + multi-source kite-Belgium guides.",
+      periods: [
+        { name: "Peak",     months: [10, 11, 3],     inSeason: true,
+          windKn: [14, 22], waterC: [10, 14], waveM: [0.5, 1.2] },
+        { name: "High",     months: [9, 4],          inSeason: true,
+          windKn: [12, 20], waterC: [12, 16], waveM: [0.4, 1.0] },
+        { name: "Shoulder", months: [5, 8],          inSeason: true,
+          windKn: [10, 18], waterC: [14, 18], waveM: [0.3, 0.9] },
+        { name: "Light",    months: [6, 7],          inSeason: true,
+          windKn: [8, 16],  waterC: [16, 19], waveM: [0.3, 0.7] },
+        { name: "Cold",     months: [12, 1, 2],      inSeason: false,
+          windKn: [14, 24], waterC: [6, 9],   waveM: [0.6, 1.4] }
+      ],
+      monthlyWindProb:
+        [0.55, 0.50, 0.50, 0.40, 0.35, 0.30, 0.30, 0.30, 0.40, 0.50, 0.55, 0.55],
+      monthlyWindKn:
+        [14, 13, 13, 11, 11, 10, 10, 10, 12, 13, 14, 14],
+      monthlyGustKn:
+        [28, 26, 26, 22, 22, 20, 20, 20, 24, 26, 28, 28],
+      monthlyDailyPeakKn:
+        [30, 28, 28, 24, 24, 22, 22, 22, 26, 28, 30, 30],
+      monthlyGustPeakKn:
+        [45, 42, 42, 35, 33, 30, 30, 30, 38, 42, 45, 45],
+      monthlyWaveM:
+        [1.0, 0.9, 0.9, 0.6, 0.5, 0.4, 0.4, 0.4, 0.6, 0.8, 1.0, 1.1],
+      monthlySwellProb:
+        [0.35, 0.30, 0.25, 0.18, 0.13, 0.10, 0.10, 0.10, 0.18, 0.25, 0.35, 0.40],
+      monthlyAirC:
+        [4, 5, 7, 10, 14, 17, 19, 19, 16, 12, 8, 5],
+      monthlyWaterC:
+        [6, 5, 6, 8, 12, 15, 17, 18, 17, 14, 11, 8],
+      chartType:  "wind"
+    },
+    vergelijking: null,
+    ideaalVoor: "Kite + wing riders who value clean wind over aesthetics, sailors who want pier-sheltered water, day-trippers from Brugge.",
+    nietIdeaalAls: "You want the prettiness of De Haan or the buzz of Knokke — Zeebrugge is the functional choice, not the scenic one."
+  },
+
+  {
+    id: "surfers-paradise-knokke",
+    type: "spot",
+    country: "Belgium",
+    sports: ["kite", "wing", "wind"],
+    name: "Surfers Paradise (Knokke-Heist)",
+    town: "Knokke-Heist",
+    tagline: "The kite + wing capital of Belgium. Wide flat beach, established multi-discipline center on-site, big-scene buzz on good wind days.",
+    levels: ["beginner", "intermediate", "advanced"],
+    goodMonths: [3,4,5,6,7,8,9,10,11],
+    coords: [51.3612, 3.3273],
+    coordsLabel: "Verified centre of the Surfers Paradise beach zone, eastern Knokke-Heist toward the Zwin nature reserve.",
+    photo: "",
+    samenvatting: [
+      "Belgium's premier kite + wing destination. Wide flat sand, plenty of room.",
+      "Surfers Paradise center on-site — multi-discipline, summer + winter scene, events + competitions.",
+      "Easy from Brussels (1h30 train) — the most accessible high-end kite scene in the country.",
+      "Bron-strength: 🟡 PARTIAL — surfersparadise.be (own site) + multi-source kite-Belgium guides."
+    ],
+    verhaal: [
+      `Surfers Paradise is the kite + wing capital of Belgium. The beach is wide and flat, the wind angle works for most prevailing directions, and the on-site center has the lessons + rentals + events infrastructure that makes the scene cohere. Big wind days draw kites from across Flanders + the Netherlands.`,
+      `The honest fine print: Knokke is upscale — designer boutiques, golf courses, restaurants priced for the holiday crowd. The beach scene is more democratic, but the surrounding town isn't the cheapest base. Surfers Paradise itself runs a "sport hostel" sister property + beach-bar to keep it accessible to actual riders.`
+    ],
+    lagen: [
+      {
+        titel: "Wind & water",
+        bron: "Climatological Belgian-coast + Surfers Paradise own site",
+        inhoud: [
+          { kop: "Best wind", tekst: `W–NW prevailing, side-shore to onshore. Wide angle window — most directions work. Sep–Mar windiest, Jun–Aug lighter and warmer.` },
+          { kop: "Tide", tekst: `Big tidal range. At low tide a huge expanse of flat sand — at high tide the beach narrows.` }
+        ]
+      },
+      {
+        titel: "The scene + center",
+        bron: "surfersparadise.be (own site)",
+        inhoud: [
+          { kop: "Multi-discipline center", tekst: `Surfers Paradise teaches + rents kite, wing, SUP. On-site beach bar, summer camps, events, sport hostel sister property ("Lakeside Paradise") for accommodation.` }
+        ]
+      },
+      {
+        titel: "Getting there",
+        bron: "NMBS/SNCB schedules",
+        inhoud: [
+          { kop: "By train", tekst: `Knokke is a terminus, direct from Brugge (15 min), onward to Brussels (~1h30). Easiest big-city access of the coast for kiters.` }
+        ]
+      }
+    ],
+    condities: {
+      golftype: "Wind-chop",
+      golfhoogte: "0.4–1.2 m typical",
+      wind: "W–NW prevailing, wide window of usable directions",
+      water: "6 °C winter to ~18 °C late summer",
+      drukte: { niveau: "druk", tekst: "Biggest kite + wing scene of the Belgian coast — busy on big-wind days." }
+    },
+    stats: {
+      windDir:    "W–NW prevailing, wide usable window",
+      waveType:   "Wind-chop",
+      bottom:     "Sand, gentle slope",
+      crowd:      "high",
+      localism:  "Welcoming international kite + wing scene, well-organised by the on-site center.",
+      source:     "Wind / wave / temp: climatological Belgian-coast 5-year avg + surfersparadise.be own site for center scene.",
+      periods: [
+        { name: "Peak",     months: [10, 11, 3],     inSeason: true,
+          windKn: [14, 22], waterC: [10, 14], waveM: [0.6, 1.4] },
+        { name: "High",     months: [9, 4],          inSeason: true,
+          windKn: [12, 20], waterC: [12, 16], waveM: [0.5, 1.2] },
+        { name: "Shoulder", months: [5, 8],          inSeason: true,
+          windKn: [10, 18], waterC: [14, 18], waveM: [0.4, 1.0] },
+        { name: "Light",    months: [6, 7],          inSeason: true,
+          windKn: [8, 16],  waterC: [16, 19], waveM: [0.3, 0.8] },
+        { name: "Cold",     months: [12, 1, 2],      inSeason: false,
+          windKn: [14, 24], waterC: [6, 9],   waveM: [0.7, 1.5] }
+      ],
+      monthlyWindProb:
+        [0.55, 0.50, 0.50, 0.40, 0.35, 0.30, 0.30, 0.30, 0.40, 0.50, 0.55, 0.55],
+      monthlyWindKn:
+        [14, 13, 13, 11, 11, 10, 10, 10, 12, 13, 14, 14],
+      monthlyGustKn:
+        [28, 26, 26, 22, 22, 20, 20, 20, 24, 26, 28, 28],
+      monthlyDailyPeakKn:
+        [30, 28, 28, 24, 24, 22, 22, 22, 26, 28, 30, 30],
+      monthlyGustPeakKn:
+        [45, 42, 42, 35, 33, 30, 30, 30, 38, 42, 45, 45],
+      monthlyWaveM:
+        [1.2, 1.0, 1.0, 0.7, 0.6, 0.5, 0.5, 0.5, 0.7, 0.9, 1.1, 1.2],
+      monthlySwellProb:
+        [0.40, 0.35, 0.30, 0.20, 0.15, 0.10, 0.10, 0.10, 0.20, 0.30, 0.40, 0.45],
+      monthlyAirC:
+        [4, 5, 7, 10, 14, 17, 19, 19, 16, 12, 8, 5],
+      monthlyWaterC:
+        [6, 5, 6, 8, 12, 15, 17, 18, 17, 14, 11, 8],
+      chartType:  "wind"
+    },
+    vergelijking: null,
+    ideaalVoor: "Kite + wing riders who want the biggest scene + best-organised center on the coast, learners with the on-site school, day-trippers from Brussels.",
+    nietIdeaalAls: "You're after a quiet beach (try De Haan), a tight wave community (no real wave here), or the cheapest holiday base (Knokke runs upscale)."
+  },
+
+  /* ----------------- BELGIAN CENTERS ----------------- */
+
+  {
+    id: "windsurfing-deinze",
+    type: "center",
+    country: "Belgium",
+    sports: ["wind", "wing", "sup"],
+    name: "Windsurfing Deinze",
+    town: "Deinze",
+    tagline: "Member-run club + school at the Florizoone freshwater put — Lode's home base. Est. 1982. Youth program is the heart of it.",
+    levels: ["beginner", "intermediate", "advanced"],
+    goodMonths: [4,5,6,7,8,9,10],
+    linkedSpotId: "florizoone-deinze",
+    coords: [50.9580, 3.5360],
+    coordsLabel: "Clubhouse at Oudenaardsesteenweg 225, 9800 Deinze (verified via own site + Nominatim).",
+    photo: "",
+    bookingUrl: "https://www.windsurfingdeinze.be/",
+    diensten: {
+      lessen: "Windsurf, wing, SUP, skimboarding. Youth training (Wed afternoons, 8-lesson series, ages 10+), ladies + men's adult training (5-lesson series), private lessons on request. Wingfoil — 'coming soon' per own site as of 2026.",
+      rental: "All-in members can use club boards + sails + wings + SUPs. Basic members can use SUP free + bring own kit. Wetsuits included for lessons.",
+      brands: "Mixed club kit — refreshed regularly. Not a brand-name showcase.",
+      faciliteiten: "Clubhouse, beach bar ('Jardin Des Amis'), terrace, equipment storage, certified surf school + training club. Open weekends in May/Jun/Sep, daily in Jul–Aug, 13:30–19:00.",
+      team: "Volunteer board: Francies Van Daele (chair), Philippe Taccoen (youth + camps), Peter Debie (secretary), Steven Aspeslagh (project mgr), Cedric Cordier (infrastructure). Certified instructors for lessons + camps."
+    },
+    samenvatting: [
+      "Member-driven club founded 1982 by windsurfers who built the clubhouse themselves on a former sand-extraction pit.",
+      "Strong youth program — weekly Wednesday training, summer camps, club competitions.",
+      "Three membership tiers (Beachmember €45, Basic €75, All-in €165) plus non-member access to lessons/camps.",
+      "LDW connection: this is where he learned to windsurf.",
+      "Bron-strength: 🟢 SOLID — windsurfingdeinze.be (own site, multiple pages) + LDW first-hand."
+    ],
+    verhaal: [
+      `Windsurfing Deinze is the kind of club that doesn't exist on most surf-guide sites: a member-run, volunteer-driven local club, on a freshwater put inland from the coast, that's been quietly producing Belgian windsurfers since 1982. The clubhouse was built by the founding members. The bar is called Jardin Des Amis. The "Talk less, surf more" motto is on their website.`,
+      `What it teaches: windsurfing first, then wing, SUP, skimboarding. Big youth focus — weekly Wednesday training for ages 10+, summer camps (including a week at the Veerse Meer in NL), club competitions. Adults are welcome too: ladies' training Sundays, men's training mid-week.`,
+      `LDW learned to windsurf here. The honest fine print: it's a club, not a destination. The water is freshwater, the wind is lighter than the coast, and the active season is May–Sep (weekends in shoulder months, daily in July/August). If you live in Flanders, this is where you grow up before you hit the North Sea.`
+    ],
+    lagen: [
+      {
+        titel: "The put — Florizoone",
+        bron: "windsurfingdeinze.be + langsdeleie.be",
+        inhoud: [
+          { kop: "Water", tekst: `Freshwater, ~600 × 300 m, former E17-highway sand-extraction pit. Flat — no waves, no chop, no salt. Swimming is prohibited.` },
+          { kop: "Wind", tekst: `Lighter and more variable than the coast. Typical 8–14 kn afternoons; occasional 20+ kn on autumn-storm days. Ideal for learning, not for adrenaline.` }
+        ]
+      },
+      {
+        titel: "Club + history",
+        bron: "windsurfingdeinze.be/over-ons (history page)",
+        inhoud: [
+          { kop: "Founded 1982", tekst: `Original members were windsurfers who wanted a water surface away from swimmers at Vosselare put. They found it at Florizoone, an old sand-extraction site near the industrial area used for E17-highway material. They built the clubhouse themselves.` },
+          { kop: "Today", tekst: `Major renovation in 2012 (new bar, terrace, facility updates). Still member-run via a volunteer board. Open year-round to members; non-member access via lessons + camps in the May–Sep season.` }
+        ]
+      }
+    ],
+    vergelijking: null,
+    ideaalVoor: "Beginners + intermediates wanting structured club-style lessons; youth + families looking for a season of training; anyone in or near Flanders who wants a home water before the coast.",
+    nietIdeaalAls: "You want destination-feel, salt water, big-wind days, or top-end retail kit on display.",
+    prices: {
+      tier:                  "budget",
+      groupLessonEUR:        21,
+      groupLessonNote:       "Youth training: 8 lessons for €170 (non-member) — works out to ~€21/lesson. All-in members: free. Basic members: €90 for the series.",
+      privateLessonHourEUR:  null,
+      privateLessonNote:     "Available on request, prices on enquiry.",
+      rentalDayEUR:          null,
+      rentalNote:            "All-in members: club kit included. Basic members: SUP free, bring own windsurf/wing gear.",
+      packageEUR:            220,
+      packageDays:           5,
+      packageNote:           "Local windsurf + SUP camp (5 days, ages 10-16): All-in member €220 / Basic member €240 / Non-member €270. Veerse Meer week (NL, full week, ages 12-18): Members €395 / Non-members €475. Membership tiers: Beachmember €45 / Basic €75 / All-in €165.",
+      unit:                  "per youth-training lesson, ~1h",
+      verified:              "2026-05",
+      source:                "windsurfingdeinze.be/surfcursussen + /surfkampen + /lidmaatschap — full published price + membership structure"
+    }
+  },
+
+  {
+    id: "inside-outside-oostende",
+    type: "center",
+    country: "Belgium",
+    sports: ["wind", "wing", "sup"],
+    name: "Inside Outside",
+    town: "Oostende",
+    tagline: "Two-water club — sheltered Spuikom inland + the open sea at Mariakerke. Windsurf, sail, SUP. One of the few Belgian clubs with both an inland and a seaside venue.",
+    levels: ["beginner", "intermediate", "advanced"],
+    goodMonths: [4,5,6,7,8,9,10],
+    coords: [51.2303, 2.9608],
+    coordsLabel: "\"Inside\" clubhouse at Schietbaanstraat 100, 8400 Oostende (the Spuikom location, verified via own site + Nominatim). \"Outside\" is at Kon. Astridlaan 7, on the seafront.",
+    photo: "",
+    bookingUrl: "https://www.inout-oostende.be/",
+    diensten: {
+      lessen: "Windsurf, sail, SUP. Beginner through advanced. G-sport (inclusive adapted sports), team building, sports days, sports camps.",
+      rental: "Extensive rental inventory — windsurf, SUP, sail. The club emphasises the 'uitgebreid assortiment'.",
+      brands: "Mixed club kit, not brand-focused.",
+      faciliteiten: "Two locations: the sheltered Spuikom salt-water lake (Inside) for sheltered conditions, and the open North Sea beach (Outside) for coastal training. Clubhouse + facilities at both. Kitesurf partnership with Tack Kiteschool ended May 2026 — no kite lessons currently.",
+      team: "Club staff + volunteers, certified instructors. Not LDW first-hand — info from their own site."
+    },
+    samenvatting: [
+      "Rare two-water club: sheltered Spuikom salt-lake AND open North Sea beach.",
+      "Windsurf + sail + SUP lessons, all levels.",
+      "G-sport (adapted watersports) included in the offering.",
+      "Kitesurf partnership ended May 2026 — no kite lessons here right now.",
+      "Bron-strength: 🟡 PARTIAL — inout-oostende.be (own site) only; LDW has not visited."
+    ],
+    verhaal: [
+      `Inside Outside is the rare Belgian club that owns two waters. The "Inside" half sits on the Spuikom — a salt-water lake just inland of the seafront — where windsurf + sailing + SUP lessons happen in sheltered conditions. The "Outside" half is on the open North Sea at Mariakerke beach, for when conditions and skill level allow.`,
+      `That setup is genuinely useful for teaching: beginners start in the flat sheltered Spuikom, then progress to the open sea once they have the basics. Less weather-cancellation, less risk on lesson days.`,
+      `Honest fine print: the kitesurf partnership with Tack Kiteschool ended in May 2026 — Inside Outside doesn't currently teach kite. For kite lessons in Oostende, look at Salty Kitesurfschool down the coast.`
+    ],
+    lagen: [
+      {
+        titel: "Two-water setup",
+        bron: "inout-oostende.be (own site)",
+        inhoud: [
+          { kop: "Inside · Spuikom", tekst: `Salt-water lake inland of the Oostende seafront. Sheltered, predictable — used for beginners + bad-weather days. Schietbaanstraat 100, 8400 Oostende.` },
+          { kop: "Outside · Mariakerke beach", tekst: `Open North Sea. Used for advanced training + summer camps. Kon. Astridlaan 7.` }
+        ]
+      }
+    ],
+    vergelijking: null,
+    ideaalVoor: "Windsurf / sail / SUP learners + improvers wanting the option of sheltered + open water in one club; teams + corporate days; G-sport users.",
+    nietIdeaalAls: "You want kite lessons (try Salty), or you want one focused water (try Windsurfing Deinze for inland, Surfers Paradise for kite coast).",
+    prices: {
+      tier:                  "budget",
+      groupLessonEUR:        null,
+      privateLessonHourEUR:  null,
+      rentalDayEUR:          null,
+      packageEUR:            null,
+      packageDays:           null,
+      unit:                  "by enquiry",
+      verified:              "2026-05",
+      source:                "inout-oostende.be — own site doesn't publish a fixed price list. Contact club directly for lesson, rental, and camp rates."
+    }
+  },
+
+  {
+    id: "salty-kitesurfschool",
+    type: "center",
+    country: "Belgium",
+    sports: ["kite", "wing"],
+    name: "Salty Kitesurfschool",
+    town: "Westende",
+    tagline: "Pro-level kite school on the Middelkerke side of the coast — IKO-structured progression, wheelchair-accessible 'sit kite' program, founded 2012.",
+    levels: ["beginner", "intermediate", "advanced"],
+    goodMonths: [4,5,6,7,8,9,10],
+    coords: [51.1750, 2.7600],
+    coordsLabel: "Koning Ridderdijk 100/90, 8434 Middelkerke — Westende-side beach access (coords approximate; the school operates on the beach itself, address is the legal HQ).",
+    photo: "",
+    bookingUrl: "https://www.saltykitesurfschool.com/",
+    diensten: {
+      lessen: "Kite progression in 5 IKO-structured modules (Powerkite, Bodydrag, Waterstart, Ride, Advanced). Wing foil lessons. Sit kitesurfing (wheelchair-accessible). Jetboarding. Private lessons. Group + corporate events.",
+      rental: "Boards, wetsuits, kayaks, SUPs.",
+      brands: "Not specified on own site as a brand-showcase.",
+      faciliteiten: "Operates April–October. IKO-certified school. 'Dream Dare' inclusive program for youth in wheelchairs. Membership program with insurance + club facilities + discounts.",
+      team: "Founded 2012 by 'gepassioneerde en professionele instructeurs'. Self-describes as 'pro-level lessen' with 'persoonlijke aandacht'."
+    },
+    samenvatting: [
+      "IKO-certified kite school operating Apr–Oct.",
+      "Distinctive: 'Sit kitesurfing' wheelchair-accessible program + 'Dream Dare' youth-in-wheelchairs initiative.",
+      "Founded 2012, full progression (beginner to advanced).",
+      "Also teaches wingfoil + jetboarding.",
+      "Bron-strength: 🟡 PARTIAL — saltykitesurfschool.com (own site); LDW has not visited."
+    ],
+    verhaal: [
+      `Salty is the dedicated kite school on the Belgian coast — IKO-certified, structured progression (Powerkite → Bodydrag → Waterstart → Ride → Advanced), and operating since 2012. They cover kite + wing + jetboarding, all from a base on the Westende / Middelkerke beach.`,
+      `What sets them apart is the inclusion: a "Sit kitesurfing" program adapted for wheelchair users + a "Dream Dare" initiative for youth-in-wheelchairs. That's not common in the Belgian-coast kite scene and worth flagging.`
+    ],
+    lagen: [
+      {
+        titel: "Progression + offering",
+        bron: "saltykitesurfschool.com (own site)",
+        inhoud: [
+          { kop: "Five-module IKO progression", tekst: `Powerkite (kite control on land) → Bodydrag (water basics) → Waterstart (board riding) → Ride (upwind mastery) → Advanced (jumps, freestyle, foil). Typical 3-5 lesson packages.` },
+          { kop: "Wing + extras", tekst: `Wingfoil lessons. Jetboarding. Membership program with insurance + discounts + access to club facilities.` }
+        ]
+      }
+    ],
+    vergelijking: null,
+    ideaalVoor: "Kite + wing learners + improvers wanting structured progression, wheelchair users interested in adapted watersports, anyone valuing pro-level individual attention.",
+    nietIdeaalAls: "You're after windsurf lessons (try Inside Outside or Windsurfing Deinze) or you want a non-coastal water (Westende is open sea).",
+    prices: {
+      tier:                  "comfortable",
+      groupLessonEUR:        null,
+      privateLessonHourEUR:  null,
+      rentalDayEUR:          null,
+      packageEUR:            null,
+      packageDays:           null,
+      unit:                  "by enquiry",
+      verified:              "2026-05",
+      source:                "saltykitesurfschool.com — own site references a separate pricing page; rates not publicly listed in detail. Contact school for current quotes."
+    }
   }
 ];
 
@@ -3009,6 +3937,86 @@ const WAVEBASE_TOWNS = {
     vervoer: "By car: ~2 h 15 min from Heraklion airport (HER) via the north-coast E75, ~1 h 15 min from Sitia airport (JSH, regional). Public bus from Sitia is limited (a few daily). The cluster — Palekastro village → Kouremenos beach → Hiona beach → Vai — is best done by rental car or scooter.",
     afstand: "Far east of Crete, ~165 km / ~2 h 15 min from Heraklion; ~25 km / ~30 min from Sitia. Athens is a 30-min flight from Heraklion (or an overnight ferry to Heraklion or Sitia).",
     bron: "Public travel & transport guides, 2025–26; airport distances cross-checked across multiple sources."
+  },
+
+  "Deinze": {
+    naam: "Deinze",
+    country: "Belgium",
+    intro: "Not the coast — an inland town in East Flanders, ~20 km south of Ghent. Home to Florizoone, an old sand-extraction pit turned freshwater surfput, and to Windsurfing Deinze — the club Lode learned at. Flat water, light to moderate wind, no salt, no waves — the place where Belgian windsurfers grow up before they hit the North Sea.",
+    teDoen: "Around the put: cycling along the Leie towpath, the Mudel art museum in town, the Brielmeersen recreation park (~3 km), Ghent's old centre a 25-min train ride away. The clubhouse has a beach bar (\"Jardin Des Amis\") open weekends.",
+    vervoer: "Train: Deinze station is on the line Ghent–Kortrijk, ~12 min from Ghent–Sint-Pieters, then ~15 min cycle or bus to Oudenaardsesteenweg. By car: 10 min from the E17 (exit Deinze), 25 min from Ghent.",
+    afstand: "Inland — ~70 km from the Belgian coast (Oostende ~1h drive), ~25 km from Ghent. Brussels Airport ~80 km / 1h.",
+    bron: "windsurfingdeinze.be (own site), 2026; LDW first-hand: learned to windsurf here."
+  },
+
+  "De Panne": {
+    naam: "De Panne",
+    country: "Belgium",
+    intro: "Westernmost beach town on the Belgian coast, against the French border. A wide flat sandy beach (one of the widest of the coast at low tide), big sky, steady west winds. The shallow shelf keeps waves small but makes it forgiving for kite + wing beginners.",
+    teDoen: "Westhoek nature reserve (Belgium's largest dune area, walk-in from town), Plopsaland theme park (~2 km, family draw), French border just along the beach — walk to Bray-Dunes for a coffee in France. Coastal tram (Kusttram) along the seafront.",
+    vervoer: "Train to De Panne station (terminus of the Brussels–De Panne line, ~2h from Brussels), then 5-min tram or 20-min walk to the beach. By car: ~1h45 from Brussels, ~1h20 from Antwerp.",
+    afstand: "Far west, ~70 km from Brugge, ~125 km from Brussels. Lille (France) is ~50 km / 45 min by car.",
+    bron: "Public coastal-tram guides + Visit Flanders 2025–26."
+  },
+
+  "Nieuwpoort": {
+    naam: "Nieuwpoort",
+    country: "Belgium",
+    intro: "Where the river Yser meets the sea. Two towns side-by-side: the harbour town inland (Nieuwpoort-Stad) and the beach resort (Nieuwpoort-Bad). Has the largest marina of Northern Europe — sailing roots run deep, and the wind funnels through the harbour mouth. Beach side has a wide promenade.",
+    teDoen: "King Albert I monument and viewing tower (the river-lock complex from WWI), the historic harbour, fish auction in the early morning, cycle the Yser dyke inland. Coastal tram stops at the seafront.",
+    vervoer: "No direct station — De Panne (15 min by tram) or Oostende (20 min) are the rail hubs. Kusttram along the seafront. By car: ~1h40 from Brussels.",
+    afstand: "Mid-west coast, between De Panne and Oostende. ~15 km to De Panne, ~25 km to Oostende.",
+    bron: "Visit Flanders + harbour authority sources, 2025–26."
+  },
+
+  "Westende": {
+    naam: "Westende",
+    country: "Belgium",
+    intro: "A quieter family beach in Middelkerke municipality, between Nieuwpoort and Oostende. Wide flat beach, lower density of high-rises than the bigger resorts. Home to Surfclub De Kwinte — windsurf, kite, land-yacht.",
+    teDoen: "Atlantikwall museum + bunkers (~3 km in Raversijde), the Sint-Laureinsduinen reserve, cycle along the seawall. Coastal tram stops near the beach.",
+    vervoer: "Kusttram from Oostende (~15 min) is the main link. By car: ~1h30 from Brussels via the E40.",
+    afstand: "Mid-coast, ~6 km west of Oostende, ~10 km east of Nieuwpoort.",
+    bron: "Visit Flanders + surfclubdkwinte.be 2026."
+  },
+
+  "Oostende": {
+    naam: "Oostende",
+    country: "Belgium",
+    intro: "\"Queen of the Belgian coast\" — the biggest, busiest, most urban beach town. A working port, an art-heavy city (Ensor lived here), and a multi-discipline watersport scene split between the Spuikom (sheltered inland salt lake — windsurf + sailing) and the actual sea (kite, wing, occasional wave at Mariakerke).",
+    teDoen: "Mu.ZEE art museum, the Ensor house, the historic harbour and fish market \"De Vistrap\", the Atlantikwall museum at Raversijde, North Sea Jazz Festival (summer). Direct train link to Brussels in 1h10.",
+    vervoer: "Train: Oostende is a terminus, direct to Brussels (1h10), Antwerp (1h30), Ghent (45 min), Bruges (15 min). Tram + bus network within the city. By car: ~1h15 from Brussels via E40.",
+    afstand: "Roughly the centre of the Belgian coast. ~25 km to De Panne (west), ~30 km to Knokke (east), ~25 km to Brugge.",
+    bron: "Visit Oostende + national rail schedules, 2025–26."
+  },
+
+  "De Haan": {
+    naam: "De Haan",
+    country: "Belgium",
+    intro: "The Belgian coast's prettiest village — protected dune belt, Belle-Époque villas, no high-rises by local rule. Mid-coast between Oostende and Blankenberge. The beach has the cleaner sandbanks for occasional wave-surf days; otherwise wind/kite/wing on light-to-medium days.",
+    teDoen: "Cycle the dune paths (the Concession quarter is a heritage protected zone), the De Haan Tram-station building (1902, Art Nouveau), beach walks at low tide for kilometers. The town is small — half a day covers it.",
+    vervoer: "Kusttram from Oostende (~15 min). No own train station (nearest Oostende). By car: ~1h20 from Brussels.",
+    afstand: "Mid-coast, ~10 km east of Oostende, ~10 km west of Blankenberge.",
+    bron: "Visit Flanders + De Haan tourist office, 2025–26."
+  },
+
+  "Zeebrugge": {
+    naam: "Zeebrugge",
+    country: "Belgium",
+    intro: "Sea-side district of Brugge — a working port (one of Europe's biggest car-shipping hubs) with a public beach east of the harbour. The two long piers protect the beach from the worst chop, making it a favourite for kite + wing on west winds. Less pretty than its neighbours, more industrial.",
+    teDoen: "Seafront World War II remains, the harbour tour by boat, day-trip to Brugge old town (~12 km by train or car). Less aesthetic-tourism, more working-port character.",
+    vervoer: "Train: Zeebrugge-Strand station, direct from Brugge (15 min). Kusttram links to the rest of the coast.",
+    afstand: "East coast, ~12 km from Brugge, ~8 km west of Knokke.",
+    bron: "Visit Flanders + Port of Antwerp-Bruges info, 2025–26."
+  },
+
+  "Knokke-Heist": {
+    naam: "Knokke-Heist",
+    country: "Belgium",
+    intro: "Easternmost beach town on the Belgian coast, against the Dutch border. The high-end resort: art galleries, designer boutiques, golf courses, gastronomic restaurants. Surfers Paradise beach is the kite/wing capital of Belgium — wide flat sand, good wind angles, established multi-discipline center.",
+    teDoen: "Zwin nature reserve (a major bird wetland on the Dutch border), the casino, the seafront art trail (sculptures along the dyke), Het Zoute district (the upscale residential area).",
+    vervoer: "Train: Knokke is a terminus, direct from Brugge (15 min) and onward to Brussels (~1h30). Kusttram all the way along the coast.",
+    afstand: "Easternmost coast, against NL border. ~18 km from Brugge, ~140 km from Brussels, ~25 km from Vlissingen (NL).",
+    bron: "Visit Flanders + Surfers Paradise center site, 2025–26."
   }
 };
 
@@ -3020,6 +4028,7 @@ const WAVEBASE_DESTINATIONS = [
     continent: "Europe",
     countries: [
       { name: "Greece", flag: "🇬🇷", status: "live" },
+      { name: "Belgium", flag: "🇧🇪", status: "live" },
       { name: "Portugal", flag: "🇵🇹", status: "soon" },
       { name: "Spain", flag: "🇪🇸", status: "soon" },
       { name: "France", flag: "🇫🇷", status: "soon" },
