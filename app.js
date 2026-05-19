@@ -52,29 +52,44 @@ function fmtKm(km) {
   return `${Math.round(km)} km`;
 }
 /* Build a "Open in Google Maps" URL for a WaveBase entry.
-   Prefers a name-based search so Google resolves to the actual business
-   listing (reviews, photos, opening hours, Street View). Falls back to
-   a coord pin only when name+town is missing — which only happens for
-   incomplete data. */
+
+   Strategy (most reliable first):
+   1. Google Place ID → direct place page, deterministic.
+   2. Plain ?q=NAME+TOWN+COUNTRY → Google's auto-redirector finds
+      the best matching place and redirects to /place/... directly.
+      Verified: a /maps?q=Banana+Point+Tamraght+Morocco URL resolves
+      to the actual Banana Point business page (4.5 / 59 reviews)
+      without showing a search list.
+
+   The earlier /maps/search/?api=1&query= path was WORSE — it forces
+   a search-results UI even when there's a single obvious match.
+   The /place/<name>/@<lat>,<lng> path was also worse — when the
+   name doesn't match Google's canonical name exactly, Google
+   silently strips it and just shows the coords.
+
+   3. Coord pin → last resort when no name is available. */
 function googleMapsHref(entry) {
   // Backward-compat: callers that still pass a [lat, lng] array.
   if (Array.isArray(entry)) {
     return `https://www.google.com/maps?q=${entry[0]},${entry[1]}&z=15`;
   }
   if (!entry) return "https://www.google.com/maps";
-  // If we ever store a Google Place ID per entry, prefer that for
-  // direct place resolution (most precise).
+  // (1) Deterministic — Place ID
   if (entry.googlePlaceId) {
     return `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(entry.name || "")}&query_place_id=${encodeURIComponent(entry.googlePlaceId)}`;
   }
-  // Default: name + town + country as a search query. Google's place
-  // resolver maps this to the official business page for our centers,
-  // and to the closest named feature for beaches/spots.
+  // (2) Plain ?q=NAME+TOWN+COUNTRY — Google auto-redirects to the
+  //     matching place page. We use entryCountry() not entry.country
+  //     so the older Morocco entries (which predate the country
+  //     field and fall back to "Morocco") also get the country hint.
   if (entry.name) {
-    const q = encodeURIComponent(`${entry.name} ${entry.town || ""} ${entry.country || ""}`.trim());
-    return `https://www.google.com/maps/search/?api=1&query=${q}`;
+    const parts = [entry.name];
+    if (entry.town) parts.push(entry.town);
+    const country = (typeof entryCountry === "function") ? entryCountry(entry) : entry.country;
+    if (country) parts.push(country);
+    return `https://www.google.com/maps?q=${encodeURIComponent(parts.join(" "))}`;
   }
-  // Last resort: coord pin (no business listing).
+  // (3) Coord pin only
   if (Array.isArray(entry.coords)) {
     return `https://www.google.com/maps?q=${entry.coords[0]},${entry.coords[1]}&z=15`;
   }
