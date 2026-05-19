@@ -3125,7 +3125,7 @@ const WAVEBASE_DATA = [
       "Wide shallow beach, big tidal range — at low tide one of the widest sandflats of the coast.",
       "Best for kite + wing on W–NW winds. Plenty of space to launch + crash.",
       "Family beach feel, lower density of high-rises than the bigger resorts.",
-      "Bron-strength: 🟡 PARTIAL — climatological wind data + general coastal knowledge."
+      "Bron-strength: 🟡 PARTIAL — climatological wind/tidal data + general coastal knowledge + Visit De Panne tourism material. NO user review trail (it's a public beach, no Google business listing). Conditions described are area-pattern, not first-hand sessions."
     ],
     verhaal: [
       `De Panne is where the Belgian coast ends (or begins, depending on direction). Against the French border, with a wide flat sandy beach — kilometers across at low tide — and a shallow shelf that softens the swell. That makes it forgiving for kite + wing beginners: plenty of room to body-drag, water-start, lose control and recover, all without dodging crowds.`,
@@ -3216,7 +3216,7 @@ const WAVEBASE_DATA = [
       "Harbour mouth + piers create funnelled wind and the only place on the Belgian coast with a real (if small + rare) breaking wave.",
       "Sailing roots run deep — the largest marina in northern Europe is here.",
       "Wind windward of the piers is clean; the lee zone is sheltered for beginners.",
-      "Bron-strength: 🟡 PARTIAL — climatology + multi-source coastal-Belgium kite/wind guides."
+      "Bron-strength: 🟡 PARTIAL — climatology + multi-source coastal-Belgium kite/wind guides. NO user review trail (public beach, no business listing). Conditions are area-pattern, not first-hand."
     ],
     verhaal: [
       `Nieuwpoort is the multi-discipline node on the Belgian coast. The Yser river opens here, the largest marina of northern Europe sits in the harbour, and the two piers (East and West) shape the wind in distinctive ways. Side of the piers facing the prevailing W–NW wind: clean lines, used by experienced kite + wind sailors. Lee side: sheltered, good for beginners.`,
@@ -3307,7 +3307,7 @@ const WAVEBASE_DATA = [
       "Family-beach feel — lower density of high-rises than Oostende.",
       "Surfclub De Kwinte teaches windsurf, kite, SUP and land-yacht here.",
       "Steady W–NW wind, wide sandy beach, manageable for learners.",
-      "Bron-strength: 🟡 PARTIAL — climatology + local club presence."
+      "Bron-strength: 🟡 PARTIAL — climatology + presence of Surfclub WN + Salty Kitesurfschool on the dijk. NO user review trail for the beach itself. Conditions are area-pattern, not first-hand."
     ],
     verhaal: [
       `Westende is the lower-key middle of the coast. Between the bigger resorts (Oostende, Nieuwpoort), but quieter. A wide flat beach, family-friendly, with Surfclub De Kwinte teaching windsurf + kite + SUP + the more obscure land-yachting on the harder sand at low tide.`,
@@ -3392,7 +3392,7 @@ const WAVEBASE_DATA = [
       "Two waters: open sea at Mariakerke (kite, wing, occasional wave) + the Spuikom (sheltered salt-water lake, windsurf + sailing).",
       "Biggest watersport scene of the Belgian coast — multiple clubs, biggest urban beach.",
       "Direct train to Brussels (1h10) makes it the easiest coast day-trip.",
-      "Bron-strength: 🟡 PARTIAL — climatology + Inside Outside club site + general guides."
+      "Bron-strength: 🟡 PARTIAL — climatology + Inside Outside club site + general guides. NO user review trail (public beach + Spuikom). Conditions are area-pattern, not first-hand."
     ],
     verhaal: [
       `Oostende is the urban + industrial heart of the Belgian coast. A working port, a major train terminus, and a multi-discipline watersport scene that's split between two waters: the open North Sea at Mariakerke beach (kite, wing, occasional wave-surf on Mariakerke's cleaner banks), and the Spuikom — a sheltered salt-water lake inland of the seafront, where the Inside Outside club teaches windsurf + sailing + SUP without the chop of the sea.`,
@@ -3491,7 +3491,7 @@ const WAVEBASE_DATA = [
       "Cleaner sandbanks than the bigger resorts — small but rideable wave windows on NW swell.",
       "Belle-Époque village protected by local rule: no high-rises, dune belt intact.",
       "Quieter scene — fewer kite/wind crowds, more wave-surfers (small but real community).",
-      "Bron-strength: 🟡 PARTIAL — climatology + multi-source Belgian-coast surf guides."
+      "Bron-strength: 🟡 PARTIAL — climatology + multi-source Belgian-coast surf guides. NO user review trail (public beach). Wave claims are area-pattern from coastal-Belgium reports, not first-hand sessions."
     ],
     verhaal: [
       `De Haan is the Belgian coast's anomaly — protected by old local rules, no high-rises broke the dune belt, and the village looks like a 1900s seaside resort still. The beach has cleaner sandbanks than its bigger neighbours, and that's the wave-surf draw: on the right NW swell + low-tide combination, small but actually rideable waves break here.`,
@@ -3576,7 +3576,7 @@ const WAVEBASE_DATA = [
       "Long pier on the west side shelters the beach from worst westerly chop.",
       "Less pretty than its neighbours, more industrial — but the water is cleaner-shaped for kite / wing.",
       "Direct train from Brugge (15 min) — easy day-trip from the city.",
-      "Bron-strength: 🟡 PARTIAL — climatology + multi-source kite-Belgium guides."
+      "Bron-strength: 🟡 PARTIAL — climatology + multi-source kite-Belgium guides. NO user review trail (industrial-shipping beach, no business listing). Conditions are area-pattern, not first-hand."
     ],
     verhaal: [
       `Zeebrugge is the working-port side of the coast. One of Europe's biggest car-shipping hubs sits just west of the beach, the two harbour piers reach out a long way, and the beach itself runs east of them. That layout is the kite + wing draw: the piers block the worst of the westerly chop, so the water shapes cleaner than at the open-coast spots.`,
@@ -3660,7 +3660,7 @@ const WAVEBASE_DATA = [
       "Belgium's premier kite + wing destination. Wide flat sand, plenty of room.",
       "Surfers Paradise center on-site — multi-discipline, summer + winter scene, events + competitions.",
       "Easy from Brussels (1h30 train) — the most accessible high-end kite scene in the country.",
-      "Bron-strength: 🟡 PARTIAL — surfersparadise.be (own site) + multi-source kite-Belgium guides."
+      "Bron-strength: 🟡 PARTIAL — surfersparadise.be (own site) + multi-source kite-Belgium guides + Google reviews for the on-beach Surfers Paradise venue (covered separately in the center entry). Spot itself has no user review trail; conditions are area-pattern."
     ],
     verhaal: [
       `Surfers Paradise is the kite + wing capital of Belgium. The beach is wide and flat, the wind angle works for most prevailing directions, and the on-site center has the lessons + rentals + events infrastructure that makes the scene cohere. Big wind days draw kites from across Flanders + the Netherlands.`,
@@ -3770,7 +3770,7 @@ const WAVEBASE_DATA = [
       "Strong youth program — weekly Wednesday training, summer camps, club competitions.",
       "Three membership tiers (Beachmember €45, Basic €75, All-in €165) plus non-member access to lessons/camps.",
       "LDW connection: this is where he learned to windsurf.",
-      "Bron-strength: 🟢 SOLID — windsurfingdeinze.be (own site, multiple pages) + LDW first-hand."
+      "Bron-strength: 🟢 SOLID — windsurfingdeinze.be (own site, multiple pages) + LDW first-hand club member experience. Google reviews exist (3 substantive, ≤6 years) but are dominated by terrace/bar/uitwaaien — none discuss the lessons or windsurf school, so they don't add to what LDW already knows from the inside."
     ],
     verhaal: [
       `Windsurfing Deinze is the kind of club that doesn't exist on most surf-guide sites: a member-run, volunteer-driven local club, on a freshwater put inland from the coast, that's been quietly producing Belgian windsurfers since 1982. The clubhouse was built by the founding members. The bar is called Jardin Des Amis. The "Talk less, surf more" motto is on their website.`,
@@ -3841,7 +3841,7 @@ const WAVEBASE_DATA = [
       "Windsurf + sail + SUP lessons, all levels.",
       "G-sport (adapted watersports) included in the offering.",
       "Kitesurf partnership ended May 2026 — no kite lessons here right now.",
-      "Bron-strength: 🟡 PARTIAL — inout-oostende.be (own site) only; LDW has not visited."
+      "Bron-strength: 🔴 LIMITED — inout-oostende.be (own site) only. No Google business listing found at the Spuikom or Mariakerke locations (May 2026 search), so no review trail. LDW has not visited. Treat lesson/rental details as the club's own claims, not user-verified."
     ],
     verhaal: [
       `Inside Outside is the rare Belgian club that owns two waters. The "Inside" half sits on the Spuikom — a salt-water lake just inland of the seafront — where windsurf + sailing + SUP lessons happen in sheltered conditions. The "Outside" half is on the open North Sea at Mariakerke beach, for when conditions and skill level allow.`,
@@ -3901,12 +3901,13 @@ const WAVEBASE_DATA = [
       "IKO-certified kite school inside (StevoKitesurf), small-group focus.",
       "Run by Steve Verelst, 3× Belgian Freestyle Kitesurf Champion.",
       "Lessons in NL/EN/FR.",
-      "Bron-strength: 🟢 SOLID — sideshoresurfers.be (own site) + Visit De Panne tourism."
+      "Recent reviews: rolstoeltoegankelijke locatie + friendly bar/restaurant team praised; members get the warm welcome, non-members historically less so (older complaint). One recent 1⭐ flagged a phone-confirmed rental that turned into a 'no' on arrival — worth confirming in writing.",
+      "Bron-strength: 🟢 SOLID — sideshoresurfers.be (own site) + Visit De Panne tourism + Google reviews (10 substantive reviews ≤7 years sampled May 2026, of which 3 are ≤1 year)."
     ],
     verhaal: [
       `Side Shore Surfers is the De Panne anchor — a member-driven club embedded in the dunes at Zeedijk 109, with a beach restaurant (Leopold 1) and a multi-discipline offering. Windsurf, kite, wave surf, wing, SUP — all under one roof.`,
       `Inside the club operates StevoKitesurf — the kite school of Steve Verelst, 3× Belgian Freestyle Kitesurf Champion. They publicly position themselves as the only IKO center in Belgium that explicitly avoids large groups: max 2 students per instructor, so each student gets practical water time rather than queueing.`,
-      `Honest fine print: it's a member-driven club. Walk-in lessons exist, but the social heart is the club community — bar, terrace, restaurant, webcam, weekend events.`
+      `Honest fine print from recent reviews: it's a member-driven club. The bar/restaurant gets warm praise — "fantastische sportclub", "rolstoeltoegankelijke plek met zeer vriendelijke barman". But historically (older reviews) non-members report feeling less warmly received than members. And one recent 1⭐ user reports a rental that was confirmed by phone before driving across, then refused on arrival — book and confirm in writing if you're travelling for it.`
     ],
     lagen: [
       {
@@ -3915,6 +3916,15 @@ const WAVEBASE_DATA = [
         inhoud: [
           { kop: "Sports", tekst: `Windsurf, kitesurf, wave surf, wing foil, SUP. Lessons available in Dutch / English / French.` },
           { kop: "Kite school inside", tekst: `StevoKitesurf — IKO-certified, run by Steve Verelst. Max 2 students per instructor — explicitly small-group.` }
+        ]
+      },
+      {
+        titel: "What recent users say (Google reviews, mix 2018–2025)",
+        bron: "Google Maps reviews sampled May 2026 (10 substantive reviews; 3 from the last 12 months)",
+        inhoud: [
+          { kop: "Members + accessibility praise", tekst: `1 year ago, 5⭐: "fantastische sportclub voor watersportliefhebbers, geweldige community, toplocatie". 8 months ago, 5⭐: "rolstoeltoegankelijke plek, zeer vriendelijke barman". The club community + the inclusive vibe come through repeatedly.` },
+          { kop: "🚩 One recent 1⭐: phone-confirmed rental refused on arrival", tekst: `9 months ago, 1⭐: user reports calling ahead to ask about rental, getting a "yes", driving over, then being told "no". If you're travelling for rental or a session, confirm in writing.` },
+          { kop: "Older friction — non-members feeling unwelcome", tekst: `7 years ago, 3⭐: "Goed voor te surfen/suppen maar niet-leden worden niet zo vriendelijk onthaald". This is an old datapoint and may have shifted — but worth knowing if you're a walk-in.` }
         ]
       }
     ],
@@ -3961,11 +3971,13 @@ const WAVEBASE_DATA = [
       "Most disciplines on offer: windsurf, kite (from 2026), SUP, wave surf, land yacht, sea kayak.",
       "Annual membership: €115 adult / €70 youth / €200 family.",
       "Family-style, non-profit, lifeguard on-site at De Kwinte.",
-      "Bron-strength: 🟢 SOLID — surfclubwn.be (own site) for full price list + Visit Middelkerke + Visit Nieuwpoort."
+      "Recent reviews: praise for the surf instructor (\"goede uitleg, aardige instructeur\") + idyllische locatie + sea view. Bar/restaurant reviews mixed — view + food praised, service sometimes slow, one recent 1⭐ over staff asking guests to move tables.",
+      "Bron-strength: 🟢 SOLID — surfclubwn.be (own site) for full price list + Visit Middelkerke + Visit Nieuwpoort + Google reviews (7 substantive reviews ≤9 months sampled May 2026)."
     ],
     verhaal: [
       `Surfclub Westende | Nieuwpoort (WN) is the rare two-water club: De Kwinte beach in Westende (Sint-Laureinsstrand, open sea) AND the Nieuwpoort spaarbekken (an inland freshwater reservoir). When the sea is too rough or cold, the reservoir is the alternative — flat, predictable, year-round usable for members.`,
-      `Operating model: non-profit, volunteer-run, family atmosphere. The wide offering (windsurf, kite, SUP, wave surf, land yacht, sea kayak) makes it a community club rather than a single-sport school. Kiteschool launched in 2026 with structured lessons.`
+      `Operating model: non-profit, volunteer-run, family atmosphere. The wide offering (windsurf, kite, SUP, wave surf, land yacht, sea kayak) makes it a community club rather than a single-sport school. Kiteschool launched in 2026 with structured lessons.`,
+      `What recent users actually say (Google, last 9 months): the lessons themselves get a thumbs-up — one reviewer specifically calls out "het surfen was leuk, goede uitleg gekregen en een aardige instructeur". The location is repeatedly praised — "hele mooie idyllische plaats, je waant je niet aan de Belgische kust". The bar/restaurant draws most of the reviews though — view + food generally praised, but service sometimes slow, and one 2-month-old 1⭐ flagged staff chatting at the bar while customers waited 15 min + later being asked to move tables. Treat the bar separately from the school in your decision.`
     ],
     lagen: [
       {
@@ -3974,6 +3986,15 @@ const WAVEBASE_DATA = [
         inhoud: [
           { kop: "De Kwinte — Westende", tekst: `Sint-Laureinsstrand, Koning Ridderdijk 100, 8434 Westende. Open sea, lifeguard on duty, in-house first-aid post, lockers + showers + surf bar.` },
           { kop: "Spaarbekken — Nieuwpoort", tekst: `Nieuwendammeweg 19, 8620 Nieuwpoort. Inland freshwater reservoir — sheltered, flat-water alternative when the sea is rough.` }
+        ]
+      },
+      {
+        titel: "What recent users say (Google reviews, ≤9 months)",
+        bron: "Google Maps reviews sampled May 2026 (7 substantive, all from the last 9 months)",
+        inhoud: [
+          { kop: "Lessons (when reviewers do mention them)", tekst: `9 months ago, 3⭐: "Het surfen was leuk, goede uitleg gekregen en een aardige instructeur." Only one direct lesson reference in the recent sample — most reviews are about the bar.` },
+          { kop: "Location — repeatedly praised", tekst: `"Hele mooie idyllische plaats", "fantastic location with beautiful sea views", "zalige locatie, super gezellige sfeer". Across multiple reviewers, the spot itself gets unanimous praise.` },
+          { kop: "Bar/restaurant — mixed", tekst: `Food and drinks generally well rated (burgers, nachos, smoothies, taartjes). Service is the weak spot: "service is sometimes slow", and one recent 1⭐ (2 months ago) flagged staff chatting at the bar while customers waited 15 min, then being asked twice to move tables. The 3⭐ lesson review also mentioned restaurant staff "vergeten" bestek + serveerster eerst zelf eten.` }
         ]
       }
     ],
@@ -4022,11 +4043,14 @@ const WAVEBASE_DATA = [
       "Distinctive: 'Sit kitesurfing' wheelchair-accessible program + 'Dream Dare' youth-in-wheelchairs initiative.",
       "Founded 2012, full progression (beginner to advanced).",
       "Also teaches wingfoil + jetboarding.",
-      "Bron-strength: 🟡 PARTIAL — saltykitesurfschool.com (own site); LDW has not visited."
+      "🚩 Honest fine print: multiple recent Google reviews (2024–2025) report lessons booked + paid upfront and then cancelled, with users saying they struggled to rebook or get refunds. Read the reviews and get cancellation/refund terms in writing before booking.",
+      "Bron-strength: 🟢 SOLID — saltykitesurfschool.com (own site) + Google reviews (7 substantive reviews ≤24 months sampled May 2026). LDW has not visited."
     ],
     verhaal: [
       `Salty is the dedicated kite school on the Belgian coast — IKO-certified, structured progression (Powerkite → Bodydrag → Waterstart → Ride → Advanced), and operating since 2012. They cover kite + wing + jetboarding, all from a base on the Westende / Middelkerke beach.`,
-      `What sets them apart is the inclusion: a "Sit kitesurfing" program adapted for wheelchair users + a "Dream Dare" initiative for youth-in-wheelchairs. That's not common in the Belgian-coast kite scene and worth flagging.`
+      `What sets them apart is the inclusion: a "Sit kitesurfing" program adapted for wheelchair users + a "Dream Dare" initiative for youth-in-wheelchairs. That's not common in the Belgian-coast kite scene and worth flagging.`,
+      `The honest catch — and the reason WaveBase exists: 4 of the 7 substantive Google reviews from the last 12 months are 1⭐, all on the same theme. Users report paying upfront, then lessons being cancelled, then being unable to rebook within the booking window or get refunded. One user reports "5 keer geboekt op 2 jaar tijd" with cancellations each time. Another reports a 3-day IKO course paid and never run. We did not independently verify these accounts, but the pattern across multiple reviewers is consistent.`,
+      `Counterweight: one recent 5⭐ review specifically praises the instructor as "super enthousiast" giving a "confidence boost". So the lessons themselves — when they happen — get praise. The complaint is about reliability and refunds.`
     ],
     lagen: [
       {
@@ -4036,11 +4060,20 @@ const WAVEBASE_DATA = [
           { kop: "Five-module IKO progression", tekst: `Powerkite (kite control on land) → Bodydrag (water basics) → Waterstart (board riding) → Ride (upwind mastery) → Advanced (jumps, freestyle, foil). Typical 3-5 lesson packages.` },
           { kop: "Wing + extras", tekst: `Wingfoil lessons. Jetboarding. Membership program with insurance + discounts + access to club facilities.` }
         ]
+      },
+      {
+        titel: "What recent users say (Google reviews, 2024–2025)",
+        bron: "Google Maps reviews sampled May 2026 (7 substantive reviews from the last ~24 months)",
+        inhoud: [
+          { kop: "🚩 Repeating theme — lesson cancellations + refund disputes", tekst: `4 of 7 recent substantive reviews are 1⭐ on this exact pattern: lesson booked + paid upfront → cancelled by Salty → difficulty rebooking → no refund. One reviewer mentions "5 cancellations in 2 years". Another reports a 3-day IKO course never delivered.` },
+          { kop: "Positive counterpoint — when lessons happen", tekst: `One recent 5⭐: "Wat een ervaring! Een super enthousiaste lerares die zorgt voor een confidence boost". The instructor-quality complaint is not the issue; reliability and refunds are.` },
+          { kop: "Our take", tekst: `We did not independently verify any individual account, but the consistency across multiple reviewers is the kind of signal WaveBase exists to surface. If you book: get cancellation + refund policy in writing first, pay deposit only if possible, and read the latest Google reviews before committing.` }
+        ]
       }
     ],
     vergelijking: null,
     ideaalVoor: "Kite + wing learners + improvers wanting structured progression, wheelchair users interested in adapted watersports, anyone valuing pro-level individual attention.",
-    nietIdeaalAls: "You're after windsurf lessons (try Inside Outside or Windsurfing Deinze) or you want a non-coastal water (Westende is open sea).",
+    nietIdeaalAls: "You're after windsurf lessons (try Inside Outside or Windsurfing Deinze), you want a non-coastal water (Westende is open sea), or — given recent review patterns — you can't afford to lose the upfront payment if a lesson is cancelled and a refund proves difficult.",
     prices: {
       tier:                  "comfortable",
       groupLessonEUR:        null,
@@ -4080,7 +4113,7 @@ const WAVEBASE_DATA = [
       "De Haan's watersports club — broadest discipline offering on the central coast.",
       "Includes catamaran sailing + land yacht alongside wind / kite / wave.",
       "Beach pavilion at the east end of the De Haan seafront, bar + terrace.",
-      "Bron-strength: 🟢 SOLID — windhaan.be (own site) + De Haan tourism."
+      "Bron-strength: 🟡 PARTIAL — windhaan.be (own site) + De Haan tourism. Google reviews (7 substantive, ≤2 years) are 100% about the beach bar — drink prices, terrace vibe, view, friendly staff — none cover the watersport school. So lesson + rental info is from the own site only; no review trail for the teaching side. LDW has not visited."
     ],
     verhaal: [
       `Windhaan is the local watersports club of De Haan — broader than a kite school, narrower than a tourist-resort facility. They cover the standard wind / kite / wave surf, plus catamaran sailing AND land yacht (a Belgian-coast specialty on the wide low-tide sand).`,
@@ -4139,7 +4172,7 @@ const WAVEBASE_DATA = [
       "Operates mid-Apr to end-Sep (water-temp ≥ 12 °C minimum).",
       "Max 2 students per instructor — small-group standard.",
       "Online booking flexibility — evenings + 7 days/week.",
-      "Bron-strength: 🟢 SOLID — clubnorthzeebrugge.be (own site, full price list) + hightech.be partner page."
+      "Bron-strength: 🟡 PARTIAL — clubnorthzeebrugge.be (own site, full price list) + hightech.be partner page. Google reviews (7 substantive, ≤2 years) cover the beach café side only — coffee, sunrise buffet, dog-friendly, view — none discuss the kite/wing school. Lesson info is from the own site only. One older 3⭐ flagged €12 for a non-alcoholic drink as expensive — coastal pricing. LDW has not visited."
     ],
     verhaal: [
       `Club North by Icarus is the focused kite + wing school of Zeebrugge — Icarus Surfclub's kite-teaching arm. The pier-protected water of Zeebrugge (cleaner than the open coast on west winds) plus a small-group teaching standard (max 2 students per instructor) gives this place a steady reputation among Belgian kite learners.`,
@@ -4200,7 +4233,7 @@ const WAVEBASE_DATA = [
       "Naish exclusive partner; IKO-certified; brand-new kit refreshed annually.",
       "PKRA world championship host in 2002 + 2004.",
       "Open Apr–Oct, daily. Located in the eastern dunes of Knokke-Heist toward the Zwin nature reserve.",
-      "Bron-strength: 🟢 SOLID — surfersparadise.be (own site) + IKO international school registry + multi-source Belgian kite guides."
+      "Bron-strength: 🟢 SOLID — surfersparadise.be (own site) + IKO international school registry + multi-source Belgian kite guides + Google reviews (7 substantive, ≤2 years). One recent 4⭐ describes the summer camp directly: friendly staff, comfortable enough beds, pillow + mattress + sheets provided, bring own sleeping bag. Bar reviews otherwise dominant — tropical vibes, surfing-watching-with-a-beer angle. One older 2⭐ flagged feeling the club is mainly geared to families with kids + members."
     ],
     verhaal: [
       `Surfers Paradise is the historical anchor of Belgian kitesurfing. The center has been operating since 1988 — Belgium's longest-running watersports business of its kind. In 2000 they launched their kiteschool; in 2002 + 2004 they hosted the PKRA world championships (kite's professional circuit at the time).`,
