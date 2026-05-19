@@ -2439,20 +2439,58 @@ function initIndex() {
     wireSportPills(wrap);
   }
 
-  // Sticky searcher: when the user scrolls past the .searcher-wrap section,
-  // pin it to the top of the viewport in a compact horizontal mode. Uses
-  // an IntersectionObserver sentinel placed just above the section so we
-  // can flip a body class without scroll math. Header stays above (z>),
-  // pinned searcher stays right under it.
+  // Floating filter bar: when the user scrolls past the .searcher-wrap
+  // section, lift it out of the flow and pin a compact card to the top
+  // of the viewport. Uses a scroll listener with hysteresis (5 px gap
+  // between pin and release thresholds) so a tiny scroll wiggle doesn't
+  // re-trigger the toggle, plus a placeholder spacer to keep the layout
+  // height stable when we go fixed.
+  //
+  // The natural top of the section can SHIFT when runSearch toggles the
+  // is-home body class (hero/plan-trip/ticker show/hide). We therefore
+  // re-measure on every check rather than caching once — and measure
+  // the spacer (which is in the flow when pinned) rather than the
+  // section itself (which is fixed when pinned and reports viewport
+  // coords, not document coords).
   if (searcherSection && searcherSection.classList.contains("searcher-wrap")) {
-    const sentinel = document.createElement("div");
-    sentinel.className = "searcher-sentinel";
-    sentinel.setAttribute("aria-hidden", "true");
-    searcherSection.parentNode.insertBefore(sentinel, searcherSection);
-    const obs = new IntersectionObserver(([entry]) => {
-      document.body.classList.toggle("searcher-pinned", !entry.isIntersecting);
-    }, { rootMargin: "0px 0px 0px 0px", threshold: 0 });
-    obs.observe(sentinel);
+    const headerH = 78;
+    const spacer = document.createElement("div");
+    spacer.className = "searcher-spacer";
+    spacer.setAttribute("aria-hidden", "true");
+    spacer.style.display = "none";
+    searcherSection.parentNode.insertBefore(spacer, searcherSection);
+
+    let pinned = false;
+    let triggerY = Infinity;
+
+    function recomputeNatural() {
+      // Always measure off the in-flow wrap. We refuse to remeasure
+      // while pinned because the wrap is then position:fixed and its
+      // getBoundingClientRect reports viewport coords. The cached
+      // triggerY stays correct until we unpin and re-measure.
+      const r = searcherSection.getBoundingClientRect();
+      triggerY = Math.max(0, r.top + window.scrollY - headerH);
+      spacer.style.height = searcherSection.offsetHeight + "px";
+    }
+
+    function checkPin() {
+      if (!pinned) recomputeNatural();
+      if (!pinned && window.scrollY > triggerY) {
+        pinned = true;
+        spacer.style.display = "";
+        searcherSection.classList.add("is-fixed");
+      } else if (pinned && window.scrollY < triggerY - 5) {
+        pinned = false;
+        spacer.style.display = "none";
+        searcherSection.classList.remove("is-fixed");
+      }
+    }
+    window.addEventListener("scroll", checkPin, { passive: true });
+    window.addEventListener("resize", () => { if (!pinned) recomputeNatural(); checkPin(); });
+    window.addEventListener("load", checkPin);
+    // First check after any pending layout changes from initIndex / runSearch
+    // (is-home toggling, etc.) settle in the next frame.
+    requestAnimationFrame(checkPin);
   }
   // Wire the trip-type dropdown (inside the .searcher block).
   const fTier = document.getElementById("f-tier");

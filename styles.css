@@ -322,67 +322,72 @@ a:hover { text-decoration: underline; }
 }
 .searcher-sport-row .sport-pills { margin: 0; }
 
-/* ---- Sticky pinned mode ---- */
-/* When the user scrolls past the .searcher-wrap section, the searcher
-   pins below the header in a compact horizontal bar. Triggered by JS
-   adding body.searcher-pinned via an IntersectionObserver sentinel. */
-.searcher-wrap {
-  position: sticky;
-  top: 78px; /* below the sticky header */
-  z-index: 900;
-  transition: padding 0.18s ease;
-}
-.searcher-sentinel {
-  /* zero-height marker above .searcher-wrap; observed by JS to flip body
-     class. invisible, but takes part in scroll geometry. */
-  height: 1px;
-  margin-top: -1px;
-}
-body.searcher-pinned .searcher-wrap {
-  background: var(--cream);
-  border-bottom: 1px solid var(--sand);
-  box-shadow: 0 4px 12px rgba(0,0,0,0.06);
-  margin: 0;
-  padding: 8px 0;
-  max-width: none;
-  width: 100%;
+/* ---- Floating filter card when scrolled past ---- */
+/* When the user scrolls past the .searcher-wrap, JS adds .is-fixed
+   and inserts a same-height spacer in the flow. The card lifts out
+   to position:fixed and floats below the header — centered, with a
+   shadow, all filters in one row. Not a full-width sub-menu bar. */
+.searcher-wrap { transition: none; }
+.searcher-spacer { width: 100%; }
+
+.searcher-wrap.is-fixed {
+  position: fixed;
+  top: 78px;        /* below the sticky header */
   left: 0;
   right: 0;
+  z-index: 900;
+  margin: 0 auto;
+  padding: 6px 16px 0;
+  pointer-events: none; /* let clicks pass to gaps around the card */
 }
-body.searcher-pinned .searcher {
+.searcher-wrap.is-fixed .searcher {
+  pointer-events: auto; /* re-enable on the card itself */
   margin: 0 auto;
   max-width: 1100px;
   padding: 8px 16px;
-  border-radius: 12px;
-  box-shadow: none;
+  border-radius: 14px;
+  box-shadow: 0 10px 24px rgba(0,0,0,0.14);
   background: var(--paper);
+  border-color: var(--sand-deep);
 }
-body.searcher-pinned .searcher-sport-row { margin: 0 0 6px; }
-body.searcher-pinned .searcher-sport-row .sport-pill {
+.searcher-wrap.is-fixed .searcher-sport-row { margin: 0 0 6px; }
+.searcher-wrap.is-fixed .searcher-sport-row .sport-pill {
   font-size: 12.5px;
-  padding: 5px 12px;
+  padding: 4px 12px;
 }
-body.searcher-pinned .searcher .sentence {
-  font-size: 13.5px;
-  line-height: 1.4;
-  gap: 6px 14px;
-  justify-content: flex-start;
-}
-body.searcher-pinned .searcher .field { gap: 5px; }
-body.searcher-pinned .searcher select,
-body.searcher-pinned .searcher input[type="text"],
-body.searcher-pinned .searcher input[type="search"] {
+.searcher-wrap.is-fixed .searcher .sentence {
   font-size: 13px;
+  line-height: 1.3;
+  gap: 4px 14px;
+  justify-content: flex-start;
+  flex-wrap: nowrap;     /* keep everything on one row */
+  overflow-x: auto;       /* graceful sideways scroll on narrow widths */
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: thin;
+}
+.searcher-wrap.is-fixed .searcher .sentence::-webkit-scrollbar { height: 4px; }
+.searcher-wrap.is-fixed .searcher .field {
+  gap: 4px;
+  flex-shrink: 0;
+}
+.searcher-wrap.is-fixed .searcher .field > span {
+  font-size: 12.5px;
+}
+.searcher-wrap.is-fixed .searcher select,
+.searcher-wrap.is-fixed .searcher input[type="text"],
+.searcher-wrap.is-fixed .searcher input[type="search"] {
+  font-size: 12.5px;
   padding: 4px 10px;
   border-radius: 8px;
 }
-body.searcher-pinned .searcher .actions {
+.searcher-wrap.is-fixed .searcher .actions {
   display: none; /* search runs automatically on every filter change */
 }
 @media (max-width: 720px) {
-  body.searcher-pinned .searcher { padding: 6px 12px; }
-  body.searcher-pinned .searcher .sentence { font-size: 12.5px; gap: 5px 10px; }
-  body.searcher-pinned .searcher-sport-row { display: none; } /* save vertical space */
+  .searcher-wrap.is-fixed { padding: 4px 10px 0; }
+  .searcher-wrap.is-fixed .searcher { padding: 6px 12px; }
+  .searcher-wrap.is-fixed .searcher .sentence { font-size: 12px; gap: 4px 10px; }
+  .searcher-wrap.is-fixed .searcher-sport-row .sport-pill { padding: 3px 10px; font-size: 11.5px; }
 }
 
 /* Free-text search bar — sits above the structured filters */
