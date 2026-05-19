@@ -2464,6 +2464,42 @@ function initIndex() {
     syncHeaderVar();
     window.addEventListener("resize", syncHeaderVar);
 
+    // Burger toggle inside the sidebar: collapse/expand the filter card
+    // when pinned. Persisted in localStorage so it stays in the user's
+    // preferred state across pin cycles and reloads.
+    const COLLAPSE_KEY = "wavebase_searcher_collapsed";
+    function isCollapsedPref() {
+      try { return localStorage.getItem(COLLAPSE_KEY) === "1"; } catch (e) { return false; }
+    }
+    function setCollapsedPref(on) {
+      try { localStorage.setItem(COLLAPSE_KEY, on ? "1" : "0"); } catch (e) {}
+    }
+    const searcherCard = searcherSection.querySelector(".searcher");
+    if (searcherCard && !searcherCard.querySelector(".searcher-toggle")) {
+      const toggle = document.createElement("button");
+      toggle.type = "button";
+      toggle.className = "searcher-toggle";
+      toggle.setAttribute("aria-label", "Collapse or expand filters");
+      toggle.setAttribute("aria-expanded", isCollapsedPref() ? "false" : "true");
+      // Two icons via spans — CSS swaps which one is visible based on
+      // .is-collapsed. Burger when open (= "close to a small button"),
+      // funnel/filter icon when collapsed (= "tap to open filters").
+      toggle.innerHTML = `<span class="st-icon st-icon-open" aria-hidden="true">
+        <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="4" y1="7" x2="20" y2="7"/><line x1="4" y1="12" x2="20" y2="12"/><line x1="4" y1="17" x2="20" y2="17"/></svg>
+      </span><span class="st-icon st-icon-closed" aria-hidden="true">
+        <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="3 4 21 4 14 13 14 20 10 20 10 13 3 4"/></svg>
+      </span>`;
+      searcherCard.appendChild(toggle);
+      // Apply persisted state immediately
+      searcherSection.classList.toggle("is-collapsed", isCollapsedPref());
+      toggle.addEventListener("click", () => {
+        const willCollapse = !searcherSection.classList.contains("is-collapsed");
+        searcherSection.classList.toggle("is-collapsed", willCollapse);
+        toggle.setAttribute("aria-expanded", willCollapse ? "false" : "true");
+        setCollapsedPref(willCollapse);
+      });
+    }
+
     const spacer = document.createElement("div");
     spacer.className = "searcher-spacer";
     spacer.setAttribute("aria-hidden", "true");

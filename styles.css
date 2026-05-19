@@ -348,103 +348,160 @@ a:hover { text-decoration: underline; }
               max-width 0.85s cubic-bezier(0.22, 0.61, 0.36, 1);
 }
 
+/* Pinned mode = left-side sidebar (was a top bar). The card lifts out
+   of flow and parks itself near the left viewport edge with all
+   filters stacked vertically. A burger toggle lets the user collapse
+   the sidebar to a small launcher button when they want the screen
+   back. */
 .searcher-wrap.is-fixed {
   position: fixed;
-  top: var(--header-h, 78px);   /* sits flush below the sticky header */
-  left: 0;
-  right: 0;
+  top: calc(var(--header-h, 78px) + 16px);
+  left: 16px;
+  right: auto;
   z-index: 900;
-  margin: 0 auto;
-  padding: 10px 16px 0;
-  pointer-events: none;     /* let clicks pass to gaps around the card */
-  max-width: none;          /* override .wrap's 1080 px cap so the inner
-                               card can grow up to its own max-width */
+  margin: 0;
+  padding: 0;
+  pointer-events: none;
+  max-width: none;
+  width: auto;
 }
 .searcher-wrap.is-fixed .searcher {
-  pointer-events: auto; /* re-enable on the card itself */
-  margin: 0 auto;
-  /* Near-edge card — leaves only a small breathing gap to the
-     viewport edges so the filters aren't floating in a small
-     island of whitespace. */
-  max-width: calc(100vw - 24px);
-  padding: 10px 18px 12px;
+  pointer-events: auto;
+  margin: 0;
+  width: 280px;
+  max-width: 280px;
+  padding: 14px 14px 16px;
   border-radius: 14px;
-  box-shadow: 0 10px 24px rgba(0,0,0,0.14);
-  /* Frosted-glass card: see the page softly through it.
-     Solid fallback for browsers without backdrop-filter. */
-  background: rgba(248, 244, 234, 0.78);
+  box-shadow: 0 10px 28px rgba(0,0,0,0.16);
+  /* Frosted-glass card */
+  background: rgba(248, 244, 234, 0.86);
   -webkit-backdrop-filter: saturate(160%) blur(10px);
   backdrop-filter: saturate(160%) blur(10px);
   border-color: var(--sand-deep);
-  /* let the select-arrow draw outside the card edge if needed */
   overflow: visible;
+  position: relative;     /* for the burger toggle's absolute pos */
 }
 @supports not ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
   .searcher-wrap.is-fixed .searcher { background: var(--paper); }
 }
+
+/* Burger toggle — top-right corner of the sidebar */
+.searcher-toggle {
+  display: none;
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  width: 34px;
+  height: 34px;
+  border-radius: 8px;
+  border: 1px solid transparent;
+  background: transparent;
+  color: var(--ink);
+  cursor: pointer;
+  padding: 0;
+  align-items: center;
+  justify-content: center;
+  transition: background 0.15s, border-color 0.15s;
+}
+.searcher-toggle:hover { background: var(--sand); border-color: var(--sand-deep); }
+.searcher-toggle .st-icon { display: none; }
+.searcher-wrap.is-fixed .searcher-toggle { display: flex; }
+.searcher-wrap.is-fixed:not(.is-collapsed) .searcher-toggle .st-icon-open { display: flex; }
+.searcher-wrap.is-fixed.is-collapsed   .searcher-toggle .st-icon-closed { display: flex; }
+
+/* Sport pills — compact horizontal row at the top of the sidebar */
 .searcher-wrap.is-fixed .searcher-sport-row {
-  margin: 0 0 8px;
+  margin: 0 36px 12px 0;     /* leave room for the toggle */
+}
+.searcher-wrap.is-fixed .searcher-sport-row .sport-pills {
+  justify-content: flex-start;
+  gap: 5px;
 }
 .searcher-wrap.is-fixed .searcher-sport-row .sport-pill {
-  font-size: 12.5px;
-  padding: 4px 12px;
+  font-size: 11.5px;
+  padding: 3px 10px;
 }
+
+/* Filters: vertical stack, label + control on one row */
 .searcher-wrap.is-fixed .searcher .sentence {
-  font-size: 13px;
-  line-height: 1.5;
-  gap: 6px 14px;
-  justify-content: center;    /* symmetric whitespace left and right */
-  flex-wrap: wrap;            /* wrap to a second row before clipping */
-  overflow: visible;           /* never clip native select arrows */
-  padding: 2px 0 4px;
+  font-size: 13.5px;
+  line-height: 1.4;
+  flex-direction: column;
+  align-items: stretch;
+  gap: 8px;
+  overflow: visible;
+  padding: 0;
+  justify-content: flex-start;
+  flex-wrap: nowrap;
 }
 .searcher-wrap.is-fixed .searcher .field {
-  gap: 4px;
-  flex-shrink: 0;
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: 8px;
+  width: 100%;
 }
-.searcher-wrap.is-fixed .searcher .field > span {
-  font-size: 12.5px;
+.searcher-wrap.is-fixed .searcher .field > span:first-child {
+  flex: 0 0 76px;
+  font-size: 13px;
+  text-align: left;
+  color: var(--ink);
 }
 .searcher-wrap.is-fixed .searcher select,
 .searcher-wrap.is-fixed .searcher input[type="text"],
 .searcher-wrap.is-fixed .searcher input[type="search"] {
-  font-size: 12.5px;
-  padding: 5px 26px 5px 10px; /* extra right padding for native chevron */
+  flex: 1;
+  font-size: 13px;
+  padding: 6px 26px 6px 10px;
   border-radius: 8px;
+  min-width: 0;
 }
-.searcher-wrap.is-fixed .searcher .actions {
-  display: none; /* search runs automatically on every filter change */
+.searcher-wrap.is-fixed .searcher .actions { display: none; }
+
+/* Collapsed: sidebar shrinks to a small launcher button (just the
+   burger icon, now a "show filters" funnel). All contents hidden. */
+.searcher-wrap.is-fixed.is-collapsed .searcher {
+  width: 46px;
+  max-width: 46px;
+  padding: 6px;
+  border-radius: 12px;
+}
+.searcher-wrap.is-fixed.is-collapsed .searcher > *:not(.searcher-toggle) {
+  display: none;
+}
+.searcher-wrap.is-fixed.is-collapsed .searcher-toggle {
+  position: static;
+  width: 34px;
+  height: 34px;
+  margin: 0 auto;
 }
 
-/* Tablet / phone: card stays floating but allows multi-row wrap so
-   nothing flips off-screen and the page underneath keeps scrolling
-   normally. Discipline pills hide here (the dropdowns cover the same
-   info implicitly — sport=All vs picking one). */
+/* Tablet / phone: sidebar shrinks slightly */
 @media (max-width: 900px) {
-  .searcher-wrap.is-fixed { padding: 8px 10px 0; }
-  .searcher-wrap.is-fixed .searcher { padding: 8px 12px 10px; }
-  .searcher-wrap.is-fixed .searcher .sentence {
-    flex-wrap: wrap;          /* let it grow vertically instead of clipping */
-    overflow: visible;
-    gap: 4px 10px;
-    font-size: 12.5px;
-  }
-  .searcher-wrap.is-fixed .searcher-sport-row { display: none; }
+  .searcher-wrap.is-fixed { left: 10px; top: calc(var(--header-h, 78px) + 10px); }
+  .searcher-wrap.is-fixed .searcher { width: 260px; max-width: 260px; padding: 12px 12px 14px; }
 }
+
+/* Very narrow viewports: no float, keep the searcher in normal flow */
 @media (max-width: 560px) {
-  /* Very narrow: don't float — the on-page filters are enough, and a
-     floating card would eat most of the visible content. The header is
-     already sticky so users can always tap the logo/search there. */
   .searcher-wrap.is-fixed {
     position: static;
-    padding: 0;
     pointer-events: auto;
+    width: auto;
   }
   .searcher-wrap.is-fixed .searcher {
-    box-shadow: var(--shadow);
+    width: auto;
     max-width: none;
+    box-shadow: var(--shadow);
+    background: var(--paper);
   }
   .searcher-spacer { display: none !important; }
+  .searcher-wrap.is-fixed .searcher-toggle { display: none; }
+  .searcher-wrap.is-fixed .searcher-sport-row { margin: 0 0 12px; }
+  .searcher-wrap.is-fixed .searcher .sentence {
+    flex-direction: row;
+    flex-wrap: wrap;
+  }
 }
 
 /* Free-text search bar — sits above the structured filters */
