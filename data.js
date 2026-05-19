@@ -2996,8 +2996,8 @@ const WAVEBASE_DATA = [
     tagline: "An old sand-extraction pit turned freshwater windsurf playground — the home base where Lode learned. Flat water, light to medium wind, no salt, no waves.",
     levels: ["beginner", "intermediate", "advanced"],
     goodMonths: [4,5,6,7,8,9,10],
-    coords: [50.9580, 3.5360],
-    coordsLabel: "Approximate centre of the Florizoone water surface, off Oudenaardsesteenweg 225, Petegem-aan-de-Leie / Deinze.",
+    coords: [50.9605, 3.5340],
+    coordsLabel: "Centre of the Florizoone water surface, off Oudenaardsesteenweg 225, Petegem-aan-de-Leie / Deinze.",
     photo: "",
     samenvatting: [
       "Inland freshwater pit (formerly used for E17-highway sand), ~600 m × 300 m. Flat water, no chop.",
@@ -3726,8 +3726,8 @@ const WAVEBASE_DATA = [
     levels: ["beginner", "intermediate", "advanced"],
     goodMonths: [4,5,6,7,8,9,10],
     linkedSpotId: "florizoone-deinze",
-    coords: [50.9580, 3.5360],
-    coordsLabel: "Clubhouse at Oudenaardsesteenweg 225, 9800 Deinze (verified via own site + Nominatim).",
+    coords: [50.9629, 3.5361],
+    coordsLabel: "Clubhouse at Oudenaardsesteenweg 225, 9800 Deinze — verified via Nominatim/OSM lookup of the street address.",
     photo: "",
     bookingUrl: "https://www.windsurfingdeinze.be/",
     diensten: {
