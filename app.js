@@ -1517,6 +1517,56 @@ function setTierPref(tier) {
     else localStorage.setItem("wavebase_tier_pref", tier);
   } catch (e) { /* ignore */ }
 }
+/* Country-aware tier dropdown labels. The four tier names (Budget,
+   Comfortable, Premium, Luxury) are abstract — Michiel's feedback: hard
+   to know what they cost at first glance. We don't want a single
+   absolute number on each (a "Comfortable" stay is ~€40 in Morocco,
+   ~€90 in France), so instead we inject country-relative price ranges
+   into the dropdown options whenever a country is selected. With no
+   country picked we keep the labels generic — there's no single range
+   that makes sense.
+
+   Format: "🏠 Comfortable · €40–€80 /n" — the currency converter the
+   user has selected is respected via fmtCurrency. */
+function updateTierDropdownLabels(country) {
+  const sel = document.getElementById("f-tier");
+  if (!sel) return;
+  // For each tier, compute min(fromEUR) and max(toEUR ?? fromEUR) across
+  // stays in this country with this tier and a known nightly rate. We
+  // skip "by enquiry" entries (fromEUR == null) — they'd skew the range.
+  const ranges = {};
+  PRICE_TIERS.forEach(t => {
+    const matching = WAVEBASE_DATA.filter(e =>
+      e.type === "stay"
+      && (!country || entryCountry(e) === country)
+      && e.prices && e.prices.tier === t
+      && typeof e.prices.fromEUR === "number"
+      // skip package-priced entries (unit = "per week", etc.) — they
+      // aren't comparable to a /night number
+      && !/package|week/i.test(e.prices.unit || "")
+    );
+    if (!matching.length) return;
+    const froms = matching.map(s => s.prices.fromEUR);
+    const tos   = matching.map(s => (typeof s.prices.toEUR === "number" ? s.prices.toEUR : s.prices.fromEUR));
+    ranges[t] = { min: Math.min(...froms), max: Math.max(...tos) };
+  });
+  // Update each <option> label
+  [...sel.options].forEach(opt => {
+    const tier = opt.value;
+    if (tier === "all") { opt.textContent = "Any trip type"; return; }
+    const meta = TIER_META[tier];
+    if (!meta) return;
+    const r = ranges[tier];
+    if (r && country) {
+      const lo = fmtCurrency(r.min);
+      const hi = fmtCurrency(r.max);
+      opt.textContent = `${meta.icon} ${meta.label} · ${lo === hi ? lo : lo + "–" + hi} /n`;
+    } else {
+      opt.textContent = `${meta.icon} ${meta.label}`;
+    }
+  });
+}
+
 function tierPillsHTML(active) {
   const pills = [{ key: "all", label: "Any" }]
     .concat(PRICE_TIERS.map(k => ({ key: k, label: `${TIER_META[k].icon} ${TIER_META[k].label}` })));
@@ -1722,9 +1772,13 @@ function runSearch() {
     btn.classList.toggle("active", isActive);
     btn.setAttribute("aria-selected", isActive ? "true" : "false");
   });
-  // keep the trip-type dropdown in sync with the stored pref
+  // keep the trip-type dropdown in sync with the stored pref + refresh
+  // its labels to show country-relative price ranges
   const fTierEl = document.getElementById("f-tier");
-  if (fTierEl) fTierEl.value = getTierPref();
+  if (fTierEl) {
+    updateTierDropdownLabels(country);
+    fTierEl.value = getTierPref();
+  }
 
   const pref = getViewPref();
   const gridClass = pref === "list" ? "grid list-view" : "grid";
