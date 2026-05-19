@@ -1253,6 +1253,132 @@ table.cal td.host { color: var(--clay); }
   opacity: 0.7;
   font-style: italic;
 }
+/* "Click to pin for comparison" hint — visible by default, hidden once
+   the user has pinned at least one month (body gets has-pinned-months). */
+.bar-tooltip .bt-hint {
+  display: block;
+  margin-top: 6px;
+  padding-top: 5px;
+  border-top: 1px dashed rgba(253, 250, 242, 0.22);
+  font-size: 10.5px;
+  font-style: italic;
+  opacity: 0.75;
+}
+body.has-pinned-months .bar-tooltip .bt-hint { display: none; }
+
+/* Pinned month-bar — visible ring on the fill itself; works for both
+   single (one fill) and dual (two stacked bars) chart types. */
+.month-bar { cursor: pointer; }
+.month-bar.is-pinned .month-bar-fill,
+.month-bar.is-pinned .dual-bars {
+  outline: 2px solid var(--sea);
+  outline-offset: 2px;
+  border-radius: 2px;
+}
+.month-bar.is-pinned .month-bar-label {
+  color: var(--sea);
+  font-weight: 700;
+}
+
+/* Compare strip — appears under the monthly-chart pair once a month is
+   pinned. Cards layout responsively (3 abreast on desktop, 1 on phone). */
+.month-compare-strip {
+  margin: 26px 0 8px;
+  display: none;
+}
+.month-compare-strip.is-visible {
+  display: block;
+}
+.mcc-head-row {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  margin-bottom: 10px;
+  padding: 0 2px;
+}
+.mcc-kicker {
+  font-family: 'Fraunces', Georgia, serif;
+  font-size: 13px;
+  letter-spacing: 0.10em;
+  text-transform: uppercase;
+  color: var(--clay);
+  font-weight: 600;
+}
+.mcc-clear {
+  background: none;
+  border: none;
+  font-size: 12px;
+  color: var(--ink-soft);
+  cursor: pointer;
+  padding: 0;
+  text-decoration: underline;
+}
+.mcc-clear:hover { color: var(--sea); }
+.mcc-cards {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 12px;
+}
+.mcc-card {
+  background: var(--paper);
+  border: 1px solid var(--sand);
+  border-radius: 10px;
+  padding: 14px 16px 12px;
+  position: relative;
+  box-shadow: var(--shadow-sm);
+}
+.mcc-head {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  margin-bottom: 10px;
+  padding-right: 26px;
+}
+.mcc-head strong {
+  font-family: 'Fraunces', Georgia, serif;
+  font-size: 18px;
+  font-weight: 600;
+  color: var(--ink);
+}
+.mcc-season {
+  font-size: 12px;
+  color: var(--ink-soft);
+  font-style: italic;
+}
+.mcc-remove {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  background: var(--sand);
+  border: none;
+  color: var(--ink);
+  font-size: 16px;
+  line-height: 1;
+  cursor: pointer;
+  padding: 0;
+  transition: background .12s ease, color .12s ease;
+}
+.mcc-remove:hover { background: var(--clay); color: #fff; }
+.mcc-body {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  font-size: 13px;
+}
+.mcc-row {
+  display: flex;
+  justify-content: space-between;
+  border-bottom: 1px dashed var(--sand);
+  padding-bottom: 4px;
+  padding-top: 4px;
+}
+.mcc-row:last-child { border-bottom: none; padding-bottom: 0; }
+.mcc-row:first-child { padding-top: 0; }
+.mcc-row span { color: var(--ink-soft); }
+.mcc-row b { color: var(--ink); font-weight: 600; }
 
 @media (max-width: 700px) {
   .monthly-chart.split .chart-pair { grid-template-columns: 1fr; gap: 22px; }

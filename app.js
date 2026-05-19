@@ -358,8 +358,9 @@ function buildDualBarChart(opts) {
     const tipHTML = `<strong>${fullMonth}</strong>` +
       `<span class="bt-row"><span class="bt-swatch ${barA.colorClass}"></span>${barA.label}<b>${va == null ? "—" : va + unit}</b></span>` +
       `<span class="bt-row"><span class="bt-swatch ${barB.colorClass}"></span>${barB.label}<b>${vb == null ? "—" : vb + unit}</b></span>` +
-      (period && period.name ? `<span class="bt-sub">${escHTML(period.name)}${inSeason ? "" : " · off-season"}</span>` : "");
-    return `<div class="month-bar dual ${seasonClass}${isUser ? " is-user" : ""}" data-tooltip="${escHTML(tipHTML)}">
+      (period && period.name ? `<span class="bt-sub">${escHTML(period.name)}${inSeason ? "" : " · off-season"}</span>` : "") +
+      `<span class="bt-hint">Click to pin for comparison</span>`;
+    return `<div class="month-bar dual ${seasonClass}${isUser ? " is-user" : ""}" data-month="${monthNum}" data-tooltip="${escHTML(tipHTML)}">
       <span class="dual-bars">
         <span class="dual-bar ${barA.colorClass}" style="height: ${pctA}%;"></span>
         <span class="dual-bar ${barB.colorClass}" style="height: ${pctB}%;"></span>
@@ -408,14 +409,15 @@ function buildSingleMetricChart(metricArr, opts) {
     const ovPct = (ov != null && !isNaN(ov)) ? Math.max(2, Math.min(100, (ov / maxValue) * 100)) : null;
     const fullMonth = WAVEBASE_MONTHS[monthNum] || m;
     const customTip = tooltipFor ? tooltipFor(monthNum, v, ov) : null;
-    const tipHTML = customTip
+    const baseTip = customTip
       ? `<strong>${fullMonth}</strong><span class="bt-sub">${escHTML(customTip)}</span>`
       : `<strong>${fullMonth}</strong>` +
         `<span class="bt-row"><span class="bt-swatch ${colorClass}"></span>${label || "Value"}<b>${v == null ? "—" : v + unit}</b></span>` +
         (period && period.name ? `<span class="bt-sub">${escHTML(period.name)}${inSeason ? "" : " · off-season"}</span>` : "");
+    const tipHTML = baseTip + `<span class="bt-hint">Click to pin for comparison</span>`;
     const overlay = ovPct != null
       ? `<span class="month-bar-overlay" style="bottom: ${ovPct}%;"></span>` : "";
-    return `<div class="month-bar ${colorClass} ${seasonClass}${isUser ? " is-user" : ""}" data-tooltip="${escHTML(tipHTML)}">
+    return `<div class="month-bar ${colorClass} ${seasonClass}${isUser ? " is-user" : ""}" data-month="${monthNum}" data-tooltip="${escHTML(tipHTML)}">
       <span class="month-bar-fill" style="height: ${pct}%;"></span>
       ${overlay}
       <span class="month-bar-label">${m}</span>
@@ -481,6 +483,116 @@ function wireChartTooltips(root) {
   });
   // Hide on scroll so the tooltip doesn't drift away from its anchor.
   window.addEventListener("scroll", hide, { passive: true });
+}
+
+/* Click-to-pin: tap a month-bar to pin that month across all three charts
+   (wind/temp/wave). Pinned months show side-by-side in a compare strip
+   below the charts. Max 3 pins; clicking a 4th drops the oldest (FIFO).
+   Click a pinned bar (or the × on its card) to remove it. */
+function wireMonthPinning(root, entry) {
+  if (!root) return;
+  const stats = getStatsFor(entry);
+  if (!stats) return;
+
+  let pinned = [];  // ordered array of month numbers (1-12)
+
+  // Compare strip lives directly under the monthly-chart block.
+  let strip = root.querySelector(".month-compare-strip");
+  if (!strip) {
+    strip = document.createElement("div");
+    strip.className = "month-compare-strip";
+    const chart = root.querySelector(".monthly-chart");
+    if (chart && chart.parentNode) chart.parentNode.insertBefore(strip, chart.nextSibling);
+  }
+
+  function rowsFor(monthNum) {
+    const i = monthNum - 1;
+    const rows = [];
+    const pick = (label, val, unit) => {
+      if (val == null || isNaN(val)) return;
+      rows.push(`<div class="mcc-row"><span>${label}</span><b>${val}${unit}</b></div>`);
+    };
+    if (Array.isArray(stats.monthlyWindKn)) pick("Wind",  stats.monthlyWindKn[i],       " kn");
+    const gustArr = Array.isArray(stats.monthlyDailyPeakKn) ? stats.monthlyDailyPeakKn
+                  : Array.isArray(stats.monthlyGustKn)      ? stats.monthlyGustKn : null;
+    if (gustArr)                              pick("Gust",  gustArr[i],                  " kn");
+    if (Array.isArray(stats.monthlyWaveM))    pick("Wave",  stats.monthlyWaveM[i],       " m");
+    if (Array.isArray(stats.monthlyWaterC))   pick("Water", stats.monthlyWaterC[i],      " °C");
+    if (Array.isArray(stats.monthlyAirC))     pick("Air",   stats.monthlyAirC[i],        " °C");
+    return rows.join("");
+  }
+
+  function cardFor(monthNum) {
+    const period = findPeriodForMonth(stats.periods, monthNum);
+    const monthName = WAVEBASE_MONTHS[monthNum] || "";
+    const season = period && period.name ? escHTML(period.name) : "";
+    return `
+      <div class="mcc-card" data-month="${monthNum}">
+        <button type="button" class="mcc-remove" data-remove="${monthNum}" aria-label="Remove ${monthName}">&times;</button>
+        <div class="mcc-head">
+          <strong>${monthName}</strong>
+          ${season ? `<span class="mcc-season">${season}</span>` : ""}
+        </div>
+        <div class="mcc-body">${rowsFor(monthNum)}</div>
+      </div>`;
+  }
+
+  function syncBars() {
+    root.querySelectorAll(".month-bar[data-month]").forEach(bar => {
+      const m = parseInt(bar.dataset.month, 10);
+      bar.classList.toggle("is-pinned", pinned.indexOf(m) !== -1);
+    });
+    // Toggle a body class so the "Click to pin" hint in the tooltip can
+    // hide itself once at least one month is already pinned.
+    document.body.classList.toggle("has-pinned-months", pinned.length > 0);
+  }
+
+  function renderStrip() {
+    if (pinned.length === 0) {
+      strip.innerHTML = "";
+      strip.classList.remove("is-visible");
+      return;
+    }
+    strip.innerHTML = `
+      <div class="mcc-head-row">
+        <span class="mcc-kicker">Compare months</span>
+        <button type="button" class="mcc-clear">Clear all</button>
+      </div>
+      <div class="mcc-cards">${pinned.map(cardFor).join("")}</div>
+    `;
+    strip.classList.add("is-visible");
+
+    strip.querySelectorAll("[data-remove]").forEach(btn => {
+      btn.addEventListener("click", () => {
+        const m = parseInt(btn.dataset.remove, 10);
+        pinned = pinned.filter(x => x !== m);
+        syncBars();
+        renderStrip();
+      });
+    });
+    strip.querySelector(".mcc-clear").addEventListener("click", () => {
+      pinned = [];
+      syncBars();
+      renderStrip();
+    });
+  }
+
+  // Click anywhere in a month-bar = pin/unpin that month.
+  root.addEventListener("click", (ev) => {
+    const bar = ev.target && ev.target.closest && ev.target.closest(".month-bar[data-month]");
+    if (!bar || !root.contains(bar)) return;
+    const m = parseInt(bar.dataset.month, 10);
+    if (isNaN(m)) return;
+    const idx = pinned.indexOf(m);
+    if (idx !== -1) {
+      pinned.splice(idx, 1);
+    } else {
+      pinned.push(m);
+      if (pinned.length > 3) pinned.shift();   // FIFO at max 3
+    }
+    syncBars();
+    renderStrip();
+  });
 }
 
 function monthlyChartHTML(e) {
@@ -2447,6 +2559,8 @@ function initSpot() {
 
   // Hover popovers on the monthly wind/temperature/wave bar charts.
   wireChartTooltips(root);
+  // Click-to-pin months for comparison across all three charts.
+  wireMonthPinning(root, e);
 
   document.getElementById("save-toggle").addEventListener("click", function () {
     const on = WaveBaseAccount.toggleSave(e.id);
