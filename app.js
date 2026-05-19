@@ -2464,6 +2464,46 @@ function initIndex() {
     syncHeaderVar();
     window.addEventListener("resize", syncHeaderVar);
 
+    // ---- Drag-to-reposition the sidebar ----
+    // The user can grab any non-interactive area of the card (anywhere
+    // that's not a select / input / button / pill) and drag the whole
+    // thing to a new spot on screen. Position is persisted across
+    // sessions in localStorage so it stays where you parked it. We
+    // clamp to keep the card on-screen and below the sticky header.
+    const POS_KEY = "wavebase_searcher_pos";
+    function getStoredPos() {
+      try { const p = JSON.parse(localStorage.getItem(POS_KEY) || "null");
+        return p && typeof p.x === "number" && typeof p.y === "number" ? p : null;
+      } catch (e) { return null; }
+    }
+    function setStoredPos(pos) {
+      try { localStorage.setItem(POS_KEY, pos ? JSON.stringify(pos) : ""); } catch (e) {}
+    }
+    function clampPos(x, y, w, h) {
+      const topMin = headerH() + 8;
+      return {
+        x: Math.max(8, Math.min(x, window.innerWidth - w - 8)),
+        y: Math.max(topMin, Math.min(y, window.innerHeight - h - 8))
+      };
+    }
+    function applyStoredPos() {
+      if (!searcherSection.classList.contains("is-fixed")) {
+        // Clear inline overrides so the default CSS layout takes over
+        // when the searcher is back in flow.
+        searcherSection.style.left = "";
+        searcherSection.style.top = "";
+        searcherSection.style.right = "";
+        return;
+      }
+      const pos = getStoredPos();
+      if (!pos) return;
+      const rect = searcherSection.getBoundingClientRect();
+      const c = clampPos(pos.x, pos.y, rect.width || 280, rect.height || 300);
+      searcherSection.style.left = c.x + "px";
+      searcherSection.style.top = c.y + "px";
+      searcherSection.style.right = "auto";
+    }
+
     // Burger toggle inside the sidebar: collapse/expand the filter card
     // when pinned. Persisted in localStorage so it stays in the user's
     // preferred state across pin cycles and reloads.
@@ -2497,6 +2537,47 @@ function initIndex() {
         searcherSection.classList.toggle("is-collapsed", willCollapse);
         toggle.setAttribute("aria-expanded", willCollapse ? "false" : "true");
         setCollapsedPref(willCollapse);
+        // Card size just changed — re-clamp the stored position so an
+        // expanded card doesn't pop off-screen if it was parked at an
+        // edge while collapsed.
+        requestAnimationFrame(applyStoredPos);
+      });
+    }
+
+    // Drag handlers — attached after the toggle so we can exclude it.
+    if (searcherCard) {
+      let dragging = false;
+      let dragOffset = { x: 0, y: 0 };
+      const INTERACTIVE_SELECTOR = "select, input, button, label, a, .sport-pill, .searcher-toggle";
+
+      searcherCard.addEventListener("mousedown", ev => {
+        if (!searcherSection.classList.contains("is-fixed")) return;
+        if (ev.button !== 0) return; // primary click only
+        if (ev.target.closest(INTERACTIVE_SELECTOR)) return;
+        ev.preventDefault();
+        dragging = true;
+        searcherCard.classList.add("is-dragging");
+        const rect = searcherSection.getBoundingClientRect();
+        dragOffset.x = ev.clientX - rect.left;
+        dragOffset.y = ev.clientY - rect.top;
+      });
+
+      window.addEventListener("mousemove", ev => {
+        if (!dragging) return;
+        ev.preventDefault();
+        const rect = searcherSection.getBoundingClientRect();
+        const c = clampPos(ev.clientX - dragOffset.x, ev.clientY - dragOffset.y, rect.width, rect.height);
+        searcherSection.style.left = c.x + "px";
+        searcherSection.style.top = c.y + "px";
+        searcherSection.style.right = "auto";
+      });
+
+      window.addEventListener("mouseup", () => {
+        if (!dragging) return;
+        dragging = false;
+        searcherCard.classList.remove("is-dragging");
+        const rect = searcherSection.getBoundingClientRect();
+        setStoredPos({ x: rect.left, y: rect.top });
       });
     }
 
@@ -2537,14 +2618,16 @@ function initIndex() {
         pinned = true;
         spacer.style.display = "";
         searcherSection.classList.add("is-fixed");
+        applyStoredPos();
       } else if (pinned && (tooNarrow || window.scrollY <= triggerY - 5)) {
         pinned = false;
         spacer.style.display = "none";
         searcherSection.classList.remove("is-fixed");
+        applyStoredPos(); // clears inline left/top
       }
     }
     window.addEventListener("scroll", checkPin, { passive: true });
-    window.addEventListener("resize", () => { recomputeNatural(); checkPin(); });
+    window.addEventListener("resize", () => { recomputeNatural(); checkPin(); applyStoredPos(); });
 
     // Re-measure when the layout shifts under us (e.g. runSearch toggles
     // is-home, the results grid renders, fonts settle). MutationObserver

@@ -380,6 +380,18 @@ a:hover { text-decoration: underline; }
   border-color: var(--sand-deep);
   overflow: visible;
   position: relative;     /* for the burger toggle's absolute pos */
+  /* Hint that this card can be picked up and moved. Interactive
+     children below override back to pointer/text where appropriate. */
+  cursor: grab;
+}
+.searcher-wrap.is-fixed .searcher.is-dragging {
+  cursor: grabbing;
+  user-select: none;
+  /* float on top while being dragged */
+  box-shadow: 0 14px 36px rgba(0,0,0,0.22);
+}
+.searcher-wrap.is-fixed .searcher .field > span {
+  cursor: default; /* the "Where?", "For who?" labels aren't grabable */
 }
 @supports not ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
   .searcher-wrap.is-fixed .searcher { background: var(--paper); }
