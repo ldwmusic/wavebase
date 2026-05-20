@@ -5344,6 +5344,16 @@ function navAppsHTML(e, base) {
   return `<div class="exp-pop-nav"><span class="exp-pop-nav-label">Navigate there</span>${apps.join("")}</div>`;
 }
 
+/* Windy.com forecast link for a spot — opens Windy's live wind/wave map
+   centred on the spot's coords. Verified URL form: ?<overlay>,lat,lng,zoom.
+   Overlay matches the sport — waves for surf, wind for windsurf/kite/wing.
+   A plain deep link: no API, no key, nothing to maintain. */
+function windyHref(e) {
+  if (!Array.isArray(e.coords)) return "";
+  const overlay = entrySports(e).includes("wave") ? "waves" : "wind";
+  return `https://www.windy.com/?${overlay},${e.coords[0]},${e.coords[1]},10`;
+}
+
 /* ===== Explorer page (explorer.html) — base + reach spot discovery =====
    The use case: "I'm in <region>, I have my own gear, I want a spot I
    don't know yet that's not too far." Set a base, set a reach, see the
@@ -5482,10 +5492,12 @@ function initExplorer() {
         radius: rad, color: "#fff", weight: 2, fillColor: fill, fillOpacity: fillOp, opacity: op
       });
       const distLine = dist != null ? ` <span class="exp-pop-dist">· ${fmtKm(dist)} from base</span>` : "";
+      const wHref = windyHref(e);
+      const forecastLink = wHref ? ` <span class="exp-pop-sep">·</span> <a href="${wHref}" target="_blank" rel="noopener">See forecast →</a>` : "";
       const statusLine = known
         ? `<br><span class="exp-pop-status">${known === "surfed" ? "✓ You've surfed this" : known === "trip" ? "In one of your trips" : "♥ Saved"}</span>`
         : "";
-      m.bindPopup(`<strong>${escHTML(e.name)}</strong><br><span class="rml-tip-meta">${escHTML(e.town)}${distLine}</span>${statusLine}<br><span class="exp-pop-tag">${escHTML(e.tagline || "")}</span><br><a href="spot.html?id=${e.id}">See the analysis →</a>${navAppsHTML(e, state.base)}`);
+      m.bindPopup(`<strong>${escHTML(e.name)}</strong><br><span class="rml-tip-meta">${escHTML(e.town)}${distLine}</span>${statusLine}<br><span class="exp-pop-tag">${escHTML(e.tagline || "")}</span><br><a href="spot.html?id=${e.id}">See the analysis →</a>${forecastLink}${navAppsHTML(e, state.base)}`);
       m.addTo(spotLayer);
       rows.push({ entry: e, dist: dist, inReach: inReach, known: known, marker: m });
     });
