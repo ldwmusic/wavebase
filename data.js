@@ -3467,105 +3467,6 @@ const WAVEBASE_DATA = [
   },
 
   {
-    id: "oostende-mariakerke",
-    type: "spot",
-    country: "Belgium",
-    sports: ["wind", "kite", "wing", "wave"],
-    name: "Oostende — Mariakerke",
-    town: "Oostende",
-    tagline: "The big-city beach. Multi-discipline scene split between the sheltered Spuikom (sailing + windsurf) and the open sea at Mariakerke (kite, wing, occasional wave).",
-    levels: ["intermediate", "advanced"],
-    goodMonths: [3,4,5,6,7,8,9,10,11],
-    coords: [51.2193, 2.8853],
-    googleMapsQuery: "Mariakerke-Bad Oostende Belgium",
-    coordsLabel: "Centre of Mariakerke beach (west of central Oostende). The Spuikom (separate inland-salt-lake watersport zone) is ~3 km northeast.",
-    photo: "",
-    samenvatting: [
-      "Two waters: open sea at Mariakerke (kite, wing, occasional wave) + the Spuikom (sheltered salt-water lake, windsurf + sailing).",
-      "Biggest watersport scene of the Belgian coast — multiple clubs, biggest urban beach.",
-      "Direct train to Brussels (1h10) makes it the easiest coast day-trip.",
-      "Bron-strength: 🟡 PARTIAL — climatology + Inside Outside club site + general guides. NO user review trail (public beach + Spuikom). Conditions are area-pattern, not first-hand."
-    ],
-    verhaal: [
-      `Oostende is the urban + industrial heart of the Belgian coast. A working port, a major train terminus, and a multi-discipline watersport scene that's split between two waters: the open North Sea at Mariakerke beach (kite, wing, occasional wave-surf on Mariakerke's cleaner banks), and the Spuikom — a sheltered salt-water lake inland of the seafront, where the Inside Outside club teaches windsurf + sailing + SUP without the chop of the sea.`,
-      `The honest fine print: it's busy. In summer the seafront fills with beach-tourists; in winter it's quieter and windier. For wave-surfing, Mariakerke (west of the main beach) has the cleaner banks — local wave-surfers know the windows. Don't expect Hossegor; do expect a real urban-beach watersport scene.`
-    ],
-    lagen: [
-      {
-        titel: "Wind & water — Mariakerke side",
-        bron: "Climatological Belgian-coast averages",
-        inhoud: [
-          { kop: "Best wind", tekst: `W–NW prevailing, side-shore to onshore. Strongest Sep–Mar, lighter Jun–Aug.` },
-          { kop: "Wave windows", tekst: `Cleaner sandbanks west of the port produce small waves on the right NW swell + low-tide combinations. Rare proper days — call it ~5–10 per year.` }
-        ]
-      },
-      {
-        titel: "The Spuikom — sheltered alternative",
-        bron: "Inside Outside Oostende club site",
-        inhoud: [
-          { kop: "What it is", tekst: `Salt-water lake inland from the port (~3 km from the beach). Flat water, predictable. Used for windsurf + sail lessons in conditions when the sea is too rough.` }
-        ]
-      },
-      {
-        titel: "Getting there",
-        bron: "NMBS/SNCB schedules",
-        inhoud: [
-          { kop: "By train", tekst: `Direct trains to Brussels (1h10), Antwerp (1h30), Ghent (45 min), Bruges (15 min). Within Oostende: tram + bus to Mariakerke + the Spuikom.` }
-        ]
-      }
-    ],
-    condities: {
-      golftype: "Wind-chop primarily on the open sea; occasional small wave at Mariakerke. Flat water at the Spuikom.",
-      golfhoogte: "0.4–1.2 m typical chop on the sea; flat at the Spuikom; small wave windows ~5–10 days/year",
-      wind: "W–NW prevailing, side-shore to onshore",
-      water: "6 °C winter to ~18 °C late summer (sea + Spuikom similar)",
-      drukte: { niveau: "druk", tekst: "Biggest urban scene of the Belgian coast. Beach fills in summer; the Spuikom is club-controlled and quieter." }
-    },
-    stats: {
-      windDir:    "W–NW prevailing",
-      waveType:   "Wind-chop primarily; small wave on cleaner banks at Mariakerke",
-      bottom:     "Sand, more variable than the western beaches",
-      crowd:      "high",
-      localism:  "Mixed urban scene — multiple clubs share. Friendly overall, smaller wave-surf community keeps to itself.",
-      source:     "Wind / air / gust: Open-Meteo historical GFS @ 51.2193, 2.8853 (daytime 10–18h, 2021-05-20 → 2026-05-16, 5y archive, 16,407 hours). Wave height: Open-Meteo Marine API @ same coords (2024–2025, 2y). Water temp: KMI Belgian coast climatology.",
-      periods: [
-        { name: "Peak",     months: [10, 11, 3],     inSeason: true,
-          windKn: [14, 22], waterC: [10, 14], waveM: [0.6, 1.4] },
-        { name: "High",     months: [9, 4],          inSeason: true,
-          windKn: [12, 20], waterC: [12, 16], waveM: [0.5, 1.2] },
-        { name: "Shoulder", months: [5, 8],          inSeason: true,
-          windKn: [10, 18], waterC: [14, 18], waveM: [0.4, 1.0] },
-        { name: "Light",    months: [6, 7],          inSeason: true,
-          windKn: [8, 16],  waterC: [16, 19], waveM: [0.3, 0.8] },
-        { name: "Cold",     months: [12, 1, 2],      inSeason: false,
-          windKn: [14, 24], waterC: [6, 9],   waveM: [0.7, 1.5] }
-      ],
-      monthlyWindProb:
-        [0.55, 0.50, 0.50, 0.40, 0.35, 0.30, 0.30, 0.30, 0.40, 0.50, 0.55, 0.55],
-      monthlyWindKn:
-        [11, 12, 10, 10, 10, 9, 10, 10, 9, 10, 11, 11],
-      monthlyGustKn:
-        [20, 22, 19, 21, 20, 19, 20, 20, 19, 19, 20, 20],
-      monthlyDailyPeakKn:
-        [16, 16, 13, 14, 13, 13, 14, 13, 13, 14, 15, 16],
-      monthlyGustPeakKn:
-        [37, 37, 34, 35, 31, 31, 33, 30, 33, 34, 35, 37],
-      monthlyWaveM:
-        [1.2, 0.9, 0.7, 0.9, 0.8, 0.8, 0.7, 0.8, 1.0, 0.9, 1.0, 1.1],
-      monthlySwellProb:
-        [0.40, 0.35, 0.30, 0.20, 0.15, 0.10, 0.10, 0.10, 0.20, 0.30, 0.40, 0.45],
-      monthlyAirC:
-        [6, 8, 10, 12, 15, 19, 20, 21, 19, 15, 10, 7],
-      monthlyWaterC:
-        [6, 5, 6, 8, 12, 15, 17, 18, 17, 14, 11, 8],
-      chartType:  "wind"
-    },
-    vergelijking: null,
-    ideaalVoor: "All-rounders who want options — open sea + Spuikom in one town, easy train access, biggest club + service scene of the coast.",
-    nietIdeaalAls: "You're looking for a quiet seaside village vibe (try De Haan) or a kite-pure scene (try Knokke)."
-  },
-
-  {
     id: "spuikom-oostende",
     type: "spot",
     country: "Belgium",
@@ -3588,7 +3489,7 @@ const WAVEBASE_DATA = [
     verhaal: [
       `The Spuikom is Oostende's "inside water" — a 65-hectare enclosed salt-water basin behind the city, originally built in the 1860s as a tidal sluice to keep the harbour silt-free, now repurposed as a watersport zone. Because it's separated from the sea by a dike, the water surface is flat regardless of what the North Sea is doing 1 km to the west.`,
       `For learners that's invaluable: a windsurf or wing or SUP session here doesn't have the cold-water + current intimidation of the open coast. Sea conditions blow out the open beach? Spuikom is still rideable.`,
-      `VZW Inside-Outside (the club) runs lessons from the "Inside" clubhouse on the south bank. Sailing schools share the basin too. The "Outside" half of the club operates the open-sea side at Mariakerke beach a kilometre away — that's the same coast, separately covered by oostende-mariakerke.`,
+      `VZW Inside-Outside (the club) runs lessons from the "Inside" clubhouse on the south bank. Sailing schools share the basin too. The "Outside" half of the club operates the open-sea side at Mariakerke beach a kilometre away — same coast, but conditions there are open sea and very different from the sheltered basin.`,
       `Wind reality (Open-Meteo 5y archive): mean wind 9–12 kn through the year, daily peaks 13–16 kn, gust peaks 30–37 kn. Same direction pattern as the rest of the coast — SW prevailing, more S in summer. Sheltered terrain means the actual on-water feel is calmer than the numbers suggest.`
     ],
     lagen: [
@@ -3651,7 +3552,7 @@ const WAVEBASE_DATA = [
     },
     vergelijking: null,
     ideaalVoor: "Beginners learning windsurf / wing / SUP who want a controlled flat-water environment; intermediates working on technique without sea-state interference; sailing-club members; rainy-day sea-blowout alternative.",
-    nietIdeaalAls: "You want waves (there are none), cold-water exposure, or the open-sea feel — go to Mariakerke beach 1 km west."
+    nietIdeaalAls: "You want waves (there are none on a sheltered basin), cold-water open-sea feel, or a destination spot — the Spuikom is a controlled training venue, not a thrill ride."
   },
 
   {
@@ -4024,7 +3925,7 @@ const WAVEBASE_DATA = [
       "Windsurf + sail + SUP lessons, all levels.",
       "G-sport (adapted watersports) included in the offering.",
       "Kitesurf partnership ended May 2026 — no kite lessons here right now.",
-      "Bron-strength: 🔴 LIMITED — inout-oostende.be (own site) only. No Google business listing found at the Spuikom or Mariakerke locations (May 2026 search), so no review trail. LDW has not visited. Treat lesson/rental details as the club's own claims, not user-verified."
+      "Bron-strength: 🟡 PARTIAL — inout-oostende.be (own site) + Google Maps listing as 'VZW Inside-Outside' at the Spuikom (LDW-confirmed via shortlink). Google reviews for the listing itself are minimal — the club mostly operates via member channels + their own site. LDW has not visited. Treat lesson/rental detail as the club's own claims, not user-verified."
     ],
     verhaal: [
       `Inside Outside is the rare Belgian club that owns two waters. The "Inside" half sits on the Spuikom — a salt-water lake just inland of the seafront — where windsurf + sailing + SUP lessons happen in sheltered conditions. The "Outside" half is on the open North Sea at Mariakerke beach, for when conditions and skill level allow.`,
