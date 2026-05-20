@@ -3623,6 +3623,7 @@ function initSpot() {
         <button class="btn ghost ${comparing ? "on" : ""}" id="compare-toggle">${comparing ? "✓ In compare" : "+ Compare"}</button>
         ${e.type === "spot" ? `<button class="btn ghost surfed-btn ${surfed ? "on" : ""}" id="surfed-toggle">${surfed ? "✓ Surfed it" : "Surfed it"}</button>` : ""}
         ${e.type === "stay" ? `<a class="btn ghost" href="explorer.html?base=${e.id}">Explore spots from here →</a>` : ""}
+        ${(e.type === "spot" || e.type === "center") && e.coords ? `<a class="btn ghost" href="${windyHref(e)}" target="_blank" rel="noopener">See forecast ↗</a>` : ""}
         <span class="trip-picker">
           <select id="trip-select">${tripOptionsHTML(e.id)}</select>
           <span id="trip-view-link-slot">${tripViewLinkHTML(e.id)}</span>
