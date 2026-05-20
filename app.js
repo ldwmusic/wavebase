@@ -2868,6 +2868,7 @@ function initIndex() {
 
     let pinned = false;
     let triggerY = Infinity;
+    let unpinY = 0;
 
     function recomputeNatural() {
       // Only measure when the wrap is in flow. Once pinned, the wrap is
@@ -2879,11 +2880,14 @@ function initIndex() {
       if (pinned) return;
       const r = searcherSection.getBoundingClientRect();
       const h = searcherSection.offsetHeight;
-      // Pin only once the in-flow searcher is ~halfway scrolled out of
-      // view — not the instant its top touches the header (that felt far
-      // too abrupt). The + h/2 pushes the trigger down by half its height.
-      triggerY = r.top + window.scrollY - headerH() + h / 2;
-      if (triggerY < 30) triggerY = 30;
+      const naturalTop = r.top + window.scrollY - headerH();
+      // Wide hysteresis to kill flicker at the threshold: pin once the
+      // searcher is ~halfway scrolled out of view, but don't unpin again
+      // until it has scrolled all the way back to its natural spot. The
+      // big gap between the two (half the searcher height) means hovering
+      // right on the edge can't bounce it between states.
+      triggerY = Math.max(30, naturalTop + h / 2);
+      unpinY = Math.max(0, naturalTop);
       spacer.style.height = h + "px";
     }
 
@@ -2900,7 +2904,7 @@ function initIndex() {
         spacer.style.display = "";
         searcherSection.classList.add("is-fixed");
         applyStoredPos();
-      } else if (pinned && (tooNarrow || window.scrollY <= triggerY - 5)) {
+      } else if (pinned && (tooNarrow || window.scrollY <= unpinY)) {
         pinned = false;
         spacer.style.display = "none";
         searcherSection.classList.remove("is-fixed");
