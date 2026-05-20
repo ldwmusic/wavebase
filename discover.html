@@ -10,12 +10,14 @@
   <link rel="manifest" href="manifest.json">
   <link rel="icon" type="image/svg+xml" href="icon.svg">
   <link rel="apple-touch-icon" href="icon.svg">
-  <title>WaveBase — surf spot, center or stay</title>
-  <meta name="description" content="Honest analysis of a surf spot, center or stay — by season, for your level — built from recent reviews.">
-  <meta property="og:type" content="article">
+  <title>Discover new places — top spots by country — WaveBase</title>
+  <meta name="description" content="The top 5 surf spots in every live WaveBase country, ranked by how they're firing this month. Discover somewhere new.">
+  <link rel="canonical" href="https://wavebase.lode-b162.workers.dev/discover.html">
+  <meta property="og:type" content="website">
   <meta property="og:site_name" content="WaveBase">
-  <meta property="og:title" content="WaveBase">
-  <meta property="og:description" content="Honest analysis of a surf spot, center or stay — by season, for your level.">
+  <meta property="og:title" content="Discover new places — WaveBase">
+  <meta property="og:description" content="The top 5 surf spots in every live WaveBase country, ranked by this month's conditions.">
+  <meta property="og:url" content="https://wavebase.lode-b162.workers.dev/discover.html">
   <meta property="og:image" content="https://wavebase.lode-b162.workers.dev/og-image.png">
   <meta property="og:image:secure_url" content="https://wavebase.lode-b162.workers.dev/og-image.png">
   <meta property="og:image:type" content="image/png">
@@ -23,7 +25,6 @@
   <meta property="og:image:height" content="630">
   <meta property="og:image:alt" content="WaveBase — surfing, told honestly">
   <meta name="twitter:card" content="summary_large_image">
-  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
   <link rel="stylesheet" href="styles.css?v=220">
 </head>
 <body>
@@ -49,9 +50,19 @@
     </div>
   </header>
 
-  <main>
-    <section class="wrap detail">
-      <div id="detail-root"></div>
+  <main class="discover-page">
+    <section class="wrap">
+      <div class="map-intro">
+        <h1>Discover new places</h1>
+        <p>The top five spots in every live WaveBase country — ranked by how they're firing right now. Pick a month to plan a trip ahead.</p>
+      </div>
+      <div class="discover-controls">
+        <label for="disc-month">Conditions for</label>
+        <select id="disc-month" aria-label="Month to rank conditions for"></select>
+      </div>
+    </section>
+    <section class="wrap">
+      <div id="discover-root"></div>
     </section>
   </main>
 
@@ -68,7 +79,6 @@
     </div>
   </footer>
 
-  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
   <script src="data.js?v=220"></script>
   <script src="account.js?v=220"></script>
   <script src="app.js?v=220"></script>

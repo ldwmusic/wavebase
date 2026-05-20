@@ -4166,17 +4166,21 @@ button.rml-key.off .rml-dot {
 }
 .surflog-total { font-size: 16px; color: var(--ink); margin: 4px 0 16px; }
 .surflog-total strong { color: var(--sea); font-size: 19px; }
-.surflog-regions { display: flex; flex-direction: column; gap: 12px; margin-bottom: 22px; }
+.surflog-regions { display: flex; flex-direction: column; gap: 8px; margin-bottom: 22px; }
+.surflog-region {
+  padding: 7px 11px; border-radius: 10px;
+  border: 1px solid transparent;
+  transition: background 0.15s ease, border-color 0.15s ease;
+}
+.surflog-region.is-selected { background: var(--sea-soft); border-color: #cde0e3; }
 .surflog-region-head {
   display: flex; justify-content: space-between; align-items: baseline;
-  width: 100%; margin-bottom: 5px; padding: 4px 0;
+  width: 100%; margin-bottom: 5px; padding: 0;
   background: none; border: none; cursor: pointer;
   font-family: inherit; text-align: left;
 }
-.surflog-region-head:hover .surflog-region-name { color: var(--sea); }
-.surflog-region-right { display: flex; align-items: center; gap: 8px; }
-.surflog-chev { font-size: 11px; color: var(--ink-soft); transition: transform 0.18s ease; }
-.surflog-region.is-open .surflog-chev { transform: rotate(180deg); }
+.surflog-region-head:hover .surflog-region-name,
+.surflog-region.is-selected .surflog-region-name { color: var(--sea); }
 .surflog-region-name { font-weight: 600; font-size: 15px; color: var(--ink); }
 .surflog-region-count {
   font-size: 13px; font-weight: 700; color: var(--ink-soft);
@@ -4204,6 +4208,30 @@ button.rml-key.off .rml-dot {
 .surflog-svg .country { fill: #e4e0d6; stroke: #fff; stroke-width: 0.3; }
 .surflog-svg .country-available { fill: #cde0e3; }
 .surflog-svg .country-surfed { fill: #4f8a5b; }
+.surflog-svg [data-country] { cursor: pointer; transition: fill 0.12s ease; }
+.surflog-svg [data-country]:hover { fill: var(--sea); }
+
+/* Surf log — selected-country panel below the map */
+#surflog-panel:not(:empty) { margin-top: 16px; }
+.surflog-panel-inner {
+  background: var(--sea-soft); border: 1px solid #cde0e3;
+  border-radius: 12px; padding: 14px 16px;
+}
+.surflog-panel-head {
+  display: flex; justify-content: space-between; align-items: center;
+  gap: 12px; margin-bottom: 4px;
+}
+.surflog-panel-head h3 { margin: 0; font-size: 16px; color: var(--ink); }
+.surflog-panel-close {
+  flex: none; width: 28px; height: 28px; border-radius: 50%;
+  border: 1px solid var(--sand-deep); background: #fff;
+  color: var(--ink-soft); font-size: 13px; cursor: pointer;
+  display: inline-flex; align-items: center; justify-content: center;
+}
+.surflog-panel-close:hover { border-color: var(--sea); color: var(--sea); }
+.surflog-panel-inner .surflog-spots {
+  background: none; border: none; padding: 0; margin: 8px 0 0;
+}
 
 /* Surf log — expanded country panel (spots grouped by town) */
 .surflog-spots {
@@ -4239,3 +4267,28 @@ button.rml-key.off .rml-dot {
   background: var(--sea-soft); border: 1px solid #cde0e3; border-radius: 10px;
 }
 .saved-discover-text { font-weight: 600; color: var(--ink); font-size: 15px; }
+
+/* ===== Discover page (discover.html) — top 5 per live country ===== */
+.discover-controls {
+  display: flex; align-items: center; gap: 10px; flex-wrap: wrap;
+  margin: 4px 0 8px;
+}
+.discover-controls label {
+  font-weight: 600; font-size: 14px; color: var(--ink-soft);
+}
+.discover-controls select {
+  font-family: 'DM Sans', sans-serif; font-size: 14px; font-weight: 600;
+  color: var(--ink); padding: 8px 12px; border-radius: 9px;
+  border: 1px solid var(--sand-deep); background: #fff; cursor: pointer;
+}
+.discover-country { margin-top: 30px; }
+.discover-country:first-child { margin-top: 14px; }
+.discover-country-head { margin-bottom: 14px; }
+.discover-country-head h2 {
+  margin: 0; font-size: 22px; color: var(--ink);
+  display: flex; align-items: center; gap: 9px;
+}
+.discover-flag { font-size: 26px; line-height: 1; }
+.discover-country-sub {
+  margin: 4px 0 0; font-size: 14px; color: var(--ink-soft);
+}

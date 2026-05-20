@@ -5,6 +5,7 @@ desktop.ini
 Thumbs.db
 *.pyc
 __pycache__/
+.claude/
 
 # Design references / project docs — not part of the deployed site
 *.pdf
