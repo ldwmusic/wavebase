@@ -1799,11 +1799,20 @@ function renderTierZones(country, bounds) {
     const tos = stays.map(s => typeof s.prices.toEUR === "number" ? s.prices.toEUR : s.prices.fromEUR);
     return { tier: t, min: Math.min(...froms), max: Math.max(...tos), meta: TIER_META[t] };
   }).filter(Boolean);
-  tiersEl.innerHTML = zones.map(z => {
+  // The widest zone carries the "relative to location" note — one place,
+  // inside a tier box, and the zone with the best chance of fitting it.
+  let widest = 0;
+  zones.forEach((z, i) => {
+    if ((z.max - z.min) > (zones[widest].max - zones[widest].min)) widest = i;
+  });
+  tiersEl.innerHTML = zones.map((z, i) => {
     const left = ((z.min - bounds.min) / total) * 100;
     const right = ((z.max - bounds.min) / total) * 100;
     const width = Math.max(10, right - left);
-    return `<span class="pr-tier-zone tier-${z.tier}" style="left: ${left}%; width: ${width}%;" title="${escHTML(z.meta.label)} · ${fmtCurrency(z.min)}–${fmtCurrency(z.max)} /n"><span class="pr-tier-icon" aria-hidden="true">${z.meta.icon}</span><span class="pr-tier-name">${escHTML(z.meta.label)}</span></span>`;
+    const rel = i === widest
+      ? `<span class="pr-tier-rel" title="Each tier is calibrated to local prices — 'Comfortable' costs differently per country.">📍 relative to location</span>`
+      : "";
+    return `<span class="pr-tier-zone tier-${z.tier}" style="left: ${left}%; width: ${width}%;" title="${escHTML(z.meta.label)} · ${fmtCurrency(z.min)}–${fmtCurrency(z.max)} /n"><span class="pr-tier-icon" aria-hidden="true">${z.meta.icon}</span><span class="pr-tier-name">${escHTML(z.meta.label)}</span>${rel}</span>`;
   }).join("");
 }
 
