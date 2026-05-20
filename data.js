@@ -3161,7 +3161,7 @@ const WAVEBASE_DATA = [
       bottom:     "Sand — shallow shelf, gentle slope",
       crowd:      "moderate",
       localism:  "Welcoming, no territorial scene reported.",
-      source:     "Wind / wave / temp: climatological Belgian-coast (Open-Meteo style) 5-year avg. Tidal range: KMI Belgian coast tides.",
+      source:     "Wind / air / gust: Open-Meteo historical GFS @ 51.1051, 2.5952 (daytime 10–18h, 2021-05-20 → 2026-05-16, 5y archive, 16,407 hours). Wave height: Open-Meteo Marine API @ same coords (2024–2025, 2y). Water temp: KMI Belgian coast climatology.",
       periods: [
         { name: "Peak",     months: [10, 11, 3],     inSeason: true,
           windKn: [14, 22], waterC: [10, 14], waveM: [0.6, 1.4] },
@@ -3177,19 +3177,19 @@ const WAVEBASE_DATA = [
       monthlyWindProb:
         [0.55, 0.50, 0.50, 0.40, 0.35, 0.30, 0.30, 0.30, 0.40, 0.50, 0.55, 0.55],
       monthlyWindKn:
-        [14, 13, 13, 11, 11, 10, 10, 10, 12, 13, 14, 14],
+        [11, 11, 9, 10, 9, 9, 9, 9, 9, 10, 10, 11],
       monthlyGustKn:
-        [28, 26, 26, 22, 22, 20, 20, 20, 24, 26, 28, 28],
+        [20, 22, 19, 21, 20, 19, 20, 20, 19, 19, 20, 20],
       monthlyDailyPeakKn:
-        [30, 28, 28, 24, 24, 22, 22, 22, 26, 28, 30, 30],
+        [16, 16, 13, 14, 13, 12, 13, 13, 13, 13, 15, 16],
       monthlyGustPeakKn:
-        [45, 42, 42, 35, 33, 30, 30, 30, 38, 42, 45, 45],
+        [37, 38, 36, 36, 31, 31, 33, 31, 33, 34, 35, 37],
       monthlyWaveM:
-        [1.2, 1.0, 1.0, 0.7, 0.6, 0.5, 0.5, 0.5, 0.7, 0.9, 1.1, 1.2],
+        [1.0, 0.8, 0.6, 0.8, 0.7, 0.7, 0.6, 0.7, 0.9, 0.8, 0.9, 1.0],
       monthlySwellProb:
         [0.40, 0.35, 0.30, 0.20, 0.15, 0.10, 0.10, 0.10, 0.20, 0.30, 0.40, 0.45],
       monthlyAirC:
-        [4, 5, 7, 10, 14, 17, 19, 19, 16, 12, 8, 5],
+        [6, 8, 10, 12, 15, 19, 20, 21, 19, 15, 10, 7],
       monthlyWaterC:
         [6, 5, 6, 8, 12, 15, 17, 18, 17, 14, 11, 8],
       chartType:  "wind"
@@ -3344,7 +3344,7 @@ const WAVEBASE_DATA = [
       bottom:     "Sand — sandbar near harbour mouth",
       crowd:      "moderate",
       localism:  "Wave-surf community small + tight on the rare wave windows; otherwise welcoming.",
-      source:     "Wind / wave / temp: climatological Belgian-coast 5-year avg. Wave windows: multi-source local kite/wind guides.",
+      source:     "Wind / air / gust: Open-Meteo historical GFS @ 51.1478, 2.7157 (daytime 10–18h, 2021-05-20 → 2026-05-16, 5y archive, 16,407 hours). Wave height: Open-Meteo Marine API @ same coords (2024–2025, 2y). Water temp: KMI Belgian coast climatology.",
       periods: [
         { name: "Peak",     months: [10, 11, 3],     inSeason: true,
           windKn: [14, 22], waterC: [10, 14], waveM: [0.6, 1.4] },
@@ -3360,19 +3360,19 @@ const WAVEBASE_DATA = [
       monthlyWindProb:
         [0.55, 0.50, 0.50, 0.40, 0.35, 0.30, 0.30, 0.30, 0.40, 0.50, 0.55, 0.55],
       monthlyWindKn:
-        [14, 13, 13, 11, 11, 10, 10, 10, 12, 13, 14, 14],
+        [11, 11, 9, 10, 9, 9, 9, 9, 9, 10, 10, 11],
       monthlyGustKn:
-        [28, 26, 26, 22, 22, 20, 20, 20, 24, 26, 28, 28],
+        [20, 22, 19, 21, 20, 19, 20, 20, 19, 19, 20, 20],
       monthlyDailyPeakKn:
-        [30, 28, 28, 24, 24, 22, 22, 22, 26, 28, 30, 30],
+        [15, 15, 13, 14, 13, 12, 13, 13, 13, 13, 15, 15],
       monthlyGustPeakKn:
-        [45, 42, 42, 35, 33, 30, 30, 30, 38, 42, 45, 45],
+        [37, 38, 35, 35, 31, 31, 33, 31, 33, 34, 34, 36],
       monthlyWaveM:
-        [1.2, 1.0, 1.0, 0.7, 0.6, 0.5, 0.5, 0.5, 0.7, 0.9, 1.1, 1.2],
+        [1.0, 0.8, 0.6, 0.8, 0.7, 0.7, 0.6, 0.7, 0.9, 0.8, 0.9, 1.0],
       monthlySwellProb:
         [0.40, 0.35, 0.30, 0.20, 0.15, 0.10, 0.10, 0.10, 0.20, 0.30, 0.40, 0.45],
       monthlyAirC:
-        [4, 5, 7, 10, 14, 17, 19, 19, 16, 12, 8, 5],
+        [6, 8, 10, 12, 15, 19, 20, 21, 19, 15, 10, 7],
       monthlyWaterC:
         [6, 5, 6, 8, 12, 15, 17, 18, 17, 14, 11, 8],
       chartType:  "wind"
@@ -3428,7 +3428,7 @@ const WAVEBASE_DATA = [
       bottom:     "Sand, shallow shelf",
       crowd:      "low",
       localism:  "Welcoming family beach + club. No territorial scene reported.",
-      source:     "Wind / wave / temp: climatological Belgian-coast 5-year avg + Surfclub De Kwinte presence.",
+      source:     "Wind / air / gust: Open-Meteo historical GFS @ 51.1697, 2.7757 (daytime 10–18h, 2021-05-20 → 2026-05-16, 5y archive, 16,407 hours). Wave height: Open-Meteo Marine API @ same coords (2024–2025, 2y). Water temp: KMI Belgian coast climatology.",
       periods: [
         { name: "Peak",     months: [10, 11, 3],     inSeason: true,
           windKn: [14, 22], waterC: [10, 14], waveM: [0.6, 1.4] },
@@ -3444,19 +3444,19 @@ const WAVEBASE_DATA = [
       monthlyWindProb:
         [0.55, 0.50, 0.50, 0.40, 0.35, 0.30, 0.30, 0.30, 0.40, 0.50, 0.55, 0.55],
       monthlyWindKn:
-        [14, 13, 13, 11, 11, 10, 10, 10, 12, 13, 14, 14],
+        [11, 11, 9, 10, 9, 9, 9, 9, 9, 10, 10, 11],
       monthlyGustKn:
-        [28, 26, 26, 22, 22, 20, 20, 20, 24, 26, 28, 28],
+        [20, 22, 19, 21, 20, 19, 20, 20, 19, 19, 20, 20],
       monthlyDailyPeakKn:
-        [30, 28, 28, 24, 24, 22, 22, 22, 26, 28, 30, 30],
+        [15, 15, 13, 14, 13, 12, 13, 13, 13, 13, 15, 15],
       monthlyGustPeakKn:
-        [45, 42, 42, 35, 33, 30, 30, 30, 38, 42, 45, 45],
+        [37, 38, 35, 35, 31, 31, 33, 31, 33, 34, 34, 36],
       monthlyWaveM:
-        [1.2, 1.0, 1.0, 0.7, 0.6, 0.5, 0.5, 0.5, 0.7, 0.9, 1.1, 1.2],
+        [1.1, 0.9, 0.7, 0.9, 0.8, 0.8, 0.7, 0.7, 1.0, 0.9, 1.0, 1.1],
       monthlySwellProb:
         [0.40, 0.35, 0.30, 0.20, 0.15, 0.10, 0.10, 0.10, 0.20, 0.30, 0.40, 0.45],
       monthlyAirC:
-        [4, 5, 7, 10, 14, 17, 19, 19, 16, 12, 8, 5],
+        [6, 8, 10, 12, 15, 19, 20, 21, 19, 15, 10, 7],
       monthlyWaterC:
         [6, 5, 6, 8, 12, 15, 17, 18, 17, 14, 11, 8],
       chartType:  "wind"
@@ -3527,7 +3527,7 @@ const WAVEBASE_DATA = [
       bottom:     "Sand, more variable than the western beaches",
       crowd:      "high",
       localism:  "Mixed urban scene — multiple clubs share. Friendly overall, smaller wave-surf community keeps to itself.",
-      source:     "Wind / wave / temp: climatological Belgian-coast 5-year avg + Inside Outside club site for Spuikom.",
+      source:     "Wind / air / gust: Open-Meteo historical GFS @ 51.2193, 2.8853 (daytime 10–18h, 2021-05-20 → 2026-05-16, 5y archive, 16,407 hours). Wave height: Open-Meteo Marine API @ same coords (2024–2025, 2y). Water temp: KMI Belgian coast climatology.",
       periods: [
         { name: "Peak",     months: [10, 11, 3],     inSeason: true,
           windKn: [14, 22], waterC: [10, 14], waveM: [0.6, 1.4] },
@@ -3543,19 +3543,19 @@ const WAVEBASE_DATA = [
       monthlyWindProb:
         [0.55, 0.50, 0.50, 0.40, 0.35, 0.30, 0.30, 0.30, 0.40, 0.50, 0.55, 0.55],
       monthlyWindKn:
-        [14, 13, 13, 11, 11, 10, 10, 10, 12, 13, 14, 14],
+        [11, 12, 10, 10, 10, 9, 10, 10, 9, 10, 11, 11],
       monthlyGustKn:
-        [28, 26, 26, 22, 22, 20, 20, 20, 24, 26, 28, 28],
+        [20, 22, 19, 21, 20, 19, 20, 20, 19, 19, 20, 20],
       monthlyDailyPeakKn:
-        [30, 28, 28, 24, 24, 22, 22, 22, 26, 28, 30, 30],
+        [16, 16, 13, 14, 13, 13, 14, 13, 13, 14, 15, 16],
       monthlyGustPeakKn:
-        [45, 42, 42, 35, 33, 30, 30, 30, 38, 42, 45, 45],
+        [37, 37, 34, 35, 31, 31, 33, 30, 33, 34, 35, 37],
       monthlyWaveM:
-        [1.2, 1.0, 1.0, 0.7, 0.6, 0.5, 0.5, 0.5, 0.7, 0.9, 1.1, 1.2],
+        [1.2, 0.9, 0.7, 0.9, 0.8, 0.8, 0.7, 0.8, 1.0, 0.9, 1.0, 1.1],
       monthlySwellProb:
         [0.40, 0.35, 0.30, 0.20, 0.15, 0.10, 0.10, 0.10, 0.20, 0.30, 0.40, 0.45],
       monthlyAirC:
-        [4, 5, 7, 10, 14, 17, 19, 19, 16, 12, 8, 5],
+        [6, 8, 10, 12, 15, 19, 20, 21, 19, 15, 10, 7],
       monthlyWaterC:
         [6, 5, 6, 8, 12, 15, 17, 18, 17, 14, 11, 8],
       chartType:  "wind"
@@ -3612,7 +3612,7 @@ const WAVEBASE_DATA = [
       bottom:     "Sand",
       crowd:      "low",
       localism:  "Wave-surf community is small but close. Welcoming if you respect the line-up etiquette.",
-      source:     "Wind / wave / temp: climatological Belgian-coast 5-year avg + multi-source Belgian-coast surf guides.",
+      source:     "Wind / air / gust: Open-Meteo historical GFS @ 51.2727, 3.0326 (daytime 10–18h, 2021-05-20 → 2026-05-16, 5y archive, 16,407 hours). Wave height: Open-Meteo Marine API @ same coords (2024–2025, 2y). Water temp: KMI Belgian coast climatology.",
       periods: [
         { name: "Peak",     months: [10, 11, 3],     inSeason: true,
           windKn: [14, 22], waterC: [10, 14], waveM: [0.7, 1.5] },
@@ -3628,19 +3628,19 @@ const WAVEBASE_DATA = [
       monthlyWindProb:
         [0.55, 0.50, 0.50, 0.40, 0.35, 0.30, 0.30, 0.30, 0.40, 0.50, 0.55, 0.55],
       monthlyWindKn:
-        [14, 13, 13, 11, 11, 10, 10, 10, 12, 13, 14, 14],
+        [11, 12, 10, 11, 10, 9, 10, 10, 10, 10, 11, 11],
       monthlyGustKn:
-        [28, 26, 26, 22, 22, 20, 20, 20, 24, 26, 28, 28],
+        [20, 22, 19, 21, 20, 19, 20, 20, 19, 20, 20, 20],
       monthlyDailyPeakKn:
-        [30, 28, 28, 24, 24, 22, 22, 22, 26, 28, 30, 30],
+        [16, 17, 14, 14, 14, 13, 14, 13, 13, 14, 16, 16],
       monthlyGustPeakKn:
-        [45, 42, 42, 35, 33, 30, 30, 30, 38, 42, 45, 45],
+        [37, 38, 34, 36, 31, 31, 33, 30, 33, 34, 35, 37],
       monthlyWaveM:
-        [1.2, 1.0, 1.0, 0.7, 0.6, 0.5, 0.5, 0.5, 0.7, 0.9, 1.1, 1.2],
+        [1.1, 0.8, 0.6, 0.8, 0.7, 0.7, 0.7, 0.7, 0.9, 0.9, 0.9, 1.0],
       monthlySwellProb:
         [0.40, 0.35, 0.30, 0.20, 0.15, 0.10, 0.10, 0.10, 0.20, 0.30, 0.40, 0.45],
       monthlyAirC:
-        [4, 5, 7, 10, 14, 17, 19, 19, 16, 12, 8, 5],
+        [6, 8, 10, 12, 15, 19, 20, 20, 19, 15, 10, 7],
       monthlyWaterC:
         [6, 5, 6, 8, 12, 15, 17, 18, 17, 14, 11, 8],
       chartType:  "wave"
@@ -3697,7 +3697,7 @@ const WAVEBASE_DATA = [
       bottom:     "Sand, gentle slope",
       crowd:      "moderate",
       localism:  "Kite community welcoming, less general beach traffic than the resorts.",
-      source:     "Wind / wave / temp: climatological Belgian-coast 5-year avg + multi-source kite-Belgium guides.",
+      source:     "Wind / air / gust: Open-Meteo historical GFS @ 51.3305, 3.1841 (daytime 10–18h, 2021-05-20 → 2026-05-16, 5y archive, 16,407 hours). Wave height: Open-Meteo Marine API @ same coords (2024–2025, 2y). Water temp: KMI Belgian coast climatology.",
       periods: [
         { name: "Peak",     months: [10, 11, 3],     inSeason: true,
           windKn: [14, 22], waterC: [10, 14], waveM: [0.5, 1.2] },
@@ -3713,19 +3713,19 @@ const WAVEBASE_DATA = [
       monthlyWindProb:
         [0.55, 0.50, 0.50, 0.40, 0.35, 0.30, 0.30, 0.30, 0.40, 0.50, 0.55, 0.55],
       monthlyWindKn:
-        [14, 13, 13, 11, 11, 10, 10, 10, 12, 13, 14, 14],
+        [10, 11, 9, 10, 9, 9, 9, 9, 9, 9, 10, 10],
       monthlyGustKn:
-        [28, 26, 26, 22, 22, 20, 20, 20, 24, 26, 28, 28],
+        [18, 20, 18, 19, 19, 18, 19, 18, 17, 18, 18, 19],
       monthlyDailyPeakKn:
-        [30, 28, 28, 24, 24, 22, 22, 22, 26, 28, 30, 30],
+        [15, 15, 12, 13, 12, 12, 13, 12, 12, 13, 14, 15],
       monthlyGustPeakKn:
-        [45, 42, 42, 35, 33, 30, 30, 30, 38, 42, 45, 45],
+        [34, 35, 32, 33, 29, 28, 31, 28, 30, 31, 32, 33],
       monthlyWaveM:
-        [1.0, 0.9, 0.9, 0.6, 0.5, 0.4, 0.4, 0.4, 0.6, 0.8, 1.0, 1.1],
+        [0.8, 0.6, 0.5, 0.6, 0.6, 0.5, 0.5, 0.5, 0.6, 0.6, 0.7, 0.7],
       monthlySwellProb:
         [0.35, 0.30, 0.25, 0.18, 0.13, 0.10, 0.10, 0.10, 0.18, 0.25, 0.35, 0.40],
       monthlyAirC:
-        [4, 5, 7, 10, 14, 17, 19, 19, 16, 12, 8, 5],
+        [5, 8, 10, 12, 15, 19, 20, 21, 19, 15, 9, 7],
       monthlyWaterC:
         [6, 5, 6, 8, 12, 15, 17, 18, 17, 14, 11, 8],
       chartType:  "wind"
@@ -3795,7 +3795,7 @@ const WAVEBASE_DATA = [
       bottom:     "Sand, gentle slope",
       crowd:      "high",
       localism:  "Welcoming international kite + wing scene, well-organised by the on-site center.",
-      source:     "Wind / wave / temp: climatological Belgian-coast 5-year avg + surfersparadise.be own site for center scene.",
+      source:     "Wind / air / gust: Open-Meteo historical GFS @ 51.3612, 3.3273 (daytime 10–18h, 2021-05-20 → 2026-05-16, 5y archive, 16,407 hours). Wave height: Open-Meteo Marine API @ same coords (2024–2025, 2y). Water temp: KMI Belgian coast climatology.",
       periods: [
         { name: "Peak",     months: [10, 11, 3],     inSeason: true,
           windKn: [14, 22], waterC: [10, 14], waveM: [0.6, 1.4] },
@@ -3811,19 +3811,19 @@ const WAVEBASE_DATA = [
       monthlyWindProb:
         [0.55, 0.50, 0.50, 0.40, 0.35, 0.30, 0.30, 0.30, 0.40, 0.50, 0.55, 0.55],
       monthlyWindKn:
-        [14, 13, 13, 11, 11, 10, 10, 10, 12, 13, 14, 14],
+        [11, 12, 10, 10, 10, 9, 10, 10, 9, 10, 11, 11],
       monthlyGustKn:
-        [28, 26, 26, 22, 22, 20, 20, 20, 24, 26, 28, 28],
+        [20, 22, 19, 20, 20, 19, 20, 19, 19, 20, 20, 20],
       monthlyDailyPeakKn:
-        [30, 28, 28, 24, 24, 22, 22, 22, 26, 28, 30, 30],
+        [16, 17, 13, 14, 13, 12, 14, 13, 13, 14, 15, 16],
       monthlyGustPeakKn:
-        [45, 42, 42, 35, 33, 30, 30, 30, 38, 42, 45, 45],
+        [36, 37, 34, 35, 30, 30, 33, 30, 33, 34, 35, 36],
       monthlyWaveM:
-        [1.2, 1.0, 1.0, 0.7, 0.6, 0.5, 0.5, 0.5, 0.7, 0.9, 1.1, 1.2],
+        [0.9, 0.7, 0.5, 0.7, 0.6, 0.6, 0.6, 0.6, 0.7, 0.7, 0.8, 0.8],
       monthlySwellProb:
         [0.40, 0.35, 0.30, 0.20, 0.15, 0.10, 0.10, 0.10, 0.20, 0.30, 0.40, 0.45],
       monthlyAirC:
-        [4, 5, 7, 10, 14, 17, 19, 19, 16, 12, 8, 5],
+        [6, 8, 10, 12, 15, 19, 20, 20, 19, 15, 9, 7],
       monthlyWaterC:
         [6, 5, 6, 8, 12, 15, 17, 18, 17, 14, 11, 8],
       chartType:  "wind"
