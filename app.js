@@ -5097,6 +5097,262 @@ function openConsentPreferences() {
   renderConsentBanner({ reopen: true });
 }
 
+/* ===== Explorer page (explorer.html) — base + reach spot discovery =====
+   The use case: "I'm in <region>, I have my own gear, I want a spot I
+   don't know yet that's not too far." Set a base, set a reach, see the
+   spots within range. Fase 1 = base + reach + list. (Fase 2 adds the
+   new-vs-known dimming; Fase 3 conditions; Fase 4 real drive time.) */
+function initExplorer() {
+  const mapEl = document.getElementById("exp-map");
+  if (typeof L === "undefined" || !mapEl) return;
+
+  const LS_KEY = "wavebase_explorer_v1";
+  function loadState() {
+    try { return JSON.parse(localStorage.getItem(LS_KEY)) || {}; }
+    catch (e) { return {}; }
+  }
+  function saveState() {
+    try {
+      localStorage.setItem(LS_KEY, JSON.stringify({
+        region: state.region, base: state.base, maxKm: state.maxKm, sports: state.sports
+      }));
+    } catch (e) {}
+  }
+
+  // Regions = countries that have at least one spot with coords.
+  const regions = [...new Set(
+    WAVEBASE_DATA.filter(e => e.type === "spot" && Array.isArray(e.coords)).map(e => entryCountry(e))
+  )].sort();
+  if (!regions.length) return;
+
+  const params = new URLSearchParams(window.location.search);
+  const stored = loadState();
+  const state = {
+    region: (stored.region && regions.indexOf(stored.region) !== -1) ? stored.region : regions[0],
+    base:   stored.base || null,          // {lat, lng, label}
+    maxKm:  stored.maxKm || 25,
+    sports: stored.sports || { wave: true, wind: true, kite: true, wing: true }
+  };
+  // ?region= override
+  const urlRegion = params.get("region");
+  if (urlRegion && regions.indexOf(urlRegion) !== -1) state.region = urlRegion;
+  // ?base=<stayId> — the stay-page launch bridge
+  const urlBase = params.get("base");
+  if (urlBase) {
+    const stay = byId(urlBase);
+    if (stay && Array.isArray(stay.coords)) {
+      state.base = { lat: stay.coords[0], lng: stay.coords[1], label: stay.name };
+      state.region = entryCountry(stay);
+    }
+  }
+
+  // ---- map ----
+  const map = L.map(mapEl, { scrollWheelZoom: false });
+  L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
+    attribution: "&copy; OpenStreetMap contributors", maxZoom: 19
+  }).addTo(map);
+  // An initial view so layers can project. An L.circle (metric radius)
+  // added before any view throws "layerPointToLatLng" — redraw()'s
+  // fitBounds immediately corrects this in the same frame.
+  map.setView([20, 0], 2);
+  const spotLayer = L.layerGroup().addTo(map);
+  let baseMarker = null, reachCircle = null;
+  let rows = []; // [{entry, dist, inReach, marker}]
+
+  function regionSpots() {
+    return WAVEBASE_DATA.filter(e =>
+      e.type === "spot" && entryCountry(e) === state.region && Array.isArray(e.coords));
+  }
+  function sportOk(e) { return entrySports(e).some(s => state.sports[s]); }
+  // Geolocation helper — snap the region to the country of the nearest spot.
+  function regionForPoint(lat, lng) {
+    let best = null, bestD = Infinity;
+    WAVEBASE_DATA.forEach(e => {
+      if (e.type !== "spot" || !Array.isArray(e.coords)) return;
+      const d = distanceKm([lat, lng], e.coords);
+      if (d < bestD) { bestD = d; best = entryCountry(e); }
+    });
+    return best || state.region;
+  }
+  function setBase(lat, lng, label) {
+    state.base = { lat: lat, lng: lng, label: label || "Your pin" };
+    saveState(); redraw();
+  }
+  function clearBase() { state.base = null; saveState(); redraw(); }
+
+  function redraw() {
+    spotLayer.clearLayers();
+    if (baseMarker) { map.removeLayer(baseMarker); baseMarker = null; }
+    if (reachCircle) { map.removeLayer(reachCircle); reachCircle = null; }
+    rows = [];
+
+    const spots = regionSpots().filter(sportOk);
+
+    if (state.base) {
+      const bll = [state.base.lat, state.base.lng];
+      reachCircle = L.circle(bll, {
+        radius: state.maxKm * 1000, color: "#3f6f7d", weight: 1.5,
+        fillColor: "#3f6f7d", fillOpacity: 0.06, dashArray: "5,6", interactive: false
+      }).addTo(map);
+      baseMarker = L.marker(bll, {
+        draggable: true,
+        icon: L.divIcon({ className: "exp-base-pin", html: "★", iconSize: [32,32], iconAnchor: [16,16] })
+      }).addTo(map);
+      baseMarker.bindTooltip(state.base.label, { direction: "top", offset: [0,-14] });
+      baseMarker.on("dragend", () => {
+        const ll = baseMarker.getLatLng();
+        setBase(ll.lat, ll.lng, "Your pin");
+      });
+    }
+
+    spots.forEach(e => {
+      const dist = state.base ? distanceKm([state.base.lat, state.base.lng], e.coords) : null;
+      const inReach = dist == null ? true : dist <= state.maxKm;
+      const faded = state.base && !inReach;
+      const m = L.circleMarker(e.coords, {
+        radius: faded ? 6 : 9, color: "#fff", weight: 2, fillColor: typeColor("spot"),
+        fillOpacity: faded ? 0.3 : 1, opacity: faded ? 0.4 : 1
+      });
+      const distLine = dist != null
+        ? `<br><span class="exp-pop-dist">${fmtKm(dist)} from your base (straight-line)</span>` : "";
+      m.bindPopup(`<strong>${escHTML(e.name)}</strong><br><span class="rml-tip-meta">${escHTML(e.town)}</span>${distLine}<br><a href="spot.html?id=${e.id}">See the analysis →</a>`);
+      m.addTo(spotLayer);
+      rows.push({ entry: e, dist: dist, inReach: inReach, marker: m });
+    });
+
+    if (state.base && reachCircle) {
+      map.fitBounds(reachCircle.getBounds(), { padding: [24,24] });
+    } else {
+      const pts = spots.map(e => e.coords);
+      if (pts.length) map.fitBounds(pts, { padding: [34,34], maxZoom: 11 });
+    }
+
+    renderList();
+    renderBaseStatus();
+    setTimeout(() => map.invalidateSize(), 60);
+  }
+
+  function renderList() {
+    const el = document.getElementById("exp-list");
+    if (!el) return;
+    let list = rows.slice();
+    if (state.base) list = list.filter(r => r.inReach).sort((a,b) => a.dist - b.dist);
+    else list.sort((a,b) => a.entry.name.localeCompare(b.entry.name));
+    const head = state.base
+      ? `<div class="exp-list-head">${list.length} spot${list.length===1?"":"s"} within ${state.maxKm} km</div>`
+      : `<div class="exp-list-head">${list.length} spot${list.length===1?"":"s"} in ${escHTML(state.region)} <span class="muted">— set your base to sort by distance</span></div>`;
+    if (!list.length) {
+      el.innerHTML = head + `<p class="exp-list-empty">No spots in range. Widen your reach, or turn a sport back on.</p>`;
+      return;
+    }
+    const items = list.map(r => {
+      const distChip = r.dist != null ? `<span class="exp-row-dist">${fmtKm(r.dist)}</span>` : "";
+      return `<button type="button" class="exp-row" data-id="${r.entry.id}">
+        <span class="exp-row-main">
+          <span class="exp-row-name">${escHTML(r.entry.name)}</span>
+          <span class="exp-row-town">${escHTML(r.entry.town)}</span>
+        </span>${distChip}
+      </button>`;
+    }).join("");
+    el.innerHTML = head + `<div class="exp-rows">${items}</div>`;
+    el.querySelectorAll(".exp-row").forEach(btn => {
+      btn.addEventListener("click", () => {
+        const r = rows.find(x => x.entry.id === btn.dataset.id);
+        if (r) { map.panTo(r.entry.coords); r.marker.openPopup(); }
+      });
+    });
+  }
+
+  function renderBaseStatus() {
+    const el = document.getElementById("exp-base-status");
+    if (!el) return;
+    if (state.base) {
+      el.innerHTML = `<span class="exp-base-set">📍 Base: <strong>${escHTML(state.base.label)}</strong></span>
+        <button type="button" class="exp-clear" id="exp-clear">Clear base</button>`;
+      const c = document.getElementById("exp-clear");
+      if (c) c.addEventListener("click", clearBase);
+    } else {
+      el.innerHTML = `<span class="exp-base-none">No base set yet — click anywhere on the map, use your location, or pick a stay.</span>`;
+    }
+  }
+
+  // ---- controls ----
+  const regionSel = document.getElementById("exp-region");
+  regionSel.innerHTML = regions.map(r =>
+    `<option value="${escHTML(r)}"${r===state.region?" selected":""}>${escHTML(r)}</option>`).join("");
+  regionSel.addEventListener("change", () => {
+    state.region = regionSel.value; saveState(); populateStays(); redraw();
+  });
+
+  function populateStays() {
+    const sel = document.getElementById("exp-stay");
+    const stays = WAVEBASE_DATA.filter(e =>
+      e.type === "stay" && entryCountry(e) === state.region && Array.isArray(e.coords));
+    if (!stays.length) {
+      sel.innerHTML = `<option value="">No stays in this region</option>`;
+      sel.disabled = true; return;
+    }
+    sel.disabled = false;
+    sel.innerHTML = `<option value="">Pick a stay…</option>` +
+      stays.map(s => `<option value="${s.id}">${escHTML(s.name)}</option>`).join("");
+  }
+  populateStays();
+  document.getElementById("exp-stay").addEventListener("change", function () {
+    if (!this.value) return;
+    const stay = byId(this.value);
+    if (stay && Array.isArray(stay.coords)) setBase(stay.coords[0], stay.coords[1], stay.name);
+    this.value = "";
+  });
+
+  document.getElementById("exp-geo").addEventListener("click", function () {
+    if (!navigator.geolocation) { alert("Your browser doesn't support location."); return; }
+    const btn = this;
+    btn.disabled = true; btn.textContent = "Locating…";
+    navigator.geolocation.getCurrentPosition(
+      pos => {
+        btn.disabled = false; btn.textContent = "📍 Use my location";
+        const lat = pos.coords.latitude, lng = pos.coords.longitude;
+        const r = regionForPoint(lat, lng);
+        if (r && regions.indexOf(r) !== -1) { state.region = r; regionSel.value = r; populateStays(); }
+        setBase(lat, lng, "Your location");
+      },
+      () => {
+        btn.disabled = false; btn.textContent = "📍 Use my location";
+        alert("Couldn't get your location. Click the map to set a base instead.");
+      },
+      { enableHighAccuracy: true, timeout: 8000 }
+    );
+  });
+
+  const reach = document.getElementById("exp-reach");
+  const reachVal = document.getElementById("exp-reach-val");
+  reach.value = state.maxKm;
+  reachVal.textContent = state.maxKm + " km";
+  reach.addEventListener("input", () => {
+    state.maxKm = parseInt(reach.value, 10) || 25;
+    reachVal.textContent = state.maxKm + " km";
+    saveState(); redraw();
+  });
+
+  const sportsEl = document.getElementById("exp-sports");
+  const SPORTS = [["wave","Surf"],["wind","Windsurf"],["kite","Kitesurf"],["wing","Wingfoil"]];
+  sportsEl.innerHTML = SPORTS.map(([k,label]) =>
+    `<button type="button" class="exp-sport${state.sports[k]?" on":""}" data-sport="${k}">${label}</button>`).join("");
+  sportsEl.querySelectorAll(".exp-sport").forEach(btn => {
+    btn.addEventListener("click", () => {
+      const k = btn.dataset.sport;
+      state.sports[k] = !state.sports[k];
+      btn.classList.toggle("on", state.sports[k]);
+      saveState(); redraw();
+    });
+  });
+
+  // Click anywhere on the map → set/move the base there.
+  map.on("click", e => setBase(e.latlng.lat, e.latlng.lng, "Your pin"));
+
+  redraw();
+}
+
 /* ---- router ---- */
 document.addEventListener("DOMContentLoaded", () => {
   initConsent();
@@ -5107,6 +5363,7 @@ document.addEventListener("DOMContentLoaded", () => {
   if (document.getElementById("results")) initIndex();
   if (document.getElementById("detail-root")) initSpot();
   if (document.getElementById("map")) initMap();
+  if (document.getElementById("exp-map")) initExplorer();
   if (document.getElementById("account-root")) renderAccount();
   if (document.getElementById("compare-root")) renderCompare();
   if (document.getElementById("continent-root")) initContinent();

@@ -10,12 +10,14 @@
   <link rel="manifest" href="manifest.json">
   <link rel="icon" type="image/svg+xml" href="icon.svg">
   <link rel="apple-touch-icon" href="icon.svg">
-  <title>WaveBase — surf spot, center or stay</title>
-  <meta name="description" content="Honest analysis of a surf spot, center or stay — by season, for your level — built from recent reviews.">
-  <meta property="og:type" content="article">
+  <title>Explorer — find a surf spot near you — WaveBase</title>
+  <meta name="description" content="Set your base, pick how far you'll go, and find surf spots within reach — with the ones new to you highlighted. The WaveBase spot explorer.">
+  <link rel="canonical" href="https://wavebase.lode-b162.workers.dev/explorer.html">
+  <meta property="og:type" content="website">
   <meta property="og:site_name" content="WaveBase">
-  <meta property="og:title" content="WaveBase">
-  <meta property="og:description" content="Honest analysis of a surf spot, center or stay — by season, for your level.">
+  <meta property="og:title" content="Explorer — WaveBase">
+  <meta property="og:description" content="Set your base, pick how far you'll go, and find surf spots within reach.">
+  <meta property="og:url" content="https://wavebase.lode-b162.workers.dev/explorer.html">
   <meta property="og:image" content="https://wavebase.lode-b162.workers.dev/og-image.png">
   <meta property="og:image:secure_url" content="https://wavebase.lode-b162.workers.dev/og-image.png">
   <meta property="og:image:type" content="image/png">
@@ -23,7 +25,7 @@
   <meta property="og:image:height" content="630">
   <meta property="og:image:alt" content="WaveBase — surfing, told honestly">
   <meta name="twitter:card" content="summary_large_image">
-  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin="">
   <link rel="stylesheet" href="styles.css?v=216">
 </head>
 <body>
@@ -40,6 +42,7 @@
       </div>
       <nav class="site-nav">
         <a href="index.html">Home</a>
+        <a href="explorer.html" class="active">Explorer</a>
         <a href="kaart.html">Map</a>
         <a href="compare.html" id="nav-compare">Compare</a>
         <a href="about.html">About</a>
@@ -48,9 +51,41 @@
     </div>
   </header>
 
-  <main>
-    <section class="wrap detail">
-      <div id="detail-root"></div>
+  <main class="explorer-page">
+    <section class="wrap">
+      <div class="map-intro">
+        <h1>Explorer</h1>
+        <p>Set your base, pick how far you'll go — and find surf spots within reach. Got your own gear and want a spot you don't know yet? Start here.</p>
+      </div>
+
+      <div class="explorer-controls">
+        <div class="exp-field">
+          <label for="exp-region">Region</label>
+          <select id="exp-region"></select>
+        </div>
+        <div class="exp-field exp-field-base">
+          <label>Your base</label>
+          <div class="exp-base-controls">
+            <button type="button" class="exp-btn" id="exp-geo">📍 Use my location</button>
+            <select id="exp-stay"><option value="">Pick a stay…</option></select>
+            <span class="exp-hint">or click the map</span>
+          </div>
+        </div>
+        <div class="exp-field exp-field-reach">
+          <label for="exp-reach">Reach: <strong id="exp-reach-val">25 km</strong></label>
+          <input type="range" id="exp-reach" min="5" max="120" value="25" step="5" aria-label="Maximum distance from base">
+        </div>
+        <div class="exp-field">
+          <label>Sport</label>
+          <div class="exp-sports" id="exp-sports"></div>
+        </div>
+      </div>
+      <div class="exp-base-status" id="exp-base-status"></div>
+    </section>
+
+    <section class="explorer-stage">
+      <div id="exp-map"></div>
+      <aside class="exp-list" id="exp-list"></aside>
     </section>
   </main>
 
@@ -67,7 +102,7 @@
     </div>
   </footer>
 
-  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
   <script src="data.js?v=216"></script>
   <script src="account.js?v=216"></script>
   <script src="app.js?v=216"></script>
