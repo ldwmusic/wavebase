@@ -4211,11 +4211,17 @@ button.rml-key.off .rml-dot {
 .surflog-svg [data-country] { cursor: pointer; transition: fill 0.12s ease; }
 .surflog-svg [data-country]:hover { fill: var(--sea); }
 
-/* Surf log — selected-country panel below the map */
-#surflog-panel:not(:empty) { margin-top: 16px; }
+/* Surf log — selected-country spots panel. Standalone slot sits just
+   above the map; when the country has a progress-bar row the panel is
+   injected inside that row instead (transparent — the row is the box). */
+#surflog-panel:not(:empty) { margin: 0 0 22px; }
 .surflog-panel-inner {
   background: var(--sea-soft); border: 1px solid #cde0e3;
   border-radius: 12px; padding: 14px 16px;
+}
+.surflog-region .surflog-panel-inner {
+  background: none; border: none; border-radius: 0;
+  padding: 0; margin: 6px 0 2px;
 }
 .surflog-panel-head {
   display: flex; justify-content: space-between; align-items: center;

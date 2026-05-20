@@ -3963,7 +3963,8 @@ function tripSummaryHTML(items) {
 /* "Your surf log" — the scratch-map (account page). The world map is the
    picker: tap any highlighted country to open its spots panel and tick
    them off. The region list above the map shows ONLY countries you've
-   already surfed in (a progress bar each) — your achievements so far.
+   already surfed in (a progress bar each). The spots panel opens inline
+   under a country's row if it has one, else in a slot just above the map.
    Driven by the "surfed" list. */
 function surfLogData() {
   const surfedIds = new Set(WaveBaseAccount.getSurfed());
@@ -4011,7 +4012,8 @@ function surfLogSpotsPanel(country) {
 }
 
 /* The region list — ONLY countries the user has surfed in (done > 0).
-   Each row is a clickable progress bar that opens that country's panel. */
+   Each row is a clickable progress bar; the selected country's spots
+   panel is injected inline right under its row. */
 function surfLogRegionsHTML(d, selected) {
   const visited = d.countries.filter(c => d.byCountry[c].done > 0);
   if (!visited.length) return "";
@@ -4025,16 +4027,21 @@ function surfLogRegionsHTML(d, selected) {
         <span class="surflog-region-count">${done} / ${t}</span>
       </button>
       <div class="surflog-bar"><div class="surflog-bar-fill" style="width:${pct}%"></div></div>
+      ${c === selected ? surfLogPanelHTML(c, true) : ""}
     </div>`;
   }).join("");
 }
 
-/* The spots panel for the selected country — appears below the map. */
-function surfLogPanelHTML(country) {
+/* The spots panel for the selected country. `inline` true → it sits under
+   that country's progress-bar row (the row already names the country, so
+   the heading drops the name); false → it's the standalone panel just
+   above the map and needs the country name in its heading. */
+function surfLogPanelHTML(country, inline) {
   if (!country) return "";
+  const heading = inline ? "Tick off your spots" : `${escHTML(country)} — tick off your spots`;
   return `<div class="surflog-panel-inner">
     <div class="surflog-panel-head">
-      <h3>${escHTML(country)} — tick off your spots</h3>
+      <h3>${heading}</h3>
       <button type="button" class="surflog-panel-close" id="surflog-close" aria-label="Close">✕</button>
     </div>
     ${surfLogSpotsPanel(country)}
@@ -4048,28 +4055,37 @@ function surfLogHTML() {
     <p class="muted form-note">Tap a highlighted country on the map to tick off its spots — or hit “Surfed it” on any spot page.</p>
     <div id="surflog-hero">${surfLogHeroHTML(d)}</div>
     <div class="surflog-regions" id="surflog-regions">${surfLogRegionsHTML(d, null)}</div>
+    <div id="surflog-panel"></div>
     <div class="surflog-map-wrap">
       <div class="surflog-map" id="surflog-map" aria-label="Map — tap a country to tick off its spots"></div>
       <p class="surflog-map-cap">Green = surfed · teal = spots to discover. Tap a highlighted country to tick off its spots.</p>
     </div>
-    <div id="surflog-panel"></div>
   </section>`;
 }
 
 /* Re-render hero + regions + panel in place; the world map SVG stays put
-   (just re-tagged, no re-fetch, no flicker). */
+   (just re-tagged, no re-fetch, no flicker). A surfed country shows its
+   panel inline under its progress-bar row; a country with no row yet
+   shows it in the standalone slot just above the map. */
 function refreshSurfLog(selected, scroll) {
   const hero = document.getElementById("surflog-hero");
   const regions = document.getElementById("surflog-regions");
   const panel = document.getElementById("surflog-panel");
   if (!hero || !regions || !panel) return;
   const d = surfLogData();
+  const isVisited = !!(selected && d.byCountry[selected] && d.byCountry[selected].done > 0);
   hero.innerHTML = surfLogHeroHTML(d);
   regions.innerHTML = surfLogRegionsHTML(d, selected);
-  panel.innerHTML = surfLogPanelHTML(selected);
+  // Visited country → panel rendered inline by surfLogRegionsHTML; a brand-
+  // new country has no row, so it goes in the standalone slot above the map.
+  panel.innerHTML = (selected && !isVisited) ? surfLogPanelHTML(selected, false) : "";
   wireSurfLog(selected);
   renderSurfLogMap();
-  if (selected && scroll) panel.scrollIntoView({ behavior: "smooth", block: "nearest" });
+  if (selected && scroll) {
+    const sec = document.getElementById("surf-log");
+    const target = sec && sec.querySelector(".surflog-panel-inner");
+    if (target) target.scrollIntoView({ behavior: "smooth", block: "nearest" });
+  }
 }
 
 function wireSurfLog(selected) {
@@ -4082,11 +4098,17 @@ function wireSurfLog(selected) {
       refreshSurfLog(c === selected ? null : c, c !== selected);
     });
   });
-  // Spot toggle → mark surfed; keep the panel on the same country.
+  // Spot toggle → mark surfed; keep the panel on the same country. Scroll
+  // only when the panel relocates (a country's first/last spot flips it
+  // between the inline row slot and the standalone slot above the map).
   sec.querySelectorAll(".surflog-spot").forEach(btn => {
     btn.addEventListener("click", () => {
+      const before = surfLogData().byCountry[selected];
+      const wasOn = !!(before && before.done > 0);
       WaveBaseAccount.toggleSurfed(btn.dataset.surf);
-      refreshSurfLog(selected, false);
+      const after = surfLogData().byCountry[selected];
+      const nowOn = !!(after && after.done > 0);
+      refreshSurfLog(selected, wasOn !== nowOn);
     });
   });
   // Panel close button.
