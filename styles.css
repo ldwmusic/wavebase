@@ -3165,37 +3165,11 @@ button.rml-key.off .rml-dot {
   color: var(--clay); font-weight: 600;
 }
 
-/* town intro strip — on the index page */
-.town-intro-section { margin: 0 0 34px; }
-.town-intro-h2 {
-  font-family: 'Fraunces', Georgia, serif;
-  font-size: 28px; margin: 0 0 14px;
-}
-.town-intro-strip {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 18px;
-  margin: 0;
-}
-.town-card {
-  background: var(--paper);
-  border: 1px solid var(--sand);
-  border-left: 4px solid var(--sea);
-  border-radius: var(--radius);
-  padding: 20px 24px;
-  box-shadow: var(--shadow-sm);
-}
-.town-card h3 { font-size: 22px; margin-bottom: 4px; }
-.town-card > p { color: var(--ink-soft); font-size: 15px; margin-bottom: 12px; }
-.town-card-facts { display: flex; flex-direction: column; gap: 7px; font-size: 13.5px; }
-.town-card-facts strong { color: var(--ink); }
-
 /* stay at a glance — make the last (7th) cell span full width */
 .verblijf-grid .cond-item:last-child:nth-child(odd) { grid-column: 1 / -1; }
 
 @media (max-width: 620px) {
   .town-grid { grid-template-columns: 1fr; }
-  .town-intro-strip { grid-template-columns: 1fr; }
 }
 
 /* ===== round 6: editable trip items ===== */

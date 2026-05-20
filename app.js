@@ -1508,32 +1508,6 @@ function countryHeading(country) {
   return map[country] || country;
 }
 
-function townStripHTML(country) {
-  if (typeof WAVEBASE_TOWNS === "undefined") return "";
-  const names = Object.keys(WAVEBASE_TOWNS).filter(name => {
-    const t = WAVEBASE_TOWNS[name];
-    return !country || (t.country || "Morocco") === country;
-  });
-  if (!names.length) return "";
-  const cards = names.map(name => {
-    const t = WAVEBASE_TOWNS[name];
-    return `<div class="town-card">
-      <h3>${t.naam}</h3>
-      <p>${t.intro}</p>
-      <div class="town-card-facts">
-        <span><strong>What to do:</strong> ${t.teDoen}</span>
-      </div>
-    </div>`;
-  }).join("");
-  const heading = country
-    ? `The location in general: ${escHTML(country)}`
-    : "The location in general";
-  return `<section class="town-intro-section">
-    <h2 class="town-intro-h2">${heading}</h2>
-    <div class="town-intro-strip">${cards}</div>
-  </section>`;
-}
-
 /* ---- view preference (cards vs list), persisted in localStorage ---- */
 function getViewPref() {
   return localStorage.getItem("wavebase_view_pref") || "grid";
@@ -2171,13 +2145,11 @@ function runSearch() {
 
   if (matches.length === 0) {
     html += `<div class="results-head"><h2>${heading}</h2></div>`;
-    html += townStripHTML(country);
     html += `<div class="empty"><strong>Nothing's a perfect match here.</strong><br>
       Try loosening a filter — the live region only has so many entries for now.</div>`;
   } else {
     html += `<div class="results-head"><h2>${heading}</h2>${viewToggleHTML(pref)}</div>`;
     html += topSpotsBlockHTML(matches, monthIdxForSort, sport);
-    html += townStripHTML(country);
     if (offSeasonBanner) html += offSeasonBanner;
     html += resultsMiniMapHTML(matches);
     html += renderResultsSections(matches, gridClass, monthIdxForSort, sport);
