@@ -1903,12 +1903,16 @@ body.has-pinned-months .bar-tooltip .bt-hint { display: none; }
    flag-colour band along the top so the three countries pop at a glance. */
 .region-strip { margin: 26px 0 2px; }
 .region-cards {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
+  display: flex;
   gap: 16px;
+  overflow-x: auto;
+  justify-content: safe center;
+  padding: 6px 4px 18px;
+  scrollbar-width: thin;
 }
 .region-card {
   position: relative; overflow: hidden;
+  flex: 0 0 300px;
   display: flex; flex-direction: column;
   padding: 22px 22px 20px;
   background: var(--paper);
@@ -1925,7 +1929,7 @@ body.has-pinned-months .bar-tooltip .bt-hint { display: none; }
 }
 .region-card:hover {
   transform: translateY(-3px);
-  box-shadow: 0 10px 24px rgba(20, 40, 50, 0.13);
+  box-shadow: 0 8px 18px rgba(20, 40, 50, 0.12);
 }
 .region-card-flag {
   display: flex; align-items: center; justify-content: center;
@@ -1950,7 +1954,7 @@ body.has-pinned-months .bar-tooltip .bt-hint { display: none; }
   font-style: italic; text-align: center;
 }
 @media (max-width: 720px) {
-  .region-cards { grid-template-columns: 1fr; }
+  .region-card { flex-basis: 250px; }
 }
 
 /* Home-only blocks: visible only when no country picked and no query
@@ -3633,9 +3637,8 @@ button.rml-key.off .rml-dot {
    "what's cheap and what's pricey here" insight from tiers
    while picking concrete numbers. */
 .price-range-field {
-  flex-direction: column;
-  align-items: stretch;
-  gap: 4px !important;
+  align-items: center;
+  gap: 10px !important;
   min-width: 240px;
 }
 /* Inherit the sentence's font-family + size so "Budget?" matches the
@@ -3644,8 +3647,8 @@ button.rml-key.off .rml-dot {
   color: var(--ink);
 }
 .price-range {
-  width: 100%;
-  min-width: 220px;
+  width: 340px;
+  max-width: 100%;
   padding: 2px 4px;
 }
 .price-range[data-state="empty"] .pr-bars,
@@ -3834,7 +3837,7 @@ button.rml-key.off .rml-dot {
   font-family: 'Fraunces', Georgia, serif;
   font-size: 13.5px;
 }
-.searcher-wrap.is-fixed .price-range { padding: 0; }
+.searcher-wrap.is-fixed .price-range { padding: 0; width: auto; }
 .searcher-wrap.is-fixed .pr-bars { height: 28px; }
 .searcher-wrap.is-fixed .pr-tiers { height: 26px; }
 .searcher-wrap.is-fixed .pr-tier-zone {
