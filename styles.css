@@ -1899,18 +1899,48 @@ body.has-pinned-months .bar-tooltip .bt-hint { display: none; }
    home page. The peaking carousel and world map live further down,
    AFTER the empty state — those are context, not the primary CTA.
    ============================================================ */
-.landing-extras {
-  display: flex;
-  flex-direction: column;
-  gap: 30px;
-  margin: 22px auto 10px;
+/* Home — live-region cards under the hero */
+.region-strip { margin: 4px 0 2px; }
+.region-cards {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 16px;
+}
+.region-card {
+  display: flex; flex-direction: column;
+  padding: 18px 20px;
+  background: var(--paper);
+  border: 1px solid var(--sand);
+  border-left: 4px solid var(--sea);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow-sm);
+  text-decoration: none;
+  transition: transform 0.14s ease, border-left-color 0.14s ease;
+}
+.region-card:hover { transform: translateY(-2px); border-left-color: var(--clay); }
+.region-card-flag { font-size: 26px; line-height: 1; margin-bottom: 6px; }
+.region-card-name {
+  font-family: 'Fraunces', Georgia, serif;
+  font-size: 21px; font-weight: 600; color: var(--ink);
+}
+.region-card-area { font-size: 13.5px; color: var(--ink-soft); margin-top: 2px; }
+.region-card-counts {
+  margin-top: 10px; font-size: 13px; font-weight: 700; color: var(--sea);
+  font-variant-numeric: tabular-nums;
+}
+.region-more {
+  margin: 12px 0 0; font-size: 13px; color: var(--ink-soft);
+  font-style: italic; text-align: center;
+}
+@media (max-width: 720px) {
+  .region-cards { grid-template-columns: 1fr; }
 }
 
 /* Home-only blocks: visible only when no country picked and no query
    typed (runSearch() toggles `is-home` on <body>). */
 body:not(.is-home) .hero,
 body:not(.is-home) .plan-trip-strip,
-body:not(.is-home) .landing-extras,
+body:not(.is-home) .region-strip,
 body:not(.is-home) .searchbar-wrap { display: none; }
 
 /* When filtered, runSearch() moves .searchbar into the header slot. */
@@ -1950,51 +1980,6 @@ body:not(.is-home) .searchbar-wrap { display: none; }
 .full-bleed:last-of-type { margin-bottom: 28px; }
 @media (max-width: 600px) {
   .full-bleed { padding: 0 14px; margin-top: 24px; }
-}
-
-/* ---- numbers ticker ---- */
-.stats-ticker {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  justify-content: center;
-  gap: 10px;
-  font-size: 14.5px;
-  color: var(--ink-soft);
-}
-.stat-chip {
-  display: inline-flex;
-  align-items: baseline;
-  gap: 6px;
-  padding: 7px 14px;
-  border-radius: 999px;
-  background: var(--paper);
-  border: 1px solid var(--sand);
-  font-family: 'DM Sans', sans-serif;
-  white-space: nowrap;
-}
-.stat-chip strong {
-  font-family: 'Fraunces', Georgia, serif;
-  font-size: 18px;
-  color: var(--ink);
-  font-weight: 600;
-}
-.stat-chip.stat-live {
-  background: var(--sea-soft);
-  border-color: #b6cdd2;
-}
-.stat-chip.stat-live strong { color: var(--sea); }
-.stat-chip.stat-soon {
-  background: #fff;
-  border-style: dashed;
-  color: var(--ink-soft);
-}
-.stat-sep { color: var(--ink-soft); opacity: .45; font-size: 16px; }
-@media (max-width: 540px) {
-  .stat-sep { display: none; }
-  .stats-ticker { gap: 8px; font-size: 13px; }
-  .stat-chip { padding: 6px 11px; }
-  .stat-chip strong { font-size: 16px; }
 }
 
 /* ---- mini world map (inline SVG) ----

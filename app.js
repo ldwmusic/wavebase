@@ -14,7 +14,7 @@
    - Monthly charts                   buildDualBarChart, buildSingleMetricChart,
                                       monthlyChartHTML, wireChartTooltips
    - Landing-page extras              COUNTRY_COORDS, ISO_TO_CONTINENT,
-                                      renderStatsTicker, renderMiniWorldMap,
+                                      renderRegionCards, renderMiniWorldMap,
                                       renderPeakingCarousel
    - Page initializers                initIndex, initSpot, initMap,
                                       renderAccount, renderCompare,
@@ -2312,25 +2312,43 @@ function flattenDestinations() {
   return out;
 }
 
-// Stats ticker. Pulled live from WAVEBASE_DATA + WAVEBASE_DESTINATIONS so
-// the numbers stay honest as inventory grows.
-function renderStatsTicker() {
-  const host = document.getElementById("stats-ticker");
-  if (!host) return;
-  const spots   = WAVEBASE_DATA.filter(e => e.type === "spot").length;
-  const stays   = WAVEBASE_DATA.filter(e => e.type === "stay").length;
-  const centers = WAVEBASE_DATA.filter(e => e.type === "center").length;
-  const dests   = flattenDestinations();
-  const live    = dests.filter(d => d.status === "live").length;
-  const soon    = dests.filter(d => d.status !== "live").length;
-  host.innerHTML = `
-    <span class="stat-chip"><strong>${spots}</strong> spots</span>
-    <span class="stat-chip"><strong>${stays}</strong> stays</span>
-    <span class="stat-chip"><strong>${centers}</strong> centers</span>
-    <span class="stat-sep" aria-hidden="true">·</span>
-    <span class="stat-chip stat-live"><strong>${live}</strong> ${live === 1 ? "country" : "countries"} live</span>
-    <span class="stat-chip stat-soon"><strong>${soon}</strong> queued</span>
-  `;
+// Live-region cards on the home page — one card per live country, right
+// under the hero. Counts are pulled live from WAVEBASE_DATA so they stay
+// honest as inventory grows; clicking a card runs the search for that
+// country.
+function renderRegionCards() {
+  const host = document.getElementById("region-cards");
+  if (!host || typeof WAVEBASE_DESTINATIONS === "undefined") return;
+  const AREA = {
+    "Morocco": "Tamraght & Taghazout",
+    "Greece":  "East Crete — Palekastro & Kouremenos",
+    "Belgium": "The full coast + Deinze"
+  };
+  const live = [];
+  WAVEBASE_DESTINATIONS.forEach(cont => {
+    cont.countries.forEach(co => { if (co.status === "live") live.push(co); });
+  });
+  // Order the cards by the AREA map (Morocco first); any live country
+  // without an AREA entry falls to the end.
+  const order = Object.keys(AREA);
+  live.sort((a, b) => {
+    const ia = order.indexOf(a.name), ib = order.indexOf(b.name);
+    return (ia < 0 ? 99 : ia) - (ib < 0 ? 99 : ib);
+  });
+  host.innerHTML = live.map(co => {
+    const inCountry = WAVEBASE_DATA.filter(e => entryCountry(e) === co.name);
+    const n = type => inCountry.filter(e => e.type === type).length;
+    const counts = [["spot", n("spot")], ["center", n("center")], ["stay", n("stay")]]
+      .filter(p => p[1] > 0)
+      .map(p => `${p[1]} ${p[0]}${p[1] === 1 ? "" : "s"}`)
+      .join(" · ");
+    return `<a class="region-card" href="index.html?country=${encodeURIComponent(co.name)}">
+      <span class="region-card-flag" aria-hidden="true">${co.flag}</span>
+      <span class="region-card-name">${escHTML(co.name)}</span>
+      <span class="region-card-area">${escHTML(AREA[co.name] || "")}</span>
+      <span class="region-card-counts">${counts}</span>
+    </a>`;
+  }).join("");
 }
 
 // Mini world map. Inline SVG (no Leaflet) so we get the design-magazine
@@ -2984,8 +3002,8 @@ function initIndex() {
     });
   }
 
-  // Landing extras: ticker, mini-world-map, peaking-right-now carousel.
-  renderStatsTicker();
+  // Landing extras: region cards, mini-world-map, peaking-right-now carousel.
+  renderRegionCards();
   renderMiniWorldMap();
   renderPeakingSportPills();
   renderPeakingCarousel();
