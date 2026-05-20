@@ -2512,6 +2512,12 @@ body:not(.is-home) .searchbar-wrap { display: none; }
   background: var(--paper); border: 1px solid var(--sand);
   border-radius: 12px; padding: 18px 22px; margin-bottom: 12px;
 }
+/* Trip overview header — the trip name plus the stat strip, fenced off
+   from the items list by a hairline so the card top reads as a header. */
+.trip-overview {
+  border-bottom: 1px solid var(--sand);
+  margin-bottom: 14px;
+}
 .trip-head { display: flex; justify-content: space-between; align-items: baseline; }
 .trip-head h3 { font-size: 19px; }
 .trip-items { margin: 10px 0 0; padding-left: 20px; }
@@ -2523,9 +2529,9 @@ body:not(.is-home) .searchbar-wrap { display: none; }
   display: flex;
   flex-wrap: wrap;
   align-items: center;
-  justify-content: space-between;
+  justify-content: flex-start;
   gap: 10px 18px;
-  margin: 10px 0 6px;
+  margin: 10px 0 12px;
   padding: 10px 14px;
   background: var(--sand-soft, var(--paper));
   border: 1px solid var(--line);
@@ -2587,6 +2593,17 @@ body:not(.is-home) .searchbar-wrap { display: none; }
   border-radius: 999px;
   padding: 2px 9px;
 }
+/* Route distance — total straight-line km between the trip's stays. */
+.ts-distance {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 13.5px;
+  font-weight: 600;
+  color: var(--ink);
+  font-variant-numeric: tabular-nums;
+}
+.ts-distance-icon { font-size: 13px; line-height: 1; }
 
 /* Per-stay check-in / check-out planner — sits under a stay in the trip
    list. Native date inputs; the calc cell shows nights + an estimated

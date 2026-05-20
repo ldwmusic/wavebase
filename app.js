@@ -3979,9 +3979,11 @@ function tripSummary(items, dates) {
   let budgetLo = 0, budgetHi = 0, pricedStayCount = 0, otherStayCount = 0;
   let totalLo = 0, totalHi = 0, datedPricedCount = 0, undatedPricedCount = 0;
   let totalNights = 0, earliestIn = "", latestOut = "";
+  const stayCoords = [];
   items.forEach(e => {
     if (counts[e.type] != null) counts[e.type]++;
     if (e.type !== "stay") return;
+    if (e.coords) stayCoords.push(e.coords);
     const d = dates[e.id];
     const nights = d ? tripNights(d.in, d.out) : 0;
     if (d && d.in && (!earliestIn || d.in < earliestIn)) earliestIn = d.in;
@@ -4001,9 +4003,17 @@ function tripSummary(items, dates) {
       undatedPricedCount++;
     }
   });
+  // Route distance — sum of straight-line hops between consecutive
+  // stays in trip order. Stays are the legs of the trip; spots and
+  // centers are visited from a base, not driven between.
+  let routeKm = 0;
+  for (let i = 0; i < stayCoords.length - 1; i++) {
+    routeKm += distanceKm(stayCoords[i], stayCoords[i + 1]);
+  }
   return { counts, budgetLo, budgetHi, pricedStayCount, otherStayCount,
            totalLo, totalHi, datedPricedCount, undatedPricedCount,
-           totalNights, earliestIn, latestOut };
+           totalNights, earliestIn, latestOut,
+           routeKm, routeHops: Math.max(0, stayCoords.length - 1) };
 }
 
 function tripSummaryHTML(items, dates) {
@@ -4013,6 +4023,12 @@ function tripSummaryHTML(items, dates) {
   if (s.counts.spot)   parts.push(`<span class="ts-pill"><span class="ts-dot ts-dot-spot"></span>${s.counts.spot} ${s.counts.spot === 1 ? "spot" : "spots"}</span>`);
   if (s.counts.center) parts.push(`<span class="ts-pill"><span class="ts-dot ts-dot-center"></span>${s.counts.center} ${s.counts.center === 1 ? "center" : "centers"}</span>`);
   if (s.counts.stay)   parts.push(`<span class="ts-pill"><span class="ts-dot ts-dot-stay"></span>${s.counts.stay} ${s.counts.stay === 1 ? "stay" : "stays"}</span>`);
+
+  let distStr = "";
+  if (s.routeHops >= 1) {
+    const km = fmtKm(s.routeKm);
+    if (km) distStr = `<div class="ts-distance" title="Straight-line distance between the stays on this trip"><span class="ts-distance-icon" aria-hidden="true">🗺️</span>~${km}</div>`;
+  }
 
   let periodStr = "";
   if (s.earliestIn && s.latestOut) {
@@ -4040,6 +4056,7 @@ function tripSummaryHTML(items, dates) {
   }
   return `<div class="trip-summary">
     <div class="ts-pills">${parts.join("")}</div>
+    ${distStr}
     ${periodStr}
     ${budgetStr}
   </div>`;
@@ -4346,8 +4363,10 @@ function renderAccount() {
         const mapDiv = located.length ? `<div class="trip-map" id="trip-map-${t.id}"></div>` : "";
         const summary = tripSummaryHTML(items, t.dates);
         return `<div class="trip" id="trip-${t.id}">
-          <div class="trip-head"><h3>${t.name}</h3><button class="link-btn" data-del="${t.id}">remove</button></div>
-          ${summary}
+          <header class="trip-overview">
+            <div class="trip-head"><h3>${t.name}</h3><button class="link-btn" data-del="${t.id}">remove</button></div>
+            ${summary}
+          </header>
           ${list}
           ${mapDiv}</div>`;
       }).join("")
