@@ -3620,6 +3620,7 @@ function initSpot() {
         <button class="btn ghost ${saved ? "on" : ""}" id="save-toggle">${saved ? "♥ Saved" : "♡ Save this place"}</button>
         <button class="btn ghost ${comparing ? "on" : ""}" id="compare-toggle">${comparing ? "✓ In compare" : "+ Compare"}</button>
         ${e.type === "spot" ? `<button class="btn ghost surfed-btn ${surfed ? "on" : ""}" id="surfed-toggle">${surfed ? "✓ Surfed it" : "Surfed it"}</button>` : ""}
+        ${e.type === "stay" ? `<a class="btn ghost" href="explorer.html?base=${e.id}">Explore spots from here →</a>` : ""}
         <span class="trip-picker">
           <select id="trip-select">${tripOptionsHTML(e.id)}</select>
           <span id="trip-view-link-slot">${tripViewLinkHTML(e.id)}</span>
@@ -3957,6 +3958,95 @@ function tripSummaryHTML(items) {
 }
 
 /* ---- ACCOUNT (fake, local) ---- */
+/* "Your surf log" — the scratch-map (account page). Per-region completion
+   is the hero; the world map below lights up countries you've surfed in.
+   Driven by the "surfed" list (the "Surfed it" button on spot pages). */
+function surfLogHTML() {
+  const surfedIds = new Set(WaveBaseAccount.getSurfed());
+  const byCountry = {};
+  WAVEBASE_DATA.forEach(e => {
+    if (e.type !== "spot") return;
+    const c = entryCountry(e);
+    if (!byCountry[c]) byCountry[c] = { total: 0, done: 0 };
+    byCountry[c].total++;
+    if (surfedIds.has(e.id)) byCountry[c].done++;
+  });
+  const countries = Object.keys(byCountry).sort();
+  let totalDone = 0, countriesDone = 0;
+  countries.forEach(c => {
+    totalDone += byCountry[c].done;
+    if (byCountry[c].done > 0) countriesDone++;
+  });
+
+  const hero = totalDone === 0
+    ? `<p class="surflog-empty">No spots logged yet. After a session, hit <strong>“Surfed it”</strong> on the spot's page — they fill in here.</p>`
+    : `<p class="surflog-total"><strong>${totalDone}</strong> spot${totalDone===1?"":"s"} surfed · <strong>${countriesDone}</strong> ${countriesDone===1?"country":"countries"} of ${countries.length}</p>`;
+
+  const regionRows = countries.map(c => {
+    const t = byCountry[c].total, d = byCountry[c].done;
+    const pct = t ? Math.round((d / t) * 100) : 0;
+    const complete = d === t && t > 0;
+    return `<div class="surflog-region${complete ? " is-complete" : ""}">
+      <div class="surflog-region-head">
+        <span class="surflog-region-name">${escHTML(c)}${complete ? ` <span class="surflog-done-tag">✓ all done</span>` : ""}</span>
+        <span class="surflog-region-count">${d} / ${t}</span>
+      </div>
+      <div class="surflog-bar"><div class="surflog-bar-fill" style="width:${pct}%"></div></div>
+    </div>`;
+  }).join("");
+
+  return `<section class="acc-block" id="surf-log">
+    <h2>Your surf log</h2>
+    <p class="muted form-note">The spots you've ticked off. Hit “Surfed it” on any spot page to add one.</p>
+    ${hero}
+    <div class="surflog-regions">${regionRows}</div>
+    <div class="surflog-map-wrap">
+      <div class="surflog-map" id="surflog-map" aria-label="Map of countries you have surfed in"></div>
+      <p class="surflog-map-cap">Countries you've surfed in light up as you go.</p>
+    </div>
+  </section>`;
+}
+
+/* Tints the world map for the surf log — surfed countries lit, countries
+   with spots-but-not-yet-surfed faint, the rest plain. */
+function renderSurfLogMap() {
+  const host = document.getElementById("surflog-map");
+  if (!host || typeof COUNTRY_TO_ISO === "undefined") return;
+  const surfedIds = new Set(WaveBaseAccount.getSurfed());
+  const surfedCountries = new Set(), spotCountries = new Set();
+  WAVEBASE_DATA.forEach(e => {
+    if (e.type !== "spot") return;
+    const c = entryCountry(e);
+    spotCountries.add(c);
+    if (surfedIds.has(e.id)) surfedCountries.add(c);
+  });
+  fetch("worldmap.svg")
+    .then(r => r.ok ? r.text() : Promise.reject(r.status))
+    .then(svgText => {
+      host.innerHTML = svgText;
+      const svg = host.querySelector("svg");
+      if (!svg) return;
+      svg.removeAttribute("width");
+      svg.removeAttribute("height");
+      svg.setAttribute("preserveAspectRatio", "xMidYMid meet");
+      svg.classList.add("surflog-svg");
+      const isoToName = {};
+      Object.keys(COUNTRY_TO_ISO).forEach(name => { isoToName[COUNTRY_TO_ISO[name]] = name; });
+      // Tag EVERY country (those with a continent) as .country so the base
+      // fill applies — otherwise untagged countries keep the SVG default
+      // (solid black). Then highlight the WaveBase ones.
+      svg.querySelectorAll("[id]").forEach(node => {
+        const iso = node.getAttribute("id");
+        if (!iso || typeof ISO_TO_CONTINENT === "undefined" || !ISO_TO_CONTINENT[iso]) return;
+        node.classList.add("country");
+        const name = isoToName[iso];
+        if (name && surfedCountries.has(name)) node.classList.add("country-surfed");
+        else if (name && spotCountries.has(name)) node.classList.add("country-available");
+      });
+    })
+    .catch(() => { host.innerHTML = `<p class="muted" style="padding:14px;">Map unavailable.</p>`; });
+}
+
 function renderAccount() {
   const root = document.getElementById("account-root");
   const p = WaveBaseAccount.getProfile();
@@ -4119,6 +4209,8 @@ function renderAccount() {
       </div>
     </section>
 
+    ${surfLogHTML()}
+
     <section class="acc-block">
       <h2>Saved places <span class="seccount">${saved.length}</span></h2>
       ${savedHTML}
@@ -4230,6 +4322,7 @@ function renderAccount() {
   });
   if (root.querySelector(".grid")) wireCards(root);
   initTripMaps(trips);
+  renderSurfLogMap();
 }
 
 /* ---- COMPARE ---- */
@@ -4824,12 +4917,15 @@ function initDestinations() {
   }
 }
 
-/* ---- mobile bottom tab bar (Discover / Map / Compare / Me) ---- */
+/* ---- mobile bottom tab bar (Home / Explorer / Map / Compare / Me) ----
+   About is intentionally not on the mobile bar — 6 tabs is too tight;
+   it stays in the desktop nav + the footer. */
 function initMobileTabbar() {
   if (document.querySelector(".mobile-tabbar")) return;
 
   const path = window.location.pathname;
   const route =
+    /explorer\.html$/.test(path) ? "explorer" :
     /kaart\.html$/.test(path) ? "map" :
     /compare\.html$/.test(path) ? "compare" :
     /account\.html$/.test(path) ? "me" :
@@ -4841,13 +4937,13 @@ function initMobileTabbar() {
     map: '<svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 1 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>',
     compare: '<svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="17 1 21 5 17 9"/><path d="M3 11V9a4 4 0 0 1 4-4h14"/><polyline points="7 23 3 19 7 15"/><path d="M21 13v2a4 4 0 0 1-4 4H3"/></svg>',
     me: '<svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>',
-    about: '<svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>'
+    explorer: '<svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="7"/><line x1="12" y1="2" x2="12" y2="5"/><line x1="12" y1="19" x2="12" y2="22"/><line x1="2" y1="12" x2="5" y2="12"/><line x1="19" y1="12" x2="22" y2="12"/><circle cx="12" cy="12" r="2.4" fill="currentColor" stroke="none"/></svg>'
   };
   const tabs = [
     { route: "discover", href: "index.html", label: "Home" },
+    { route: "explorer", href: "explorer.html", label: "Explorer" },
     { route: "map", href: "kaart.html", label: "Map" },
     { route: "compare", href: "compare.html", label: "Compare" },
-    { route: "about", href: "about.html", label: "About" },
     { route: "me", href: "account.html", label: "Me" }
   ];
 

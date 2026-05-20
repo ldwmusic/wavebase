@@ -4149,3 +4149,43 @@ button.rml-key.off .rml-dot {
   .exp-list { flex: 1 1 auto; max-width: none; height: auto; max-height: 50vh; }
   .exp-field-reach input[type=range] { width: 160px; }
 }
+
+/* ===== Account — "Your surf log" scratch-map ===== */
+.surflog-empty {
+  color: var(--ink-soft); font-size: 15px;
+  background: var(--sea-soft); border: 1px solid #cde0e3;
+  border-radius: 10px; padding: 14px 16px;
+}
+.surflog-total { font-size: 16px; color: var(--ink); margin: 4px 0 16px; }
+.surflog-total strong { color: var(--sea); font-size: 19px; }
+.surflog-regions { display: flex; flex-direction: column; gap: 12px; margin-bottom: 22px; }
+.surflog-region-head {
+  display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 5px;
+}
+.surflog-region-name { font-weight: 600; font-size: 15px; color: var(--ink); }
+.surflog-region-count {
+  font-size: 13px; font-weight: 700; color: var(--ink-soft);
+  font-variant-numeric: tabular-nums;
+}
+.surflog-done-tag {
+  font-size: 10.5px; font-weight: 700; color: #3a6b44;
+  background: #e3efe4; border-radius: 999px; padding: 1px 8px;
+  text-transform: uppercase; letter-spacing: 0.03em;
+}
+.surflog-bar { height: 9px; background: var(--sand); border-radius: 999px; overflow: hidden; }
+.surflog-bar-fill {
+  height: 100%; background: var(--sea); border-radius: 999px; transition: width 0.4s ease;
+}
+.surflog-region.is-complete .surflog-bar-fill { background: #4f8a5b; }
+.surflog-region.is-complete .surflog-region-count { color: #3a6b44; }
+.surflog-map {
+  width: 100%; background: #eef2f4; border-radius: 12px;
+  border: 1px solid var(--line); overflow: hidden;
+}
+.surflog-map-cap {
+  font-size: 12.5px; color: var(--ink-soft); font-style: italic; margin-top: 8px;
+}
+.surflog-svg { width: 100%; height: auto; display: block; }
+.surflog-svg .country { fill: #e4e0d6; stroke: #fff; stroke-width: 0.3; }
+.surflog-svg .country-available { fill: #cde0e3; }
+.surflog-svg .country-surfed { fill: #4f8a5b; }
