@@ -4043,14 +4043,14 @@ const WAVEBASE_DATA = [
       "Distinctive: 'Sit kitesurfing' wheelchair-accessible program + 'Dream Dare' youth-in-wheelchairs initiative.",
       "Founded 2012, full progression (beginner to advanced).",
       "Also teaches wingfoil + jetboarding.",
-      "🚩 Honest fine print: multiple recent Google reviews (2024–2025) report lessons booked + paid upfront and then cancelled, with users saying they struggled to rebook or get refunds. Read the reviews and get cancellation/refund terms in writing before booking.",
-      "Bron-strength: 🟢 SOLID — saltykitesurfschool.com (own site) + Google reviews (7 substantive reviews ≤24 months sampled May 2026). LDW has not visited."
+      "🚩 Honest fine print — confirmed across 3 independent sources (Google reviews, Test-Aankoop consumer complaint, Wheree review-aggregator): multiple users report lessons booked + paid upfront and then cancelled by Salty, with refund refusals. One Test-Aankoop case (Oct 2024): 8 cancellations on €560 of pre-paid lessons, refund eventually obtained only after public complaint. Read the reviews, get cancellation/refund terms in writing, and consider paying deposit only if possible.",
+      "Bron-strength: 🟢 SOLID — saltykitesurfschool.com (own site) + Google reviews (7 substantive ≤24 months, sampled May 2026) + Test-Aankoop public complaint (verified case Oct 2024, status 'opgelost') + Wheree aggregator summary (notes refund-policy as documented negative theme). LDW has not visited but the cross-source consistency is the signal."
     ],
     verhaal: [
       `Salty is the dedicated kite school on the Belgian coast — IKO-certified, structured progression (Powerkite → Bodydrag → Waterstart → Ride → Advanced), and operating since 2012. They cover kite + wing + jetboarding, all from a base on the Westende / Middelkerke beach.`,
       `What sets them apart is the inclusion: a "Sit kitesurfing" program adapted for wheelchair users + a "Dream Dare" initiative for youth-in-wheelchairs. That's not common in the Belgian-coast kite scene and worth flagging.`,
-      `The honest catch — and the reason WaveBase exists: 4 of the 7 substantive Google reviews from the last 12 months are 1⭐, all on the same theme. Users report paying upfront, then lessons being cancelled, then being unable to rebook within the booking window or get refunded. One user reports "5 keer geboekt op 2 jaar tijd" with cancellations each time. Another reports a 3-day IKO course paid and never run. We did not independently verify these accounts, but the pattern across multiple reviewers is consistent.`,
-      `Counterweight: one recent 5⭐ review specifically praises the instructor as "super enthousiast" giving a "confidence boost". So the lessons themselves — when they happen — get praise. The complaint is about reliability and refunds.`
+      `The honest catch — confirmed across THREE independent sources, and the reason WaveBase exists: (1) 4 of the 7 substantive Google reviews from the last 12 months are 1⭐ on the same theme — lessons booked + paid upfront, then cancelled, then no refund. One user reports "5 keer geboekt op 2 jaar tijd". Another reports a 3-day IKO course paid + never run. (2) Test-Aankoop (the Belgian consumer-protection organisation) hosts a public complaint filed 09/10/2024 by an S.C. — €560 of pre-paid lessons, 8 cancellations by Salty, 3 refund refusals via email, status eventually marked "OPGELOST" (resolved after the public complaint). (3) The Wheree review aggregator's auto-summary explicitly flags "frustration over non-refundable bookings despite cancellations" as a documented negative theme.`,
+      `Counterweight: across the same sources, the actual teaching gets praise when it happens. Google 5⭐: "Wat een ervaring! Een super enthousiaste lerares die zorgt voor een confidence boost". Wheree summary: "Safety: Reviewers frequently mention the emphasis on safety by instructors who provide thorough advice." The complaint is about reliability and refunds, not the lessons themselves.`
     ],
     lagen: [
       {
@@ -4062,12 +4062,14 @@ const WAVEBASE_DATA = [
         ]
       },
       {
-        titel: "What recent users say (Google reviews, 2024–2025)",
-        bron: "Google Maps reviews sampled May 2026 (7 substantive reviews from the last ~24 months)",
+        titel: "What users say across 3 independent sources (2024–2025)",
+        bron: "Google Maps reviews (7 substantive ≤24mo, sampled May 2026) + Test-Aankoop public complaint (Oct 2024, resolved) + Wheree review-aggregator summary (May 2026)",
         inhoud: [
-          { kop: "🚩 Repeating theme — lesson cancellations + refund disputes", tekst: `4 of 7 recent substantive reviews are 1⭐ on this exact pattern: lesson booked + paid upfront → cancelled by Salty → difficulty rebooking → no refund. One reviewer mentions "5 cancellations in 2 years". Another reports a 3-day IKO course never delivered.` },
-          { kop: "Positive counterpoint — when lessons happen", tekst: `One recent 5⭐: "Wat een ervaring! Een super enthousiaste lerares die zorgt voor een confidence boost". The instructor-quality complaint is not the issue; reliability and refunds are.` },
-          { kop: "Our take", tekst: `We did not independently verify any individual account, but the consistency across multiple reviewers is the kind of signal WaveBase exists to surface. If you book: get cancellation + refund policy in writing first, pay deposit only if possible, and read the latest Google reviews before committing.` }
+          { kop: "🚩 Repeating theme — lesson cancellations + refund disputes (Google)", tekst: `4 of 7 recent substantive Google reviews are 1⭐ on this exact pattern: lesson booked + paid upfront → cancelled by Salty → difficulty rebooking → no refund. One reviewer mentions "5 cancellations in 2 years". Another reports a 3-day IKO course never delivered.` },
+          { kop: "🚩 Same theme — formal consumer complaint (Test-Aankoop, Oct 2024)", tekst: `Public complaint by S.C.: €560 of pre-paid kitesurf lessons booked May 2024. 8 cancellations by Salty, dag-zelf of avond ervoor. 3 emailed refund requests, all refused. Lidmaatschap surfclub bijna vervallen. Status: "OPGELOST" — refund eventually obtained after public escalation. This is exactly the pattern reported on Google by other users.` },
+          { kop: "🚩 Same theme — third-party aggregator (Wheree)", tekst: `Wheree's auto-summary of user feedback flags "Cost: There are negative comments regarding refund policies, with some users expressing frustration over non-refundable bookings despite cancellations" as a documented negative theme — independent of our own Google scrape.` },
+          { kop: "Positive counterpoint — when lessons happen", tekst: `Same sources praise the instruction itself. Google 5⭐: "Een super enthousiaste lerares die zorgt voor een confidence boost". Wheree summary: "Safety: Reviewers frequently mention the emphasis on safety by instructors who provide thorough advice and ensure participants feel secure during lessons". The complaint is about reliability and refunds, not the teaching.` },
+          { kop: "Our take", tekst: `Three independent sources reporting the same friction is the kind of pattern WaveBase exists to surface. If you book: get cancellation + refund policy in writing first, pay deposit only if possible, screenshot booking confirmation, and read the latest Google + Test-Aankoop entries before committing.` }
         ]
       }
     ],
@@ -4233,7 +4235,7 @@ const WAVEBASE_DATA = [
       "Naish exclusive partner; IKO-certified; brand-new kit refreshed annually.",
       "PKRA world championship host in 2002 + 2004.",
       "Open Apr–Oct, daily. Located in the eastern dunes of Knokke-Heist toward the Zwin nature reserve.",
-      "Bron-strength: 🟢 SOLID — surfersparadise.be (own site) + IKO international school registry + multi-source Belgian kite guides + Google reviews (7 substantive, ≤2 years). One recent 4⭐ describes the summer camp directly: friendly staff, comfortable enough beds, pillow + mattress + sheets provided, bring own sleeping bag. Bar reviews otherwise dominant — tropical vibes, surfing-watching-with-a-beer angle. One older 2⭐ flagged feeling the club is mainly geared to families with kids + members."
+      "Bron-strength: 🟢 SOLID — surfersparadise.be (own site) + IKO international school registry + multi-source Belgian kite guides + Google reviews (7 substantive, ≤2 years) + Tripadvisor (3.7/5 from 40 reviews, sampled May 2026 — more critical pool than Google, worth checking before booking). Recent 4⭐ Google review describes the summer camp directly: friendly staff, comfortable enough beds, pillow + mattress + sheets provided, bring own sleeping bag. Bar reviews otherwise dominant on Google — tropical vibes, surfing-watching-with-a-beer angle. One older Google 2⭐ flagged feeling the club is mainly geared to families with kids + members."
     ],
     verhaal: [
       `Surfers Paradise is the historical anchor of Belgian kitesurfing. The center has been operating since 1988 — Belgium's longest-running watersports business of its kind. In 2000 they launched their kiteschool; in 2002 + 2004 they hosted the PKRA world championships (kite's professional circuit at the time).`,
