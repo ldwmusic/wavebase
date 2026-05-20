@@ -4373,7 +4373,11 @@ function compareScoreboardHTML(items) {
     // (refine in data.js if you disagree). Essence labels (style/vibe) are
     // categorical chips, no bar.
     const numericDims = [
-      { key: "food",        icon: "🍽️", label: "Food" },
+      // Food: nullLabel "Self-catering" — for stays with no meal service the
+      // score is left null in data.js (not a fake 3/5). The scoreboard then
+      // shows a "Self-catering" chip instead of stars. By construction, a
+      // null food score on a stay means exactly that: no meals served.
+      { key: "food",        icon: "🍽️", label: "Food", nullLabel: "Self-catering" },
       { key: "hosts",       icon: "🤝", label: "Hosts" },
       { key: "comfort",     icon: "🛏️", label: "Comfort" },
       { key: "cleanliness", icon: "🧼", label: "Cleanliness" },
@@ -4381,6 +4385,7 @@ function compareScoreboardHTML(items) {
     ].map(sd => ({
       icon: sd.icon, label: sd.label, max: 5, unit: " / 5", winnerDirection: "higher",
       fmt: x => x.toFixed(1),
+      nullLabel: sd.nullLabel,
       get: e => {
         const s = e.verblijf && e.verblijf.scores;
         return (s && typeof s[sd.key] === "number") ? s[sd.key] : null;
@@ -4449,7 +4454,15 @@ function compareScoreboardHTML(items) {
     </span>`;
   };
   const renderCell = (d, val) => {
-    if (val == null) return `<td class="sb-cell empty">—</td>`;
+    if (val == null) {
+      // A dimension can declare a nullLabel — shown as a chip instead of "—".
+      // Used by "Food" so a self-catering stay reads "Self-catering" rather
+      // than a meaningless dash or a fake middle score.
+      if (d.nullLabel) {
+        return `<td class="sb-cell"><span class="sb-chip">${escHTML(d.nullLabel)}</span></td>`;
+      }
+      return `<td class="sb-cell empty">—</td>`;
+    }
     if (d.mode === "label") {
       // "wrap" → wrappable plain text (for longer values like brand lists).
       // Default → one-line pill chip (for short categorical labels).
@@ -4525,6 +4538,7 @@ function compareScoreboardHTML(items) {
         <li><strong>Review rating</strong> &mdash; parsed from each stay's <code>verblijf.rating</code> prose (TripAdvisor / Booking / Google / Hostelworld figures).</li>
         <li><strong>Things to do</strong> &mdash; count of comma- or and-separated items in <code>verblijf.activiteiten</code>.</li>
         <li><strong>Food / Hosts / Comfort / Cleanliness / Value / Style / Vibe</strong> &mdash; inferred by Claude from each stay's samenvatting / verhaal / lagen reviewer prose. See per-stay bron-strength labels (SOLID / MOSTLY SOLID / STALE) on the detail page for confidence.</li>
+        <li><strong>Food &mdash; "Self-catering"</strong> &mdash; shown instead of a star score for stays with no meal service (kitchenette-only apartments). We don't rate food where no food is served.</li>
       </ul>
     </div>`;
   }

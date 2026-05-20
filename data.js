@@ -2669,7 +2669,7 @@ const WAVEBASE_DATA = [
       sfeer: "Low-key, windsurfer/wing-foiler crowd. Not a camp — independent travellers who want to wake up to the wind.",
       activiteiten: "Wind sports first; bike rental on site; Vai (5 km), Zakros gorge, Sitia old town in day-trip range.",
       // Inferred from the prose by Claude — refine if you disagree.
-      scores: { food: 3.0, hosts: 3.5, comfort: 4.0, cleanliness: 4.0, value: 4.0 },
+      scores: { food: null, hosts: 3.5, comfort: 4.0, cleanliness: 4.0, value: 4.0 },
       essence: { style: "Apartments", vibe: "Surfer crowd" }
     },
     samenvatting: [
@@ -2741,7 +2741,7 @@ const WAVEBASE_DATA = [
       sfeer: "Per the property's own site: \"a quiet and picturesque area in Kouremenos\", olive groves, family-friendly. Current vibe unverified — review trail stalled in 2017.",
       activiteiten: "Wind sports first; regional side trips per the property's own description (Vai 5 km, Erimoupolis, Itanos, Toplou Monastery).",
       // Inferred from the prose by Claude — refine if you disagree.
-      scores: { food: 3.0, hosts: 3.5, comfort: 3.0, cleanliness: 4.5, value: 4.0 },
+      scores: { food: null, hosts: 3.5, comfort: 3.0, cleanliness: 4.5, value: 4.0 },
       essence: { style: "Villa", vibe: "Family-friendly" }
     },
     samenvatting: [
@@ -2811,7 +2811,7 @@ const WAVEBASE_DATA = [
       sfeer: "Quiet hamlet, family-run. Aug-2023 Booking reviewer: \"Kostas is a great host!\" — but a Jun-2025 TripAdvisor review reported Kostas had died and a daughter + Marianthi & Michalis had taken over; standard \"remains impeccably high\". 3-star Giata.",
       activiteiten: "Walking distance to Palekastro center (10–12 min); short drive to Chiona, Vai, the Minoan settlement. Bicycle rental on site. Pet-friendly.",
       // Inferred from the prose by Claude — refine if you disagree.
-      scores: { food: 3.0, hosts: 4.5, comfort: 3.5, cleanliness: 5.0, value: 4.5 },
+      scores: { food: null, hosts: 4.5, comfort: 3.5, cleanliness: 5.0, value: 4.5 },
       essence: { style: "Apartments", vibe: "Quiet retreat" }
     },
     samenvatting: [
@@ -2882,7 +2882,7 @@ const WAVEBASE_DATA = [
       sfeer: "Recurring 2022+ themes: \"felt like home\", \"end of the world feel\" (secluded), gracious hosts. Returning-guest pattern alive in 2025 (one Aug 2025 reviewer: \"stayed last year, decided to return this year\").",
       activiteiten: "Walking/drive: Palekastro (2-3 km), Vai (10 min drive per Aug 2024 review), Chiona, Itanos, Toplou Monastery, Zakros Gorge.",
       // Inferred from the prose by Claude — refine if you disagree.
-      scores: { food: 3.0, hosts: 5.0, comfort: 4.0, cleanliness: 4.0, value: 4.0 },
+      scores: { food: null, hosts: 5.0, comfort: 4.0, cleanliness: 4.0, value: 4.0 },
       essence: { style: "Apartments", vibe: "End of the world" }
     },
     samenvatting: [
@@ -2952,7 +2952,7 @@ const WAVEBASE_DATA = [
       sfeer: "Quiet, owner-run, terrace \"out of the wind with sun/shade spot\" (Sep 2023 reviewer). Hosts described as \"lovely\" (Jul 2025). The same owners run Rousolakos Apartments (set back, with pool, near Chiona).",
       activiteiten: "Wind sports first; ancient Minoan town of Rousolakos nearby; Vai, Toplou Monastery, Kato Zakros Gorge in day-trip range.",
       // Inferred from the prose by Claude — refine if you disagree.
-      scores: { food: 3.0, hosts: 4.5, comfort: 3.0, cleanliness: 4.0, value: 4.0 },
+      scores: { food: null, hosts: 4.5, comfort: 3.0, cleanliness: 4.0, value: 4.0 },
       essence: { style: "Apartments", vibe: "Quiet retreat" }
     },
     samenvatting: [
