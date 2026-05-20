@@ -4112,6 +4112,36 @@ button.rml-key.off .rml-dot {
   cursor: grab;
 }
 .exp-pop-dist { color: var(--ink-soft); font-size: 12px; }
+.exp-pop-tag { color: var(--ink); font-size: 12.5px; }
+.exp-pop-status { color: #3a6b44; font-size: 12px; font-weight: 600; }
+
+/* Fase 2 — new-vs-known */
+.exp-toggle {
+  font-family: 'DM Sans', sans-serif; font-size: 13px; font-weight: 600;
+  padding: 8px 14px; border-radius: 999px; cursor: pointer;
+  border: 1px solid var(--sand-deep); background: var(--paper); color: var(--ink-soft);
+}
+.exp-toggle.on { background: var(--clay); border-color: var(--clay); color: #fff; }
+.exp-fresh-count { color: var(--sea); }
+.exp-legend {
+  display: flex; align-items: center; gap: 6px; flex-wrap: wrap;
+  padding: 8px 16px; font-size: 11.5px; color: var(--ink-soft);
+  border-bottom: 1px solid var(--line);
+}
+.exp-leg-dot {
+  width: 9px; height: 9px; border-radius: 50%; display: inline-block;
+  border: 1.5px solid #fff; box-shadow: 0 0 0 1px rgba(0,0,0,.12);
+}
+.exp-leg-dot.fresh { background: var(--sea); }
+.exp-leg-dot.known { background: #9c968a; margin-left: 10px; }
+.exp-row.is-known .exp-row-name { color: var(--ink-soft); }
+.exp-row-badge {
+  font-size: 10px; font-weight: 700; padding: 1px 6px; border-radius: 999px;
+  text-transform: uppercase; letter-spacing: 0.03em; white-space: nowrap;
+}
+.exp-row-badge.surfed { background: #e3efe4; color: #3a6b44; }
+.exp-row-badge.trip   { background: var(--clay-soft); color: var(--clay); }
+.exp-row-badge.saved  { background: var(--sand); color: var(--ink-soft); }
 
 @media (max-width: 820px) {
   .explorer-stage { flex-direction: column; padding: 6px 14px 28px; }

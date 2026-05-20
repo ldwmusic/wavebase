@@ -5114,7 +5114,8 @@ function initExplorer() {
   function saveState() {
     try {
       localStorage.setItem(LS_KEY, JSON.stringify({
-        region: state.region, base: state.base, maxKm: state.maxKm, sports: state.sports
+        region: state.region, base: state.base, maxKm: state.maxKm,
+        sports: state.sports, onlyNew: state.onlyNew
       }));
     } catch (e) {}
   }
@@ -5131,8 +5132,22 @@ function initExplorer() {
     region: (stored.region && regions.indexOf(stored.region) !== -1) ? stored.region : regions[0],
     base:   stored.base || null,          // {lat, lng, label}
     maxKm:  stored.maxKm || 25,
-    sports: stored.sports || { wave: true, wind: true, kite: true, wing: true }
+    sports: stored.sports || { wave: true, wind: true, kite: true, wing: true },
+    onlyNew: !!stored.onlyNew             // Fase 2 — "only new to me"
   };
+
+  // Fase 2 — "known" spots = surfed / saved / in a trip. A spot you've
+  // engaged with is not a spot to "discover". Built once.
+  const tripSpotIds = new Set();
+  (WaveBaseAccount.getTrips() || []).forEach(t => {
+    (t.spotIds || []).forEach(id => tripSpotIds.add(id));
+  });
+  function spotKnown(e) {
+    if (WaveBaseAccount.isSurfed(e.id)) return "surfed";
+    if (tripSpotIds.has(e.id)) return "trip";
+    if (WaveBaseAccount.isSaved(e.id)) return "saved";
+    return null;
+  }
   // ?region= override
   const urlRegion = params.get("region");
   if (urlRegion && regions.indexOf(urlRegion) !== -1) state.region = urlRegion;
@@ -5208,16 +5223,24 @@ function initExplorer() {
     spots.forEach(e => {
       const dist = state.base ? distanceKm([state.base.lat, state.base.lng], e.coords) : null;
       const inReach = dist == null ? true : dist <= state.maxKm;
+      const known = spotKnown(e);
+      if (state.onlyNew && known) return;   // "only new to me" — drop known spots
       const faded = state.base && !inReach;
+      // Pin style: out-of-reach faded · in-reach known greyed · in-reach fresh bright.
+      let fill, fillOp, op, rad;
+      if (faded)      { fill = typeColor("spot"); fillOp = 0.3;  op = 0.4; rad = 6; }
+      else if (known) { fill = "#9c968a";         fillOp = 0.75; op = 0.9; rad = 8; }
+      else            { fill = typeColor("spot"); fillOp = 1;    op = 1;   rad = 9; }
       const m = L.circleMarker(e.coords, {
-        radius: faded ? 6 : 9, color: "#fff", weight: 2, fillColor: typeColor("spot"),
-        fillOpacity: faded ? 0.3 : 1, opacity: faded ? 0.4 : 1
+        radius: rad, color: "#fff", weight: 2, fillColor: fill, fillOpacity: fillOp, opacity: op
       });
-      const distLine = dist != null
-        ? `<br><span class="exp-pop-dist">${fmtKm(dist)} from your base (straight-line)</span>` : "";
-      m.bindPopup(`<strong>${escHTML(e.name)}</strong><br><span class="rml-tip-meta">${escHTML(e.town)}</span>${distLine}<br><a href="spot.html?id=${e.id}">See the analysis →</a>`);
+      const distLine = dist != null ? ` <span class="exp-pop-dist">· ${fmtKm(dist)} from base</span>` : "";
+      const statusLine = known
+        ? `<br><span class="exp-pop-status">${known === "surfed" ? "✓ You've surfed this" : known === "trip" ? "In one of your trips" : "♥ Saved"}</span>`
+        : "";
+      m.bindPopup(`<strong>${escHTML(e.name)}</strong><br><span class="rml-tip-meta">${escHTML(e.town)}${distLine}</span>${statusLine}<br><span class="exp-pop-tag">${escHTML(e.tagline || "")}</span><br><a href="spot.html?id=${e.id}">See the analysis →</a>`);
       m.addTo(spotLayer);
-      rows.push({ entry: e, dist: dist, inReach: inReach, marker: m });
+      rows.push({ entry: e, dist: dist, inReach: inReach, known: known, marker: m });
     });
 
     if (state.base && reachCircle) {
@@ -5238,23 +5261,33 @@ function initExplorer() {
     let list = rows.slice();
     if (state.base) list = list.filter(r => r.inReach).sort((a,b) => a.dist - b.dist);
     else list.sort((a,b) => a.entry.name.localeCompare(b.entry.name));
+    const freshCount = list.filter(r => !r.known).length;
     const head = state.base
-      ? `<div class="exp-list-head">${list.length} spot${list.length===1?"":"s"} within ${state.maxKm} km</div>`
+      ? `<div class="exp-list-head">${list.length} spot${list.length===1?"":"s"} within ${state.maxKm} km${state.onlyNew ? "" : ` · <span class="exp-fresh-count">${freshCount} new to you</span>`}</div>`
       : `<div class="exp-list-head">${list.length} spot${list.length===1?"":"s"} in ${escHTML(state.region)} <span class="muted">— set your base to sort by distance</span></div>`;
+    const legend = (state.base && !state.onlyNew)
+      ? `<div class="exp-legend"><span class="exp-leg-dot fresh"></span>new to you<span class="exp-leg-dot known"></span>surfed / saved / in a trip</div>`
+      : "";
     if (!list.length) {
-      el.innerHTML = head + `<p class="exp-list-empty">No spots in range. Widen your reach, or turn a sport back on.</p>`;
+      const msg = state.onlyNew
+        ? "No new-to-you spots in range. Widen your reach, or switch off “only new to me”."
+        : "No spots in range. Widen your reach, or turn a sport back on.";
+      el.innerHTML = head + `<p class="exp-list-empty">${msg}</p>`;
       return;
     }
     const items = list.map(r => {
       const distChip = r.dist != null ? `<span class="exp-row-dist">${fmtKm(r.dist)}</span>` : "";
-      return `<button type="button" class="exp-row" data-id="${r.entry.id}">
+      const badge = r.known
+        ? ` <span class="exp-row-badge ${r.known}">${r.known === "surfed" ? "✓ surfed" : r.known === "trip" ? "in a trip" : "saved"}</span>`
+        : "";
+      return `<button type="button" class="exp-row${r.known ? " is-known" : ""}" data-id="${r.entry.id}">
         <span class="exp-row-main">
           <span class="exp-row-name">${escHTML(r.entry.name)}</span>
-          <span class="exp-row-town">${escHTML(r.entry.town)}</span>
+          <span class="exp-row-town">${escHTML(r.entry.town)}${badge}</span>
         </span>${distChip}
       </button>`;
     }).join("");
-    el.innerHTML = head + `<div class="exp-rows">${items}</div>`;
+    el.innerHTML = head + legend + `<div class="exp-rows">${items}</div>`;
     el.querySelectorAll(".exp-row").forEach(btn => {
       btn.addEventListener("click", () => {
         const r = rows.find(x => x.entry.id === btn.dataset.id);
@@ -5346,6 +5379,17 @@ function initExplorer() {
       saveState(); redraw();
     });
   });
+
+  // "Only new to me" toggle (Fase 2) — hides surfed/saved/in-trip spots.
+  const onlyNewBtn = document.getElementById("exp-onlynew");
+  if (onlyNewBtn) {
+    onlyNewBtn.classList.toggle("on", state.onlyNew);
+    onlyNewBtn.addEventListener("click", () => {
+      state.onlyNew = !state.onlyNew;
+      onlyNewBtn.classList.toggle("on", state.onlyNew);
+      saveState(); redraw();
+    });
+  }
 
   // Click anywhere on the map → set/move the base there.
   map.on("click", e => setBase(e.latlng.lat, e.latlng.lng, "Your pin"));
