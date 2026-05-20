@@ -2324,6 +2324,12 @@ function renderRegionCards() {
     "Greece":  "East Crete — Palekastro & Kouremenos",
     "Belgium": "The full coast + Deinze"
   };
+  // Flag-colour band per country — gives each card its own pop.
+  const FLAG = {
+    "Morocco": "linear-gradient(90deg,#c1272d 0 42%,#0a7d3b 42% 58%,#c1272d 58%)",
+    "Greece":  "linear-gradient(90deg,#0d5eaf 0 38%,#eef2f6 38% 62%,#0d5eaf 62%)",
+    "Belgium": "linear-gradient(90deg,#2a2a2a 0 33.33%,#f4d23c 33.33% 66.66%,#e23636 66.66%)"
+  };
   const live = [];
   WAVEBASE_DESTINATIONS.forEach(cont => {
     cont.countries.forEach(co => { if (co.status === "live") live.push(co); });
@@ -2342,7 +2348,7 @@ function renderRegionCards() {
       .filter(p => p[1] > 0)
       .map(p => `${p[1]} ${p[0]}${p[1] === 1 ? "" : "s"}`)
       .join(" · ");
-    return `<a class="region-card" href="index.html?country=${encodeURIComponent(co.name)}">
+    return `<a class="region-card" style="--flagband:${FLAG[co.name] || "var(--sea)"}" href="index.html?country=${encodeURIComponent(co.name)}">
       <span class="region-card-flag" aria-hidden="true">${co.flag}</span>
       <span class="region-card-name">${escHTML(co.name)}</span>
       <span class="region-card-area">${escHTML(AREA[co.name] || "")}</span>

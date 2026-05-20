@@ -1899,37 +1899,54 @@ body.has-pinned-months .bar-tooltip .bt-hint { display: none; }
    home page. The peaking carousel and world map live further down,
    AFTER the empty state — those are context, not the primary CTA.
    ============================================================ */
-/* Home — live-region cards under the hero */
-.region-strip { margin: 4px 0 2px; }
+/* Home — live-region cards under the search tool. Each card carries a
+   flag-colour band along the top so the three countries pop at a glance. */
+.region-strip { margin: 26px 0 2px; }
 .region-cards {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
   gap: 16px;
 }
 .region-card {
+  position: relative; overflow: hidden;
   display: flex; flex-direction: column;
-  padding: 18px 20px;
+  padding: 22px 22px 20px;
   background: var(--paper);
   border: 1px solid var(--sand);
-  border-left: 4px solid var(--sea);
   border-radius: var(--radius);
   box-shadow: var(--shadow-sm);
   text-decoration: none;
-  transition: transform 0.14s ease, border-left-color 0.14s ease;
+  transition: transform 0.16s ease, box-shadow 0.16s ease;
 }
-.region-card:hover { transform: translateY(-2px); border-left-color: var(--clay); }
-.region-card-flag { font-size: 26px; line-height: 1; margin-bottom: 6px; }
+.region-card, .region-card:hover { text-decoration: none; }
+.region-card::before {
+  content: ""; position: absolute; top: 0; left: 0; right: 0; height: 7px;
+  background: var(--flagband, var(--sea));
+}
+.region-card:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 10px 24px rgba(20, 40, 50, 0.13);
+}
+.region-card-flag {
+  display: flex; align-items: center; justify-content: center;
+  width: 46px; height: 46px; border-radius: 50%;
+  background: #fff; border: 1px solid var(--sand);
+  font-size: 25px; line-height: 1; margin-bottom: 12px;
+  box-shadow: var(--shadow-sm);
+  transition: transform 0.16s ease;
+}
+.region-card:hover .region-card-flag { transform: scale(1.08) rotate(-4deg); }
 .region-card-name {
   font-family: 'Fraunces', Georgia, serif;
-  font-size: 21px; font-weight: 600; color: var(--ink);
+  font-size: 22px; font-weight: 600; color: var(--ink);
 }
-.region-card-area { font-size: 13.5px; color: var(--ink-soft); margin-top: 2px; }
+.region-card-area { font-size: 13.5px; color: var(--ink-soft); margin-top: 3px; }
 .region-card-counts {
-  margin-top: 10px; font-size: 13px; font-weight: 700; color: var(--sea);
+  margin-top: 12px; font-size: 13px; font-weight: 700; color: var(--sea);
   font-variant-numeric: tabular-nums;
 }
 .region-more {
-  margin: 12px 0 0; font-size: 13px; color: var(--ink-soft);
+  margin: 14px 0 0; font-size: 13px; color: var(--ink-soft);
   font-style: italic; text-align: center;
 }
 @media (max-width: 720px) {
