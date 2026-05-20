@@ -3035,6 +3035,17 @@ button.rml-key.off .rml-dot {
   white-space: nowrap;
 }
 
+/* Wrappable variant of the label cell — for dimensions where the value is
+   longer than a single short word (gear brand lists, etc.). No pill chrome,
+   reads as plain inline prose so it can wrap across lines naturally. */
+.sb-label-wrap {
+  display: inline-block;
+  font-size: 13px;
+  line-height: 1.45;
+  color: var(--ink);
+  font-weight: 500;
+}
+
 /* Levels pills (B / I / A) on the scoreboard — three discrete slots, lit
    if the entry accepts that level. Clearer than a band visualisation. */
 .sb-level-set { display: inline-flex; gap: 6px; flex-wrap: wrap; }

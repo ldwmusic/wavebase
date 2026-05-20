@@ -3073,31 +3073,31 @@ const WAVEBASE_DATA = [
       bottom:     "Sand (former extraction pit)",
       crowd:      "rustig",
       localism:  "Welcoming. A club-run water surface — instructors and members are there to teach and share. No territorial behaviour reported.",
-      source:     "Wind / air / water: climatological inland-Belgium 5-year avg + Windsurfing Deinze own site for season + LDW first-hand.",
+      source:     "Wind / air / gust: Open-Meteo historical GFS @ 50.9564, 3.5330 (daytime 10–18h, 2021-05-20 → 2026-05-16, 5y archive, 16,407 hours). Wave data N/A — inland freshwater put. Water temp: freshwater inland-Belgium climatology (warmer summer + colder winter than the salt-water coast). Windsurfing Deinze own site for season pattern + LDW first-hand for the on-water feel.",
       periods: [
         { name: "Peak",     months: [5, 6, 9],    inSeason: true,
-          windKn: [8, 14], waterC: [15, 22], waveM: null },
+          windKn: [8, 11], waterC: [15, 22], waveM: null },
         { name: "High",     months: [7, 8],       inSeason: true,
-          windKn: [7, 13], waterC: [19, 22], waveM: null },
+          windKn: [7, 10], waterC: [19, 22], waveM: null },
         { name: "Shoulder", months: [4, 10],      inSeason: true,
-          windKn: [9, 16], waterC: [10, 15], waveM: null },
+          windKn: [8, 12], waterC: [10, 15], waveM: null },
         { name: "Off",      months: [11, 12, 1, 2, 3], inSeason: false,
-          windKn: [10, 18], waterC: [5, 9],   waveM: null }
+          windKn: [8, 13], waterC: [5, 9],   waveM: null }
       ],
       monthlyWindProb:
-        [0.40, 0.40, 0.40, 0.30, 0.30, 0.25, 0.20, 0.20, 0.30, 0.40, 0.40, 0.40],
+        [0.35, 0.35, 0.30, 0.25, 0.25, 0.20, 0.20, 0.20, 0.25, 0.30, 0.35, 0.35],
       monthlyWindKn:
-        [11, 11, 11, 10, 10, 9, 9, 9, 10, 11, 12, 11],
+        [8, 9, 8, 8, 8, 7, 8, 7, 7, 8, 8, 9],
       monthlyGustKn:
-        [22, 22, 22, 20, 19, 18, 17, 18, 19, 21, 23, 22],
+        [17, 19, 17, 18, 17, 16, 17, 16, 16, 17, 17, 17],
       monthlyDailyPeakKn:
-        [25, 24, 24, 22, 21, 20, 19, 20, 21, 23, 25, 24],
+        [12, 12, 11, 11, 10, 10, 11, 10, 10, 11, 12, 12],
       monthlyGustPeakKn:
-        [40, 38, 38, 33, 32, 30, 28, 30, 33, 36, 40, 39],
+        [32, 33, 31, 31, 27, 27, 29, 26, 29, 30, 30, 31],
       monthlyAirC:
-        [4, 5, 8, 11, 15, 18, 20, 20, 16, 12, 7, 4],
+        [5, 8, 10, 13, 17, 21, 21, 22, 19, 15, 9, 6],
       monthlyWaterC:
-        [6, 5, 7, 10, 14, 17, 19, 21, 18, 13, 9, 6],
+        [4, 4, 6, 10, 14, 18, 20, 21, 18, 13, 8, 5],
       chartType:  "wind"
     },
     vergelijking: null,

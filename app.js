@@ -4324,8 +4324,18 @@ function compareScoreboardHTML(items) {
         get: e => itemCount(e.diensten && e.diensten.lessen) },
       { icon: "🛹", label: "Rental variety", max: 6, unit: " items", winnerDirection: "higher",
         get: e => itemCount(e.diensten && e.diensten.rental) },
-      { icon: "🏷️", label: "Gear brands", max: 5, unit: "", winnerDirection: "higher",
-        get: e => itemCount(e.diensten && e.diensten.brands) },
+      { icon: "🏷️", label: "Gear brands", mode: "label", labelStyle: "wrap",
+        // LDW (2026-05-20): show the actual brand names, not a count.
+        // The brands string is usually formatted as "Name + Name + Name —
+        // marketing prose" or "Name (note). Detail sentence." We extract
+        // just the brand-list clause before the first em-dash or period.
+        // labelStyle: "wrap" → render as wrappable text, not a one-line pill.
+        get: e => {
+          const raw = e.diensten && e.diensten.brands;
+          if (!raw || typeof raw !== "string") return null;
+          const compact = raw.split(/[—.]/, 1)[0].trim();
+          return compact || raw;
+        } },
       { icon: "🛠️", label: "Facilities", max: 8, unit: " items", winnerDirection: "higher",
         get: e => itemCount(e.diensten && e.diensten.faciliteiten) },
       // ---- Prices (partial: kept even if not all centers have the field) ----
@@ -4424,7 +4434,10 @@ function compareScoreboardHTML(items) {
   const renderCell = (d, val) => {
     if (val == null) return `<td class="sb-cell empty">—</td>`;
     if (d.mode === "label") {
-      return `<td class="sb-cell"><span class="sb-chip">${escHTML(val)}</span></td>`;
+      // "wrap" → wrappable plain text (for longer values like brand lists).
+      // Default → one-line pill chip (for short categorical labels).
+      const cls = d.labelStyle === "wrap" ? "sb-label-wrap" : "sb-chip";
+      return `<td class="sb-cell"><span class="${cls}">${escHTML(val)}</span></td>`;
     }
     if (d.mode === "levels") {
       const set = new Set(val);
