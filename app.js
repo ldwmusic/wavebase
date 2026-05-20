@@ -4433,7 +4433,12 @@ function compareScoreboardHTML(items) {
     const checker = d.partial ? items.some.bind(items) : items.every.bind(items);
     return checker(e => {
       const val = d.get(e);
-      if (val == null) return false;
+      // A null value still counts as displayable when the dimension has a
+      // nullLabel (e.g. Food → "Self-catering"). That keeps the Food row on
+      // the scoreboard even when some — or all — compared stays serve no
+      // meals: LDW wants Food to stay a permanent criterion, not vanish the
+      // moment one self-catering stay is in the mix.
+      if (val == null) return !!d.nullLabel;
       if (d.mode === "range") return val.lo != null && val.hi != null;
       if (d.mode === "label") return typeof val === "string" && val.length > 0;
       if (d.mode === "levels") return Array.isArray(val) && val.length > 0;
