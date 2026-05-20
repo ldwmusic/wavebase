@@ -3770,7 +3770,7 @@ const WAVEBASE_DATA = [
       "Strong youth program — weekly Wednesday training, summer camps, club competitions.",
       "Three membership tiers (Beachmember €45, Basic €75, All-in €165) plus non-member access to lessons/camps.",
       "LDW connection: this is where he learned to windsurf.",
-      "Bron-strength: 🟢 SOLID — windsurfingdeinze.be (own site, multiple pages) + LDW first-hand club member experience. Google reviews exist (3 substantive, ≤6 years) but are dominated by terrace/bar/uitwaaien — none discuss the lessons or windsurf school, so they don't add to what LDW already knows from the inside."
+      "Bron-strength: 🟢 SOLID — windsurfingdeinze.be (own site, multiple pages) + LDW first-hand club member experience. Google reviews within the WaveBase ≤4-year window (2 substantive, ≤2 years, sampled May 2026) are all terrace/bar/uitwaaien — none discuss the lessons or windsurf school, so they don't add to what LDW already knows from the inside."
     ],
     verhaal: [
       `Windsurfing Deinze is the kind of club that doesn't exist on most surf-guide sites: a member-run, volunteer-driven local club, on a freshwater put inland from the coast, that's been quietly producing Belgian windsurfers since 1982. The clubhouse was built by the founding members. The bar is called Jardin Des Amis. The "Talk less, surf more" motto is on their website.`,
@@ -3901,13 +3901,13 @@ const WAVEBASE_DATA = [
       "IKO-certified kite school inside (StevoKitesurf), small-group focus.",
       "Run by Steve Verelst, 3× Belgian Freestyle Kitesurf Champion.",
       "Lessons in NL/EN/FR.",
-      "Recent reviews: rolstoeltoegankelijke locatie + friendly bar/restaurant team praised; members get the warm welcome, non-members historically less so (older complaint). One recent 1⭐ flagged a phone-confirmed rental that turned into a 'no' on arrival — worth confirming in writing.",
-      "Bron-strength: 🟢 SOLID — sideshoresurfers.be (own site) + Visit De Panne tourism + Google reviews (10 substantive reviews ≤7 years sampled May 2026, of which 3 are ≤1 year)."
+      "Recent reviews (≤1 year): rolstoeltoegankelijke locatie + friendly bar/restaurant team praised; club community + inclusive vibe come through. One recent 1⭐ flagged a phone-confirmed rental that turned into a 'no' on arrival — worth confirming in writing.",
+      "Bron-strength: 🟢 SOLID — sideshoresurfers.be (own site) + Visit De Panne tourism + Google reviews within the WaveBase ≤4-year window (3 substantive, all ≤1 year, sampled May 2026)."
     ],
     verhaal: [
       `Side Shore Surfers is the De Panne anchor — a member-driven club embedded in the dunes at Zeedijk 109, with a beach restaurant (Leopold 1) and a multi-discipline offering. Windsurf, kite, wave surf, wing, SUP — all under one roof.`,
       `Inside the club operates StevoKitesurf — the kite school of Steve Verelst, 3× Belgian Freestyle Kitesurf Champion. They publicly position themselves as the only IKO center in Belgium that explicitly avoids large groups: max 2 students per instructor, so each student gets practical water time rather than queueing.`,
-      `Honest fine print from recent reviews: it's a member-driven club. The bar/restaurant gets warm praise — "fantastische sportclub", "rolstoeltoegankelijke plek met zeer vriendelijke barman". But historically (older reviews) non-members report feeling less warmly received than members. And one recent 1⭐ user reports a rental that was confirmed by phone before driving across, then refused on arrival — book and confirm in writing if you're travelling for it.`
+      `Honest fine print from recent reviews (≤1 year): it's a member-driven club. The bar/restaurant gets warm praise — "fantastische sportclub voor watersportliefhebbers", "rolstoeltoegankelijke plek met zeer vriendelijke barman". And one recent 1⭐ user reports a rental that was confirmed by phone before driving across, then refused on arrival — book and confirm in writing if you're travelling for it.`
     ],
     lagen: [
       {
@@ -3919,12 +3919,11 @@ const WAVEBASE_DATA = [
         ]
       },
       {
-        titel: "What recent users say (Google reviews, mix 2018–2025)",
-        bron: "Google Maps reviews sampled May 2026 (10 substantive reviews; 3 from the last 12 months)",
+        titel: "What recent users say (Google reviews, ≤1 year)",
+        bron: "Google Maps reviews sampled May 2026, filtered to WaveBase ≤4-year window (3 substantive reviews, all ≤1 year old)",
         inhoud: [
-          { kop: "Members + accessibility praise", tekst: `1 year ago, 5⭐: "fantastische sportclub voor watersportliefhebbers, geweldige community, toplocatie". 8 months ago, 5⭐: "rolstoeltoegankelijke plek, zeer vriendelijke barman". The club community + the inclusive vibe come through repeatedly.` },
-          { kop: "🚩 One recent 1⭐: phone-confirmed rental refused on arrival", tekst: `9 months ago, 1⭐: user reports calling ahead to ask about rental, getting a "yes", driving over, then being told "no". If you're travelling for rental or a session, confirm in writing.` },
-          { kop: "Older friction — non-members feeling unwelcome", tekst: `7 years ago, 3⭐: "Goed voor te surfen/suppen maar niet-leden worden niet zo vriendelijk onthaald". This is an old datapoint and may have shifted — but worth knowing if you're a walk-in.` }
+          { kop: "Members + accessibility praise", tekst: `1 year ago, 5⭐: "fantastische sportclub voor watersportliefhebbers, geweldige community, toplocatie". 8 months ago, 5⭐: "rolstoeltoegankelijke plek, zeer vriendelijke barman". The club community + the inclusive vibe come through.` },
+          { kop: "🚩 Recent 1⭐: phone-confirmed rental refused on arrival", tekst: `9 months ago, 1⭐: user reports calling ahead to ask about rental, getting a "yes", driving over, then being told "no". If you're travelling for rental or a session, confirm in writing.` }
         ]
       }
     ],
@@ -4266,6 +4265,86 @@ const WAVEBASE_DATA = [
       verified:              "2026-05",
       source:                "surfersparadise.be — own site lists packages + camps but doesn't publish a single fixed price list. Premium positioning relative to the wider Belgian-coast scene; contact center for current rates."
     }
+  },
+
+  /* ----------------- SURFCLUB WINDEKIND — Oostduinkerke ----------------- */
+  {
+    id: "surfclub-windekind",
+    type: "center",
+    country: "Belgium",
+    sports: ["wind", "kite", "wing", "wave", "sup"],
+    name: "Surfclub Windekind",
+    town: "Oostduinkerke",
+    tagline: "30+ year-old multi-discipline hotspot on the largest watersport zone of the Belgian coast — the only Duotone Pro Center in the Benelux, with no groynes in the water and a huge beach parking right behind.",
+    levels: ["beginner", "intermediate", "advanced"],
+    goodMonths: [4,5,6,7,8,9,10],
+    linkedSpotId: null,
+    coords: [51.1416689, 2.697102],
+    coordsLabel: "Zuidenwindhelling 1, 8670 Oostduinkerke (Koksijde gemeente) — verified via Google Maps direct place lookup.",
+    photo: "",
+    bookingUrl: "https://www.surfclub-windekind.be/",
+    diensten: {
+      lessen: "Windsurf, kitesurf, wave surf, wing foil, SUP — lessons, equipment rental, clinics, events. Beginner through advanced.",
+      rental: "Equipment rental in all surf disciplines. Duotone Pro Center — wide current Duotone inventory for kite, wing, windsurf.",
+      brands: "Duotone (Pro Center for the Benelux).",
+      faciliteiten: "Direct beach access, ruime parking (paid, ~€1.50/h per recent review), surf bar on the dunes, self-service ordering. Located on the so-called 'grootste watersportzone van het land' — no wave-blocking groynes in front of the launch.",
+      team: "Volunteer-run club + qualified instructors per their own site. >100 surfers on windy days according to club's own description."
+    },
+    samenvatting: [
+      "Multi-discipline surfclub at the largest watersport zone of the Belgian coast (no groynes in the water).",
+      "Only Duotone Pro Center in the Benelux — all current Duotone kit available for rental.",
+      "30+ years in operation; broad scope (wind, kite, wave, wing, SUP) for all levels.",
+      "Recent reviews (≤1 year, ≤4-year window applied): Google 4.3/5 across 699 reviews, dominated by terrace/bar/community praise plus one specific 'first surfing class' shoutout. Tripadvisor 3.8/5 from 20 reviews ranks it #25 of 27 restaurants in Oostduinkerke — the catering side rates noticeably weaker than the watersport side does on Google. Order at the bar (self-service), parking is paid (~€1.50/h).",
+      "Bron-strength: 🟢 SOLID — surfclub-windekind.be (own site) + Google reviews (3 substantive within the WaveBase ≤4-year window, sampled May 2026; aggregate rating 4.3 across 699 lifetime) + Tripadvisor (20 reviews, 3.8/5, sampled May 2026) + Facebook page (7.6K followers, active). LDW has not visited."
+    ],
+    verhaal: [
+      `Surfclub Windekind sits at Zuidenwindhelling 1 in Oostduinkerke (Koksijde gemeente), on what the club itself calls "de grootste watersportzone van het land". The hook is the launch zone: unlike most of the Belgian coast, this stretch has no groynes (golfbrekers) sticking out into the water, so you can run downwind without hitting concrete. Behind the dune sits a huge beach parking — easy access for car + gear.`,
+      `Operating since the mid-1990s and member-run, Windekind covers every surf discipline — windsurf, kite, wave surf, wing foil, SUP — for all levels. The distinguishing claim on the rental side: it's the only Duotone Pro Center in the Benelux, meaning current-season Duotone gear is on hand for rental, not just hand-me-downs.`,
+      `What recent reviewers actually say (≤1 year, Google + Tripadvisor combined): Google paints it as a beloved beach bar with great location away from the bigger Nieuwpoort-Bad crowd, with one recent 5⭐ specifically describing "my first surfing class" as a great experience. Tripadvisor paints a more critical picture of the catering side specifically — 3.8/5 from 20 reviews, ranking #25 of 27 restaurants in Oostduinkerke. The teaching + watersport side and the bar/restaurant side seem to rate differently; if you're coming for surf, you'll likely come away happy; if you're coming primarily for food, set expectations lower.`,
+      `Practical fine print from recent reviews: self-service ordering at the bar (not tafelbediening), parking is paid (~€1.50/h according to a Dutch reviewer who measured it).`
+    ],
+    lagen: [
+      {
+        titel: "Why this spot — the launch zone",
+        bron: "surfclub-windekind.be (own site)",
+        inhoud: [
+          { kop: "No groynes", tekst: `Unlike most of the Belgian coast, the section in front of Windekind has no breakwaters in the water. That means you can stay downwind on a kite or wing without smacking concrete, and beginner windsurfers can drift further before getting fished out.` },
+          { kop: ">100 surfers on windy days", tekst: `Per the club's own description, this is one of the busiest launch zones on the Belgian coast. "Druk? Misschien, maar er is altijd plek om samen van wind en golven te genieten." Plan around school holidays + weekends if you want quiet water.` }
+        ]
+      },
+      {
+        titel: "Multi-discipline + Duotone Pro Center",
+        bron: "surfclub-windekind.be (own site)",
+        inhoud: [
+          { kop: "All disciplines under one club", tekst: `Windsurf, kitesurf, wave surf, wing foil, SUP — lessons, rental, clinics, events for all of them.` },
+          { kop: "Duotone Pro Center (Benelux exclusive)", tekst: `Officially the only Duotone Pro Center in the Benelux per their own marketing. Means current Duotone kit (kites, wings, windsurf gear, boards) is available for rental, not just old club equipment.` }
+        ]
+      },
+      {
+        titel: "What recent users say (Google + Tripadvisor, ≤1 year)",
+        bron: "Google Maps reviews (3 substantive within ≤4-year window, sampled May 2026; lifetime aggregate 4.3/5 across 699 reviews) + Tripadvisor (20 reviews, 3.8/5, sampled May 2026, restaurant-categorised)",
+        inhoud: [
+          { kop: "Lesson praise — 'first surfing class' shoutout", tekst: `10 months ago, 5⭐ (Google, English-language): "What A Wavy Experience! Arrived here for my first surfing class and even tho the waves weren't that big..." The teaching side gets a direct positive mention from a first-time student.` },
+          { kop: "Location praise — quieter than Nieuwpoort-Bad", tekst: `4 months ago, 5⭐ (Google): "Leuke plaats om te chillen bij de beach. Weg van de drukte van Nieuwpoort Bad. Een aanrader en wij komen hier vaak." The away-from-the-crowd angle comes through repeatedly.` },
+          { kop: "🟡 Catering side rates weaker (Tripadvisor)", tekst: `Tripadvisor categorises Windekind as a restaurant + ranks it #25 of 27 in Oostduinkerke restaurants — bottom-quartile. Aggregate 3.8/5 from 20 reviews. Worth knowing if food is a deciding factor for your day at the beach. The watersport-skewed Google audience rates it much higher (4.3/5 across 699 reviews).` },
+          { kop: "Practical bits to expect", tekst: `1 year ago, 4⭐ (Google, Dutch reviewer comparing to NL): self-service ordering at the bar, not tafelbediening. Parking is paid, ~€1.50/h.` }
+        ]
+      }
+    ],
+    vergelijking: null,
+    ideaalVoor: "Multi-discipline learners + improvers wanting one club for all watersports; kiters/wingers/windsurfers wanting groyne-free downwind room + current Duotone kit; anyone who wants the busier, more social Belgian-coast surf hub.",
+    nietIdeaalAls: "You want quiet water in summer holidays — this is one of the busier launch zones; or you're coming primarily for a restaurant meal (the catering side rates noticeably lower on Tripadvisor than the watersport side does on Google).",
+    prices: {
+      tier:                  "comfortable",
+      groupLessonEUR:        null,
+      privateLessonHourEUR:  null,
+      rentalDayEUR:          null,
+      packageEUR:            null,
+      packageDays:           null,
+      unit:                  "by enquiry",
+      verified:              "2026-05",
+      source:                "surfclub-windekind.be — own site doesn't publish a single fixed price list on the homepage; contact club directly for lesson + rental + membership rates. Tier estimate based on Duotone Pro Center positioning + comparable Belgian-coast centers."
+    }
   }
 ];
 
@@ -4351,6 +4430,16 @@ const WAVEBASE_TOWNS = {
     vervoer: "No direct station — De Panne (15 min by tram) or Oostende (20 min) are the rail hubs. Kusttram along the seafront. By car: ~1h40 from Brussels.",
     afstand: "Mid-west coast, between De Panne and Oostende. ~15 km to De Panne, ~25 km to Oostende.",
     bron: "Visit Flanders + harbour authority sources, 2025–26."
+  },
+
+  "Oostduinkerke": {
+    naam: "Oostduinkerke",
+    country: "Belgium",
+    intro: "A coastal village under the Koksijde gemeente, between Koksijde-Bad and Nieuwpoort-Bad. Best known for the UNESCO-listed paardenvissers — fishermen who still harvest grey shrimp from horseback at low tide (one of the only places worldwide). The beachfront strip (Oostduinkerke-Bad) hosts what locals call the largest watersport zone of the Belgian coast — a stretch of beach with no groynes in the water, which is what attracts surfclub Windekind and the >100 surfers it draws on windy days.",
+    teDoen: "Horseback shrimp fishermen demonstrations on scheduled days (UNESCO heritage, free to watch), Het Navigo national fisheries museum, dune walks in the Schipgatduinen reserve, cycle along the coast to Nieuwpoort marina or to Koksijde-Bad. The wide flat beach is good for kite-buggying and beach yoga on calm days.",
+    vervoer: "Coastal tram (Kusttram) stops at Oostduinkerke-Bad — 20 min from Oostende, 15 min from De Panne. No direct rail; closest stations are De Panne or Koksijde. By car: ~1h45 from Brussels, ~30 min from Brugge.",
+    afstand: "West coast, between De Panne and Nieuwpoort. ~7 km to De Panne, ~5 km to Nieuwpoort-Bad, ~25 km to Oostende, ~35 km to Brugge. Brussels Airport ~1h50 by car.",
+    bron: "UNESCO Intangible Cultural Heritage records (paardenvissers) + Visit Flanders + Kusttram timetables, 2025–26."
   },
 
   "Westende": {
