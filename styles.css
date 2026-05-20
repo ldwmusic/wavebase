@@ -3109,6 +3109,22 @@ button.rml-key.off .rml-dot {
 .trip-pin.stay { background: var(--clay); }
 .trip-pin.center { background: var(--amber); }
 
+/* Distance labels on the dashed route line between trip stops — small
+   white pill, centred on each segment midpoint. No tooltip arrow. */
+.leaflet-tooltip.trip-dist-label {
+  background: #fff;
+  border: 1px solid rgba(0,0,0,0.14);
+  box-shadow: 0 1px 4px -1px rgba(0,0,0,0.3);
+  color: var(--ink);
+  font-family: 'DM Sans', sans-serif;
+  font-size: 11px;
+  font-weight: 700;
+  padding: 1px 7px;
+  border-radius: 999px;
+  white-space: nowrap;
+}
+.leaflet-tooltip.trip-dist-label::before { display: none; }
+
 /* town panel — on the detail page */
 .town-panel {
   background: var(--paper);

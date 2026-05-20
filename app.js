@@ -3881,6 +3881,20 @@ function initTripMaps(trips) {
     });
     if (coords.length > 1) {
       L.polyline(coords, { color: "#2a2723", weight: 2, opacity: 0.55, dashArray: "4,7" }).addTo(map);
+      // Distance label at the midpoint of each segment — Michiel's feedback
+      // (2026-05-20): show how far each hop is (stay→center, center→spot, …)
+      // right on the dashed line. Standalone permanent tooltips, centred on
+      // the segment midpoint, non-interactive so they don't block pin clicks.
+      for (let i = 0; i < items.length - 1; i++) {
+        const a = items[i].coords, b = items[i + 1].coords;
+        const dist = fmtKm(distanceKm(a, b));
+        if (!dist) continue;
+        const mid = [(a[0] + b[0]) / 2, (a[1] + b[1]) / 2];
+        L.tooltip({
+          permanent: true, direction: "center",
+          className: "trip-dist-label", interactive: false
+        }).setLatLng(mid).setContent(dist).addTo(map);
+      }
     }
     map.fitBounds(coords, { padding: [30, 30], maxZoom: 13 });
   });
@@ -4103,7 +4117,7 @@ function renderAccount() {
         <h2>My trips <span class="seccount">${trips.length}</span></h2>
         <button class="btn ghost" id="new-trip">+ New trip</button>
       </div>
-      <p class="muted form-note">Drag locations to reorder them — each trip's map and its route line follow the order. Use ✕ to remove a stop.</p>
+      <p class="muted form-note">Drag locations to reorder them — each trip's map and its route line follow the order, with the distance of each hop shown on the dashed line. Use ✕ to remove a stop.</p>
       ${tripsHTML}
     </section>
 
