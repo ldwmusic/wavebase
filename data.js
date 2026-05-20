@@ -3016,7 +3016,7 @@ const WAVEBASE_DATA = [
     sports: ["wind", "wing", "sup"],
     name: "Florizoone Surfput",
     town: "Deinze",
-    tagline: "An old sand-extraction pit turned freshwater windsurf playground — the home base where Lode learned. Flat water, light to medium wind, no salt, no waves.",
+    tagline: "An old sand-extraction pit turned freshwater windsurf playground — the home base where both Lode and Michiel learned to windsurf. Flat water, light to medium wind, no salt, no waves.",
     levels: ["beginner", "intermediate", "advanced"],
     goodMonths: [4,5,6,7,8,9,10],
     coords: [50.9564, 3.5330],
@@ -3027,12 +3027,12 @@ const WAVEBASE_DATA = [
       "Inland freshwater pit (formerly used for E17-highway sand), ~600 m × 300 m. Flat water, no chop.",
       "Lighter, more variable wind than the coast — perfect for learning windsurf, SUP foiling, wing.",
       "Home of Windsurfing Deinze (est. 1982). Member-driven club + school + beach bar.",
-      "Bron-strength: 🟢 SOLID — windsurfingdeinze.be + langsdeleie.be + LDW first-hand: learned to windsurf here."
+      "Bron-strength: 🟢 SOLID — windsurfingdeinze.be + langsdeleie.be + first-hand from both LDW and Michiel (the two WaveBase makers both learned to windsurf at this club)."
     ],
     verhaal: [
       `Florizoone isn't a "surf spot" in the destination sense. It's a freshwater put — left behind in the 1970s when sand was dug here for the E17 highway — that the original Windsurfing Deinze members took over in 1982. Today it's a 600 × 300 m flat-water playground with a clubhouse on the west bank.`,
       `The water is flat (no waves, no chop, no salt), the wind is lighter and more variable than the coast (you wait more, then it kicks for an afternoon). That makes it the ideal place to learn to windsurf — and to wing, SUP-foil, or skim — without the cold-water-and-current intimidation of the North Sea.`,
-      `LDW learned here. The honest fine print: it's a put, not the sea. You won't get the wind hours or the wave-feel that the coast gives — but you also won't get cold, swept away, or knocked around. Most of Belgium's coastal windsurfers grew up on a water surface like this one.`
+      `Both LDW and Michiel — the two makers of WaveBase — learned to windsurf here. The honest fine print: it's a put, not the sea. You won't get the wind hours or the wave-feel that the coast gives — but you also won't get cold, swept away, or knocked around. Most of Belgium's coastal windsurfers grew up on a water surface like this one.`
     ],
     lagen: [
       {
@@ -3852,12 +3852,12 @@ const WAVEBASE_DATA = [
       "Strong youth program — weekly Wednesday training, summer camps, club competitions.",
       "Three membership tiers (Beachmember €45, Basic €75, All-in €165) plus non-member access to lessons/camps.",
       "LDW connection: this is where he learned to windsurf.",
-      "Bron-strength: 🟢 SOLID — windsurfingdeinze.be (own site, multiple pages) + LDW first-hand club member experience. Google reviews within the WaveBase ≤4-year window (2 substantive, ≤2 years, sampled May 2026) are all terrace/bar/uitwaaien — none discuss the lessons or windsurf school, so they don't add to what LDW already knows from the inside."
+      "Bron-strength: 🟢 SOLID — windsurfingdeinze.be (own site, multiple pages) + first-hand from BOTH LDW and Michiel, the two WaveBase makers who both learned to windsurf at this club. Google reviews within the WaveBase ≤4-year window (2 substantive, ≤2 years, sampled May 2026) are all terrace/bar/uitwaaien — none discuss the lessons or windsurf school, so they don't add to what LDW + Michiel already know from the inside."
     ],
     verhaal: [
       `Windsurfing Deinze is the kind of club that doesn't exist on most surf-guide sites: a member-run, volunteer-driven local club, on a freshwater put inland from the coast, that's been quietly producing Belgian windsurfers since 1982. The clubhouse was built by the founding members. The bar is called Jardin Des Amis. The "Talk less, surf more" motto is on their website.`,
       `What it teaches: windsurfing first, then wing, SUP, skimboarding. Big youth focus — weekly Wednesday training for ages 10+, summer camps (including a week at the Veerse Meer in NL), club competitions. Adults are welcome too: ladies' training Sundays, men's training mid-week.`,
-      `LDW learned to windsurf here. The honest fine print: it's a club, not a destination. The water is freshwater, the wind is lighter than the coast, and the active season is May–Sep (weekends in shoulder months, daily in July/August). If you live in Flanders, this is where you grow up before you hit the North Sea.`
+      `Both LDW and Michiel learned to windsurf here — this is the home club of the two people behind WaveBase. The honest fine print: it's a club, not a destination. The water is freshwater, the wind is lighter than the coast, and the active season is May–Sep (weekends in shoulder months, daily in July/August). If you live in Flanders, this is where you grow up before you hit the North Sea.`
     ],
     lagen: [
       {

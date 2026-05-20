@@ -1344,11 +1344,14 @@ function entrySports(e)  { return e.sports  || ["wave"]; }
    currency the user prefers. */
 
 const PRICE_TIERS = ["budget", "comfortable", "premium", "luxury"];
+// Tiers are RELATIVE to local-market prices, not global. "Comfortable" in
+// Morocco (e.g. €40 private room) ≠ "Comfortable" in Belgium (e.g. €120).
+// Always make the regional nature explicit on screen, not just in tooltips.
 const TIER_META = {
-  "budget":      { icon: "🎒", label: "Budget",      blurb: "Hostels, dorms, bare bones — cheapest end in its country." },
-  "comfortable": { icon: "🏠", label: "Comfortable", blurb: "Private room, decent kit — surf-camp standard in its country." },
-  "premium":     { icon: "✨", label: "Premium",     blurb: "Boutique, pool, breakfast — high-end in its country." },
-  "luxury":      { icon: "🌟", label: "Luxury",      blurb: "Spa, gourmet, private service — top of its country." }
+  "budget":      { icon: "🎒", label: "Budget",      blurb: "Hostels, dorms, bare bones — cheapest end RELATIVE to this country's prices." },
+  "comfortable": { icon: "🏠", label: "Comfortable", blurb: "Private room, decent kit — surf-camp standard RELATIVE to this country's prices." },
+  "premium":     { icon: "✨", label: "Premium",     blurb: "Boutique, pool, breakfast — high-end RELATIVE to this country's prices." },
+  "luxury":      { icon: "🌟", label: "Luxury",      blurb: "Spa, gourmet, private service — top of this country's market." }
 };
 function tierMeta(t) { return TIER_META[t] || null; }
 function entryTier(e) {
