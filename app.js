@@ -2878,11 +2878,13 @@ function initIndex() {
       // time we were unpinned, and trust it through the pinned cycle.
       if (pinned) return;
       const r = searcherSection.getBoundingClientRect();
-      triggerY = r.top + window.scrollY - headerH();
-      // Tiny floor so very-near-top natural positions still leave a
-      // small "expanded" zone at the top of the page before pin kicks in.
+      const h = searcherSection.offsetHeight;
+      // Pin only once the in-flow searcher is ~halfway scrolled out of
+      // view — not the instant its top touches the header (that felt far
+      // too abrupt). The + h/2 pushes the trigger down by half its height.
+      triggerY = r.top + window.scrollY - headerH() + h / 2;
       if (triggerY < 30) triggerY = 30;
-      spacer.style.height = searcherSection.offsetHeight + "px";
+      spacer.style.height = h + "px";
     }
 
     // Below this viewport width the floating card is disabled — the
