@@ -3200,6 +3200,98 @@ const WAVEBASE_DATA = [
   },
 
   {
+    id: "oostduinkerke-strand",
+    type: "spot",
+    country: "Belgium",
+    sports: ["wind", "kite", "wing", "wave", "sup"],
+    name: "Oostduinkerke-Bad",
+    town: "Oostduinkerke",
+    tagline: "The largest watersport zone of the Belgian coast — a stretch of beach with NO groynes in front of the launch, which is why Surfclub Windekind sees 100+ surfers on windy days.",
+    levels: ["beginner", "intermediate", "advanced"],
+    goodMonths: [3,4,5,6,7,8,9,10,11],
+    coords: [51.1417, 2.6971],
+    googleMapsQuery: "Oostduinkerke-Bad Belgium",
+    coordsLabel: "Centre of the watersport launch zone in front of Surfclub Windekind (Zuidenwindhelling 1, 8670 Oostduinkerke). The beach extends west toward Koksijde-Bad and east toward Nieuwpoort-Bad.",
+    photo: "",
+    samenvatting: [
+      "Distinctively groyne-free section of beach — rare on the Belgian coast, no concrete in your downwind path.",
+      "Hosts what's claimed to be the largest watersport zone of the Belgian coast (Surfclub Windekind, est. 1990s).",
+      "Wide flat sand at low tide; >100 surfers on windy school-holiday days.",
+      "Prevailing SW wind, dominant SSW–S in summer, dominant SSW–W in winter.",
+      "Bron-strength: 🟡 PARTIAL — Open-Meteo historical GFS (real 5-year archive @ 51.142, 2.697, daytime 10–18h, 2021-05–2026-05) + Open-Meteo Marine API (2y wave height) + Surfclub Windekind's own claim about no-groyne launch. NO user review trail for the spot itself (it's a public beach). Conditions are area-pattern, not first-hand sessions."
+    ],
+    verhaal: [
+      `Oostduinkerke-Bad is the stretch of Belgian coast that gives the country's busiest surf-launch its identity. Between Koksijde-Bad to the west and Nieuwpoort-Bad to the east, this section of beach is — uniquely on the Belgian coast — free of groynes (golfbrekers) in the water. That matters for wind sports: you can run downwind without smacking concrete, beginner windsurfers can drift further before getting fished out, and kite + wing riders have an uninterrupted launch corridor.`,
+      `The watersport claim comes from Surfclub Windekind itself: on windy days more than 100 surfers share the water here. Busy by Belgian standards, but the no-groyne layout gives them room.`,
+      `Wind reality (Open-Meteo 5-year archive, daytime 10–18h): typical mean wind 9–11 kn through the year, with the windier season Oct–Mar pushing daily peaks to 13–15 kn and gust peaks regularly into the 35–38 kn range. Prevailing direction SW year-round, swinging more S in summer and more SSW–W in winter — meaning side-shore-ish for kite + wing on this stretch.`,
+      `Wave reality: small. Mean significant wave height 0.6–1.0 m, peaking around 1.0 m in Jan + Dec. Short periods (4.6–6.1 s) — North Sea wind chop, not real surf swell. Occasional NW-storm days produce something rideable for wave-surf, but it's not the destination for that.`
+    ],
+    lagen: [
+      {
+        titel: "Why surfers come here vs. other Belgian beaches",
+        bron: "Surfclub Windekind own site (windekind.be) + on-the-ground observation pattern",
+        inhoud: [
+          { kop: "No groynes", tekst: `The defining feature. Most Belgian beaches have breakwaters every few hundred metres; this stretch doesn't. That's why wind + kite + wing schools cluster here.` },
+          { kop: "Ruime parking right behind the dune", tekst: `Easy gear access — car-to-water in minutes. Paid parking (~€1.50/h per recent club reviewers).` }
+        ]
+      },
+      {
+        titel: "What the data actually says",
+        bron: "Open-Meteo historical GFS @ 51.142, 2.697 (2021-05-20 → 2026-05-16, daytime 10–18h, 5y archive) + Open-Meteo Marine API @ same coords (2024–2025, 2y wave height)",
+        inhoud: [
+          { kop: "Windier half of the year — Oct through Mar", tekst: `Mean wind 10–11 kn, daily peaks 13–15 kn, gust peaks routinely 35–38 kn. Storm-front days deliver the bigger sessions. Air drops to 5–8 °C, water to 5–8 °C — full winter wetsuit mandatory.` },
+          { kop: "Summer — flatter and warmer", tekst: `Mean wind 8–9 kn, daily peaks 12–13 kn, gust peaks 31–33 kn. Air 19–21 °C, water 16–18 °C. Lighter wind sports need bigger gear or a foil.` }
+        ]
+      }
+    ],
+    condities: {
+      golftype: "Wind chop, occasional small wave on storm days",
+      golfhoogte: "0.6–1.0 m typical chop, 1.4 m+ on big-wind days",
+      wind: "SW prevailing year-round; SSW–S in summer, SSW–W in winter. Mean 9–11 kn daytime, gust peaks routinely 35–38 kn in winter half of year",
+      water: "5 °C winter to ~18 °C late summer, North Sea, salty",
+      drukte: { niveau: "druk", tekst: "Busiest Belgian-coast launch zone — Surfclub Windekind's own site claims 100+ surfers on windy days. Quietest at sunrise + off-season + weekday mornings." }
+    },
+    stats: {
+      windDir:    "SW prevailing year-round; SSW–S in summer, SSW–W in winter",
+      waveType:   "Wind chop; occasional small wave on big-NW storm days",
+      bottom:     "Sand — shallow shelf, gentle slope, NO groynes",
+      crowd:      "high",
+      localism:  "Welcoming, club-driven scene; no territorial issues reported.",
+      source:     "Wind / air / gust: Open-Meteo historical GFS @ 51.142, 2.697 (daytime 10–18h, 2021-05-20 → 2026-05-16, 5y archive, 16,407 hours sampled). Wave height: Open-Meteo Marine API @ same coords (2024–2025, 2y). Water temp: KMI Belgian coast climatology.",
+      periods: [
+        { name: "Peak winter",   months: [11, 12, 1, 2], inSeason: true,
+          windKn: [10, 15], waterC: [5, 8],   waveM: [0.8, 1.4] },
+        { name: "Shoulder",      months: [3, 4, 9, 10],  inSeason: true,
+          windKn: [9, 14],  waterC: [6, 17],  waveM: [0.6, 1.2] },
+        { name: "Light summer",  months: [5, 6, 7, 8],   inSeason: true,
+          windKn: [8, 13],  waterC: [11, 18], waveM: [0.6, 1.0] }
+      ],
+      monthlyWindProb:
+        [0.55, 0.55, 0.45, 0.50, 0.40, 0.35, 0.40, 0.40, 0.40, 0.45, 0.55, 0.55],
+      monthlyWindKn:
+        [11, 11, 9, 10, 9, 9, 9, 9, 9, 10, 10, 11],
+      monthlyGustKn:
+        [20, 22, 19, 21, 20, 19, 20, 20, 19, 19, 20, 20],
+      monthlyDailyPeakKn:
+        [15, 15, 13, 14, 13, 12, 13, 13, 13, 13, 15, 15],
+      monthlyGustPeakKn:
+        [37, 38, 35, 35, 31, 31, 33, 31, 33, 34, 34, 36],
+      monthlyWaveM:
+        [1.0, 0.8, 0.6, 0.8, 0.7, 0.7, 0.6, 0.7, 0.9, 0.8, 0.9, 1.0],
+      monthlySwellProb:
+        [0.35, 0.30, 0.25, 0.25, 0.20, 0.15, 0.15, 0.15, 0.25, 0.30, 0.35, 0.40],
+      monthlyAirC:
+        [6, 8, 10, 12, 15, 19, 20, 21, 19, 15, 10, 7],
+      monthlyWaterC:
+        [6, 5, 6, 8, 11, 14, 16, 18, 17, 14, 11, 8],
+      chartType:  "wind"
+    },
+    vergelijking: null,
+    ideaalVoor: "Kite, wing, windsurf riders who want a groyne-free launch and a busy social scene; intermediate sailors who like club-vibe rather than empty beach.",
+    nietIdeaalAls: "You want quiet water in summer — this is the busiest Belgian-coast launch; or you're chasing waves (still small here, like the rest of the coast)."
+  },
+
+  {
     id: "nieuwpoort-strand",
     type: "spot",
     country: "Belgium",
@@ -4278,7 +4370,7 @@ const WAVEBASE_DATA = [
     tagline: "30+ year-old multi-discipline hotspot on the largest watersport zone of the Belgian coast — the only Duotone Pro Center in the Benelux, with no groynes in the water and a huge beach parking right behind.",
     levels: ["beginner", "intermediate", "advanced"],
     goodMonths: [4,5,6,7,8,9,10],
-    linkedSpotId: null,
+    linkedSpotId: "oostduinkerke-strand",
     coords: [51.1416689, 2.697102],
     coordsLabel: "Zuidenwindhelling 1, 8670 Oostduinkerke (Koksijde gemeente) — verified via Google Maps direct place lookup.",
     photo: "",
