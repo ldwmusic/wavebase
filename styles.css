@@ -4143,6 +4143,8 @@ button.rml-key.off .rml-dot {
 .exp-leg-dot.fresh { background: var(--sea); }
 .exp-leg-dot.known { background: #9c968a; margin-left: 10px; }
 .exp-row.is-known .exp-row-name { color: var(--ink-soft); }
+.exp-row.is-faded { opacity: 0.55; }
+.exp-row.is-faded .exp-row-dist { color: var(--ink-soft); }
 .exp-row-badge {
   font-size: 10px; font-weight: 700; padding: 1px 6px; border-radius: 999px;
   text-transform: uppercase; letter-spacing: 0.03em; white-space: nowrap;

@@ -5491,19 +5491,31 @@ function initExplorer() {
     const el = document.getElementById("exp-list");
     if (!el) return;
     let list = rows.slice();
-    if (state.base) list = list.filter(r => r.inReach).sort((a,b) => a.dist - b.dist);
-    else list.sort((a,b) => a.entry.name.localeCompare(b.entry.name));
-    const freshCount = list.filter(r => !r.known).length;
-    const head = state.base
-      ? `<div class="exp-list-head">${list.length} spot${list.length===1?"":"s"} within ${state.maxKm} km${state.onlyNew ? "" : ` · <span class="exp-fresh-count">${freshCount} new to you</span>`}</div>`
-      : `<div class="exp-list-head">${list.length} spot${list.length===1?"":"s"} in ${escHTML(state.region)} <span class="muted">— set your base to sort by distance</span></div>`;
+    if (state.base) {
+      // In-reach spots first (nearest first); out-of-reach spots are NOT
+      // dropped — they stay in the list below, shown faded / non-active.
+      list.sort((a,b) =>
+        (a.inReach === b.inReach) ? (a.dist - b.dist) : (a.inReach ? -1 : 1));
+    } else {
+      list.sort((a,b) => a.entry.name.localeCompare(b.entry.name));
+    }
+    const inReachCount = list.filter(r => r.inReach).length;
+    const freshCount = list.filter(r => r.inReach && !r.known).length;
+    let head;
+    if (state.base) {
+      head = inReachCount
+        ? `<div class="exp-list-head">${inReachCount} spot${inReachCount===1?"":"s"} within ${state.maxKm} km${state.onlyNew ? "" : ` · <span class="exp-fresh-count">${freshCount} new to you</span>`}</div>`
+        : `<div class="exp-list-head">Nothing within ${state.maxKm} km yet <span class="muted">— widen your reach</span></div>`;
+    } else {
+      head = `<div class="exp-list-head">${list.length} spot${list.length===1?"":"s"} in ${escHTML(state.region)} <span class="muted">— set your base to sort by distance</span></div>`;
+    }
     const legend = (state.base && !state.onlyNew)
       ? `<div class="exp-legend"><span class="exp-leg-dot fresh"></span>new to you<span class="exp-leg-dot known"></span>surfed / saved / in a trip</div>`
       : "";
     if (!list.length) {
       const msg = state.onlyNew
-        ? "No new-to-you spots in range. Widen your reach, or switch off “only new to me”."
-        : "No spots in range. Widen your reach, or turn a sport back on.";
+        ? "Nothing new to you in this region — switch off “only new to me” to see every spot."
+        : "No spots match — turn a sport filter back on.";
       el.innerHTML = head + `<p class="exp-list-empty">${msg}</p>`;
       return;
     }
@@ -5512,7 +5524,8 @@ function initExplorer() {
       const badge = r.known
         ? ` <span class="exp-row-badge ${r.known}">${r.known === "surfed" ? "✓ surfed" : r.known === "trip" ? "in a trip" : "saved"}</span>`
         : "";
-      return `<button type="button" class="exp-row${r.known ? " is-known" : ""}" data-id="${r.entry.id}">
+      const faded = state.base && !r.inReach;
+      return `<button type="button" class="exp-row${r.known ? " is-known" : ""}${faded ? " is-faded" : ""}" data-id="${r.entry.id}">
         <span class="exp-row-main">
           <span class="exp-row-name">${escHTML(r.entry.name)}</span>
           <span class="exp-row-town">${escHTML(r.entry.town)}${badge}</span>
