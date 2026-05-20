@@ -2084,7 +2084,7 @@ const WAVEBASE_DATA = [
 
   /* ===================== GREECE — east Crete (wind / wing / kite cluster) =====================
      Far-east Crete: Kouremenos Bay is the side-shore meltemi engine; spots fan out from there.
-     LDW personally went windsurfing at Kouremenos. Other spots from public surf/wind/kite guides.
+     Lode personally went windsurfing at Kouremenos. Other spots from public surf/wind/kite guides.
      Stays from recent reviews (TripAdvisor, BookSurfCamps, Booking — where readable).
      Bron-strength labelled: 🟢 SOLID = ≥2 independent sources; 🔴 SINGLE SOURCE = one source. */
 
@@ -2107,17 +2107,17 @@ const WAVEBASE_DATA = [
       "Side-shore meltemi wind (NNW–N) almost every summer afternoon, 15–28 kn typical.",
       "Two windsurf/wing/kite centers on the beach (see Surf centers below).",
       "Beginner-friendly inside, more swell + chop the further out you go.",
-      "Bron-strength: 🟢 SOLID — multiple guides (Windfinder, Beach-Inspector, center sites) + LDW's first-hand visit."
+      "Bron-strength: 🟢 SOLID — multiple guides (Windfinder, Beach-Inspector, center sites) + Lode's first-hand visit."
     ],
     verhaal: [
       `Kouremenos is the reason windsurfers and wing-foilers come to far-east Crete. A ~2 km open bay facing east, framed by hills that funnel the meltemi (the summer NW thermal wind) straight along the coast as side-shore. From about June into September it blows almost every afternoon — strong enough for advanced sailors, manageable enough on the inside that beginners can learn here too.`,
       `The bay is shallow on the inside (flat to small chop, perfect for learning), with more swell building up further out. Two windsurf/wing/kite centers operate on the beach; both teach windsurfing and wing foiling, with rentals running alongside the lessons.`,
-      `LDW went windsurfing here. The honest fine print: in the morning the wind can be flaky — Kouremenos is an afternoon spot. And the village (Palekastro) is 1.5 km inland — not on the beach itself.`
+      `Lode went windsurfing here. The honest fine print: in the morning the wind can be flaky — Kouremenos is an afternoon spot. And the village (Palekastro) is 1.5 km inland — not on the beach itself.`
     ],
     lagen: [
       {
         titel: "The wind & water",
-        bron: "Windfinder, Beach-Inspector & center sites — cross-checked with LDW's first-hand visit",
+        bron: "Windfinder, Beach-Inspector & center sites — cross-checked with Lode's first-hand visit",
         inhoud: [
           { kop: "High season · Jun–Sep", tekst: `Meltemi side-shore from the NNW–N nearly every afternoon, ~15–28 kn. July–August the most reliable; June and September a touch lighter. Mornings often calm — this is an afternoon spot.` },
           { kop: "Shoulder · May & Oct", tekst: `Wind less reliable but still some good days; warmer water by late May.` },
@@ -2212,7 +2212,7 @@ const WAVEBASE_DATA = [
     levels: ["intermediate", "advanced"],
     goodMonths: [5,6,7,8,9,10],
     coords: [35.2867921, 26.2888294],
-    coordsLabel: "Verified via Google Maps pin (LDW). Remote rocky bay between Vai (~7 km south) and Cape Sidero, ~15 km from Palekastro.",
+    coordsLabel: "Verified via Google Maps pin (Lode). Remote rocky bay between Vai (~7 km south) and Cape Sidero, ~15 km from Palekastro.",
     photo: "",
     samenvatting: [
       "A remote rocky bay at the far north-east tip of Crete — 15 km from Palekastro, 7 km past Vai.",
@@ -2393,7 +2393,7 @@ const WAVEBASE_DATA = [
     nietIdeaalAls: "You're anything less than confidently advanced in real wave conditions — this spot has hurt people."
   },
 
-  /* Note: a "Sitia Beach (urban)" entry was removed at LDW's call — no
+  /* Note: a "Sitia Beach (urban)" entry was removed at Lode's call — no
      Crete windsurf guide lists it as a spot, so an "if you're in town"
      framing didn't justify keeping it. The town beach exists, just not
      as a destination. */
@@ -2498,7 +2498,7 @@ const WAVEBASE_DATA = [
   },
 
   /* Note: an earlier "Istro Bay" wave-surf entry was removed — review with
-     LDW found no verifiable source listing it as a surf spot. Crete is not
+     Lode found no verifiable source listing it as a surf spot. Crete is not
      a wave-surf destination; wave sailing happens at Faneromeni, not here. */
 
   /* ----------------- SURF CENTRES — EAST CRETE ----------------- */
@@ -2515,7 +2515,7 @@ const WAVEBASE_DATA = [
     // Center inherits its at-a-glance stats from this spot (same beach).
     linkedSpotId: "kouremenos",
     coords: [35.207305, 26.2690837],
-    coordsLabel: "Verified via Google Maps pin (LDW). Right on Kouremenos beach.",
+    coordsLabel: "Verified via Google Maps pin (Lode). Right on Kouremenos beach.",
     photo: "",
     bookingUrl: "https://gonesurfing.gr/home",
     diensten: {
@@ -2539,7 +2539,7 @@ const WAVEBASE_DATA = [
     lagen: [
       {
         titel: "The wind & water — Kouremenos region",
-        bron: "Center site + TripAdvisor reviews + LDW first-hand visit",
+        bron: "Center site + TripAdvisor reviews + Lode first-hand visit",
         inhoud: [
           { kop: "Reliability", tekst: `Per a 2025 reviewer: "wind is reliable from 7:00 to 24:00 — no guessing, no waiting". Side-shore meltemi NNW–N nearly every summer afternoon, ~15–28 kn.` },
           { kop: "Safety", tekst: `Rescue boat on standby during sessions. A 2023 review notes: "They keep an eye on you and have a rescue boat ready, so you feel safe on the water". Not a spot for absolute beginners on big-wind days.` }
@@ -2586,7 +2586,7 @@ const WAVEBASE_DATA = [
     // Center inherits its at-a-glance stats from this spot (same beach).
     linkedSpotId: "kouremenos",
     coords: [35.206098, 26.269993],
-    coordsLabel: "Verified via Google Maps pin (LDW). Right on Kouremenos beach; also signposted as \"Freak Windsurf & Bike Center\" on Google Maps.",
+    coordsLabel: "Verified via Google Maps pin (Lode). Right on Kouremenos beach; also signposted as \"Freak Windsurf & Bike Center\" on Google Maps.",
     photo: "",
     bookingUrl: "https://www.freak-surf.com/crete/",
     diensten: {
@@ -2687,7 +2687,7 @@ const WAVEBASE_DATA = [
     lagen: [
       {
         titel: "The wind — Kouremenos region",
-        bron: "Windfinder, Beach-Inspector, center sites + LDW's first-hand visit",
+        bron: "Windfinder, Beach-Inspector, center sites + Lode's first-hand visit",
         inhoud: [
           { kop: "High season · Jun–Sep", tekst: `Side-shore meltemi NNW–N nearly every afternoon, ~15–28 kn. July–August the most reliable.` },
           { kop: "Mornings", tekst: `Often calm — Kouremenos is an afternoon spot.` },
@@ -2729,7 +2729,7 @@ const WAVEBASE_DATA = [
     levels: ["beginner", "intermediate", "advanced"],
     goodMonths: [5,6,7,8,9,10],
     coords: [35.2151893, 26.2671377],
-    coordsLabel: "Verified via Google Maps pin (LDW). Heads up: the property is currently signposted on Google Maps as \"Hotel Coast Village\" at this address — searching \"Akti Villas\" still resolves to the same spot.",
+    coordsLabel: "Verified via Google Maps pin (Lode). Heads up: the property is currently signposted on Google Maps as \"Hotel Coast Village\" at this address — searching \"Akti Villas\" still resolves to the same spot.",
     photo: "",
     bookingUrl: "https://www.akti-villas.gr/",
     verblijf: {
@@ -2749,17 +2749,17 @@ const WAVEBASE_DATA = [
       "⚠️ Review trail is stale: 10 TripAdvisor reviews, ALL from 2013-2017, none in the last 4 years. The 4.4/5 average is historical.",
       "On Google Maps now signposted as \"Hotel Coast Village\" at the same address — possibly under different management since the older review window.",
       "Not on Booking.com — booking is direct via akti-villas.gr or by phone.",
-      "Bron-strength: 🔴 STALE — included as a known property with location verified by LDW's pin, but current experience unverified."
+      "Bron-strength: 🔴 STALE — included as a known property with location verified by Lode's pin, but current experience unverified."
     ],
     verhaal: [
-      `Akti Villas is on Kouremenos beach — that part is verifiable: LDW pinned the location, the property's own site describes "30 metres from the beach" in "a quiet and picturesque area in Kouremenos". It is the most poorly-sourced of the five Greek stays in this guide and we owe you full honesty about that.`,
+      `Akti Villas is on Kouremenos beach — that part is verifiable: Lode pinned the location, the property's own site describes "30 metres from the beach" in "a quiet and picturesque area in Kouremenos". It is the most poorly-sourced of the five Greek stays in this guide and we owe you full honesty about that.`,
       `The TripAdvisor review trail is 10 reviews, all between 2013 and May 2017 — nothing in the last 4 years. Those old reviews described a small villa cluster (5 units), well-equipped kitchens, a swimming pool overlooking the windsurf bay, daily cleaning, and consistent praise for cleanliness (5.0/5 sub-score). The 1-star outlier in that older trail was a booking-process complaint, not the property. But nine years is a long time. Furniture, ownership, even the property name on Google Maps may have changed since (see In short above).`,
       `Why we still include it: the location is verified and the property is operating (the own site is current, akti-villas.gr resolves and has 2024-style content). What we cannot do is tell you what staying there actually feels like in 2024-2026 — there are no recent guest voices to read. If you book, you'd be one of the first reviewers in years; treat it as an unknown that probably resembles its older description.`
     ],
     lagen: [
       {
         titel: "The wind — Kouremenos region",
-        bron: "Windfinder, Beach-Inspector, center sites + LDW's first-hand visit",
+        bron: "Windfinder, Beach-Inspector, center sites + Lode's first-hand visit",
         inhoud: [
           { kop: "High season · Jun–Sep", tekst: `Side-shore meltemi NNW–N nearly every afternoon, ~15–28 kn. Walk from the villas to the launch.` }
         ]
@@ -2784,7 +2784,7 @@ const WAVEBASE_DATA = [
       toEUR:       null,
       unit:        "per night, studio (2 adults)",
       verified:    "2026-05",
-      source:      "TODO — own site (akti-villas.gr) publishes no rates; Booking shows a different property called \"Kiani Akti Villas\" which LDW confirmed is NOT the same. Direct enquiry: +30 28430 61065 or virginie.tsantaki@gmail.com (wait — that\'s Villa Amalia, Akti Villas contact: from akti-villas.gr)."
+      source:      "TODO — own site (akti-villas.gr) publishes no rates; Booking shows a different property called \"Kiani Akti Villas\" which Lode confirmed is NOT the same. Direct enquiry: +30 28430 61065 or virginie.tsantaki@gmail.com (wait — that\'s Villa Amalia, Akti Villas contact: from akti-villas.gr)."
     },
   },
 
@@ -2829,7 +2829,7 @@ const WAVEBASE_DATA = [
     lagen: [
       {
         titel: "The wind — Kouremenos region",
-        bron: "Windfinder, Beach-Inspector, center sites + LDW's first-hand visit",
+        bron: "Windfinder, Beach-Inspector, center sites + Lode's first-hand visit",
         inhoud: [
           { kop: "High season · Jun–Sep", tekst: `Side-shore meltemi NNW–N nearly every afternoon, ~15–28 kn. Drive ~2–3 km from Agathia to Kouremenos beach.` },
           { kop: "Why the location works", tekst: `Equidistant between Palekastro village (walkable for groceries and tavernas) and the wind. Plus on-site gear storage and bicycle rental.` }
@@ -2900,7 +2900,7 @@ const WAVEBASE_DATA = [
     lagen: [
       {
         titel: "The wind — Kouremenos region",
-        bron: "Windfinder, Beach-Inspector, center sites + LDW's first-hand visit",
+        bron: "Windfinder, Beach-Inspector, center sites + Lode's first-hand visit",
         inhoud: [
           { kop: "High season · Jun–Sep", tekst: `Side-shore meltemi NNW–N nearly every afternoon, ~15–28 kn. Drive ~2 km down from the hillside to the beach.` },
           { kop: "Hillside view", tekst: `Per reviewers: each balcony overlooks the windsurf bay — you watch the wind fill in before driving down. Especially valued by non-sailing partners.` }
@@ -2970,7 +2970,7 @@ const WAVEBASE_DATA = [
     lagen: [
       {
         titel: "The wind — Kouremenos region",
-        bron: "Windfinder, Beach-Inspector, center sites + LDW's first-hand visit",
+        bron: "Windfinder, Beach-Inspector, center sites + Lode's first-hand visit",
         inhoud: [
           { kop: "High season · Jun–Sep", tekst: `Side-shore meltemi NNW–N nearly every afternoon, ~15–28 kn. Beach is steps from the property.` },
           { kop: "On the beach", tekst: `\"2 min walk to beautiful beach\" (Sep 2023 reviewer). \"Mooi terras uit de wind\" — terrace sheltered from the wind, with sun/shade options.` }
@@ -3005,7 +3005,7 @@ const WAVEBASE_DATA = [
      windy, no proper waves most of the year. Wave surfing exists but is occasional.
      Wind / wing / kite are the real story.
      Bron-strength labels:
-       🟢 SOLID = ≥2 independent sources (LDW + official site or multiple guides)
+       🟢 SOLID = ≥2 independent sources (Lode + official site or multiple guides)
        🟡 PARTIAL = climatology + area knowledge, individual spot reviews pending */
 
   /* ----------------- FLORIZOONE — Deinze (inland, freshwater) ----------------- */
@@ -3027,12 +3027,12 @@ const WAVEBASE_DATA = [
       "Inland freshwater pit (formerly used for E17-highway sand), ~600 m × 300 m. Flat water, no chop.",
       "Lighter, more variable wind than the coast — perfect for learning windsurf, SUP foiling, wing.",
       "Home of Windsurfing Deinze (est. 1982). Member-driven club + school + beach bar.",
-      "Bron-strength: 🟢 SOLID — windsurfingdeinze.be + langsdeleie.be + first-hand from both LDW and Michiel (the two WaveBase makers both learned to windsurf at this club)."
+      "Bron-strength: 🟢 SOLID — windsurfingdeinze.be + langsdeleie.be + first-hand from both Lode and Michiel (the two WaveBase makers both learned to windsurf at this club)."
     ],
     verhaal: [
       `Florizoone isn't a "surf spot" in the destination sense. It's a freshwater put — left behind in the 1970s when sand was dug here for the E17 highway — that the original Windsurfing Deinze members took over in 1982. Today it's a 600 × 300 m flat-water playground with a clubhouse on the west bank.`,
       `The water is flat (no waves, no chop, no salt), the wind is lighter and more variable than the coast (you wait more, then it kicks for an afternoon). That makes it the ideal place to learn to windsurf — and to wing, SUP-foil, or skim — without the cold-water-and-current intimidation of the North Sea.`,
-      `Both LDW and Michiel — the two makers of WaveBase — learned to windsurf here. The honest fine print: it's a put, not the sea. You won't get the wind hours or the wave-feel that the coast gives — but you also won't get cold, swept away, or knocked around. Most of Belgium's coastal windsurfers grew up on a water surface like this one.`
+      `Both Lode and Michiel — the two makers of WaveBase — learned to windsurf here. The honest fine print: it's a put, not the sea. You won't get the wind hours or the wave-feel that the coast gives — but you also won't get cold, swept away, or knocked around. Most of Belgium's coastal windsurfers grew up on a water surface like this one.`
     ],
     lagen: [
       {
@@ -3045,7 +3045,7 @@ const WAVEBASE_DATA = [
       },
       {
         titel: "The site & club",
-        bron: "windsurfingdeinze.be (own site, history page) + LDW first-hand",
+        bron: "windsurfingdeinze.be (own site, history page) + Lode first-hand",
         inhoud: [
           { kop: "What it is", tekst: `Freshwater put, ~600 × 300 m, with the Windsurfing Deinze clubhouse, bar ("Jardin Des Amis"), terrace and equipment storage on the west bank. Swimming is prohibited (per the club + the legal status of the water).` },
           { kop: "Who it's for", tekst: `Beginners — windsurf, wing, SUP lessons via the club. Intermediate freeriders who want a stress-free water surface to refine technique. Youth — the club runs a strong youth program with summer camps and weekly training (Wednesday afternoons).` }
@@ -3073,7 +3073,7 @@ const WAVEBASE_DATA = [
       bottom:     "Sand (former extraction pit)",
       crowd:      "rustig",
       localism:  "Welcoming. A club-run water surface — instructors and members are there to teach and share. No territorial behaviour reported.",
-      source:     "Wind / air / gust: Open-Meteo historical GFS @ 50.9564, 3.5330 (daytime 10–18h, 2021-05-20 → 2026-05-16, 5y archive, 16,407 hours). Wave data N/A — inland freshwater put. Water temp: freshwater inland-Belgium climatology (warmer summer + colder winter than the salt-water coast). Windsurfing Deinze own site for season pattern + LDW first-hand for the on-water feel.",
+      source:     "Wind / air / gust: Open-Meteo historical GFS @ 50.9564, 3.5330 (daytime 10–18h, 2021-05-20 → 2026-05-16, 5y archive, 16,407 hours). Wave data N/A — inland freshwater put. Water temp: freshwater inland-Belgium climatology (warmer summer + colder winter than the salt-water coast). Windsurfing Deinze own site for season pattern + Lode first-hand for the on-water feel.",
       periods: [
         { name: "Peak",     months: [5, 6, 9],    inSeason: true,
           windKn: [8, 11], waterC: [15, 22], waveM: null },
@@ -3843,7 +3843,7 @@ const WAVEBASE_DATA = [
     diensten: {
       lessen: "Windsurf, wing, SUP, skimboarding. Youth training (Wed afternoons, 8-lesson series, ages 10+), ladies + men's adult training (5-lesson series), private lessons on request. Wingfoil — 'coming soon' per own site as of 2026.",
       rental: "All-in members can use club boards + sails + wings + SUPs. Basic members can use SUP free + bring own kit. Wetsuits included for lessons.",
-      brands: "Mixed club kit — refreshed regularly. Not a brand-name showcase.",
+      brands: "Mixed club kit — the club's verhuur page lists 40 boards, 15 adult sails, 30 children's sails (checked May 2026). No brand-name partnerships publicly listed; many members bring their own gear.",
       faciliteiten: "Clubhouse, beach bar ('Jardin Des Amis'), terrace, equipment storage, certified surf school + training club. Open weekends in May/Jun/Sep, daily in Jul–Aug, 13:30–19:00.",
       team: "Volunteer board: Francies Van Daele (chair), Philippe Taccoen (youth + camps), Peter Debie (secretary), Steven Aspeslagh (project mgr), Cedric Cordier (infrastructure). Certified instructors for lessons + camps."
     },
@@ -3851,13 +3851,13 @@ const WAVEBASE_DATA = [
       "Member-driven club founded 1982 by windsurfers who built the clubhouse themselves on a former sand-extraction pit.",
       "Strong youth program — weekly Wednesday training, summer camps, club competitions.",
       "Three membership tiers (Beachmember €45, Basic €75, All-in €165) plus non-member access to lessons/camps.",
-      "LDW connection: this is where he learned to windsurf.",
-      "Bron-strength: 🟢 SOLID — windsurfingdeinze.be (own site, multiple pages) + first-hand from BOTH LDW and Michiel, the two WaveBase makers who both learned to windsurf at this club. Google reviews within the WaveBase ≤4-year window (2 substantive, ≤2 years, sampled May 2026) are all terrace/bar/uitwaaien — none discuss the lessons or windsurf school, so they don't add to what LDW + Michiel already know from the inside."
+      "Lode connection: this is where he learned to windsurf.",
+      "Bron-strength: 🟢 SOLID — windsurfingdeinze.be (own site, multiple pages) + first-hand from BOTH Lode and Michiel, the two WaveBase makers who both learned to windsurf at this club. Google reviews within the WaveBase ≤4-year window (2 substantive, ≤2 years, sampled May 2026) are all terrace/bar/uitwaaien — none discuss the lessons or windsurf school, so they don't add to what Lode + Michiel already know from the inside."
     ],
     verhaal: [
       `Windsurfing Deinze is the kind of club that doesn't exist on most surf-guide sites: a member-run, volunteer-driven local club, on a freshwater put inland from the coast, that's been quietly producing Belgian windsurfers since 1982. The clubhouse was built by the founding members. The bar is called Jardin Des Amis. The "Talk less, surf more" motto is on their website.`,
       `What it teaches: windsurfing first, then wing, SUP, skimboarding. Big youth focus — weekly Wednesday training for ages 10+, summer camps (including a week at the Veerse Meer in NL), club competitions. Adults are welcome too: ladies' training Sundays, men's training mid-week.`,
-      `Both LDW and Michiel learned to windsurf here — this is the home club of the two people behind WaveBase. The honest fine print: it's a club, not a destination. The water is freshwater, the wind is lighter than the coast, and the active season is May–Sep (weekends in shoulder months, daily in July/August). If you live in Flanders, this is where you grow up before you hit the North Sea.`
+      `Both Lode and Michiel learned to windsurf here — this is the home club of the two people behind WaveBase. The honest fine print: it's a club, not a destination. The water is freshwater, the wind is lighter than the coast, and the active season is May–Sep (weekends in shoulder months, daily in July/August). If you live in Flanders, this is where you grow up before you hit the North Sea.`
     ],
     lagen: [
       {
@@ -3916,16 +3916,16 @@ const WAVEBASE_DATA = [
     diensten: {
       lessen: "Windsurf, sail, SUP. Beginner through advanced. G-sport (inclusive adapted sports), team building, sports days, sports camps.",
       rental: "Extensive rental inventory — windsurf, SUP, sail. The club emphasises the 'uitgebreid assortiment'.",
-      brands: "Mixed club kit, not brand-focused.",
+      brands: "Sailing-led fleet per the club's own rental list (May 2026): RS Sailing (Bahia, Quest, RS Feva, RS Zest) + Hobie (Catsy) + Optimist-class dinghies. Windsurf + SUP brands not separately listed.",
       faciliteiten: "Two locations: the sheltered Spuikom salt-water lake (Inside) for sheltered conditions, and the open North Sea beach (Outside) for coastal training. Clubhouse + facilities at both. Kitesurf partnership with Tack Kiteschool ended May 2026 — no kite lessons currently.",
-      team: "Club staff + volunteers, certified instructors. Not LDW first-hand — info from their own site."
+      team: "Club staff + volunteers, certified instructors. Not Lode first-hand — info from their own site."
     },
     samenvatting: [
       "Rare two-water club: sheltered Spuikom salt-lake AND open North Sea beach.",
       "Windsurf + sail + SUP lessons, all levels.",
       "G-sport (adapted watersports) included in the offering.",
       "Kitesurf partnership ended May 2026 — no kite lessons here right now.",
-      "Bron-strength: 🟡 PARTIAL — inout-oostende.be (own site) + Google Maps listing as 'VZW Inside-Outside' at the Spuikom (LDW-confirmed via shortlink). Google reviews for the listing itself are minimal — the club mostly operates via member channels + their own site. LDW has not visited. Treat lesson/rental detail as the club's own claims, not user-verified."
+      "Bron-strength: 🟡 PARTIAL — inout-oostende.be (own site) + Google Maps listing as 'VZW Inside-Outside' at the Spuikom (Lode-confirmed via shortlink). Google reviews for the listing itself are minimal — the club mostly operates via member channels + their own site. Lode has not visited. Treat lesson/rental detail as the club's own claims, not user-verified."
     ],
     verhaal: [
       `Inside Outside is the rare Belgian club that owns two waters. The "Inside" half sits on the Spuikom — a salt-water lake just inland of the seafront — where windsurf + sailing + SUP lessons happen in sheltered conditions. The "Outside" half is on the open North Sea at Mariakerke beach, for when conditions and skill level allow.`,
@@ -3976,7 +3976,7 @@ const WAVEBASE_DATA = [
     diensten: {
       lessen: "Windsurf, kitesurf (StevoKitesurf school inside the club, IKO), wave surf, wing foil, SUP. Initiations + camps + structured lessons in Dutch, English, French.",
       rental: "Member rentals + equipment for lesson packages.",
-      brands: "Mixed — not a brand-specific showcase.",
+      brands: "Naish — the in-house StevoKitesurf school hosts Naish testdagen and rides Naish kite gear (checked May 2026). Broader windsurf/SUP rental not separately brand-listed.",
       faciliteiten: "Member-driven club, beach-side location embedded in the dunes, restaurant Leopold 1 on-site with a public webcam.",
       team: "Kite school run by Steve Verelst (3× Belgian Freestyle Kitesurf Champion) and his wife Tineke. Self-described as the only IKO center in Belgium that explicitly avoids large groups — max 2 students per instructor."
     },
@@ -4045,7 +4045,7 @@ const WAVEBASE_DATA = [
     diensten: {
       lessen: "Windsurf, kitesurf (new in 2026), SUP, wave surf, land yacht, sea kayak. Group + private + camps.",
       rental: "Hourly: windsurf €15/h or €25/2h, SUP same, wave surf gear same. Kite gear €60/session for graduates only.",
-      brands: "Mixed club kit.",
+      brands: "Brand fleet not publicly listed on the club site (May 2026). Mixed club kit across windsurf, kite, SUP and wave-surf — contact the club for current rental inventory.",
       faciliteiten: "Two locations: De Kwinte beach club in Westende (sea, lockers, changing rooms, showers, surf bar, in-house lifeguard) + Nieuwpoort spaarbekken (inland freshwater reservoir). 'Family atmosphere' is core to their identity.",
       team: "Volunteer-run non-profit. Certified instructors. Kiteschool new in 2026."
     },
@@ -4118,7 +4118,7 @@ const WAVEBASE_DATA = [
     diensten: {
       lessen: "Kite progression in 5 IKO-structured modules (Powerkite, Bodydrag, Waterstart, Ride, Advanced). Wing foil lessons. Sit kitesurfing (wheelchair-accessible). Jetboarding. Private lessons. Group + corporate events.",
       rental: "Boards, wetsuits, kayaks, SUPs.",
-      brands: "Not specified on own site as a brand-showcase.",
+      brands: "F-One — the school's own site is \"Powered by F-One\" for kite gear (checked May 2026).",
       faciliteiten: "Operates April–October. IKO-certified school. 'Dream Dare' inclusive program for youth in wheelchairs. Membership program with insurance + club facilities + discounts.",
       team: "Founded 2012 by 'gepassioneerde en professionele instructeurs'. Self-describes as 'pro-level lessen' with 'persoonlijke aandacht'."
     },
@@ -4128,7 +4128,7 @@ const WAVEBASE_DATA = [
       "Founded 2012, full progression (beginner to advanced).",
       "Also teaches wingfoil + jetboarding.",
       "🚩 Honest fine print — confirmed across 3 independent sources (Google reviews, Test-Aankoop consumer complaint, Wheree review-aggregator): multiple users report lessons booked + paid upfront and then cancelled by Salty, with refund refusals. One Test-Aankoop case (Oct 2024): 8 cancellations on €560 of pre-paid lessons, refund eventually obtained only after public complaint. Read the reviews, get cancellation/refund terms in writing, and consider paying deposit only if possible.",
-      "Bron-strength: 🟢 SOLID — saltykitesurfschool.com (own site) + Google reviews (7 substantive ≤24 months, sampled May 2026) + Test-Aankoop public complaint (verified case Oct 2024, status 'opgelost') + Wheree aggregator summary (notes refund-policy as documented negative theme). LDW has not visited but the cross-source consistency is the signal."
+      "Bron-strength: 🟢 SOLID — saltykitesurfschool.com (own site) + Google reviews (7 substantive ≤24 months, sampled May 2026) + Test-Aankoop public complaint (verified case Oct 2024, status 'opgelost') + Wheree aggregator summary (notes refund-policy as documented negative theme). Lode has not visited but the cross-source consistency is the signal."
     ],
     verhaal: [
       `Salty is the dedicated kite school on the Belgian coast — IKO-certified, structured progression (Powerkite → Bodydrag → Waterstart → Ride → Advanced), and operating since 2012. They cover kite + wing + jetboarding, all from a base on the Westende / Middelkerke beach.`,
@@ -4191,7 +4191,7 @@ const WAVEBASE_DATA = [
     diensten: {
       lessen: "Windsurf, kitesurf, wave surf, catamaran sailing (group + private), land yacht. Surf camps + kids camps ('Kidscocktail').",
       rental: "Club member rentals across the disciplines.",
-      brands: "Mixed club kit.",
+      brands: "Hobie Cat (15, 16 and 18 ft) + Catsy for the catamaran fleet, per the club's own rental list (May 2026). Windsurf + kite brands not separately listed.",
       faciliteiten: "Beach pavilion at the east end of the promenade — bar, terrace, showers, changing rooms, equipment storage, lockers, berths. Public webcam + meteorological data on the website.",
       team: "Volunteer-run non-profit club, instructors per discipline (sail teachers + golfsurf instructors)."
     },
@@ -4199,7 +4199,7 @@ const WAVEBASE_DATA = [
       "De Haan's watersports club — broadest discipline offering on the central coast.",
       "Includes catamaran sailing + land yacht alongside wind / kite / wave.",
       "Beach pavilion at the east end of the De Haan seafront, bar + terrace.",
-      "Bron-strength: 🟡 PARTIAL — windhaan.be (own site) + De Haan tourism. Google reviews (7 substantive, ≤2 years) are 100% about the beach bar — drink prices, terrace vibe, view, friendly staff — none cover the watersport school. So lesson + rental info is from the own site only; no review trail for the teaching side. LDW has not visited."
+      "Bron-strength: 🟡 PARTIAL — windhaan.be (own site) + De Haan tourism. Google reviews (7 substantive, ≤2 years) are 100% about the beach bar — drink prices, terrace vibe, view, friendly staff — none cover the watersport school. So lesson + rental info is from the own site only; no review trail for the teaching side. Lode has not visited."
     ],
     verhaal: [
       `Windhaan is the local watersports club of De Haan — broader than a kite school, narrower than a tourist-resort facility. They cover the standard wind / kite / wave surf, plus catamaran sailing AND land yacht (a Belgian-coast specialty on the wide low-tide sand).`,
@@ -4249,7 +4249,7 @@ const WAVEBASE_DATA = [
     diensten: {
       lessen: "Kitesurf (Discovery / Learn to Fly / Learn to Kite / Refresher / Intermediate / Advanced), wing surf, kitefoil, kids kitesurf. Max 2 students per instructor.",
       rental: "Equipment rental for graduated students + members.",
-      brands: "Not specified on own site as a brand-showcase.",
+      brands: "North (North Kiteboarding) + Foil Drive — Club North is a North-brand test center and part of the worldwide Club North network (Portugal/Egypt/Netherlands/Belgium). Kite, wingfoil and foil-drive gear all North-brand.",
       faciliteiten: "Online booking system 7 days/week (including evenings), bar/refreshments, public webcam + weather data, member events + team-building arrangements.",
       team: "Icarus Surfclub team, IKO-style structured progression."
     },
@@ -4258,7 +4258,7 @@ const WAVEBASE_DATA = [
       "Operates mid-Apr to end-Sep (water-temp ≥ 12 °C minimum).",
       "Max 2 students per instructor — small-group standard.",
       "Online booking flexibility — evenings + 7 days/week.",
-      "Bron-strength: 🟡 PARTIAL — clubnorthzeebrugge.be (own site, full price list) + hightech.be partner page. Google reviews (7 substantive, ≤2 years) cover the beach café side only — coffee, sunrise buffet, dog-friendly, view — none discuss the kite/wing school. Lesson info is from the own site only. One older 3⭐ flagged €12 for a non-alcoholic drink as expensive — coastal pricing. LDW has not visited."
+      "Bron-strength: 🟡 PARTIAL — clubnorthzeebrugge.be (own site, full price list) + hightech.be partner page. Google reviews (7 substantive, ≤2 years) cover the beach café side only — coffee, sunrise buffet, dog-friendly, view — none discuss the kite/wing school. Lesson info is from the own site only. One older 3⭐ flagged €12 for a non-alcoholic drink as expensive — coastal pricing. Lode has not visited."
     ],
     verhaal: [
       `Club North by Icarus is the focused kite + wing school of Zeebrugge — Icarus Surfclub's kite-teaching arm. The pier-protected water of Zeebrugge (cleaner than the open coast on west winds) plus a small-group teaching standard (max 2 students per instructor) gives this place a steady reputation among Belgian kite learners.`,
@@ -4380,7 +4380,7 @@ const WAVEBASE_DATA = [
       "Only Duotone Pro Center in the Benelux — all current Duotone kit available for rental.",
       "30+ years in operation; broad scope (wind, kite, wave, wing, SUP) for all levels.",
       "Recent reviews (≤1 year, ≤4-year window applied): Google 4.3/5 across 699 reviews, dominated by terrace/bar/community praise plus one specific 'first surfing class' shoutout. Tripadvisor 3.8/5 from 20 reviews ranks it #25 of 27 restaurants in Oostduinkerke — the catering side rates noticeably weaker than the watersport side does on Google. Order at the bar (self-service), parking is paid (~€1.50/h).",
-      "Bron-strength: 🟢 SOLID — surfclub-windekind.be (own site) + Google reviews (3 substantive within the WaveBase ≤4-year window, sampled May 2026; aggregate rating 4.3 across 699 lifetime) + Tripadvisor (20 reviews, 3.8/5, sampled May 2026) + Facebook page (7.6K followers, active). LDW has not visited."
+      "Bron-strength: 🟢 SOLID — surfclub-windekind.be (own site) + Google reviews (3 substantive within the WaveBase ≤4-year window, sampled May 2026; aggregate rating 4.3 across 699 lifetime) + Tripadvisor (20 reviews, 3.8/5, sampled May 2026) + Facebook page (7.6K followers, active). Lode has not visited."
     ],
     verhaal: [
       `Surfclub Windekind sits at Zuidenwindhelling 1 in Oostduinkerke (Koksijde gemeente), on what the club itself calls "de grootste watersportzone van het land". The hook is the launch zone: unlike most of the Belgian coast, this stretch has no groynes (golfbrekers) sticking out into the water, so you can run downwind without hitting concrete. Behind the dune sits a huge beach parking — easy access for car + gear.`,
@@ -4494,7 +4494,7 @@ const WAVEBASE_TOWNS = {
     teDoen: "Around the put: cycling along the Leie towpath, the Mudel art museum in town, the Brielmeersen recreation park (~3 km), Ghent's old centre a 25-min train ride away. The clubhouse has a beach bar (\"Jardin Des Amis\") open weekends.",
     vervoer: "Train: Deinze station is on the line Ghent–Kortrijk, ~12 min from Ghent–Sint-Pieters, then ~15 min cycle or bus to Oudenaardsesteenweg. By car: 10 min from the E17 (exit Deinze), 25 min from Ghent.",
     afstand: "Inland — ~70 km from the Belgian coast (Oostende ~1h drive), ~25 km from Ghent. Brussels Airport ~80 km / 1h.",
-    bron: "windsurfingdeinze.be (own site), 2026; LDW first-hand: learned to windsurf here."
+    bron: "windsurfingdeinze.be (own site), 2026; Lode first-hand: learned to windsurf here."
   },
 
   "De Panne": {
