@@ -5322,18 +5322,19 @@ function openConsentPreferences() {
 }
 
 /* Driving-directions links for a found spot — open the user's maps app
-   straight at the spot. Apple Maps shows only on iPhone (per Lode); Waze
-   and Google Maps everywhere. When a base is set the route starts FROM
-   that base — Apple Maps (saddr) and Google Maps (origin) support a fixed
-   start point; Waze's deep link does not, so Waze always routes from the
-   user's live location. All open the native app when installed, else web. */
+   straight at the spot. Apple Maps shows on Apple devices (iPhone, iPad,
+   Mac — modern iPads report as "Macintosh"); Waze and Google Maps appear
+   everywhere. When a base is set the route starts FROM that base — Apple
+   Maps (saddr) and Google Maps (origin) support a fixed start point;
+   Waze's deep link does not, so Waze always routes from the user's live
+   location. All open the native app when installed, else the web map. */
 function navAppsHTML(e, base) {
   if (!Array.isArray(e.coords)) return "";
   const dlat = e.coords[0], dlng = e.coords[1];
   const hasBase = !!(base && isFinite(base.lat) && isFinite(base.lng));
-  const onIphone = /iPhone|iPod/i.test(navigator.userAgent || "");
+  const onApple = /iPhone|iPad|iPod|Macintosh/i.test(navigator.userAgent || "");
   const apps = [];
-  if (onIphone) {
+  if (onApple) {
     const saddr = hasBase ? `&saddr=${base.lat},${base.lng}` : "";
     apps.push(`<a href="https://maps.apple.com/?daddr=${dlat},${dlng}${saddr}&dirflg=d" target="_blank" rel="noopener">Apple Maps</a>`);
   }
