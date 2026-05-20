@@ -958,16 +958,22 @@ function nearbyEntriesHTML(currentEntry, targetType, labelPlural, labelSingular,
   opts = opts || {};
   const maxKm = opts.maxKm != null ? opts.maxKm : 3;
   const limit = opts.limit != null ? opts.limit : 8;
+  // excludeIds: a Set of entry IDs to skip — used to avoid duplicating
+  // entries already surfaced in a sibling section (e.g. spot pages show
+  // explicitly-linked centers in their own section, then "other centers
+  // nearby" must skip those to avoid showing the same card twice).
+  const excludeIds = opts.excludeIds instanceof Set ? opts.excludeIds : null;
+  const passesExclude = (e) => !excludeIds || !excludeIds.has(e.id);
   let scored;
   if (!currentEntry.coords) {
-    // Fallback to town equality when this entry has no coords yet.
     scored = WAVEBASE_DATA
       .filter(c => c.type === targetType && c.id !== currentEntry.id &&
-                   c.country === entryCountry(currentEntry) && c.town === currentEntry.town)
+                   c.country === entryCountry(currentEntry) && c.town === currentEntry.town &&
+                   passesExclude(c))
       .map(c => ({ entry: c, dist: null }));
   } else {
     scored = WAVEBASE_DATA
-      .filter(c => c.type === targetType && c.id !== currentEntry.id && c.coords)
+      .filter(c => c.type === targetType && c.id !== currentEntry.id && c.coords && passesExclude(c))
       .map(c => ({ entry: c, dist: distanceKm(currentEntry.coords, c.coords) }))
       .filter(x => x.dist <= maxKm)
       .sort((a, b) => a.dist - b.dist)
@@ -1003,6 +1009,38 @@ function linkedSpotSectionHTML(centerEntry) {
     </header>
     <p class="muted form-note">Where lessons and rentals happen.</p>
     <div class="${gridClass}">${cardHTML(spot, distanceKm(centerEntry.coords, spot.coords))}</div>
+  </section>`;
+}
+
+// Reverse lookup: on a spot page, find the centers that explicitly point at
+// THIS spot via their linkedSpotId. These are the clubs that DEFINE this
+// launch — especially relevant in Belgium where surfcenter and spot are
+// often the same thing (LDW, 2026-05-20). Rendered as a highlighted
+// section above the proximity-based "Centers nearby" — distinct visual
+// treatment so the reader sees this isn't just any nearby club but the
+// one(s) running this exact stretch of water.
+function linkedCentersSectionHTML(spotEntry) {
+  const centers = WAVEBASE_DATA.filter(c =>
+    c.type === "center" && c.linkedSpotId === spotEntry.id
+  );
+  if (!centers.length) return "";
+  const viewPref = getViewPref();
+  const gridClass = viewPref === "list" ? "grid list-view" : "grid";
+  const label = centers.length === 1 ? "The surfclub at this spot" : "The surfclubs at this spot";
+  const intro = centers.length === 1
+    ? "This isn't a natural break with passing schools — the spot and the club below are the same place. The club runs the launch zone, the rentals, the daily vibe."
+    : "These aren't passing schools — they each run this stretch of water as their home. The spot and the clubs below are the same place.";
+  const cards = centers.map(c => {
+    const dist = (c.coords && spotEntry.coords) ? distanceKm(c.coords, spotEntry.coords) : null;
+    return cardHTML(c, dist);
+  }).join("");
+  return `<section class="related-entries linked-clubs">
+    <header class="related-head">
+      <h2>${label}</h2>
+      ${viewToggleHTML(viewPref)}
+    </header>
+    <p class="muted form-note">${intro}</p>
+    <div class="${gridClass}">${cards}</div>
   </section>`;
 }
 
@@ -1055,9 +1093,20 @@ function moreInCountryHTML(currentEntry) {
 
 function relatedSectionsForDetail(e) {
   if (e.type === "spot") {
-    // Centers must be on the same beach (≤1km). Stays within easy walk/drive.
-    return nearbyEntriesHTML(e, "center", "Centers", "Center",
-      "Where to take lessons or rent gear at this beach.", { maxKm: 1, limit: 8 }) +
+    // Two-tier center surfacing:
+    // 1. Centers that EXPLICITLY link to this spot via linkedSpotId — the
+    //    clubs that DEFINE this launch. Especially relevant in Belgium where
+    //    center and spot are the same thing.
+    // 2. Other centers nearby (≤1km), EXCLUDING the linked ones (no dupes).
+    const linkedIds = new Set(
+      WAVEBASE_DATA
+        .filter(c => c.type === "center" && c.linkedSpotId === e.id)
+        .map(c => c.id)
+    );
+    return linkedCentersSectionHTML(e) +
+      nearbyEntriesHTML(e, "center", "Other centers", "Other center",
+        "Other surfschools within walking distance.",
+        { maxKm: 1, limit: 8, excludeIds: linkedIds }) +
       nearbyEntriesHTML(e, "stay", "Stays", "Stay",
         "Places to base yourself within easy reach.", { maxKm: 3, limit: 8 });
   }
