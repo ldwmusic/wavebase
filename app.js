@@ -5344,14 +5344,16 @@ function navAppsHTML(e, base) {
   return `<div class="exp-pop-nav"><span class="exp-pop-nav-label">Navigate there</span>${apps.join("")}</div>`;
 }
 
-/* Windy.com forecast link for a spot — opens Windy's live wind/wave map
-   centred on the spot's coords. Verified URL form: ?<overlay>,lat,lng,zoom.
-   Overlay matches the sport — waves for surf, wind for windsurf/kite/wing.
-   A plain deep link: no API, no key, nothing to maintain. */
+/* Windy.com forecast link for a spot. The /lat/lng path makes Windy drop
+   a marker ON the exact spot and open the forecast detail panel (just
+   ?coords would only re-centre the map — no pin). The ?overlay,lat,lng,
+   zoom part positions the map; overlay matches the sport — waves for
+   surf, wind for windsurf/kite/wing. A plain deep link: no API, no key. */
 function windyHref(e) {
   if (!Array.isArray(e.coords)) return "";
+  const lat = e.coords[0], lng = e.coords[1];
   const overlay = entrySports(e).includes("wave") ? "waves" : "wind";
-  return `https://www.windy.com/?${overlay},${e.coords[0]},${e.coords[1]},10`;
+  return `https://www.windy.com/${lat}/${lng}?${overlay},${lat},${lng},12`;
 }
 
 /* ===== Explorer page (explorer.html) — base + reach spot discovery =====
