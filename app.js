@@ -3591,6 +3591,8 @@ function initSpot() {
   const lagen = e.lagen.map(l => laagHTML(l, e.id)).join("");
   const saved = WaveBaseAccount.isSaved(e.id);
   const comparing = WaveBaseAccount.isComparing(e.id);
+  // "Surfed it" — spots only (you surf a spot, not a center or a stay).
+  const surfed = e.type === "spot" && WaveBaseAccount.isSurfed(e.id);
 
   // Back link defaults to the entry's country on "All" sport — keeps the fallback
   // welcoming. history.back() restores the specific sport state when the user
@@ -3617,6 +3619,7 @@ function initSpot() {
         ${e.type === "center" && e.bookingUrl ? `<a class="btn btn-book" href="${e.bookingUrl}" target="_blank" rel="noopener">Visit website ↗</a>` : ""}
         <button class="btn ghost ${saved ? "on" : ""}" id="save-toggle">${saved ? "♥ Saved" : "♡ Save this place"}</button>
         <button class="btn ghost ${comparing ? "on" : ""}" id="compare-toggle">${comparing ? "✓ In compare" : "+ Compare"}</button>
+        ${e.type === "spot" ? `<button class="btn ghost surfed-btn ${surfed ? "on" : ""}" id="surfed-toggle">${surfed ? "✓ Surfed it" : "Surfed it"}</button>` : ""}
         <span class="trip-picker">
           <select id="trip-select">${tripOptionsHTML(e.id)}</select>
           <span id="trip-view-link-slot">${tripViewLinkHTML(e.id)}</span>
@@ -3694,6 +3697,15 @@ function initSpot() {
     this.classList.toggle("on", on);
     updateNav();
   });
+  // "Surfed it" toggle — only present on spot pages.
+  const surfedBtn = document.getElementById("surfed-toggle");
+  if (surfedBtn) {
+    surfedBtn.addEventListener("click", function () {
+      const on = WaveBaseAccount.toggleSurfed(e.id);
+      this.textContent = on ? "✓ Surfed it" : "Surfed it";
+      this.classList.toggle("on", on);
+    });
+  }
   document.getElementById("trip-select").addEventListener("change", function () {
     const v = this.value;
     if (!v) return;

@@ -1850,6 +1850,9 @@ body.has-pinned-months .bar-tooltip .bt-hint { display: none; }
   display: flex; flex-wrap: wrap; gap: 12px; align-items: center; margin-top: 18px;
 }
 .detail-actions .btn.on { background: var(--clay-soft); border-color: var(--clay); color: var(--clay); }
+/* "Surfed it" gets a distinct done-green when on — it's an achievement
+   marker (feeds the scratch-map), not just another toggle. */
+.detail-actions .surfed-btn.on { background: #e3efe4; border-color: #4f8a5b; color: #3a6b44; }
 .detail-actions select {
   font-family: 'DM Sans', sans-serif; font-size: 15px; font-weight: 600;
   color: var(--sea); background: var(--sea-soft);

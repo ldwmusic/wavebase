@@ -34,6 +34,7 @@ const WaveBaseAccount = (function () {
       },
       saved: s.saved || [],
       compare: s.compare || [],
+      surfed: s.surfed || [],
       trips: s.trips || [],
       reviews: Array.isArray(s.reviews) ? s.reviews : []
     };
@@ -87,6 +88,19 @@ const WaveBaseAccount = (function () {
       const s = state();
       s.compare = [];
       write(s);
+    },
+
+    /* surfed places — "Surfed it" marking. Drives the Explorer's
+       new-vs-known dimming + the account scratch-map / surf log.
+       Distinct from "saved" (saved = want to go; surfed = already done). */
+    getSurfed() { return state().surfed; },
+    isSurfed(id) { return state().surfed.indexOf(id) !== -1; },
+    toggleSurfed(id) {
+      const s = state();
+      const i = s.surfed.indexOf(id);
+      if (i === -1) s.surfed.push(id); else s.surfed.splice(i, 1);
+      write(s);
+      return s.surfed.indexOf(id) !== -1;
     },
 
     /* trips */
