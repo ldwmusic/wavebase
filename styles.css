@@ -3174,7 +3174,7 @@ button.rml-key.off .rml-dot {
 
 /* my trips — roadtrip-style map per trip */
 .trip-map {
-  height: 240px;
+  height: 340px;
   margin-top: 14px;
   border-radius: 12px;
   overflow: hidden;
@@ -3521,7 +3521,7 @@ button.rml-key.off .rml-dot {
   .cmp-col .thumb { height: 100px; }
 
   /* trip maps a touch shorter on phone */
-  .trip-map { height: 200px; }
+  .trip-map { height: 260px; }
 }
 
 /* ===== round 12: card / list view toggle on Discover ===== */
