@@ -987,7 +987,7 @@ function nearbyEntriesHTML(currentEntry, targetType, labelPlural, labelSingular,
   return `<section class="related-entries">
     <header class="related-head">
       <h2>${label} ${headerLoc}</h2>
-      ${viewToggleHTML(viewPref)}
+      <span class="related-head-actions">${opts.headerAction || ""}${viewToggleHTML(viewPref)}</span>
     </header>
     ${intro ? `<p class="muted form-note">${intro}</p>` : ""}
     <div class="${gridClass}">${scored.map(x => cardHTML(x.entry, x.dist)).join("")}</div>
@@ -1114,7 +1114,9 @@ function relatedSectionsForDetail(e) {
     return nearbyEntriesHTML(e, "center", "Centers", "Center",
       "Where to take lessons or rent gear nearby.", { maxKm: 3, limit: 8 }) +
       nearbyEntriesHTML(e, "spot", "Spots", "Spot",
-        "The breaks and beaches within easy reach.", { maxKm: 3, limit: 8 });
+        "The breaks and beaches within easy reach.",
+        { maxKm: 3, limit: 8,
+          headerAction: `<a class="exp-launch-btn" href="explorer.html?base=${e.id}">Explore spots from here →</a>` });
   }
   if (e.type === "center") {
     // Center pages: ONLY the spot the center sits on — never other nearby
@@ -3959,9 +3961,11 @@ function tripSummaryHTML(items) {
 
 /* ---- ACCOUNT (fake, local) ---- */
 /* "Your surf log" — the scratch-map (account page). Per-region completion
-   is the hero; the world map below lights up countries you've surfed in.
-   Driven by the "surfed" list (the "Surfed it" button on spot pages). */
-function surfLogHTML() {
+   is the hero; the world map lights up countries you've surfed in. Each
+   region is tap-to-expand: its spots (grouped by town) appear with an
+   inline "surfed" toggle, so you can tick a whole country without
+   visiting every spot page. Driven by the "surfed" list. */
+function surfLogData() {
   const surfedIds = new Set(WaveBaseAccount.getSurfed());
   const byCountry = {};
   WAVEBASE_DATA.forEach(e => {
@@ -3977,29 +3981,63 @@ function surfLogHTML() {
     totalDone += byCountry[c].done;
     if (byCountry[c].done > 0) countriesDone++;
   });
+  return { byCountry: byCountry, countries: countries, totalDone: totalDone, countriesDone: countriesDone };
+}
 
-  const hero = totalDone === 0
-    ? `<p class="surflog-empty">No spots logged yet. After a session, hit <strong>“Surfed it”</strong> on the spot's page — they fill in here.</p>`
-    : `<p class="surflog-total"><strong>${totalDone}</strong> spot${totalDone===1?"":"s"} surfed · <strong>${countriesDone}</strong> ${countriesDone===1?"country":"countries"} of ${countries.length}</p>`;
+function surfLogHeroHTML(d) {
+  return d.totalDone === 0
+    ? `<p class="surflog-empty">No spots logged yet. Tap a country below to tick off the ones you've surfed — or hit <strong>“Surfed it”</strong> on any spot page.</p>`
+    : `<p class="surflog-total"><strong>${d.totalDone}</strong> spot${d.totalDone===1?"":"s"} surfed · <strong>${d.countriesDone}</strong> ${d.countriesDone===1?"country":"countries"} of ${d.countries.length}</p>`;
+}
 
-  const regionRows = countries.map(c => {
-    const t = byCountry[c].total, d = byCountry[c].done;
-    const pct = t ? Math.round((d / t) * 100) : 0;
-    const complete = d === t && t > 0;
-    return `<div class="surflog-region${complete ? " is-complete" : ""}">
-      <div class="surflog-region-head">
+/* The expanded panel for one country — its spots grouped by town, each
+   with an inline surfed toggle. */
+function surfLogSpotsPanel(country) {
+  const surfedIds = new Set(WaveBaseAccount.getSurfed());
+  const spots = WAVEBASE_DATA.filter(e => e.type === "spot" && entryCountry(e) === country);
+  const byTown = {};
+  spots.forEach(e => { (byTown[e.town] = byTown[e.town] || []).push(e); });
+  const towns = Object.keys(byTown).sort();
+  return `<div class="surflog-spots">` + towns.map(town => `
+    <div class="surflog-town">
+      <div class="surflog-town-name">${escHTML(town)}</div>
+      <div class="surflog-town-spots">${byTown[town].map(e => {
+        const done = surfedIds.has(e.id);
+        return `<button type="button" class="surflog-spot${done ? " done" : ""}" data-surf="${e.id}" aria-pressed="${done}">
+          <span class="surflog-spot-check" aria-hidden="true">${done ? "✓" : "+"}</span>
+          <span class="surflog-spot-name">${escHTML(e.name)}</span>
+        </button>`;
+      }).join("")}</div>
+    </div>`).join("") + `</div>`;
+}
+
+function surfLogRegionsHTML(d, expanded) {
+  return d.countries.map(c => {
+    const t = d.byCountry[c].total, done = d.byCountry[c].done;
+    const pct = t ? Math.round((done / t) * 100) : 0;
+    const complete = done === t && t > 0;
+    const isOpen = c === expanded;
+    return `<div class="surflog-region${complete ? " is-complete" : ""}${isOpen ? " is-open" : ""}">
+      <button type="button" class="surflog-region-head" data-region="${escHTML(c)}" aria-expanded="${isOpen}">
         <span class="surflog-region-name">${escHTML(c)}${complete ? ` <span class="surflog-done-tag">✓ all done</span>` : ""}</span>
-        <span class="surflog-region-count">${d} / ${t}</span>
-      </div>
+        <span class="surflog-region-right">
+          <span class="surflog-region-count">${done} / ${t}</span>
+          <span class="surflog-chev" aria-hidden="true">▾</span>
+        </span>
+      </button>
       <div class="surflog-bar"><div class="surflog-bar-fill" style="width:${pct}%"></div></div>
+      ${isOpen ? surfLogSpotsPanel(c) : ""}
     </div>`;
   }).join("");
+}
 
+function surfLogHTML() {
+  const d = surfLogData();
   return `<section class="acc-block" id="surf-log">
     <h2>Your surf log</h2>
-    <p class="muted form-note">The spots you've ticked off. Hit “Surfed it” on any spot page to add one.</p>
-    ${hero}
-    <div class="surflog-regions">${regionRows}</div>
+    <p class="muted form-note">Tap a country to tick off its spots — or hit “Surfed it” on any spot page.</p>
+    <div id="surflog-hero">${surfLogHeroHTML(d)}</div>
+    <div class="surflog-regions" id="surflog-regions">${surfLogRegionsHTML(d, null)}</div>
     <div class="surflog-map-wrap">
       <div class="surflog-map" id="surflog-map" aria-label="Map of countries you have surfed in"></div>
       <p class="surflog-map-cap">Countries you've surfed in light up as you go.</p>
@@ -4007,8 +4045,41 @@ function surfLogHTML() {
   </section>`;
 }
 
+/* Re-render hero + regions in place (keeps the world map SVG intact —
+   it's just re-tagged, no re-fetch, no flicker). */
+function refreshSurfLog(expanded) {
+  const hero = document.getElementById("surflog-hero");
+  const regions = document.getElementById("surflog-regions");
+  if (!hero || !regions) return;
+  const d = surfLogData();
+  hero.innerHTML = surfLogHeroHTML(d);
+  regions.innerHTML = surfLogRegionsHTML(d, expanded);
+  wireSurfLog(expanded);
+  renderSurfLogMap();
+}
+
+function wireSurfLog(expanded) {
+  const sec = document.getElementById("surf-log");
+  if (!sec) return;
+  // Region head → expand/collapse that country.
+  sec.querySelectorAll(".surflog-region-head").forEach(btn => {
+    btn.addEventListener("click", () => {
+      const c = btn.dataset.region;
+      refreshSurfLog(c === expanded ? null : c);
+    });
+  });
+  // Spot toggle → mark surfed; keep the same country open.
+  sec.querySelectorAll(".surflog-spot").forEach(btn => {
+    btn.addEventListener("click", () => {
+      WaveBaseAccount.toggleSurfed(btn.dataset.surf);
+      refreshSurfLog(expanded);
+    });
+  });
+}
+
 /* Tints the world map for the surf log — surfed countries lit, countries
-   with spots-but-not-yet-surfed faint, the rest plain. */
+   with spots-but-not-yet-surfed faint, the rest plain. If the SVG is
+   already loaded, just re-tag it (no re-fetch). */
 function renderSurfLogMap() {
   const host = document.getElementById("surflog-map");
   if (!host || typeof COUNTRY_TO_ISO === "undefined") return;
@@ -4020,6 +4091,20 @@ function renderSurfLogMap() {
     spotCountries.add(c);
     if (surfedIds.has(e.id)) surfedCountries.add(c);
   });
+  const isoToName = {};
+  Object.keys(COUNTRY_TO_ISO).forEach(name => { isoToName[COUNTRY_TO_ISO[name]] = name; });
+  function tag(svg) {
+    svg.querySelectorAll("[id]").forEach(node => {
+      const iso = node.getAttribute("id");
+      if (!iso || typeof ISO_TO_CONTINENT === "undefined" || !ISO_TO_CONTINENT[iso]) return;
+      node.classList.add("country");
+      const name = isoToName[iso];
+      node.classList.toggle("country-surfed", !!(name && surfedCountries.has(name)));
+      node.classList.toggle("country-available", !!(name && !surfedCountries.has(name) && spotCountries.has(name)));
+    });
+  }
+  const existing = host.querySelector("svg");
+  if (existing) { tag(existing); return; }
   fetch("worldmap.svg")
     .then(r => r.ok ? r.text() : Promise.reject(r.status))
     .then(svgText => {
@@ -4030,19 +4115,7 @@ function renderSurfLogMap() {
       svg.removeAttribute("height");
       svg.setAttribute("preserveAspectRatio", "xMidYMid meet");
       svg.classList.add("surflog-svg");
-      const isoToName = {};
-      Object.keys(COUNTRY_TO_ISO).forEach(name => { isoToName[COUNTRY_TO_ISO[name]] = name; });
-      // Tag EVERY country (those with a continent) as .country so the base
-      // fill applies — otherwise untagged countries keep the SVG default
-      // (solid black). Then highlight the WaveBase ones.
-      svg.querySelectorAll("[id]").forEach(node => {
-        const iso = node.getAttribute("id");
-        if (!iso || typeof ISO_TO_CONTINENT === "undefined" || !ISO_TO_CONTINENT[iso]) return;
-        node.classList.add("country");
-        const name = isoToName[iso];
-        if (name && surfedCountries.has(name)) node.classList.add("country-surfed");
-        else if (name && spotCountries.has(name)) node.classList.add("country-available");
-      });
+      tag(svg);
     })
     .catch(() => { host.innerHTML = `<p class="muted" style="padding:14px;">Map unavailable.</p>`; });
 }
@@ -4081,9 +4154,15 @@ function renderAccount() {
     `<label class="cb"><input type="checkbox" name="${name}" value="${it.key}" ${selected.indexOf(it.key) !== -1 ? "checked" : ""}> ${it.label}</label>`
   ).join("");
 
-  const savedHTML = saved.length
+  const discoverCTA = `<div class="saved-discover">
+    <span class="saved-discover-text">Looking for more?</span>
+    <a class="exp-launch-btn" href="explorer.html">Explore spots near a base →</a>
+    <a class="exp-launch-btn" href="index.html">Browse all destinations →</a>
+  </div>`;
+  const savedHTML = (saved.length
     ? `<div class="grid">${saved.map(e => cardHTML(e)).join("")}</div>`
-    : `<p class="muted">Nothing saved yet. Tap the heart on a spot or stay.</p>`;
+    : `<p class="muted">Nothing saved yet. Tap the heart on a spot, center or stay as you browse.</p>`)
+    + discoverCTA;
 
   const tripsHTML = trips.length
     ? trips.map(t => {
@@ -4322,6 +4401,7 @@ function renderAccount() {
   });
   if (root.querySelector(".grid")) wireCards(root);
   initTripMaps(trips);
+  wireSurfLog(null);
   renderSurfLogMap();
 }
 
@@ -5457,9 +5537,14 @@ function initExplorer() {
   const reachVal = document.getElementById("exp-reach-val");
   reach.value = state.maxKm;
   reachVal.textContent = state.maxKm + " km";
+  // Variable step: 5-km increments at/above 5 km, but 1-km increments
+  // below 5 (… 4, 3, 2, 1) — LDW wants fine control on short reaches.
   reach.addEventListener("input", () => {
-    state.maxKm = parseInt(reach.value, 10) || 25;
-    reachVal.textContent = state.maxKm + " km";
+    let v = parseInt(reach.value, 10) || 25;
+    if (v >= 5) v = Math.round(v / 5) * 5;
+    v = Math.max(1, Math.min(120, v));
+    state.maxKm = v;
+    reachVal.textContent = v + " km";
     saveState(); redraw();
   });
 
