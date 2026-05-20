@@ -5415,11 +5415,11 @@ function initExplorer() {
   }
   function setBase(lat, lng, label) {
     state.base = { lat: lat, lng: lng, label: label || "Your pin" };
-    saveState(); redraw();
+    saveState(); redraw(true);
   }
-  function clearBase() { state.base = null; saveState(); redraw(); }
+  function clearBase() { state.base = null; saveState(); redraw(true); }
 
-  function redraw() {
+  function redraw(fit) {
     spotLayer.clearLayers();
     if (baseMarker) { map.removeLayer(baseMarker); baseMarker = null; }
     if (reachCircle) { map.removeLayer(reachCircle); reachCircle = null; }
@@ -5452,7 +5452,7 @@ function initExplorer() {
       const faded = state.base && !inReach;
       // Pin style: out-of-reach faded · in-reach known greyed · in-reach fresh bright.
       let fill, fillOp, op, rad;
-      if (faded)      { fill = typeColor("spot"); fillOp = 0.3;  op = 0.4; rad = 6; }
+      if (faded)      { fill = typeColor("spot"); fillOp = 0.4;  op = 0.55; rad = 6; }
       else if (known) { fill = "#9c968a";         fillOp = 0.75; op = 0.9; rad = 8; }
       else            { fill = typeColor("spot"); fillOp = 1;    op = 1;   rad = 9; }
       const m = L.circleMarker(e.coords, {
@@ -5467,11 +5467,19 @@ function initExplorer() {
       rows.push({ entry: e, dist: dist, inReach: inReach, known: known, marker: m });
     });
 
-    if (state.base && reachCircle) {
-      map.fitBounds(reachCircle.getBounds(), { padding: [24,24] });
-    } else {
-      const pts = spots.map(e => e.coords);
-      if (pts.length) map.fitBounds(pts, { padding: [34,34], maxZoom: 11 });
+    // Only re-fit the map on a base / region / first-load change — never on
+    // a filter tweak (reach, sport, only-new), so the view holds still while
+    // you refine. Out-of-reach spots stay on the map (just faded), so the
+    // fitted bounds cover every spot plus the whole reach circle.
+    if (fit) {
+      if (state.base && reachCircle) {
+        const b = reachCircle.getBounds();
+        spots.forEach(e => b.extend(e.coords));
+        map.fitBounds(b, { padding: [24,24] });
+      } else {
+        const pts = spots.map(e => e.coords);
+        if (pts.length) map.fitBounds(pts, { padding: [34,34], maxZoom: 11 });
+      }
     }
 
     renderList();
@@ -5538,7 +5546,7 @@ function initExplorer() {
   regionSel.innerHTML = regions.map(r =>
     `<option value="${escHTML(r)}"${r===state.region?" selected":""}>${escHTML(r)}</option>`).join("");
   regionSel.addEventListener("change", () => {
-    state.region = regionSel.value; saveState(); populateStays(); redraw();
+    state.region = regionSel.value; saveState(); populateStays(); redraw(true);
   });
 
   function populateStays() {
@@ -5593,7 +5601,7 @@ function initExplorer() {
     v = Math.max(1, Math.min(120, v));
     state.maxKm = v;
     reachVal.textContent = v + " km";
-    saveState(); redraw();
+    saveState(); redraw(false);
   });
 
   const sportsEl = document.getElementById("exp-sports");
@@ -5605,7 +5613,7 @@ function initExplorer() {
       const k = btn.dataset.sport;
       state.sports[k] = !state.sports[k];
       btn.classList.toggle("on", state.sports[k]);
-      saveState(); redraw();
+      saveState(); redraw(false);
     });
   });
 
@@ -5616,14 +5624,14 @@ function initExplorer() {
     onlyNewBtn.addEventListener("click", () => {
       state.onlyNew = !state.onlyNew;
       onlyNewBtn.classList.toggle("on", state.onlyNew);
-      saveState(); redraw();
+      saveState(); redraw(false);
     });
   }
 
   // Click anywhere on the map → set/move the base there.
   map.on("click", e => setBase(e.latlng.lat, e.latlng.lng, "Your pin"));
 
-  redraw();
+  redraw(true);
 }
 
 /* ===== Discover page (discover.html) — top 5 spots per live country =====
