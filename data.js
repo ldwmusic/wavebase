@@ -20,11 +20,11 @@ const WAVEBASE_DATA = [
     verblijf: {
       eten: "Home-cooked Moroccan meals by host Abdoul's wife — praised in nearly every review.",
       afstandSpot: "Walking distance to the Devil's Rock and Crocro beach breaks; 4–5 spots within 15 min.",
-      verhuur: "Not confirmed in the available reviews — worth asking the house directly.",
+      verhuur: "Reviews mention the team sorting out boards and wetsuits; kit is included in the surf packages.",
       lessen: "Yes — surf packages from €360 (5 nights shared) to €1020 (14 nights single, all-inclusive), with local instructors (Salah, Younes, Amine).",
-      rating: "TripAdvisor 5.0 (283 reviews, ~20 readable); Hostelworld 8.3. Booking.com & Google blocked.",
+      rating: "TripAdvisor 5.0 (~280 reviews) · Hostelworld 8.3 (226) · Hostelz 9.1 (220) · Booking.com 9.1 (38) — all checked May 2026.",
       sfeer: "Chill and homely — a family house, not a party hostel; lots of returning guests and long stays.",
-      activiteiten: "Not a focus in the reviews — the draw is the house, the food and the host.",
+      activiteiten: "Twice-daily yoga classes (well rated in reviews) and daily surf trips to different beaches — though the bigger draw stays the house, the food and the host.",
       // Inferred from the prose by Claude — refine if you disagree.
       scores: { food: 5.0, hosts: 5.0, comfort: 3.0, cleanliness: 4.0, value: 4.5 },
       essence: { style: "Hostel", vibe: "Surfer crowd" }
@@ -33,13 +33,14 @@ const WAVEBASE_DATA = [
       "A simple, family-run house — not a polished resort.",
       "Strongest points: host Abdoul, his wife's cooking, the homely atmosphere.",
       "Surf info comes from area knowledge, not from the reviews.",
-      "Based on ~20 readable TripAdvisor reviews out of 283 (Booking.com and Google were blocked).",
+      "Consistently rated across TripAdvisor, Hostelworld, Hostelz and Booking.com — reviews right up to 2026.",
+      "Honest niggle: thin walls — kitchen clatter and early-morning noise, so light sleepers should pack earplugs.",
       "For solo travellers and beginner–intermediate; not for those after quiet and privacy."
     ],
     verhaal: [
       `Sunset Surfhouse isn't a resort, it's a house. A simple, family-run guesthouse in Tamraght village, and just about everyone who's stayed there talks about the same three things: host Abdoul, his wife Miryem's cooking, and the feeling of coming home. People book one night and stay a week.`,
       `On the surf I have to be honest: what I know, I know about the region, not the house. Tamraght sits on good waves — bigger and more consistent in winter, smaller and softer in summer. But reviewers rarely write about waves, so that's area knowledge, not a promise.`,
-      `The honest fine print: TripAdvisor has 283 reviews, but I could only really read about twenty — Booking.com and Google blocked access. One caveat: the house shows up under multiple listing names ("Surf Hostel Morocco"), so exact review counts are murky. The picture is warm and consistent, but not complete.`
+      `The honest fine print: the picture here is well-sourced — TripAdvisor (5.0 from ~280 reviews), Hostelz (9.1) and Booking.com (9.1, smaller sample) tell the same warm story, with reviews running right up to 2026. Hostelworld sits a little cooler at 8.3, and its breakdown points at the one honest niggle: thin walls. Guests mention kitchen clatter and early-morning noise — light sleepers should pack earplugs. It's a simple family house, not a quiet private retreat — but that's rather the point.`
     ],
     lagen: [
       {
@@ -52,12 +53,12 @@ const WAVEBASE_DATA = [
       },
       {
         titel: "The stay — Sunset Surfhouse",
-        bron: "Recent reviews (TripAdvisor, ~20 of 283 readable; Hostelworld scores). Booking.com & Google: blocked.",
+        bron: "Recent reviews — TripAdvisor, Hostelworld, Hostelz and Booking.com, cross-checked May 2026 (reviews up to 2026).",
         inhoud: [
           { kop: "What it is", tekst: `A simple, family-run surf guesthouse in the village. Dorms + a few private rooms. Two ways to book: room-only via Booking from €20/night dorm or ~€36-40/night private double (incl. breakfast, low season), or all-in surf-camp packages via their own site (€360 shared / 5n up to €1020 single / 14n, with lessons, meals and transport).` },
           { kop: "The constants", tekst: `Host Abdoul is unanimously the strongest point — "the best host ever". His wife's cooking is praised in every review. Family-style, social atmosphere; instructors (Salah, Younes, Amine) know the local conditions.` },
           { kop: "Who stays here", tekst: `A broad mix — solo travellers, couples, groups, international. Lots of returning guests and long stays.` },
-          { kop: "Weak spots", tekst: `Honestly: hard to find negatives — TripAdvisor shows 0 below "very good". The Hostelworld score (8.3) is lower than TripAdvisor (5.0), but I couldn't read why. One old gripe (2017): the mattresses — not repeated in recent reviews.` }
+          { kop: "Weak spots", tekst: `The one that recurs in recent reviews is noise: thin walls and no real sound insulation, so kitchen clatter and other guests carry — several light sleepers say it's hard to sleep past ~8am, even with earplugs. Mattresses get mixed mentions. That's also why Hostelworld sits at 8.3 while TripAdvisor shows 5.0 — its atmosphere, cleanliness and staff sub-scores sit in the high-7s to 8s: much-loved, but a simple place.` }
         ]
       }
     ],
