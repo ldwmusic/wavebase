@@ -3927,39 +3927,112 @@ function initTripMaps(trips) {
   });
 }
 
-/* Quick at-a-glance summary for one trip: counts by entry type and
-   a low/high nightly budget range pulled from the stays in the trip.
-   Skips by-enquiry / package-priced stays from the budget math (they
-   aren't /night-comparable) but still counts them. */
-function tripSummary(items) {
+/* ---- trip dates / nights / cost estimates ---- */
+
+// Whole nights between two YYYY-MM-DD strings. 0 when either is missing
+// or check-out isn't strictly after check-in. Math.round absorbs DST.
+function tripNights(inStr, outStr) {
+  if (!inStr || !outStr) return 0;
+  const a = new Date(inStr + "T00:00:00");
+  const b = new Date(outStr + "T00:00:00");
+  if (isNaN(a) || isNaN(b)) return 0;
+  const n = Math.round((b - a) / 86400000);
+  return n > 0 ? n : 0;
+}
+// "5 Jul" or, with withYear, "5 Jul 2026".
+function fmtTripDate(str, withYear) {
+  if (!str) return "";
+  const d = new Date(str + "T00:00:00");
+  if (isNaN(d)) return "";
+  const mon = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"][d.getMonth()];
+  return d.getDate() + " " + mon + (withYear ? " " + d.getFullYear() : "");
+}
+// A trip period: "5 – 12 Jul 2026" within one month, "28 Jun – 5 Jul
+// 2026" across months, "28 Dec 2026 – 3 Jan 2027" across years.
+function fmtTripPeriod(inStr, outStr) {
+  const a = new Date(inStr + "T00:00:00"), b = new Date(outStr + "T00:00:00");
+  if (isNaN(a) || isNaN(b)) return "";
+  const sameYear = a.getFullYear() === b.getFullYear();
+  if (sameYear && a.getMonth() === b.getMonth()) return a.getDate() + " – " + fmtTripDate(outStr, true);
+  return fmtTripDate(inStr, !sameYear) + " – " + fmtTripDate(outStr, true);
+}
+// Estimated cost of one stay for N nights, in the user's currency.
+// "" when the stay has no per-night price (package / by enquiry).
+function stayCostEstimate(e, nights) {
+  if (nights <= 0 || !e || !e.prices) return "";
+  if (typeof e.prices.fromEUR !== "number" || /package|week/i.test(e.prices.unit || "")) return "";
+  const lo = e.prices.fromEUR * nights;
+  const hi = (typeof e.prices.toEUR === "number" ? e.prices.toEUR : e.prices.fromEUR) * nights;
+  const loS = fmtCurrency(lo), hiS = fmtCurrency(hi);
+  return loS === hiS ? "~" + loS : "~" + loS + " – " + hiS;
+}
+
+/* Quick at-a-glance summary for one trip: counts by entry type, the
+   derived trip period (earliest check-in -> latest check-out across its
+   stays) and a cost figure. Once stays carry dates the figure is the
+   booked total (nights x nightly rate); before that it falls back to a
+   nightly-budget range. By-enquiry / package stays are counted but kept
+   out of the money math — they aren't /night-comparable. */
+function tripSummary(items, dates) {
+  dates = dates || {};
   const counts = { spot: 0, stay: 0, center: 0 };
   let budgetLo = 0, budgetHi = 0, pricedStayCount = 0, otherStayCount = 0;
+  let totalLo = 0, totalHi = 0, datedPricedCount = 0, undatedPricedCount = 0;
+  let totalNights = 0, earliestIn = "", latestOut = "";
   items.forEach(e => {
     if (counts[e.type] != null) counts[e.type]++;
-    if (e.type !== "stay" || !e.prices) return;
-    if (typeof e.prices.fromEUR !== "number" || /package|week/i.test(e.prices.unit || "")) {
-      otherStayCount++;
-      return;
-    }
+    if (e.type !== "stay") return;
+    const d = dates[e.id];
+    const nights = d ? tripNights(d.in, d.out) : 0;
+    if (d && d.in && (!earliestIn || d.in < earliestIn)) earliestIn = d.in;
+    if (d && d.out && (!latestOut || d.out > latestOut)) latestOut = d.out;
+    totalNights += nights;
+    if (!e.prices) return;
+    const perNight = typeof e.prices.fromEUR === "number" && !/package|week/i.test(e.prices.unit || "");
+    if (!perNight) { otherStayCount++; return; }
     pricedStayCount++;
     budgetLo += e.prices.fromEUR;
     budgetHi += (typeof e.prices.toEUR === "number" ? e.prices.toEUR : e.prices.fromEUR);
+    if (nights > 0) {
+      datedPricedCount++;
+      totalLo += e.prices.fromEUR * nights;
+      totalHi += (typeof e.prices.toEUR === "number" ? e.prices.toEUR : e.prices.fromEUR) * nights;
+    } else {
+      undatedPricedCount++;
+    }
   });
-  return { counts, budgetLo, budgetHi, pricedStayCount, otherStayCount };
+  return { counts, budgetLo, budgetHi, pricedStayCount, otherStayCount,
+           totalLo, totalHi, datedPricedCount, undatedPricedCount,
+           totalNights, earliestIn, latestOut };
 }
 
-function tripSummaryHTML(items) {
+function tripSummaryHTML(items, dates) {
   if (!items.length) return "";
-  const s = tripSummary(items);
+  const s = tripSummary(items, dates);
   const parts = [];
   if (s.counts.spot)   parts.push(`<span class="ts-pill"><span class="ts-dot ts-dot-spot"></span>${s.counts.spot} ${s.counts.spot === 1 ? "spot" : "spots"}</span>`);
   if (s.counts.center) parts.push(`<span class="ts-pill"><span class="ts-dot ts-dot-center"></span>${s.counts.center} ${s.counts.center === 1 ? "center" : "centers"}</span>`);
   if (s.counts.stay)   parts.push(`<span class="ts-pill"><span class="ts-dot ts-dot-stay"></span>${s.counts.stay} ${s.counts.stay === 1 ? "stay" : "stays"}</span>`);
 
+  let periodStr = "";
+  if (s.earliestIn && s.latestOut) {
+    periodStr = `<div class="ts-period">
+      <span class="ts-period-icon" aria-hidden="true">📅</span>
+      <span class="ts-period-dates">${fmtTripPeriod(s.earliestIn, s.latestOut)}</span>
+      ${s.totalNights ? `<span class="ts-period-nights">${s.totalNights} night${s.totalNights === 1 ? "" : "s"}</span>` : ""}
+    </div>`;
+  }
+
   let budgetStr = "";
-  if (s.pricedStayCount > 0) {
-    const lo = fmtCurrency(s.budgetLo);
-    const hi = fmtCurrency(s.budgetHi);
+  if (s.datedPricedCount > 0) {
+    const lo = fmtCurrency(s.totalLo), hi = fmtCurrency(s.totalHi);
+    const bits = [];
+    if (s.undatedPricedCount) bits.push(`${s.undatedPricedCount} without dates`);
+    if (s.otherStayCount)     bits.push(`${s.otherStayCount} by enquiry`);
+    const note = bits.length ? ` <span class="ts-note">(+${bits.join(", ")})</span>` : "";
+    budgetStr = `<div class="ts-budget"><span class="ts-budget-label">Est. total</span><span class="ts-budget-val">${lo === hi ? lo : lo + " – " + hi}</span>${note}</div>`;
+  } else if (s.pricedStayCount > 0) {
+    const lo = fmtCurrency(s.budgetLo), hi = fmtCurrency(s.budgetHi);
     const note = s.otherStayCount ? ` <span class="ts-note">(+${s.otherStayCount} by enquiry / package)</span>` : "";
     budgetStr = `<div class="ts-budget"><span class="ts-budget-label">Nightly budget</span><span class="ts-budget-val">${lo === hi ? lo : lo + " – " + hi}</span>${note}</div>`;
   } else if (s.otherStayCount) {
@@ -3967,7 +4040,37 @@ function tripSummaryHTML(items) {
   }
   return `<div class="trip-summary">
     <div class="ts-pills">${parts.join("")}</div>
+    ${periodStr}
     ${budgetStr}
+  </div>`;
+}
+
+/* The check-in / check-out planner row shown under each STAY in a trip.
+   Editing a date re-renders the account so the per-stay estimate, the
+   trip period and the cost total all stay in sync. Spots and centers
+   get no date row — only stays are booked by the night. */
+function stayPlanHTML(trip, e) {
+  const d = (trip.dates && trip.dates[e.id]) || { in: "", out: "" };
+  const nights = tripNights(d.in, d.out);
+  let calc;
+  if (nights > 0) {
+    const est = stayCostEstimate(e, nights);
+    calc = `<span class="tsp-calc"><strong>${nights} night${nights === 1 ? "" : "s"}</strong>${est ? ` &middot; ${est}` : ""}</span>`;
+  } else if (d.in && d.out) {
+    calc = `<span class="tsp-calc tsp-warn">Check-out must be after check-in</span>`;
+  } else if (d.in || d.out) {
+    calc = `<span class="tsp-calc tsp-hint">Add the other date</span>`;
+  } else {
+    calc = `<span class="tsp-calc tsp-hint">Add dates for a nights + cost estimate</span>`;
+  }
+  return `<div class="trip-stay-plan">
+    <label class="tsp-field">Check-in
+      <input type="date" class="tsp-date" data-trip="${trip.id}" data-spot="${e.id}" data-field="in" value="${d.in}">
+    </label>
+    <label class="tsp-field">Check-out
+      <input type="date" class="tsp-date" data-trip="${trip.id}" data-spot="${e.id}" data-field="out" value="${d.out}"${d.in ? ` min="${d.in}"` : ""}>
+    </label>
+    ${calc}
   </div>`;
 }
 
@@ -4229,17 +4332,19 @@ function renderAccount() {
         const items = t.spotIds.map(byId).filter(Boolean);
         const located = items.filter(e => e.coords);
         const list = items.length
-          ? `<ol class="trip-items">${items.map((e, i) =>
-              `<li><div class="trip-item-row" draggable="true" data-trip="${t.id}" data-idx="${i}" title="Drag to reorder">
+          ? `<ol class="trip-items">${items.map((e, i) => {
+              const row = `<div class="trip-item-row" draggable="true" data-trip="${t.id}" data-idx="${i}" title="Drag to reorder">
                 <span class="drag-grip" aria-hidden="true">⠿</span>
                 <span class="trip-item-main"><a href="spot.html?id=${e.id}" draggable="false">${e.name}</a> <span class="muted">&middot; ${typeLabel(e.type)} &middot; ${e.town}</span></span>
                 <span class="trip-item-ctrl">
                   <button class="tc-btn tc-del" data-remove data-trip="${t.id}" data-spot="${e.id}" aria-label="Remove from trip" title="Remove from trip">✕</button>
                 </span>
-              </div></li>`).join("")}</ol>`
+              </div>`;
+              return `<li>${row}${e.type === "stay" ? stayPlanHTML(t, e) : ""}</li>`;
+            }).join("")}</ol>`
           : `<p class="muted">Empty so far — add places from a detail page.</p>`;
         const mapDiv = located.length ? `<div class="trip-map" id="trip-map-${t.id}"></div>` : "";
-        const summary = tripSummaryHTML(items);
+        const summary = tripSummaryHTML(items, t.dates);
         return `<div class="trip" id="trip-${t.id}">
           <div class="trip-head"><h3>${t.name}</h3><button class="link-btn" data-del="${t.id}">remove</button></div>
           ${summary}
@@ -4360,7 +4465,7 @@ function renderAccount() {
         <h2>My trips <span class="seccount">${trips.length}</span></h2>
         <button class="btn ghost" id="new-trip">+ New trip</button>
       </div>
-      <p class="muted form-note">Drag locations to reorder them — each trip's map and its route line follow the order, with the distance of each hop shown on the dashed line. Use ✕ to remove a stop.</p>
+      <p class="muted form-note">Drag locations to reorder them — the map and route line follow the order. Give each stay check-in / check-out dates for a nights + cost estimate. Use ✕ to remove a stop.</p>
       ${tripsHTML}
     </section>
 
@@ -4450,6 +4555,12 @@ function renderAccount() {
   root.querySelectorAll("[data-remove]").forEach(b => {
     b.addEventListener("click", () => {
       WaveBaseAccount.removeFromTrip(b.dataset.trip, b.dataset.spot);
+      renderAccount();
+    });
+  });
+  root.querySelectorAll(".tsp-date").forEach(inp => {
+    inp.addEventListener("change", () => {
+      WaveBaseAccount.setStayDate(inp.dataset.trip, inp.dataset.spot, inp.dataset.field, inp.value);
       renderAccount();
     });
   });

@@ -35,7 +35,12 @@ const WaveBaseAccount = (function () {
       saved: s.saved || [],
       compare: s.compare || [],
       surfed: s.surfed || [],
-      trips: s.trips || [],
+      trips: (s.trips || []).map(t => ({
+        id: t.id,
+        name: t.name,
+        spotIds: Array.isArray(t.spotIds) ? t.spotIds : [],
+        dates: (t.dates && typeof t.dates === "object") ? t.dates : {}
+      })),
       reviews: Array.isArray(s.reviews) ? s.reviews : []
     };
   }
@@ -107,7 +112,7 @@ const WaveBaseAccount = (function () {
     getTrips() { return state().trips; },
     addTrip(name) {
       const s = state();
-      const trip = { id: "t" + Date.now(), name: (name || "New trip").trim(), spotIds: [] };
+      const trip = { id: "t" + Date.now(), name: (name || "New trip").trim(), spotIds: [], dates: {} };
       s.trips.push(trip);
       write(s);
       return trip;
@@ -126,7 +131,25 @@ const WaveBaseAccount = (function () {
     removeFromTrip(tripId, spotId) {
       const s = state();
       const t = s.trips.find(x => x.id === tripId);
-      if (t) t.spotIds = t.spotIds.filter(id => id !== spotId);
+      if (t) {
+        t.spotIds = t.spotIds.filter(id => id !== spotId);
+        if (t.dates) delete t.dates[spotId];
+      }
+      write(s);
+    },
+    /* Per-stay trip dates — check-in / check-out for one stay inside a
+       trip. field is "in" or "out", value a YYYY-MM-DD string. Stored
+       keyed by entry id; the entry is dropped when both ends are empty
+       so the dates map stays tidy. */
+    setStayDate(tripId, entryId, field, value) {
+      const s = state();
+      const t = s.trips.find(x => x.id === tripId);
+      if (!t) return;
+      if (!t.dates) t.dates = {};
+      const cur = t.dates[entryId] || { in: "", out: "" };
+      cur[field] = value || "";
+      if (!cur.in && !cur.out) delete t.dates[entryId];
+      else t.dates[entryId] = cur;
       write(s);
     },
     reorderTrip(tripId, fromIndex, toIndex) {
