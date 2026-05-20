@@ -3823,7 +3823,9 @@ button.rml-key.off .rml-dot {
 }
 .searcher-wrap.is-fixed .pr-tier-rel { display: none; }
 
-/* Sidebar pinned mode — slider as its own full-width row */
+/* Sidebar pinned mode — the slider widget grows to fill the row
+   next to its "Budget?" label, instead of collapsing to the width
+   of its content (which left it narrow until you moved a handle). */
 .searcher-wrap.is-fixed .price-range-field {
   flex-direction: column;
   align-items: stretch;
@@ -3835,7 +3837,7 @@ button.rml-key.off .rml-dot {
   font-family: 'Fraunces', Georgia, serif;
   font-size: 13.5px;
 }
-.searcher-wrap.is-fixed .price-range { padding: 0; width: auto; }
+.searcher-wrap.is-fixed .price-range { padding: 0; width: auto; flex: 1; min-width: 0; }
 .searcher-wrap.is-fixed .pr-bars { height: 28px; }
 .searcher-wrap.is-fixed .pr-tiers { height: 26px; }
 .searcher-wrap.is-fixed .pr-tier-zone {
