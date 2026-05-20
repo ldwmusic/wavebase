@@ -3566,6 +3566,95 @@ const WAVEBASE_DATA = [
   },
 
   {
+    id: "spuikom-oostende",
+    type: "spot",
+    country: "Belgium",
+    sports: ["wind", "wing", "sup"],
+    name: "Spuikom",
+    town: "Oostende",
+    tagline: "An enclosed salt-water basin behind Oostende's seafront — flat, sheltered, no waves, ideal for windsurf, wing and SUP beginners. The home base of VZW Inside-Outside.",
+    levels: ["beginner", "intermediate"],
+    goodMonths: [4,5,6,7,8,9,10],
+    coords: [51.2273035, 2.9538756],
+    googleMapsQuery: "Spuikom Oostende",
+    coordsLabel: "Centroid of the Spuikom basin in Oostende — verified via Google Maps direct place lookup. The basin is enclosed (no direct sea connection at water surface), so conditions are fundamentally different from the open North Sea 1 km west.",
+    photo: "",
+    samenvatting: [
+      "Enclosed salt-water basin (former sluice dock) on the east side of Oostende — completely sheltered from the open sea.",
+      "Flat water, no waves, no current — Belgium's only inland-style salt-water option for sailing/wind/SUP.",
+      "VZW Inside-Outside operates the 'Inside' clubhouse here for lessons + rentals; sailing schools also share the basin.",
+      "Bron-strength: 🟡 PARTIAL — Open-Meteo historical GFS (real 5-year archive @ 51.2273, 2.9539, daytime 10–18h, 2021-05-20 → 2026-05-16, 16,407 hours). NO user review trail for the basin itself (it's not a business). Water-body context from Inside-Outside own site + Oostende city documentation."
+    ],
+    verhaal: [
+      `The Spuikom is Oostende's "inside water" — a 65-hectare enclosed salt-water basin behind the city, originally built in the 1860s as a tidal sluice to keep the harbour silt-free, now repurposed as a watersport zone. Because it's separated from the sea by a dike, the water surface is flat regardless of what the North Sea is doing 1 km to the west.`,
+      `For learners that's invaluable: a windsurf or wing or SUP session here doesn't have the cold-water + current intimidation of the open coast. Sea conditions blow out the open beach? Spuikom is still rideable.`,
+      `VZW Inside-Outside (the club) runs lessons from the "Inside" clubhouse on the south bank. Sailing schools share the basin too. The "Outside" half of the club operates the open-sea side at Mariakerke beach a kilometre away — that's the same coast, separately covered by oostende-mariakerke.`,
+      `Wind reality (Open-Meteo 5y archive): mean wind 9–12 kn through the year, daily peaks 13–16 kn, gust peaks 30–37 kn. Same direction pattern as the rest of the coast — SW prevailing, more S in summer. Sheltered terrain means the actual on-water feel is calmer than the numbers suggest.`
+    ],
+    lagen: [
+      {
+        titel: "Why the Spuikom matters",
+        bron: "VZW Inside-Outside own site + Oostende city documentation",
+        inhoud: [
+          { kop: "Flat water, salty", tekst: `Enclosed basin → no waves regardless of sea conditions. Salt water keeps it usable year-round without the algae issues of freshwater inland lakes.` },
+          { kop: "Two-water option from one club", tekst: `Inside-Outside teaches beginners on the Spuikom and progresses students to the open sea at Mariakerke when ready. Less weather-cancellation, less risk on lesson days.` }
+        ]
+      },
+      {
+        titel: "What the data actually says",
+        bron: "Open-Meteo historical GFS @ 51.2273, 2.9539 (daytime 10–18h, 2021-05-20 → 2026-05-16, 5y archive, 16,407 hours)",
+        inhoud: [
+          { kop: "Active season — Apr through Oct", tekst: `Mean wind 9–10 kn, daily peaks 13–14 kn, water warming from 8 °C in April to 18 °C in August. Lessons run reliably across this window.` },
+          { kop: "Cold half — Nov through Mar", tekst: `Mean wind 10–11 kn (slightly windier than summer), daily peaks 15–16 kn, gust peaks routinely 35–37 kn — actually the windier months, but cold water (5–6 °C) means winter wetsuit + experienced sailors only.` }
+        ]
+      }
+    ],
+    condities: {
+      golftype: "Flat — no waves (enclosed basin)",
+      golfhoogte: "Effectively zero; small wind chop only on windy days",
+      wind: "SW prevailing year-round, S in summer; mean 9–12 kn daytime, gust peaks 30–37 kn in winter",
+      water: "5 °C winter to ~18 °C late summer, salt water, no current",
+      drukte: { niveau: "gemiddeld", tekst: "Shared between Inside-Outside lessons + private sailors + a sailing club. Quieter than the open beach; busiest school holidays + warm weekends." }
+    },
+    stats: {
+      windDir:    "SW prevailing year-round; S in summer, SSW–W in winter",
+      waveType:   "Flat — enclosed basin, no swell",
+      bottom:     "Mud/sediment — basin bottom; not relevant for board sports",
+      crowd:      "moderate",
+      localism:  "Welcoming, club-driven scene shared by multiple schools and private sailors.",
+      source:     "Wind / air / gust: Open-Meteo historical GFS @ 51.2273, 2.9539 (daytime 10–18h, 2021-05-20 → 2026-05-16, 5y archive, 16,407 hours sampled). Wave data N/A — enclosed basin. Water temp: KMI Belgian coast climatology (Spuikom tracks sea temp closely due to salt-water exchange via sluice).",
+      periods: [
+        { name: "Active season",   months: [4, 5, 6, 7, 8, 9, 10], inSeason: true,
+          windKn: [9, 14],  waterC: [8, 18],  waveM: [0, 0] },
+        { name: "Cold + windier",  months: [11, 12, 1, 2, 3],      inSeason: false,
+          windKn: [10, 16], waterC: [5, 8],   waveM: [0, 0.1] }
+      ],
+      monthlyWindProb:
+        [0.55, 0.55, 0.45, 0.50, 0.40, 0.35, 0.40, 0.40, 0.40, 0.45, 0.55, 0.55],
+      monthlyWindKn:
+        [11, 12, 10, 10, 10, 9, 10, 10, 9, 10, 11, 11],
+      monthlyGustKn:
+        [20, 22, 19, 21, 20, 19, 20, 20, 19, 19, 20, 20],
+      monthlyDailyPeakKn:
+        [16, 16, 13, 14, 13, 13, 14, 13, 13, 14, 15, 16],
+      monthlyGustPeakKn:
+        [37, 37, 34, 35, 31, 31, 33, 30, 33, 34, 35, 37],
+      monthlyWaveM:
+        [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+      monthlySwellProb:
+        [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+      monthlyAirC:
+        [6, 8, 10, 12, 15, 19, 20, 21, 19, 15, 10, 7],
+      monthlyWaterC:
+        [6, 5, 6, 8, 11, 14, 16, 18, 17, 14, 11, 8],
+      chartType:  "wind"
+    },
+    vergelijking: null,
+    ideaalVoor: "Beginners learning windsurf / wing / SUP who want a controlled flat-water environment; intermediates working on technique without sea-state interference; sailing-club members; rainy-day sea-blowout alternative.",
+    nietIdeaalAls: "You want waves (there are none), cold-water exposure, or the open-sea feel — go to Mariakerke beach 1 km west."
+  },
+
+  {
     id: "de-haan-strand",
     type: "spot",
     country: "Belgium",
@@ -3917,9 +4006,10 @@ const WAVEBASE_DATA = [
     tagline: "Two-water club — sheltered Spuikom inland + the open sea at Mariakerke. Windsurf, sail, SUP. One of the few Belgian clubs with both an inland and a seaside venue.",
     levels: ["beginner", "intermediate", "advanced"],
     goodMonths: [4,5,6,7,8,9,10],
-    linkedSpotId: "oostende-mariakerke",
+    linkedSpotId: "spuikom-oostende",
     coords: [51.2301987, 2.9608429],
-    coordsLabel: "\"Inside\" clubhouse at Schietbaanstraat 100, 8400 Oostende (the Spuikom location) — verified via Google Maps direct place lookup. \"Outside\" is at Kon. Astridlaan 7, on the seafront.",
+    googleMapsQuery: "https://maps.app.goo.gl/MELKmZZ4LfCTLtM79",
+    coordsLabel: "\"Inside\" clubhouse at Schietbaanstraat 100, 8400 Oostende (the Spuikom location) — verified via Google Maps direct place lookup (Google indexes the club as 'VZW Inside-Outside'). \"Outside\" half is at Kon. Astridlaan 7, on the Mariakerke seafront.",
     photo: "",
     bookingUrl: "https://www.inout-oostende.be/",
     diensten: {
