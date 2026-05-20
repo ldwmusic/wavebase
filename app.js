@@ -5323,18 +5323,23 @@ function openConsentPreferences() {
 
 /* Driving-directions links for a found spot — open the user's maps app
    straight at the spot. Apple Maps shows only on iPhone (per Lode); Waze
-   and Google Maps everywhere. All three route to the spot's verified
-   coords; the links open the native app when installed, else the web. */
-function navAppsHTML(e) {
+   and Google Maps everywhere. When a base is set the route starts FROM
+   that base — Apple Maps (saddr) and Google Maps (origin) support a fixed
+   start point; Waze's deep link does not, so Waze always routes from the
+   user's live location. All open the native app when installed, else web. */
+function navAppsHTML(e, base) {
   if (!Array.isArray(e.coords)) return "";
-  const lat = e.coords[0], lng = e.coords[1];
+  const dlat = e.coords[0], dlng = e.coords[1];
+  const hasBase = !!(base && isFinite(base.lat) && isFinite(base.lng));
   const onIphone = /iPhone|iPod/i.test(navigator.userAgent || "");
   const apps = [];
   if (onIphone) {
-    apps.push(`<a href="https://maps.apple.com/?daddr=${lat},${lng}&dirflg=d" target="_blank" rel="noopener">Apple Maps</a>`);
+    const saddr = hasBase ? `&saddr=${base.lat},${base.lng}` : "";
+    apps.push(`<a href="https://maps.apple.com/?daddr=${dlat},${dlng}${saddr}&dirflg=d" target="_blank" rel="noopener">Apple Maps</a>`);
   }
-  apps.push(`<a href="https://waze.com/ul?ll=${lat},${lng}&navigate=yes" target="_blank" rel="noopener">Waze</a>`);
-  apps.push(`<a href="https://www.google.com/maps/dir/?api=1&destination=${lat},${lng}&travelmode=driving" target="_blank" rel="noopener">Google Maps</a>`);
+  apps.push(`<a href="https://waze.com/ul?ll=${dlat},${dlng}&navigate=yes" target="_blank" rel="noopener">Waze</a>`);
+  const gOrigin = hasBase ? `&origin=${base.lat},${base.lng}` : "";
+  apps.push(`<a href="https://www.google.com/maps/dir/?api=1&destination=${dlat},${dlng}${gOrigin}&travelmode=driving" target="_blank" rel="noopener">Google Maps</a>`);
   return `<div class="exp-pop-nav"><span class="exp-pop-nav-label">Navigate there</span>${apps.join("")}</div>`;
 }
 
@@ -5479,7 +5484,7 @@ function initExplorer() {
       const statusLine = known
         ? `<br><span class="exp-pop-status">${known === "surfed" ? "✓ You've surfed this" : known === "trip" ? "In one of your trips" : "♥ Saved"}</span>`
         : "";
-      m.bindPopup(`<strong>${escHTML(e.name)}</strong><br><span class="rml-tip-meta">${escHTML(e.town)}${distLine}</span>${statusLine}<br><span class="exp-pop-tag">${escHTML(e.tagline || "")}</span><br><a href="spot.html?id=${e.id}">See the analysis →</a>${navAppsHTML(e)}`);
+      m.bindPopup(`<strong>${escHTML(e.name)}</strong><br><span class="rml-tip-meta">${escHTML(e.town)}${distLine}</span>${statusLine}<br><span class="exp-pop-tag">${escHTML(e.tagline || "")}</span><br><a href="spot.html?id=${e.id}">See the analysis →</a>${navAppsHTML(e, state.base)}`);
       m.addTo(spotLayer);
       rows.push({ entry: e, dist: dist, inReach: inReach, known: known, marker: m });
     });
