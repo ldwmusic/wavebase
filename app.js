@@ -4832,7 +4832,7 @@ function initMobileTabbar() {
     about: '<svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>'
   };
   const tabs = [
-    { route: "discover", href: "index.html", label: "Discover" },
+    { route: "discover", href: "index.html", label: "Home" },
     { route: "map", href: "kaart.html", label: "Map" },
     { route: "compare", href: "compare.html", label: "Compare" },
     { route: "about", href: "about.html", label: "About" },
