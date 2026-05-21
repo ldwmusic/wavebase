@@ -2513,10 +2513,12 @@ body:not(.is-home) .searchbar-wrap { display: none; }
   border-radius: 12px; padding: 18px 22px; margin-bottom: 12px;
 }
 /* Trip overview header — the trip name plus the stat strip, fenced off
-   from the items list by a hairline so the card top reads as a header. */
+   from the items list by a hairline so the card top reads as a header.
+   A container so the stat strip can reflow to flowing chips on phones. */
 .trip-overview {
   border-bottom: 1px solid var(--sand);
   margin-bottom: 14px;
+  container-type: inline-size;
 }
 .trip-head { display: flex; justify-content: space-between; align-items: baseline; }
 .trip-head h3 { font-size: 19px; }
@@ -2580,6 +2582,7 @@ body:not(.is-home) .searchbar-wrap { display: none; }
   color: var(--ink-soft);
   font-weight: 600;
   font-variant-numeric: tabular-nums;
+  white-space: nowrap;
   border: none;
   background: transparent;
   padding: 0;
@@ -2612,18 +2615,20 @@ body:not(.is-home) .searchbar-wrap { display: none; }
 
 .ts-budget {
   display: flex;
+  flex-wrap: wrap;
   align-items: baseline;
   gap: 6px;
   font-size: 13.5px;
   color: var(--ink-soft);
 }
-.ts-budget-label { font-weight: 500; }
+.ts-budget-label { font-weight: 500; white-space: nowrap; }
 .ts-budget-val {
   color: var(--ink);
   font-weight: 700;
   font-variant-numeric: tabular-nums;
+  white-space: nowrap;
 }
-.ts-note { font-size: 11.5px; color: var(--ink-soft); font-weight: 500; }
+.ts-note { font-size: 11.5px; color: var(--ink-soft); font-weight: 500; white-space: nowrap; }
 
 /* Derived trip period — earliest check-in -> latest check-out across the
    trip's dated stays, with total nights booked. */
@@ -2634,6 +2639,7 @@ body:not(.is-home) .searchbar-wrap { display: none; }
   font-size: 13.5px;
   font-weight: 600;
   color: var(--ink);
+  white-space: nowrap;
 }
 .ts-period-icon { font-size: 13px; line-height: 1; }
 .ts-period-dates { font-variant-numeric: tabular-nums; }
@@ -2644,6 +2650,7 @@ body:not(.is-home) .searchbar-wrap { display: none; }
   background: var(--sea-soft);
   border-radius: 999px;
   padding: 2px 9px;
+  white-space: nowrap;
 }
 /* Route distance — total straight-line km between the trip's stays. */
 .ts-distance {
@@ -2654,6 +2661,7 @@ body:not(.is-home) .searchbar-wrap { display: none; }
   font-weight: 600;
   color: var(--ink);
   font-variant-numeric: tabular-nums;
+  white-space: nowrap;
 }
 .ts-distance-icon { font-size: 13px; line-height: 1; }
 
@@ -2694,9 +2702,12 @@ body:not(.is-home) .searchbar-wrap { display: none; }
 .tsp-calc.tsp-hint { color: var(--ink-soft); font-weight: 500; font-style: italic; }
 .tsp-calc.tsp-warn { color: var(--clay); font-weight: 600; }
 
-@media (max-width: 600px) {
-  .trip-summary { flex-direction: column; align-items: flex-start; }
-  .tsp-calc { margin-left: 0; }
+/* Narrow trip card (phones) — the overview's three layout zones collapse
+   so their stat chips become direct children of the summary strip and
+   flow + wrap as whole units, rather than the zones squeezing their text
+   and breaking it mid-word. Tracks the card's own width, not the viewport. */
+@container (max-width: 560px) {
+  .ts-pills, .ts-mid, .ts-end { display: contents; }
 }
 
 /* ===== My Trip — Day by day view ===== */
