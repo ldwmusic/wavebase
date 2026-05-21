@@ -3911,16 +3911,19 @@ function initTripMaps(trips) {
     const layers = { spot: L.layerGroup(), center: L.layerGroup(), stay: L.layerGroup() };
     const connSpot = L.layerGroup();
     const connCenter = L.layerGroup();
-    items.forEach((e, i) => {
+    // Stays get a numbered pin (matching the Itinerary list); spots and
+    // centers get a plain colored dot — places near a stay, not numbered
+    // stops of their own.
+    const tripStays = t.spotIds.map(byId).filter(x => x && x.type === "stay");
+    items.forEach(e => {
       if (!layers[e.type]) return;
-      const icon = L.divIcon({
-        className: "trip-pin " + e.type,
-        html: String(i + 1),
-        iconSize: [26, 26],
-        iconAnchor: [13, 13]
-      });
+      const isStay = e.type === "stay";
+      const num = isStay ? tripStays.indexOf(e) + 1 : 0;
+      const icon = isStay
+        ? L.divIcon({ className: "trip-pin stay", html: String(num), iconSize: [26, 26], iconAnchor: [13, 13] })
+        : L.divIcon({ className: "trip-pin " + e.type, html: "", iconSize: [14, 14], iconAnchor: [7, 7] });
       L.marker(e.coords, { icon: icon })
-        .bindPopup(`<strong>${i + 1}. ${e.name}</strong><br>${typeLabel(e.type)} &middot; ${e.town}<br>
+        .bindPopup(`<strong>${isStay ? num + ". " : ""}${e.name}</strong><br>${typeLabel(e.type)} &middot; ${e.town}<br>
           <a href="spot.html?id=${e.id}">See the analysis →</a>${navAppsHTML(e)}`)
         .addTo(layers[e.type]);
     });
