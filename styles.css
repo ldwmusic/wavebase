@@ -4159,7 +4159,7 @@ button.rml-key.off .rml-dot {
   color: var(--ink);
 }
 .price-range {
-  width: 340px;
+  width: 430px;
   max-width: 100%;
   padding: 2px 4px;
 }
@@ -4176,6 +4176,7 @@ button.rml-key.off .rml-dot {
   position: relative;
   height: 30px;
   margin-bottom: 4px;
+  display: none; /* default searcher drops the band — see .pr-tier-inline */
 }
 .pr-tier-zone {
   position: absolute;
@@ -4301,9 +4302,9 @@ button.rml-key.off .rml-dot {
 /* Readout: selected range label + reset button */
 .pr-readout {
   display: flex;
+  flex-wrap: wrap;
   align-items: center;
-  justify-content: space-between;
-  gap: 8px;
+  gap: 4px 8px;
   margin-top: 4px;
   font-size: 13.5px;
   font-family: 'DM Sans', sans-serif;
@@ -4311,8 +4312,9 @@ button.rml-key.off .rml-dot {
   font-weight: 600;
   font-variant-numeric: tabular-nums;
 }
-.pr-label { flex: 1; }
+.pr-label { flex: 0 0 auto; white-space: nowrap; }
 .pr-reset {
+  margin-left: auto;
   border: 1px solid var(--sand-deep);
   background: var(--paper);
   color: var(--ink-soft);
@@ -4335,6 +4337,36 @@ button.rml-key.off .rml-dot {
 }
 .searcher-wrap.is-fixed .pr-tier-rel { display: none; }
 
+/* Inline tier summary — sits beside the price in the default searcher,
+   replacing the tier band above the slider. The pinned sidebar keeps
+   the band and hides this instead. */
+.pr-tier-inline {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 2px 8px;
+}
+.pr-tier-inline:empty { display: none; }
+.pr-tin {
+  display: inline-flex;
+  align-items: baseline;
+  gap: 3px;
+  white-space: nowrap;
+  font-weight: 600;
+}
+.pr-tin-icon { font-size: 12px; }
+.pr-tin.tier-budget { color: #6f5a2c; }
+.pr-tin.tier-comfortable { color: var(--sea); }
+.pr-tin.tier-premium { color: var(--clay); }
+.pr-tin.tier-luxury { color: #6f3d7b; }
+.pr-tin-rel {
+  font-weight: 400;
+  font-size: 10.5px;
+  color: var(--ink-soft);
+  white-space: nowrap;
+}
+.searcher-wrap.is-fixed .pr-tier-inline { display: none; }
+
 /* Sidebar pinned mode — the slider widget grows to fill the row
    next to its "Budget?" label, instead of collapsing to the width
    of its content (which left it narrow until you moved a handle). */
@@ -4351,7 +4383,7 @@ button.rml-key.off .rml-dot {
 }
 .searcher-wrap.is-fixed .price-range { padding: 0; width: auto; flex: 1; min-width: 0; }
 .searcher-wrap.is-fixed .pr-bars { height: 28px; }
-.searcher-wrap.is-fixed .pr-tiers { height: 26px; }
+.searcher-wrap.is-fixed .pr-tiers { display: block; height: 26px; }
 .searcher-wrap.is-fixed .pr-tier-zone {
   font-size: 11px;
   padding: 3px 4px 0;
@@ -4772,6 +4804,21 @@ button.rml-key.off .rml-dot {
 }
 .surflog-spot.done { background: #e3efe4; border-color: #4f8a5b; color: #3a6b44; }
 .surflog-spot.done .surflog-spot-check { background: #4f8a5b; color: #fff; }
+/* Surf-log spot search — filter box at the top of a country panel. */
+.surflog-search {
+  display: flex; align-items: center; gap: 7px;
+  background: #fff; border: 1px solid var(--sand-deep);
+  border-radius: 9px; padding: 6px 10px; margin: 8px 0 0;
+}
+.surflog-search-icon { font-size: 12px; opacity: 0.55; }
+.surflog-search-input {
+  flex: 1; min-width: 0; border: none; background: none;
+  font-family: 'DM Sans', sans-serif; font-size: 13.5px; color: var(--ink);
+}
+.surflog-search-input:focus { outline: none; }
+.surflog-spot.is-hidden, .surflog-town.is-hidden { display: none; }
+/* Keyboard-highlighted chip (arrow-key navigation). */
+.surflog-spot.is-active { box-shadow: 0 0 0 2px var(--sea); }
 
 /* Saved-places "discover more" CTA */
 .saved-discover {

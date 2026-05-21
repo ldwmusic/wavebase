@@ -1751,6 +1751,8 @@ function updatePriceRangeForCountry(country) {
     reset.hidden = true;
     bars.innerHTML = "";
     tiers.innerHTML = "";
+    const inlineEl = document.getElementById("pr-tier-inline");
+    if (inlineEl) inlineEl.innerHTML = "";
     return;
   }
   root.dataset.state = "ready";
@@ -1814,6 +1816,15 @@ function renderTierZones(country, bounds) {
       : "";
     return `<span class="pr-tier-zone tier-${z.tier}" style="left: ${left}%; width: ${width}%;" title="${escHTML(z.meta.label)} · ${fmtCurrency(z.min)}–${fmtCurrency(z.max)} /n"><span class="pr-tier-icon" aria-hidden="true">${z.meta.icon}</span><span class="pr-tier-name">${escHTML(z.meta.label)}</span>${rel}</span>`;
   }).join("");
+  // Compact tier summary for the default (non-sidebar) searcher — the tier
+  // band is dropped there, this line sits beside the price instead.
+  const inlineEl = document.getElementById("pr-tier-inline");
+  if (inlineEl) {
+    inlineEl.innerHTML = zones.length
+      ? zones.map(z => `<span class="pr-tin tier-${z.tier}"><span class="pr-tin-icon" aria-hidden="true">${z.meta.icon}</span>${escHTML(z.meta.label)}</span>`).join("")
+        + `<span class="pr-tin-rel" title="Each tier is calibrated to local prices — 'Comfortable' costs differently per country.">📍 relative to location</span>`
+      : "";
+  }
 }
 
 function tierPillsHTML(active) {
@@ -4380,6 +4391,10 @@ function surfLogPanelHTML(country, inline) {
       <h3>${heading}</h3>
       <button type="button" class="surflog-panel-close" id="surflog-close" aria-label="Close">✕</button>
     </div>
+    <div class="surflog-search">
+      <span class="surflog-search-icon" aria-hidden="true">🔍</span>
+      <input type="search" class="surflog-search-input" placeholder="Search a spot or town…" autocomplete="off" enterkeyhint="search" aria-label="Search spots">
+    </div>
     ${surfLogSpotsPanel(country)}
   </div>`;
 }
@@ -4439,6 +4454,10 @@ function wireSurfLog(selected) {
   // between the inline row slot and the standalone slot above the map).
   sec.querySelectorAll(".surflog-spot").forEach(btn => {
     btn.addEventListener("click", () => {
+      // A toggle re-renders the panel — remember any active spot search
+      // so it can be restored straight after.
+      const si = sec.querySelector(".surflog-search-input");
+      surfLogReopenQuery = si ? si.value : null;
       const before = surfLogData().byCountry[selected];
       const wasOn = !!(before && before.done > 0);
       WaveBaseAccount.toggleSurfed(btn.dataset.surf);
@@ -4450,6 +4469,70 @@ function wireSurfLog(selected) {
   // Panel close button.
   const close = document.getElementById("surflog-close");
   if (close) close.addEventListener("click", () => refreshSurfLog(null, false));
+  // Spot search — type to filter, arrows + Enter to tick off by keyboard.
+  wireSurfLogSearch(sec);
+  // Re-apply a search that was active when a toggle forced this re-render.
+  if (surfLogReopenQuery) {
+    const si = sec.querySelector(".surflog-search-input");
+    if (si) {
+      si.value = surfLogReopenQuery;
+      applySurfLogFilter(sec, surfLogReopenQuery);
+      si.focus();
+    }
+    surfLogReopenQuery = null;
+  }
+}
+
+/* Filter the surf-log spot chips by a query — matches a spot's name or
+   its town; a town with no remaining matches is hidden entirely. */
+function applySurfLogFilter(sec, q) {
+  q = (q || "").trim().toLowerCase();
+  sec.querySelectorAll(".surflog-town").forEach(town => {
+    const tn = town.querySelector(".surflog-town-name");
+    const townName = tn ? tn.textContent.toLowerCase() : "";
+    let anyVisible = false;
+    town.querySelectorAll(".surflog-spot").forEach(spot => {
+      const sn = spot.querySelector(".surflog-spot-name");
+      const name = sn ? sn.textContent.toLowerCase() : "";
+      const match = !q || name.indexOf(q) !== -1 || townName.indexOf(q) !== -1;
+      spot.classList.toggle("is-hidden", !match);
+      if (match) anyVisible = true;
+    });
+    town.classList.toggle("is-hidden", !anyVisible);
+  });
+}
+
+/* Wire the surf-log spot search: filter as you type, arrow keys move a
+   highlight through the visible chips, Enter ticks the highlighted one. */
+function wireSurfLogSearch(sec) {
+  const input = sec.querySelector(".surflog-search-input");
+  if (!input) return;
+  let activeIdx = -1;
+  const visible = () => Array.from(sec.querySelectorAll(".surflog-spot:not(.is-hidden)"));
+  const clearActive = () => {
+    sec.querySelectorAll(".surflog-spot.is-active").forEach(s => s.classList.remove("is-active"));
+    activeIdx = -1;
+  };
+  const setActive = i => {
+    sec.querySelectorAll(".surflog-spot.is-active").forEach(s => s.classList.remove("is-active"));
+    const spots = visible();
+    if (!spots.length) { activeIdx = -1; return; }
+    activeIdx = (i + spots.length) % spots.length;
+    spots[activeIdx].classList.add("is-active");
+    spots[activeIdx].scrollIntoView({ block: "nearest" });
+  };
+  input.addEventListener("input", () => {
+    applySurfLogFilter(sec, input.value);
+    if (input.value.trim()) setActive(0); else clearActive();
+  });
+  input.addEventListener("keydown", ev => {
+    if (ev.key === "ArrowDown") { ev.preventDefault(); setActive(activeIdx + 1); }
+    else if (ev.key === "ArrowUp") { ev.preventDefault(); setActive(activeIdx - 1); }
+    else if (ev.key === "Enter") {
+      const spots = visible();
+      if (activeIdx >= 0 && spots[activeIdx]) { ev.preventDefault(); spots[activeIdx].click(); }
+    }
+  });
 }
 
 /* Tints the world map for the surf log — surfed countries lit green,
@@ -4508,6 +4591,9 @@ function renderSurfLogMap() {
    card, without leaving for a detail page. reopenAddFor re-opens the
    search field after an add re-renders the account. */
 let reopenAddFor = null;
+/* Surf-log spot search query, preserved across the re-render a tick-off
+   triggers so the search box doesn't reset itself mid-use. */
+let surfLogReopenQuery = null;
 function wireTripAdd(root) {
   root.querySelectorAll(".trip-add").forEach(box => {
     const tripId = box.dataset.trip;
