@@ -2555,6 +2555,9 @@ body:not(.is-home) .searchbar-wrap { display: none; }
   justify-content: flex-end;
   gap: 12px;
 }
+/* Count pills double as the trip map's type filter — real <button>s.
+   When OFF, the dot goes hollow (white with a faint ring), like the
+   results-map legend keys; the label text stays put as a click target. */
 .ts-pill {
   display: inline-flex;
   align-items: center;
@@ -2563,6 +2566,24 @@ body:not(.is-home) .searchbar-wrap { display: none; }
   color: var(--ink-soft);
   font-weight: 600;
   font-variant-numeric: tabular-nums;
+  border: none;
+  background: transparent;
+  padding: 0;
+  font-family: inherit;
+  cursor: pointer;
+  transition: color 0.12s;
+}
+.ts-pill:hover { color: var(--ink); }
+.ts-pill:focus-visible {
+  outline: 2px solid var(--sea);
+  outline-offset: 3px;
+  border-radius: 3px;
+}
+.ts-pill .ts-dot { transition: background 0.12s, box-shadow 0.12s, border-color 0.12s; }
+.ts-pill.off .ts-dot {
+  background: #fff !important;
+  border-color: #fff;
+  box-shadow: 0 0 0 1px rgba(0,0,0,.18);
 }
 .ts-dot {
   display: inline-block;
@@ -3206,19 +3227,11 @@ button.rml-key.off .rml-dot {
 
 /* ===== round 5: trip maps, town info, stay-at-a-glance ===== */
 
-/* my trips — roadtrip-style map per trip, with a type-filter legend
-   above it (the legend keys reuse .rml-key from the results map). */
-.trip-map-frame { margin-top: 16px; }
-.trip-map-legend {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 14px;
-  font-size: 13px;
-  color: var(--ink-soft);
-  margin: 0 2px 8px;
-}
+/* my trips — roadtrip-style map per trip. The count pills in the trip
+   overview double as the map's type filter, so there's no legend here. */
 .trip-map {
   height: 340px;
+  margin-top: 16px;
   border-radius: 12px;
   overflow: hidden;
   border: 1px solid var(--sand);
@@ -3233,9 +3246,17 @@ button.rml-key.off .rml-dot {
 .trip-pin.stay { background: var(--clay); }
 .trip-pin.center { background: var(--amber); }
 
-/* Distance labels on the dashed route line between trip stops — small
-   white pill, centred on each segment midpoint. No tooltip arrow. */
-.leaflet-tooltip.trip-dist-label {
+/* Distance labels on the dashed route line between stays — divIcon
+   markers (not tooltips) so they toggle cleanly with the stay layer.
+   The outer marker box is invisible; the inner pill is centred in it. */
+.trip-dist-marker {
+  background: transparent;
+  border: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.trip-dist-label {
   background: #fff;
   border: 1px solid rgba(0,0,0,0.14);
   box-shadow: 0 1px 4px -1px rgba(0,0,0,0.3);
@@ -3247,7 +3268,6 @@ button.rml-key.off .rml-dot {
   border-radius: 999px;
   white-space: nowrap;
 }
-.leaflet-tooltip.trip-dist-label::before { display: none; }
 
 /* town panel — on the detail page */
 .town-panel {

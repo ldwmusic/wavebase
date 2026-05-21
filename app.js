@@ -3881,21 +3881,6 @@ function initMap() {
 }
 
 /* ---- trip maps (account) — a roadtrip-style map per trip ---- */
-/* Type-filter legend for a trip map — the same click-to-toggle keys as
-   the "In one glance" results map. Counts come from the located items. */
-function tripMapLegendHTML(located) {
-  const counts = { spot: 0, center: 0, stay: 0 };
-  located.forEach(e => { if (counts[e.type] !== undefined) counts[e.type]++; });
-  const keyBtn = (type, n, singular, plural) => n
-    ? `<button type="button" class="rml-key" data-type="${type}" aria-pressed="true" title="Click to toggle ${plural} on the map"><span class="rml-dot ${type}"></span> ${n} ${n === 1 ? singular : plural}</button>`
-    : "";
-  return [
-    keyBtn("spot",   counts.spot,   "spot",   "spots"),
-    keyBtn("center", counts.center, "center", "centers"),
-    keyBtn("stay",   counts.stay,   "stay",   "stays")
-  ].filter(Boolean).join("");
-}
-
 function initTripMaps(trips) {
   if (typeof L === "undefined") return;
   trips.forEach(t => {
@@ -3908,14 +3893,11 @@ function initTripMaps(trips) {
       attribution: "&copy; OpenStreetMap contributors", maxZoom: 19
     }).addTo(map);
 
-    // One pin layer per type so the legend keys can toggle them
-    // independently. The route line is drawn straight onto the map: it
-    // traces the whole trip journey, regardless of which pin types are
-    // currently filtered in or out.
+    // One layer per type. Pins go in their type's layer; the route line
+    // and its distance labels live in the STAY layer, so filtering stays
+    // off the map takes the journey line and its distances with them.
     const layers = { spot: L.layerGroup(), center: L.layerGroup(), stay: L.layerGroup() };
-    const coords = [];
     items.forEach((e, i) => {
-      coords.push(e.coords);
       if (!layers[e.type]) return;
       const icon = L.divIcon({
         className: "trip-pin " + e.type,
@@ -3928,33 +3910,41 @@ function initTripMaps(trips) {
           <a href="spot.html?id=${e.id}">See the analysis →</a>`)
         .addTo(layers[e.type]);
     });
-    layers.spot.addTo(map);
-    layers.center.addTo(map);
-    layers.stay.addTo(map);
 
-    if (coords.length > 1) {
-      L.polyline(coords, { color: "#2a2723", weight: 2, opacity: 0.55, dashArray: "4,7" }).addTo(map);
-      // Distance label at the midpoint of each segment — how far each hop
-      // is, right on the dashed line. Non-interactive so they don't block
-      // pin clicks.
-      for (let i = 0; i < items.length - 1; i++) {
-        const a = items[i].coords, b = items[i + 1].coords;
+    // Route line through the stays, in trip order, with a distance label
+    // on each hop. Labels are divIcon markers (not tooltips) so they
+    // add/remove cleanly with the stay layer.
+    const stays = items.filter(e => e.type === "stay");
+    if (stays.length > 1) {
+      L.polyline(stays.map(e => e.coords), { color: "#2a2723", weight: 2, opacity: 0.55, dashArray: "4,7" }).addTo(layers.stay);
+      for (let i = 0; i < stays.length - 1; i++) {
+        const a = stays[i].coords, b = stays[i + 1].coords;
         const dist = fmtKm(distanceKm(a, b));
         if (!dist) continue;
         const mid = [(a[0] + b[0]) / 2, (a[1] + b[1]) / 2];
-        L.tooltip({
-          permanent: true, direction: "center",
-          className: "trip-dist-label", interactive: false
-        }).setLatLng(mid).setContent(dist).addTo(map);
+        L.marker(mid, {
+          interactive: false,
+          icon: L.divIcon({
+            className: "trip-dist-marker",
+            html: `<span class="trip-dist-label">${dist}</span>`,
+            iconSize: [90, 22],
+            iconAnchor: [45, 11]
+          })
+        }).addTo(layers.stay);
       }
     }
-    map.fitBounds(coords, { padding: [30, 30], maxZoom: 13 });
+
+    layers.spot.addTo(map);
+    layers.center.addTo(map);
+    layers.stay.addTo(map);
+    map.fitBounds(items.map(e => e.coords), { padding: [30, 30], maxZoom: 13 });
     setTimeout(() => map.invalidateSize(), 60);
 
-    // Legend keys → toggle each type's pin layer on/off.
+    // The count pills in the trip overview double as the map's type
+    // filter — click one to toggle that type's layer on the map.
+    const card = document.getElementById("trip-" + t.id);
     const visible = { spot: true, center: true, stay: true };
-    const frame = el.parentElement;
-    if (frame) frame.querySelectorAll(".rml-key").forEach(btn => {
+    if (card) card.querySelectorAll(".ts-pill[data-type]").forEach(btn => {
       btn.addEventListener("click", () => {
         const ty = btn.dataset.type;
         if (!layers[ty]) return;
@@ -4060,9 +4050,13 @@ function tripSummaryHTML(items, dates) {
   if (!items.length) return "";
   const s = tripSummary(items, dates);
   const parts = [];
-  if (s.counts.spot)   parts.push(`<span class="ts-pill"><span class="ts-dot ts-dot-spot"></span>${s.counts.spot} ${s.counts.spot === 1 ? "spot" : "spots"}</span>`);
-  if (s.counts.center) parts.push(`<span class="ts-pill"><span class="ts-dot ts-dot-center"></span>${s.counts.center} ${s.counts.center === 1 ? "center" : "centers"}</span>`);
-  if (s.counts.stay)   parts.push(`<span class="ts-pill"><span class="ts-dot ts-dot-stay"></span>${s.counts.stay} ${s.counts.stay === 1 ? "stay" : "stays"}</span>`);
+  // The count pills double as the trip map's type filter — clicking one
+  // toggles that type's pins (and, for stays, the route line) on the map.
+  const pill = (type, n, singular, plural) =>
+    `<button type="button" class="ts-pill" data-type="${type}" aria-pressed="true" title="Click to toggle ${plural} on the map"><span class="ts-dot ts-dot-${type}"></span>${n} ${n === 1 ? singular : plural}</button>`;
+  if (s.counts.spot)   parts.push(pill("spot",   s.counts.spot,   "spot",   "spots"));
+  if (s.counts.center) parts.push(pill("center", s.counts.center, "center", "centers"));
+  if (s.counts.stay)   parts.push(pill("stay",   s.counts.stay,   "stay",   "stays"));
 
   let distStr = "";
   if (s.routeHops >= 1) {
@@ -4402,10 +4396,7 @@ function renderAccount() {
               return `<li>${row}${e.type === "stay" ? stayPlanHTML(t, e) : ""}</li>`;
             }).join("")}</ol>`
           : `<p class="muted">Empty so far — add places from a detail page.</p>`;
-        const mapDiv = located.length ? `<div class="trip-map-frame">
-            <div class="trip-map-legend">${tripMapLegendHTML(located)}</div>
-            <div class="trip-map" id="trip-map-${t.id}"></div>
-          </div>` : "";
+        const mapDiv = located.length ? `<div class="trip-map" id="trip-map-${t.id}"></div>` : "";
         const summary = tripSummaryHTML(items, t.dates);
         return `<div class="trip" id="trip-${t.id}">
           <header class="trip-overview">
