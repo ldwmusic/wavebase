@@ -4161,7 +4161,7 @@ function tripItemRowHTML(t, e, idx, readonly) {
   const main = `<span class="trip-item-main"><span class="ti-num">${idx + 1}</span><a href="spot.html?id=${e.id}" draggable="false">${escHTML(e.name)}</a> <span class="muted">&middot; ${typeLabel(e.type)} &middot; ${escHTML(e.town)}</span></span>`;
   const stayCls = e.type === "stay" ? " trip-item-stay" : "";
   const navBtn = e.coords
-    ? `<a class="tc-btn tc-nav" href="${navBestHref(e)}" target="_blank" rel="noopener" draggable="false" title="Navigate here" aria-label="Navigate to ${escHTML(e.name)}"><svg viewBox="0 0 24 24" width="13" height="13" fill="currentColor" aria-hidden="true"><path d="M3 11l18-8-8 18-2-8-8-2z"/></svg></a>`
+    ? `<button type="button" class="tc-btn tc-nav" data-nav="${e.id}" title="Navigate here" aria-label="Navigate to ${escHTML(e.name)}"><svg viewBox="0 0 24 24" width="13" height="13" fill="currentColor" aria-hidden="true"><path d="M3 11l18-8-8 18-2-8-8-2z"/></svg></button>`
     : "";
   if (readonly) {
     return `<div class="trip-item-row${stayCls}">
@@ -4629,6 +4629,7 @@ function renderSharedTrip() {
       <a class="btn ghost" href="index.html">Explore WaveBase</a>
     </div>`;
   wireTripToggles(root);
+  wireTripNav(root);
   initTripMaps([trip]);
   const saveBtn = document.getElementById("save-shared-trip");
   if (saveBtn) saveBtn.addEventListener("click", () => {
@@ -4903,6 +4904,7 @@ function renderAccount() {
     });
   });
   wireTripToggles(root);
+  wireTripNav(root);
   // Share a trip — pack it into a URL and copy that to the clipboard.
   root.querySelectorAll("[data-share]").forEach(b => {
     b.addEventListener("click", () => {
@@ -5797,39 +5799,76 @@ function openConsentPreferences() {
   renderConsentBanner({ reopen: true });
 }
 
-/* Driving-directions links for a found spot — open the user's maps app
-   straight at the spot. Apple Maps shows on Apple devices (iPhone, iPad,
-   Mac — modern iPads report as "Macintosh"); Waze and Google Maps appear
-   everywhere. When a base is set the route starts FROM that base — Apple
-   Maps (saddr) and Google Maps (origin) support a fixed start point;
-   Waze's deep link does not, so Waze always routes from the user's live
-   location. All open the native app when installed, else the web map. */
-function navAppsHTML(e, base) {
-  if (!Array.isArray(e.coords)) return "";
+/* Driving-directions options for a place. Apple Maps shows on Apple
+   devices (iPhone, iPad, Mac — modern iPads report as "Macintosh");
+   Waze and Google Maps appear everywhere. When a base is set the route
+   starts FROM that base — Apple Maps (saddr) and Google Maps (origin)
+   support a fixed start point; Waze's deep link does not, so Waze always
+   routes from the user's live location. Returns [{label, href}]. */
+function navApps(e, base) {
+  if (!Array.isArray(e.coords)) return [];
   const dlat = e.coords[0], dlng = e.coords[1];
   const hasBase = !!(base && isFinite(base.lat) && isFinite(base.lng));
   const onApple = /iPhone|iPad|iPod|Macintosh/i.test(navigator.userAgent || "");
   const apps = [];
   if (onApple) {
     const saddr = hasBase ? `&saddr=${base.lat},${base.lng}` : "";
-    apps.push(`<a href="https://maps.apple.com/?daddr=${dlat},${dlng}${saddr}&dirflg=d" target="_blank" rel="noopener">Apple Maps</a>`);
+    apps.push({ label: "Apple Maps", href: `https://maps.apple.com/?daddr=${dlat},${dlng}${saddr}&dirflg=d` });
   }
-  apps.push(`<a href="https://waze.com/ul?ll=${dlat},${dlng}&navigate=yes" target="_blank" rel="noopener">Waze</a>`);
+  apps.push({ label: "Waze", href: `https://waze.com/ul?ll=${dlat},${dlng}&navigate=yes` });
   const gOrigin = hasBase ? `&origin=${base.lat},${base.lng}` : "";
-  apps.push(`<a href="https://www.google.com/maps/dir/?api=1&destination=${dlat},${dlng}${gOrigin}&travelmode=driving" target="_blank" rel="noopener">Google Maps</a>`);
-  return `<div class="exp-pop-nav"><span class="exp-pop-nav-label">Navigate there</span>${apps.join("")}</div>`;
+  apps.push({ label: "Google Maps", href: `https://www.google.com/maps/dir/?api=1&destination=${dlat},${dlng}${gOrigin}&travelmode=driving` });
+  return apps;
+}
+/* The inline "Navigate there" block for map-pin popups. */
+function navAppsHTML(e, base) {
+  const apps = navApps(e, base);
+  if (!apps.length) return "";
+  const links = apps.map(a => `<a href="${a.href}" target="_blank" rel="noopener">${a.label}</a>`).join("");
+  return `<div class="exp-pop-nav"><span class="exp-pop-nav-label">Navigate there</span>${links}</div>`;
 }
 
-/* The single best maps-app directions link for a place — Apple Maps on
-   Apple devices, Google Maps everywhere else. Backs the one-tap navigate
-   button on trip places; routes from the user's live location. */
-function navBestHref(e) {
-  if (!Array.isArray(e.coords)) return "";
-  const dlat = e.coords[0], dlng = e.coords[1];
-  const onApple = /iPhone|iPad|iPod|Macintosh/i.test(navigator.userAgent || "");
-  return onApple
-    ? `https://maps.apple.com/?daddr=${dlat},${dlng}&dirflg=d`
-    : `https://www.google.com/maps/dir/?api=1&destination=${dlat},${dlng}&travelmode=driving`;
+/* A small popover, anchored under a trip row's navigate button, that lets
+   you pick which maps app to navigate with. */
+function openNavPopover(btn, e) {
+  closeNavPopover();
+  const apps = navApps(e);
+  if (!apps.length) return;
+  const wrapper = document.createElement("div");
+  wrapper.className = "trip-popover nav-popover";
+  wrapper.innerHTML = `<ul class="trip-pop-list">${apps.map(a =>
+    `<li><a class="trip-pop-item" href="${a.href}" target="_blank" rel="noopener">${a.label}</a></li>`
+  ).join("")}</ul>`;
+  document.body.appendChild(wrapper);
+  const r = btn.getBoundingClientRect();
+  wrapper.style.top = `${window.scrollY + r.bottom + 6}px`;
+  wrapper.style.left = `${window.scrollX + r.left}px`;
+  requestAnimationFrame(() => {
+    const w = wrapper.getBoundingClientRect();
+    if (w.right > window.innerWidth - 8) {
+      wrapper.style.left = `${window.scrollX + window.innerWidth - w.width - 8}px`;
+    }
+  });
+  wrapper.querySelectorAll(".trip-pop-item").forEach(item => {
+    item.addEventListener("click", closeNavPopover);
+  });
+  setTimeout(() => {
+    document.addEventListener("click", closeNavPopover, { once: true });
+  }, 0);
+}
+function closeNavPopover() {
+  const p = document.querySelector(".nav-popover");
+  if (p) p.remove();
+}
+/* Wire every navigate button (data-nav) under root to open its popover. */
+function wireTripNav(root) {
+  root.querySelectorAll("[data-nav]").forEach(btn => {
+    btn.addEventListener("click", ev => {
+      ev.stopPropagation();
+      const e = byId(btn.dataset.nav);
+      if (e) openNavPopover(btn, e);
+    });
+  });
 }
 
 /* Windy.com forecast link for a spot. The /lat/lng path makes Windy drop

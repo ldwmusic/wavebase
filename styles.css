@@ -3017,6 +3017,7 @@ body:not(.is-home) .searchbar-wrap { display: none; }
   display: block; width: 100%; text-align: left;
   padding: 8px 14px; background: none; border: none; cursor: pointer;
   font-family: 'DM Sans', sans-serif; font-size: 14px; color: var(--ink);
+  text-decoration: none;
 }
 .trip-pop-item:hover { background: var(--sea-soft); }
 .trip-pop-item.is-in { color: var(--ink-soft); }
