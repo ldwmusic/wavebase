@@ -2876,14 +2876,7 @@ body:not(.is-home) .searchbar-wrap { display: none; }
 }
 .dbd-chip:hover { border-color: var(--clay); color: var(--clay); }
 
-/* Closing line — the final check-out. */
-.dbd-end {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  padding: 2px 4px;
-  font-size: 13.5px;
-}
+/* "trip ends" note — appended to the last stay's check-out row. */
 .dbd-end-text { color: var(--ink-soft); font-style: italic; }
 
 /* Spots/centers placed before the first stay. */

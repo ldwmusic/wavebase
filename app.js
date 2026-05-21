@@ -4271,7 +4271,7 @@ function dayByDayHTML(items, dates) {
   }
 
   let dayNum = 0;
-  const legBlocks = dated.map(leg => {
+  const legBlocks = dated.map((leg, legIdx) => {
     const inD = new Date(leg._in + "T00:00:00");
     let rows = "";
     for (let i = 0; i < leg._nights; i++) {
@@ -4284,6 +4284,17 @@ function dayByDayHTML(items, dates) {
         ${i === 0 ? `<span class="dbd-marker dbd-in">check in</span>` : ""}
       </div>`;
     }
+    // Check-out row — the morning you leave this stay. Not a numbered
+    // night, so the day column stays blank. The last stay's check-out
+    // is also where the trip ends.
+    const outD = new Date(leg._out + "T00:00:00");
+    const isLast = legIdx === dated.length - 1;
+    rows += `<div class="dbd-day dbd-day-out">
+      <span class="dbd-daynum"></span>
+      <span class="dbd-date">${fmtDay(outD)}</span>
+      <span class="dbd-marker dbd-out">check out</span>
+      ${isLast ? `<span class="dbd-end-text">trip ends</span>` : ""}
+    </div>`;
     return `<div class="dbd-leg">
       <div class="dbd-leg-head">
         <span class="ts-dot ts-dot-stay"></span>
@@ -4296,14 +4307,7 @@ function dayByDayHTML(items, dates) {
     </div>`;
   }).join("");
 
-  const lastOut = new Date(dated[dated.length - 1]._out + "T00:00:00");
-  const closing = `<div class="dbd-end">
-    <span class="dbd-marker dbd-out">check out</span>
-    <span class="dbd-date">${fmtDay(lastOut)}</span>
-    <span class="dbd-end-text">trip ends</span>
-  </div>`;
-
-  return `<div class="day-by-day">${legBlocks}${closing}${undatedHTML}${unschedHTML}</div>`;
+  return `<div class="day-by-day">${legBlocks}${undatedHTML}${unschedHTML}</div>`;
 }
 
 /* ---- ACCOUNT (fake, local) ---- */
