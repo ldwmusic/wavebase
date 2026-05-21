@@ -3889,6 +3889,7 @@ function initTripMaps(trips) {
     const items = t.spotIds.map(byId).filter(e => e && e.coords);
     if (!items.length) return;
     const map = L.map(el, { scrollWheelZoom: false });
+    el._wbMap = map;
     L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
       attribution: "&copy; OpenStreetMap contributors", maxZoom: 19
     }).addTo(map);
@@ -4125,6 +4126,107 @@ function stayPlanHTML(trip, e) {
     </label>
     ${calc}
   </div>`;
+}
+
+/* Group a trip's items into legs for the Day-by-day view: each stay
+   starts a leg, and the spots/centers that follow it in itinerary order
+   belong to that leg. Spots/centers before the first stay stay
+   unscheduled. */
+function tripLegs(items) {
+  const legs = [];
+  const unscheduled = [];
+  let current = null;
+  items.forEach(e => {
+    if (e.type === "stay") {
+      current = { stay: e, extras: [] };
+      legs.push(current);
+    } else if (current) {
+      current.extras.push(e);
+    } else {
+      unscheduled.push(e);
+    }
+  });
+  return { legs, unscheduled };
+}
+
+/* The Day-by-day timeline for one trip — stay legs in date order, a row
+   per night, plus the spots/centers coupled to each leg. */
+function dayByDayHTML(items, dates) {
+  dates = dates || {};
+  const { legs, unscheduled } = tripLegs(items);
+  const WD = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
+  const MO = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+  const fmtDay = d => `${WD[d.getDay()]} ${d.getDate()} ${MO[d.getMonth()]}`;
+  const chip = e => `<a class="dbd-chip" href="spot.html?id=${e.id}"><span class="ts-dot ts-dot-${e.type}"></span>${escHTML(e.name)}</a>`;
+  const nearby = extras => extras.length
+    ? `<div class="dbd-nearby"><span class="dbd-nearby-label">Nearby</span>${extras.map(chip).join("")}</div>`
+    : "";
+
+  // Split legs into dated (they form the timeline) and undated.
+  const dated = [], undated = [];
+  legs.forEach(leg => {
+    const d = dates[leg.stay.id] || {};
+    const nights = tripNights(d.in, d.out);
+    if (nights > 0) { leg._in = d.in; leg._out = d.out; leg._nights = nights; dated.push(leg); }
+    else undated.push(leg);
+  });
+  dated.sort((a, b) => a._in < b._in ? -1 : a._in > b._in ? 1 : 0);
+
+  const undatedHTML = undated.map(leg =>
+    `<div class="dbd-leg dbd-leg-undated">
+      <div class="dbd-leg-head">
+        <span class="ts-dot ts-dot-stay"></span>
+        <a class="dbd-leg-name" href="spot.html?id=${leg.stay.id}">${escHTML(leg.stay.name)}</a>
+        <span class="dbd-leg-town">${escHTML(leg.stay.town || "")}</span>
+        <span class="dbd-leg-nodate">dates not set</span>
+      </div>
+      ${nearby(leg.extras)}
+    </div>`).join("");
+  const unschedHTML = unscheduled.length
+    ? `<div class="dbd-unsched"><span class="dbd-unsched-label">Not scheduled yet</span>${unscheduled.map(chip).join("")}</div>`
+    : "";
+
+  if (!dated.length) {
+    return `<div class="day-by-day">
+      <p class="muted dbd-hint">Add check-in and check-out dates to your stays in the Itinerary view — your trip lays itself out day by day here.</p>
+      ${undatedHTML}${unschedHTML}
+    </div>`;
+  }
+
+  let dayNum = 0;
+  const legBlocks = dated.map(leg => {
+    const inD = new Date(leg._in + "T00:00:00");
+    let rows = "";
+    for (let i = 0; i < leg._nights; i++) {
+      dayNum++;
+      const d = new Date(inD);
+      d.setDate(d.getDate() + i);
+      rows += `<div class="dbd-day">
+        <span class="dbd-daynum">Day ${dayNum}</span>
+        <span class="dbd-date">${fmtDay(d)}</span>
+        ${i === 0 ? `<span class="dbd-marker dbd-in">check in</span>` : ""}
+      </div>`;
+    }
+    return `<div class="dbd-leg">
+      <div class="dbd-leg-head">
+        <span class="ts-dot ts-dot-stay"></span>
+        <a class="dbd-leg-name" href="spot.html?id=${leg.stay.id}">${escHTML(leg.stay.name)}</a>
+        <span class="dbd-leg-town">${escHTML(leg.stay.town || "")}</span>
+        <span class="dbd-leg-nights">${leg._nights} night${leg._nights === 1 ? "" : "s"}</span>
+      </div>
+      <div class="dbd-days">${rows}</div>
+      ${nearby(leg.extras)}
+    </div>`;
+  }).join("");
+
+  const lastOut = new Date(dated[dated.length - 1]._out + "T00:00:00");
+  const closing = `<div class="dbd-end">
+    <span class="dbd-marker dbd-out">check out</span>
+    <span class="dbd-date">${fmtDay(lastOut)}</span>
+    <span class="dbd-end-text">trip ends</span>
+  </div>`;
+
+  return `<div class="day-by-day">${legBlocks}${closing}${undatedHTML}${unschedHTML}</div>`;
 }
 
 /* ---- ACCOUNT (fake, local) ---- */
@@ -4398,13 +4500,19 @@ function renderAccount() {
           : `<p class="muted">Empty so far — add places from a detail page.</p>`;
         const mapDiv = located.length ? `<div class="trip-map" id="trip-map-${t.id}"></div>` : "";
         const summary = tripSummaryHTML(items, t.dates);
+        const viewToggle = items.length ? `<div class="trip-view-toggle" role="tablist">
+            <button type="button" class="tv-tab active" data-view="itinerary" role="tab" aria-selected="true">Itinerary</button>
+            <button type="button" class="tv-tab" data-view="day" role="tab" aria-selected="false">Day by day</button>
+          </div>` : "";
         return `<div class="trip" id="trip-${t.id}">
           <header class="trip-overview">
             <div class="trip-head"><h3>${t.name}</h3><button class="link-btn" data-del="${t.id}">remove</button></div>
             ${summary}
           </header>
-          ${list}
-          ${mapDiv}</div>`;
+          ${viewToggle}
+          <div class="trip-view trip-view-itinerary">${list}${mapDiv}</div>
+          ${items.length ? `<div class="trip-view trip-view-day" hidden>${dayByDayHTML(items, t.dates)}</div>` : ""}
+        </div>`;
       }).join("")
     : `<p class="muted">No trips yet.</p>`;
 
@@ -4617,6 +4725,27 @@ function renderAccount() {
     inp.addEventListener("change", () => {
       WaveBaseAccount.setStayDate(inp.dataset.trip, inp.dataset.spot, inp.dataset.field, inp.value);
       renderAccount();
+    });
+  });
+  // Itinerary <-> Day by day toggle on each trip card.
+  root.querySelectorAll(".tv-tab").forEach(tab => {
+    tab.addEventListener("click", () => {
+      const card = tab.closest(".trip");
+      if (!card) return;
+      const view = tab.dataset.view;
+      card.querySelectorAll(".tv-tab").forEach(b => {
+        const on = b === tab;
+        b.classList.toggle("active", on);
+        b.setAttribute("aria-selected", on ? "true" : "false");
+      });
+      card.querySelectorAll(".trip-view").forEach(v => {
+        v.hidden = !v.classList.contains("trip-view-" + view);
+      });
+      // Leaflet mis-sizes if its container was display:none — nudge it.
+      if (view === "itinerary") {
+        const mapEl = card.querySelector(".trip-map");
+        if (mapEl && mapEl._wbMap) setTimeout(() => mapEl._wbMap.invalidateSize(), 0);
+      }
     });
   });
   root.querySelectorAll("[data-del-review]").forEach(b => {
