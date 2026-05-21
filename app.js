@@ -4170,7 +4170,12 @@ function stayDatesHTML(trip, e) {
    handle, date inputs and remove button; readonly rows (shared trips)
    show the dates as plain text. */
 function tripItemRowHTML(t, e, idx, readonly) {
-  const main = `<span class="trip-item-main"><span class="ti-num">${idx + 1}</span><a href="spot.html?id=${e.id}" draggable="false">${escHTML(e.name)}</a> <span class="muted">&middot; ${typeLabel(e.type)} &middot; ${escHTML(e.town)}</span></span>`;
+  // Only stays carry a number — they're the trip's "stops". Spots and
+  // centers sit unnumbered under the stay they're coupled to.
+  const stayNo = e.type === "stay"
+    ? t.spotIds.map(byId).filter(x => x && x.type === "stay").indexOf(e) + 1
+    : 0;
+  const main = `<span class="trip-item-main">${stayNo ? `<span class="ti-num">${stayNo}</span>` : ""}<a href="spot.html?id=${e.id}" draggable="false">${escHTML(e.name)}</a> <span class="muted">&middot; ${typeLabel(e.type)} &middot; ${escHTML(e.town)}</span></span>`;
   const stayCls = e.type === "stay" ? " trip-item-stay" : "";
   const navBtn = e.coords
     ? `<button type="button" class="tc-btn tc-nav" data-nav="${e.id}" title="Navigate here" aria-label="Navigate to ${escHTML(e.name)}"><svg viewBox="0 0 24 24" width="13" height="13" fill="currentColor" aria-hidden="true"><path d="M3 11l18-8-8 18-2-8-8-2z"/></svg></button>`
@@ -4724,11 +4729,14 @@ function tripCardHTML(t, readonly) {
       <button type="button" class="tv-tab" data-view="day" role="tab" aria-selected="false">Day by day</button>
     </div>` : "";
   const hasDatedStay = items.some(e => e.type === "stay" && tripNights(((t.dates || {})[e.id] || {}).in, ((t.dates || {})[e.id] || {}).out) > 0);
-  const headActions = readonly ? "" : `<span class="trip-head-actions">${
-    items.length ? `<button type="button" class="link-btn" data-share="${t.id}">share</button>` : ""
-  }${
-    hasDatedStay ? `<button type="button" class="link-btn" data-ics="${t.id}">add to calendar</button>` : ""
-  }<button type="button" class="link-btn" data-del="${t.id}">remove</button></span>`;
+  const calBtn = hasDatedStay ? `<button type="button" class="link-btn" data-ics="${t.id}">add to calendar</button>` : "";
+  // A shared (read-only) trip still gets "add to calendar" — just not
+  // share / remove, which only make sense on your own trip.
+  const headActions = readonly
+    ? (calBtn ? `<span class="trip-head-actions">${calBtn}</span>` : "")
+    : `<span class="trip-head-actions">${
+        items.length ? `<button type="button" class="link-btn" data-share="${t.id}">share</button>` : ""
+      }${calBtn}<button type="button" class="link-btn" data-del="${t.id}">remove</button></span>`;
   // Trip name — a plain heading on the shared (read-only) page; a
   // click-to-rename heading on the owner's account page.
   const nameEl = readonly
@@ -4988,6 +4996,8 @@ function renderSharedTrip() {
   wireTripToggles(root);
   wireTripNav(root);
   initTripMaps([trip]);
+  const icsBtn = root.querySelector("[data-ics]");
+  if (icsBtn) icsBtn.addEventListener("click", () => downloadTripICS(trip));
   const saveBtn = document.getElementById("save-shared-trip");
   if (saveBtn) saveBtn.addEventListener("click", () => {
     const nt = WaveBaseAccount.addTrip(trip.name);
