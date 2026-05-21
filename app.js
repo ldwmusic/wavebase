@@ -3910,7 +3910,7 @@ function initTripMaps(trips) {
       });
       L.marker(e.coords, { icon: icon })
         .bindPopup(`<strong>${i + 1}. ${e.name}</strong><br>${typeLabel(e.type)} &middot; ${e.town}<br>
-          <a href="spot.html?id=${e.id}">See the analysis →</a>`)
+          <a href="spot.html?id=${e.id}">See the analysis →</a>${navAppsHTML(e)}`)
         .addTo(layers[e.type]);
     });
 
@@ -4154,15 +4154,20 @@ function stayDatesHTML(trip, e) {
 }
 
 /* One row in the Itinerary view — number + name, plus (for stays) the
-   dates. Editable rows carry the drag handle, date inputs and remove
-   button; readonly rows (shared trips) show the dates as plain text. */
+   dates and a one-tap navigate button. Editable rows carry the drag
+   handle, date inputs and remove button; readonly rows (shared trips)
+   show the dates as plain text. */
 function tripItemRowHTML(t, e, idx, readonly) {
   const main = `<span class="trip-item-main"><span class="ti-num">${idx + 1}</span><a href="spot.html?id=${e.id}" draggable="false">${escHTML(e.name)}</a> <span class="muted">&middot; ${typeLabel(e.type)} &middot; ${escHTML(e.town)}</span></span>`;
   const stayCls = e.type === "stay" ? " trip-item-stay" : "";
+  const navBtn = e.coords
+    ? `<a class="tc-btn tc-nav" href="${navBestHref(e)}" target="_blank" rel="noopener" draggable="false" title="Navigate here" aria-label="Navigate to ${escHTML(e.name)}"><svg viewBox="0 0 24 24" width="13" height="13" fill="currentColor" aria-hidden="true"><path d="M3 11l18-8-8 18-2-8-8-2z"/></svg></a>`
+    : "";
   if (readonly) {
     return `<div class="trip-item-row${stayCls}">
       ${main}
       ${e.type === "stay" ? stayDatesReadonlyHTML(t, e) : ""}
+      ${navBtn ? `<span class="trip-item-ctrl">${navBtn}</span>` : ""}
     </div>`;
   }
   return `<div class="trip-item-row${stayCls}" draggable="true" data-trip="${t.id}" data-idx="${idx}" title="Drag to reorder">
@@ -4170,6 +4175,7 @@ function tripItemRowHTML(t, e, idx, readonly) {
     ${main}
     ${e.type === "stay" ? stayDatesHTML(t, e) : ""}
     <span class="trip-item-ctrl">
+      ${navBtn}
       <button class="tc-btn tc-del" data-remove data-trip="${t.id}" data-spot="${e.id}" aria-label="Remove from trip" title="Remove from trip">✕</button>
     </span>
   </div>`;
@@ -5812,6 +5818,18 @@ function navAppsHTML(e, base) {
   const gOrigin = hasBase ? `&origin=${base.lat},${base.lng}` : "";
   apps.push(`<a href="https://www.google.com/maps/dir/?api=1&destination=${dlat},${dlng}${gOrigin}&travelmode=driving" target="_blank" rel="noopener">Google Maps</a>`);
   return `<div class="exp-pop-nav"><span class="exp-pop-nav-label">Navigate there</span>${apps.join("")}</div>`;
+}
+
+/* The single best maps-app directions link for a place — Apple Maps on
+   Apple devices, Google Maps everywhere else. Backs the one-tap navigate
+   button on trip places; routes from the user's live location. */
+function navBestHref(e) {
+  if (!Array.isArray(e.coords)) return "";
+  const dlat = e.coords[0], dlng = e.coords[1];
+  const onApple = /iPhone|iPad|iPod|Macintosh/i.test(navigator.userAgent || "");
+  return onApple
+    ? `https://maps.apple.com/?daddr=${dlat},${dlng}&dirflg=d`
+    : `https://www.google.com/maps/dir/?api=1&destination=${dlat},${dlng}&travelmode=driving`;
 }
 
 /* Windy.com forecast link for a spot. The /lat/lng path makes Windy drop

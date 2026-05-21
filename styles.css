@@ -3538,6 +3538,9 @@ button.rml-key.off .rml-dot {
 .tc-btn:hover:not(:disabled) { background: var(--sea-soft); color: var(--sea); }
 .tc-btn:disabled { opacity: 0.35; cursor: default; }
 .tc-btn.tc-del:hover:not(:disabled) { background: var(--clay-soft); color: var(--clay); }
+/* One-tap navigate button on a trip row — an <a>, so kill the underline. */
+.tc-nav { text-decoration: none; }
+.tc-nav:hover { background: var(--sea-soft); color: var(--sea); }
 
 /* ===== round 7: drag-and-drop trip items + destinations mega-menu ===== */
 
