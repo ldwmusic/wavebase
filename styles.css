@@ -3587,6 +3587,83 @@ button.rml-key.off .rml-dot {
   padding: 6px 4px 2px;
 }
 
+/* "+ Add a place" — search-and-add a spot/stay/center from the trip card. */
+.trip-add { margin-top: 10px; }
+.trip-empty-line { margin: 6px 0 10px; }
+.trip-add-btn {
+  width: 100%;
+  border: 1px dashed var(--sand-deep);
+  background: var(--cream);
+  border-radius: 10px;
+  padding: 9px 12px;
+  font-family: 'DM Sans', sans-serif;
+  font-size: 13.5px;
+  font-weight: 600;
+  color: var(--ink-soft);
+  cursor: pointer;
+  transition: border-color 0.12s, color 0.12s;
+}
+.trip-add-btn:hover { border-color: var(--sea); color: var(--sea); }
+.trip-add-search {
+  border: 1px solid var(--sand-deep);
+  border-radius: 10px;
+  background: var(--paper);
+  padding: 8px;
+}
+.trip-add-bar { display: flex; gap: 8px; align-items: center; }
+.trip-add-input {
+  flex: 1;
+  min-width: 0;
+  font-family: 'DM Sans', sans-serif;
+  font-size: 14px;
+  color: var(--ink);
+  background: var(--cream);
+  border: 1px solid var(--sand-deep);
+  border-radius: 8px;
+  padding: 8px 10px;
+}
+.trip-add-close {
+  flex-shrink: 0;
+  width: 32px; height: 32px;
+  border: 1px solid var(--sand-deep);
+  background: var(--paper);
+  border-radius: 8px;
+  color: var(--ink-soft);
+  font-size: 13px;
+  cursor: pointer;
+}
+.trip-add-close:hover { background: var(--sand); }
+.trip-add-results { display: flex; flex-direction: column; margin-top: 4px; }
+.trip-add-result {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  width: 100%;
+  text-align: left;
+  border: none;
+  background: none;
+  padding: 8px;
+  border-radius: 8px;
+  cursor: pointer;
+  font-family: 'DM Sans', sans-serif;
+  font-size: 13.5px;
+  color: var(--ink);
+}
+.trip-add-result:hover:not([disabled]) { background: var(--sea-soft); }
+.trip-add-result[disabled] { cursor: default; opacity: 0.55; }
+.trip-add-name { font-weight: 600; }
+.trip-add-meta { font-size: 12.5px; }
+.trip-add-added {
+  margin-left: auto;
+  flex-shrink: 0;
+  font-size: 10.5px;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--ink-soft);
+}
+.trip-add-noresult { padding: 8px; font-size: 13px; }
+
 /* destinations mega-menu */
 .nav-destinations {
   font-family: 'DM Sans', sans-serif;

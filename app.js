@@ -4503,9 +4503,57 @@ function renderSurfLogMap() {
     .catch(() => { host.innerHTML = `<p class="muted" style="padding:14px;">Map unavailable.</p>`; });
 }
 
+/* "+ Add a place" — add spots/stays/centers to a trip from its own
+   card, without leaving for a detail page. reopenAddFor re-opens the
+   search field after an add re-renders the account. */
+let reopenAddFor = null;
+function wireTripAdd(root) {
+  root.querySelectorAll(".trip-add").forEach(box => {
+    const tripId = box.dataset.trip;
+    const btn = box.querySelector(".trip-add-btn");
+    const search = box.querySelector(".trip-add-search");
+    const input = box.querySelector(".trip-add-input");
+    const results = box.querySelector(".trip-add-results");
+    const open = () => { btn.hidden = true; search.hidden = false; input.focus(); };
+    const close = () => { search.hidden = true; btn.hidden = false; input.value = ""; results.innerHTML = ""; };
+    btn.addEventListener("click", open);
+    box.querySelector(".trip-add-close").addEventListener("click", close);
+    input.addEventListener("keydown", ev => { if (ev.key === "Escape") close(); });
+    input.addEventListener("input", () => {
+      const q = input.value.trim().toLowerCase();
+      if (!q) { results.innerHTML = ""; return; }
+      const trip = WaveBaseAccount.getTrips().find(x => x.id === tripId);
+      const inTrip = new Set(trip ? trip.spotIds : []);
+      const matches = WAVEBASE_DATA.filter(e =>
+        (e.name && e.name.toLowerCase().indexOf(q) !== -1) ||
+        (e.town && e.town.toLowerCase().indexOf(q) !== -1)
+      ).slice(0, 8);
+      results.innerHTML = matches.length
+        ? matches.map(e => {
+            const added = inTrip.has(e.id);
+            return `<button type="button" class="trip-add-result" data-add-id="${e.id}"${added ? " disabled" : ""}>
+              <span class="ts-dot ts-dot-${e.type}"></span>
+              <span class="trip-add-name">${escHTML(e.name)}</span>
+              <span class="trip-add-meta muted">${typeLabel(e.type)} &middot; ${escHTML(e.town)}</span>
+              ${added ? `<span class="trip-add-added">added</span>` : ""}
+            </button>`;
+          }).join("")
+        : `<div class="trip-add-noresult muted">No match — try another name or town.</div>`;
+      results.querySelectorAll(".trip-add-result:not([disabled])").forEach(r => {
+        r.addEventListener("click", () => {
+          WaveBaseAccount.addToTrip(tripId, r.dataset.addId);
+          reopenAddFor = tripId;
+          renderAccount();
+        });
+      });
+    });
+    if (reopenAddFor === tripId) { reopenAddFor = null; open(); }
+  });
+}
+
 /* Renders a whole trip card — overview header, the Itinerary <-> Day by
    day views and the map. readonly drops the edit affordances (drag,
-   date inputs, remove, share) — used for shared-trip pages. */
+   date inputs, remove, share, add) — used for shared-trip pages. */
 function tripCardHTML(t, readonly) {
   const items = t.spotIds.map(byId).filter(Boolean);
   const located = items.filter(e => e.coords);
@@ -4523,7 +4571,9 @@ function tripCardHTML(t, readonly) {
       return `<div class="trip-leg">${tripItemRowHTML(t, leg.stay, idxOf(leg.stay), readonly)}${extras}</div>`;
     }).join("");
     return `<div class="trip-items">${loose}${legHTML}</div>`;
-  })() : `<p class="muted">Empty so far — add places from a detail page.</p>`;
+  })() : (readonly
+      ? `<p class="muted">This trip is empty.</p>`
+      : `<p class="muted trip-empty-line">This trip is empty — search below to add your first spot, stay or center.</p>`);
   const mapDiv = located.length ? `<div class="trip-map" id="trip-map-${t.id}"></div>` : "";
   const summary = tripSummaryHTML(items, t.dates);
   const viewToggle = items.length ? `<div class="trip-view-toggle" role="tablist">
@@ -4533,13 +4583,23 @@ function tripCardHTML(t, readonly) {
   const headActions = readonly ? "" : `<span class="trip-head-actions">${
     items.length ? `<button type="button" class="link-btn" data-share="${t.id}">share</button>` : ""
   }<button type="button" class="link-btn" data-del="${t.id}">remove</button></span>`;
+  const addBox = readonly ? "" : `<div class="trip-add" data-trip="${t.id}">
+    <button type="button" class="trip-add-btn"${items.length ? "" : " hidden"}>+ Add a place</button>
+    <div class="trip-add-search"${items.length ? " hidden" : ""}>
+      <div class="trip-add-bar">
+        <input type="search" class="trip-add-input" placeholder="Search a spot, stay or center…" autocomplete="off" enterkeyhint="search">
+        <button type="button" class="trip-add-close" aria-label="Done">✕</button>
+      </div>
+      <div class="trip-add-results"></div>
+    </div>
+  </div>`;
   return `<div class="trip" id="trip-${t.id}">
     <header class="trip-overview">
       <div class="trip-head"><h3>${escHTML(t.name)}</h3>${headActions}</div>
       ${summary}
     </header>
     ${viewToggle}
-    <div class="trip-view trip-view-itinerary">${list}${mapDiv}</div>
+    <div class="trip-view trip-view-itinerary">${list}${addBox}${mapDiv}</div>
     ${items.length ? `<div class="trip-view trip-view-day" hidden>${dayByDayHTML(items, t.dates)}</div>` : ""}
   </div>`;
 }
@@ -4899,12 +4959,32 @@ function renderAccount() {
   });
   root.querySelectorAll(".tsp-date").forEach(inp => {
     inp.addEventListener("change", () => {
-      WaveBaseAccount.setStayDate(inp.dataset.trip, inp.dataset.spot, inp.dataset.field, inp.value);
+      const tripId = inp.dataset.trip, entryId = inp.dataset.spot, field = inp.dataset.field;
+      WaveBaseAccount.setStayDate(tripId, entryId, field, inp.value);
+      // Smart default: setting a stay's check-out pre-fills the next
+      // stay's check-in (trips are usually consecutive) — but never
+      // overwrites a check-in the user already set.
+      if (field === "out" && inp.value) {
+        const trip = WaveBaseAccount.getTrips().find(x => x.id === tripId);
+        const ids = trip ? trip.spotIds : [];
+        const myIdx = ids.indexOf(entryId);
+        if (myIdx !== -1) {
+          for (let i = myIdx + 1; i < ids.length; i++) {
+            const nx = byId(ids[i]);
+            if (nx && nx.type === "stay") {
+              const nd = trip.dates && trip.dates[ids[i]];
+              if (!nd || !nd.in) WaveBaseAccount.setStayDate(tripId, ids[i], "in", inp.value);
+              break;
+            }
+          }
+        }
+      }
       renderAccount();
     });
   });
   wireTripToggles(root);
   wireTripNav(root);
+  wireTripAdd(root);
   // Share a trip — pack it into a URL and copy that to the clipboard.
   root.querySelectorAll("[data-share]").forEach(b => {
     b.addEventListener("click", () => {
