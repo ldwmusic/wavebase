@@ -3894,10 +3894,12 @@ function initTripMaps(trips) {
       attribution: "&copy; OpenStreetMap contributors", maxZoom: 19
     }).addTo(map);
 
-    // One layer per type. Pins go in their type's layer; the route line
-    // and its distance labels live in the STAY layer, so filtering stays
-    // off the map takes the journey line and its distances with them.
+    // Pins per type. The stay layer also carries the stay-to-stay route
+    // line; connSpot / connCenter carry the connector from each stay to
+    // the spots / centers coupled to it.
     const layers = { spot: L.layerGroup(), center: L.layerGroup(), stay: L.layerGroup() };
+    const connSpot = L.layerGroup();
+    const connCenter = L.layerGroup();
     items.forEach((e, i) => {
       if (!layers[e.type]) return;
       const icon = L.divIcon({
@@ -3912,45 +3914,69 @@ function initTripMaps(trips) {
         .addTo(layers[e.type]);
     });
 
-    // Route line through the stays, in trip order, with a distance label
-    // on each hop. Labels are divIcon markers (not tooltips) so they
-    // add/remove cleanly with the stay layer.
+    // A distance label — a divIcon marker so it toggles cleanly with its
+    // layer. cls "trip-dist-sub" makes it the smaller connector variant.
+    const distMarker = (a, b, cls) => {
+      const dist = fmtKm(distanceKm(a, b));
+      if (!dist) return null;
+      const mid = [(a[0] + b[0]) / 2, (a[1] + b[1]) / 2];
+      return L.marker(mid, {
+        interactive: false,
+        icon: L.divIcon({
+          className: "trip-dist-marker",
+          html: `<span class="trip-dist-label${cls ? " " + cls : ""}">${dist}</span>`,
+          iconSize: [90, 22], iconAnchor: [45, 11]
+        })
+      });
+    };
+
+    // Route line through the stays, in trip order, with a per-hop label.
     const stays = items.filter(e => e.type === "stay");
     if (stays.length > 1) {
       L.polyline(stays.map(e => e.coords), { color: "#2a2723", weight: 2, opacity: 0.55, dashArray: "4,7" }).addTo(layers.stay);
       for (let i = 0; i < stays.length - 1; i++) {
-        const a = stays[i].coords, b = stays[i + 1].coords;
-        const dist = fmtKm(distanceKm(a, b));
-        if (!dist) continue;
-        const mid = [(a[0] + b[0]) / 2, (a[1] + b[1]) / 2];
-        L.marker(mid, {
-          interactive: false,
-          icon: L.divIcon({
-            className: "trip-dist-marker",
-            html: `<span class="trip-dist-label">${dist}</span>`,
-            iconSize: [90, 22],
-            iconAnchor: [45, 11]
-          })
-        }).addTo(layers.stay);
+        const m = distMarker(stays[i].coords, stays[i + 1].coords);
+        if (m) m.addTo(layers.stay);
       }
     }
 
-    layers.spot.addTo(map);
-    layers.center.addTo(map);
-    layers.stay.addTo(map);
+    // Connector from each stay to the spots / centers coupled to it, with
+    // the distance labelled — so you see how far each one is from base.
+    tripLegs(items).legs.forEach(leg => {
+      leg.extras.forEach(ex => {
+        const isCenter = ex.type === "center";
+        const target = isCenter ? connCenter : connSpot;
+        L.polyline([leg.stay.coords, ex.coords], {
+          color: isCenter ? "#e0a447" : "#3f6f7d",
+          weight: 1.5, opacity: 0.7, dashArray: "1,5"
+        }).addTo(target);
+        const m = distMarker(leg.stay.coords, ex.coords, "trip-dist-sub");
+        if (m) m.addTo(target);
+      });
+    });
+
     map.fitBounds(items.map(e => e.coords), { padding: [30, 30], maxZoom: 13 });
     setTimeout(() => map.invalidateSize(), 60);
 
     // The count pills in the trip overview double as the map's type
-    // filter — click one to toggle that type's layer on the map.
-    const card = document.getElementById("trip-" + t.id);
+    // filter. A stay->spot connector needs both its stay and its spot
+    // visible, so the connectors are re-evaluated on every toggle.
     const visible = { spot: true, center: true, stay: true };
+    const applyFilter = () => {
+      ["spot", "center", "stay"].forEach(ty => {
+        if (visible[ty]) layers[ty].addTo(map); else map.removeLayer(layers[ty]);
+      });
+      if (visible.spot && visible.stay) connSpot.addTo(map); else map.removeLayer(connSpot);
+      if (visible.center && visible.stay) connCenter.addTo(map); else map.removeLayer(connCenter);
+    };
+    applyFilter();
+    const card = document.getElementById("trip-" + t.id);
     if (card) card.querySelectorAll(".ts-pill[data-type]").forEach(btn => {
       btn.addEventListener("click", () => {
         const ty = btn.dataset.type;
-        if (!layers[ty]) return;
+        if (!(ty in visible)) return;
         visible[ty] = !visible[ty];
-        if (visible[ty]) layers[ty].addTo(map); else map.removeLayer(layers[ty]);
+        applyFilter();
         btn.classList.toggle("off", !visible[ty]);
         btn.setAttribute("aria-pressed", visible[ty] ? "true" : "false");
       });

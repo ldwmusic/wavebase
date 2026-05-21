@@ -3415,6 +3415,13 @@ button.rml-key.off .rml-dot {
   border-radius: 999px;
   white-space: nowrap;
 }
+/* Smaller variant — the stay-to-spot/center connector distances, so they
+   sit below the main stay-to-stay route distances in the visual order. */
+.trip-dist-label.trip-dist-sub {
+  font-size: 9.5px;
+  padding: 0 6px;
+  color: var(--ink-soft);
+}
 
 /* town panel — on the detail page */
 .town-panel {
