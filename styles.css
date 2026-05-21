@@ -2553,6 +2553,7 @@ body:not(.is-home) .searchbar-wrap { display: none; }
   display: flex;
   align-items: center;
   justify-content: flex-end;
+  gap: 12px;
 }
 .ts-pill {
   display: inline-flex;
@@ -2601,7 +2602,7 @@ body:not(.is-home) .searchbar-wrap { display: none; }
 }
 .ts-period-icon { font-size: 13px; line-height: 1; }
 .ts-period-dates { font-variant-numeric: tabular-nums; }
-.ts-period-nights {
+.ts-nights {
   font-size: 11.5px;
   font-weight: 700;
   color: var(--sea);
@@ -3205,10 +3206,19 @@ button.rml-key.off .rml-dot {
 
 /* ===== round 5: trip maps, town info, stay-at-a-glance ===== */
 
-/* my trips — roadtrip-style map per trip */
+/* my trips — roadtrip-style map per trip, with a type-filter legend
+   above it (the legend keys reuse .rml-key from the results map). */
+.trip-map-frame { margin-top: 16px; }
+.trip-map-legend {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 14px;
+  font-size: 13px;
+  color: var(--ink-soft);
+  margin: 0 2px 8px;
+}
 .trip-map {
   height: 340px;
-  margin-top: 14px;
   border-radius: 12px;
   overflow: hidden;
   border: 1px solid var(--sand);

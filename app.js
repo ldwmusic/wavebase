@@ -3881,6 +3881,21 @@ function initMap() {
 }
 
 /* ---- trip maps (account) — a roadtrip-style map per trip ---- */
+/* Type-filter legend for a trip map — the same click-to-toggle keys as
+   the "In one glance" results map. Counts come from the located items. */
+function tripMapLegendHTML(located) {
+  const counts = { spot: 0, center: 0, stay: 0 };
+  located.forEach(e => { if (counts[e.type] !== undefined) counts[e.type]++; });
+  const keyBtn = (type, n, singular, plural) => n
+    ? `<button type="button" class="rml-key" data-type="${type}" aria-pressed="true" title="Click to toggle ${plural} on the map"><span class="rml-dot ${type}"></span> ${n} ${n === 1 ? singular : plural}</button>`
+    : "";
+  return [
+    keyBtn("spot",   counts.spot,   "spot",   "spots"),
+    keyBtn("center", counts.center, "center", "centers"),
+    keyBtn("stay",   counts.stay,   "stay",   "stays")
+  ].filter(Boolean).join("");
+}
+
 function initTripMaps(trips) {
   if (typeof L === "undefined") return;
   trips.forEach(t => {
@@ -3892,9 +3907,16 @@ function initTripMaps(trips) {
     L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
       attribution: "&copy; OpenStreetMap contributors", maxZoom: 19
     }).addTo(map);
+
+    // One pin layer per type so the legend keys can toggle them
+    // independently. The route line is drawn straight onto the map: it
+    // traces the whole trip journey, regardless of which pin types are
+    // currently filtered in or out.
+    const layers = { spot: L.layerGroup(), center: L.layerGroup(), stay: L.layerGroup() };
     const coords = [];
     items.forEach((e, i) => {
       coords.push(e.coords);
+      if (!layers[e.type]) return;
       const icon = L.divIcon({
         className: "trip-pin " + e.type,
         html: String(i + 1),
@@ -3904,14 +3926,17 @@ function initTripMaps(trips) {
       L.marker(e.coords, { icon: icon })
         .bindPopup(`<strong>${i + 1}. ${e.name}</strong><br>${typeLabel(e.type)} &middot; ${e.town}<br>
           <a href="spot.html?id=${e.id}">See the analysis →</a>`)
-        .addTo(map);
+        .addTo(layers[e.type]);
     });
+    layers.spot.addTo(map);
+    layers.center.addTo(map);
+    layers.stay.addTo(map);
+
     if (coords.length > 1) {
       L.polyline(coords, { color: "#2a2723", weight: 2, opacity: 0.55, dashArray: "4,7" }).addTo(map);
-      // Distance label at the midpoint of each segment — Michiel's feedback
-      // (2026-05-20): show how far each hop is (stay→center, center→spot, …)
-      // right on the dashed line. Standalone permanent tooltips, centred on
-      // the segment midpoint, non-interactive so they don't block pin clicks.
+      // Distance label at the midpoint of each segment — how far each hop
+      // is, right on the dashed line. Non-interactive so they don't block
+      // pin clicks.
       for (let i = 0; i < items.length - 1; i++) {
         const a = items[i].coords, b = items[i + 1].coords;
         const dist = fmtKm(distanceKm(a, b));
@@ -3924,6 +3949,21 @@ function initTripMaps(trips) {
       }
     }
     map.fitBounds(coords, { padding: [30, 30], maxZoom: 13 });
+    setTimeout(() => map.invalidateSize(), 60);
+
+    // Legend keys → toggle each type's pin layer on/off.
+    const visible = { spot: true, center: true, stay: true };
+    const frame = el.parentElement;
+    if (frame) frame.querySelectorAll(".rml-key").forEach(btn => {
+      btn.addEventListener("click", () => {
+        const ty = btn.dataset.type;
+        if (!layers[ty]) return;
+        visible[ty] = !visible[ty];
+        if (visible[ty]) layers[ty].addTo(map); else map.removeLayer(layers[ty]);
+        btn.classList.toggle("off", !visible[ty]);
+        btn.setAttribute("aria-pressed", visible[ty] ? "true" : "false");
+      });
+    });
   });
 }
 
@@ -4035,8 +4075,11 @@ function tripSummaryHTML(items, dates) {
     periodStr = `<div class="ts-period">
       <span class="ts-period-icon" aria-hidden="true">📅</span>
       <span class="ts-period-dates">${fmtTripPeriod(s.earliestIn, s.latestOut)}</span>
-      ${s.totalNights ? `<span class="ts-period-nights">${s.totalNights} night${s.totalNights === 1 ? "" : "s"}</span>` : ""}
     </div>`;
+  }
+  let nightsStr = "";
+  if (s.totalNights) {
+    nightsStr = `<span class="ts-nights">${s.totalNights} night${s.totalNights === 1 ? "" : "s"}</span>`;
   }
 
   let budgetStr = "";
@@ -4057,7 +4100,7 @@ function tripSummaryHTML(items, dates) {
   return `<div class="trip-summary">
     <div class="ts-pills">${parts.join("")}</div>
     <div class="ts-mid">${distStr}${periodStr}</div>
-    <div class="ts-end">${budgetStr}</div>
+    <div class="ts-end">${nightsStr}${budgetStr}</div>
   </div>`;
 }
 
@@ -4359,7 +4402,10 @@ function renderAccount() {
               return `<li>${row}${e.type === "stay" ? stayPlanHTML(t, e) : ""}</li>`;
             }).join("")}</ol>`
           : `<p class="muted">Empty so far — add places from a detail page.</p>`;
-        const mapDiv = located.length ? `<div class="trip-map" id="trip-map-${t.id}"></div>` : "";
+        const mapDiv = located.length ? `<div class="trip-map-frame">
+            <div class="trip-map-legend">${tripMapLegendHTML(located)}</div>
+            <div class="trip-map" id="trip-map-${t.id}"></div>
+          </div>` : "";
         const summary = tripSummaryHTML(items, t.dates);
         return `<div class="trip" id="trip-${t.id}">
           <header class="trip-overview">
