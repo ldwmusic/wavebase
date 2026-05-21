@@ -39,7 +39,8 @@ const WaveBaseAccount = (function () {
         id: t.id,
         name: t.name,
         spotIds: Array.isArray(t.spotIds) ? t.spotIds : [],
-        dates: (t.dates && typeof t.dates === "object") ? t.dates : {}
+        dates: (t.dates && typeof t.dates === "object") ? t.dates : {},
+        dayNotes: (t.dayNotes && typeof t.dayNotes === "object") ? t.dayNotes : {}
       })),
       reviews: Array.isArray(s.reviews) ? s.reviews : []
     };
@@ -160,6 +161,18 @@ const WaveBaseAccount = (function () {
       cur[field] = value || "";
       if (!cur.in && !cur.out) delete t.dates[entryId];
       else t.dates[entryId] = cur;
+      write(s);
+    },
+    /* Per-day free-text note for the Day-by-day view, keyed by date
+       (YYYY-MM-DD). An empty note is dropped so the map stays tidy. */
+    setDayNote(tripId, dateStr, note) {
+      const s = state();
+      const t = s.trips.find(x => x.id === tripId);
+      if (!t) return;
+      if (!t.dayNotes) t.dayNotes = {};
+      const txt = (note || "").trim().slice(0, 140);
+      if (txt) t.dayNotes[dateStr] = txt;
+      else delete t.dayNotes[dateStr];
       write(s);
     },
     reorderTrip(tripId, fromIndex, toIndex) {

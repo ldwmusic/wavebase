@@ -4175,11 +4175,13 @@ function tripItemRowHTML(t, e, idx, readonly) {
   const navBtn = e.coords
     ? `<button type="button" class="tc-btn tc-nav" data-nav="${e.id}" title="Navigate here" aria-label="Navigate to ${escHTML(e.name)}"><svg viewBox="0 0 24 24" width="13" height="13" fill="currentColor" aria-hidden="true"><path d="M3 11l18-8-8 18-2-8-8-2z"/></svg></button>`
     : "";
+  const bookBtn = bookBtnHTML(e);
   if (readonly) {
+    const ctrl = (bookBtn || navBtn) ? `<span class="trip-item-ctrl">${bookBtn}${navBtn}</span>` : "";
     return `<div class="trip-item-row${stayCls}">
       ${main}
       ${e.type === "stay" ? stayDatesReadonlyHTML(t, e) : ""}
-      ${navBtn ? `<span class="trip-item-ctrl">${navBtn}</span>` : ""}
+      ${ctrl}
     </div>`;
   }
   return `<div class="trip-item-row${stayCls}" draggable="true" data-trip="${t.id}" data-idx="${idx}" title="Drag to reorder">
@@ -4187,10 +4189,18 @@ function tripItemRowHTML(t, e, idx, readonly) {
     ${main}
     ${e.type === "stay" ? stayDatesHTML(t, e) : ""}
     <span class="trip-item-ctrl">
+      ${bookBtn}
       ${navBtn}
       <button class="tc-btn tc-del" data-remove data-trip="${t.id}" data-spot="${e.id}" aria-label="Remove from trip" title="Remove from trip">✕</button>
     </span>
   </div>`;
+}
+
+/* "Book ↗" link for a stay — opens its booking page in a new tab.
+   Empty for spots and centers; shown in editable and shared trips. */
+function bookBtnHTML(e) {
+  if (!e || e.type !== "stay") return "";
+  return `<a class="tc-book" href="${bookingHref(e)}" target="_blank" rel="noopener" title="Check availability — ${escHTML(e.name)}">Book ↗</a>`;
 }
 
 /* Read-only stay dates for a shared trip — the period + nights + cost
@@ -4226,10 +4236,26 @@ function tripLegs(items) {
   return { legs, unscheduled };
 }
 
+/* The free-text note line under a day in the Day-by-day view. An
+   editable trip shows a clickable note (or a faint "+ note"); a shared
+   trip shows the note as plain text, and nothing when empty. */
+function dayNoteHTML(tripId, dateStr, note, readonly) {
+  note = note || "";
+  if (readonly) {
+    return note
+      ? `<div class="dbd-note has-note"><span class="dbd-note-icon" aria-hidden="true">📝</span><span class="dbd-note-text">${escHTML(note)}</span></div>`
+      : "";
+  }
+  return note
+    ? `<button type="button" class="dbd-note has-note" data-note-trip="${tripId}" data-note-date="${dateStr}"><span class="dbd-note-icon" aria-hidden="true">📝</span><span class="dbd-note-text">${escHTML(note)}</span></button>`
+    : `<button type="button" class="dbd-note dbd-note-add" data-note-trip="${tripId}" data-note-date="${dateStr}">+ note</button>`;
+}
+
 /* The Day-by-day timeline for one trip — stay legs in date order, a row
    per night, plus the spots/centers coupled to each leg. */
-function dayByDayHTML(items, dates) {
+function dayByDayHTML(items, dates, dayNotes, tripId, readonly) {
   dates = dates || {};
+  dayNotes = dayNotes || {};
   const { legs, unscheduled } = tripLegs(items);
   const WD = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
   const MO = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
@@ -4270,6 +4296,8 @@ function dayByDayHTML(items, dates) {
     </div>`;
   }
 
+  const pad = n => (n < 10 ? "0" : "") + n;
+  const isoOf = d => d.getFullYear() + "-" + pad(d.getMonth() + 1) + "-" + pad(d.getDate());
   let dayNum = 0;
   const legBlocks = dated.map((leg, legIdx) => {
     const inD = new Date(leg._in + "T00:00:00");
@@ -4278,11 +4306,12 @@ function dayByDayHTML(items, dates) {
       dayNum++;
       const d = new Date(inD);
       d.setDate(d.getDate() + i);
+      const iso = isoOf(d);
       rows += `<div class="dbd-day">
         <span class="dbd-daynum">Day ${dayNum}</span>
         <span class="dbd-date">${fmtDay(d)}</span>
         ${i === 0 ? `<span class="dbd-marker dbd-in">check in</span>` : ""}
-      </div>`;
+      </div>${dayNoteHTML(tripId, iso, dayNotes[iso], readonly)}`;
     }
     // Check-out row — the morning you leave this stay. Not a numbered
     // night, so the day column stays blank. The last stay's check-out
@@ -4294,13 +4323,14 @@ function dayByDayHTML(items, dates) {
       <span class="dbd-date">${fmtDay(outD)}</span>
       <span class="dbd-marker dbd-out">check out</span>
       ${isLast ? `<span class="dbd-end-text">trip ends</span>` : ""}
-    </div>`;
+    </div>${isLast ? dayNoteHTML(tripId, leg._out, dayNotes[leg._out], readonly) : ""}`;
     return `<div class="dbd-leg">
       <div class="dbd-leg-head">
         <span class="ts-dot ts-dot-stay"></span>
         <a class="dbd-leg-name" href="spot.html?id=${leg.stay.id}">${escHTML(leg.stay.name)}</a>
         <span class="dbd-leg-town">${escHTML(leg.stay.town || "")}</span>
         <span class="dbd-leg-nights">${leg._nights} night${leg._nights === 1 ? "" : "s"}</span>
+        ${bookBtnHTML(leg.stay)}
       </div>
       <div class="dbd-days">${rows}</div>
       ${nearby(leg.extras)}
@@ -4693,8 +4723,11 @@ function tripCardHTML(t, readonly) {
       <button type="button" class="tv-tab active" data-view="itinerary" role="tab" aria-selected="true">Itinerary</button>
       <button type="button" class="tv-tab" data-view="day" role="tab" aria-selected="false">Day by day</button>
     </div>` : "";
+  const hasDatedStay = items.some(e => e.type === "stay" && tripNights(((t.dates || {})[e.id] || {}).in, ((t.dates || {})[e.id] || {}).out) > 0);
   const headActions = readonly ? "" : `<span class="trip-head-actions">${
     items.length ? `<button type="button" class="link-btn" data-share="${t.id}">share</button>` : ""
+  }${
+    hasDatedStay ? `<button type="button" class="link-btn" data-ics="${t.id}">add to calendar</button>` : ""
   }<button type="button" class="link-btn" data-del="${t.id}">remove</button></span>`;
   // Trip name — a plain heading on the shared (read-only) page; a
   // click-to-rename heading on the owner's account page.
@@ -4718,7 +4751,7 @@ function tripCardHTML(t, readonly) {
     </header>
     ${viewToggle}
     <div class="trip-view trip-view-itinerary">${list}${addBox}${mapDiv}</div>
-    ${items.length ? `<div class="trip-view trip-view-day" hidden>${dayByDayHTML(items, t.dates)}</div>` : ""}
+    ${items.length ? `<div class="trip-view trip-view-day" hidden>${dayByDayHTML(items, t.dates, t.dayNotes, t.id, readonly)}</div>` : ""}
   </div>`;
 }
 
@@ -4772,6 +4805,48 @@ function wireTripRename(root) {
   });
 }
 
+/* Day-by-day notes — click a day's note (or its "+ note") to edit it
+   inline. Enter / blur saves, Escape cancels. Only that one note element
+   is swapped, so the rest of the trip card is left untouched. */
+function wireTripDayNotes(root) {
+  root.querySelectorAll("button.dbd-note[data-note-trip]").forEach(btn => {
+    btn.addEventListener("click", () => editDayNote(btn));
+  });
+}
+function editDayNote(btn) {
+  const tripId = btn.dataset.noteTrip, dateStr = btn.dataset.noteDate;
+  const trip = WaveBaseAccount.getTrips().find(x => x.id === tripId);
+  if (!trip) return;
+  const cur = (trip.dayNotes || {})[dateStr] || "";
+  const input = document.createElement("input");
+  input.type = "text";
+  input.className = "dbd-note-input";
+  input.value = cur;
+  input.maxLength = 140;
+  input.placeholder = "e.g. surf lesson 9am · rest day · drive to Taghazout";
+  input.setAttribute("aria-label", "Day note");
+  btn.replaceWith(input);
+  input.focus();
+  input.select();
+  let done = false;
+  const finish = save => {
+    if (done) return;
+    done = true;
+    const val = input.value.trim();
+    if (save && val !== cur) WaveBaseAccount.setDayNote(tripId, dateStr, val);
+    const tmp = document.createElement("div");
+    tmp.innerHTML = dayNoteHTML(tripId, dateStr, save ? val : cur, false);
+    const fresh = tmp.firstElementChild;
+    input.replaceWith(fresh);
+    fresh.addEventListener("click", () => editDayNote(fresh));
+  };
+  input.addEventListener("keydown", e => {
+    if (e.key === "Enter") { e.preventDefault(); finish(true); }
+    else if (e.key === "Escape") { e.preventDefault(); finish(false); }
+  });
+  input.addEventListener("blur", () => finish(true));
+}
+
 /* Wire the Itinerary <-> Day by day toggle on every trip card under root.
    Shared between the account page and the shared-trip page. */
 function wireTripToggles(root) {
@@ -4800,7 +4875,7 @@ function wireTripToggles(root) {
 /* Pack a trip into a URL-safe string — the whole trip (name, place ids,
    dates) rides in the link itself, so a shared trip needs no backend. */
 function encodeTrip(t) {
-  const json = JSON.stringify({ n: t.name, s: t.spotIds, d: t.dates || {} });
+  const json = JSON.stringify({ n: t.name, s: t.spotIds, d: t.dates || {}, dn: t.dayNotes || {} });
   return btoa(unescape(encodeURIComponent(json)))
     .replace(/\+/g, "-").replace(/\//g, "_").replace(/=+$/, "");
 }
@@ -4821,15 +4896,69 @@ function decodeTrip(param) {
         if (din || dout) dates[String(k)] = { in: din, out: dout };
       });
     }
+    const dayNotes = {};
+    if (p && p.dn && typeof p.dn === "object") {
+      Object.keys(p.dn).forEach(k => {
+        if (isDate(k) && typeof p.dn[k] === "string") {
+          const v = p.dn[k].trim().slice(0, 140);
+          if (v) dayNotes[k] = v;
+        }
+      });
+    }
     return {
       id: "shared",
       name: (p && typeof p.n === "string") ? p.n.slice(0, 120) : "Shared trip",
       spotIds: (p && Array.isArray(p.s)) ? p.s.filter(x => typeof x === "string").slice(0, 80) : [],
-      dates: dates
+      dates: dates,
+      dayNotes: dayNotes
     };
   } catch (e) {
     return null;
   }
+}
+
+/* Build an iCalendar (.ics) for a trip — one all-day event per dated
+   stay, check-in to check-out. Returns null if no stay has dates. */
+function tripICS(t) {
+  const items = (t.spotIds || []).map(byId).filter(Boolean);
+  const dates = t.dates || {};
+  const compact = s => s.replace(/-/g, "");
+  const esc = s => String(s || "").replace(/\\/g, "\\\\").replace(/;/g, "\\;").replace(/,/g, "\\,").replace(/\n/g, "\\n");
+  const stamp = new Date().toISOString().replace(/[-:]/g, "").replace(/\.\d+/, "");
+  const lines = ["BEGIN:VCALENDAR", "VERSION:2.0", "PRODID:-//WaveBase//Trip//EN", "CALSCALE:GREGORIAN"];
+  let n = 0;
+  items.forEach(e => {
+    if (e.type !== "stay") return;
+    const d = dates[e.id] || {};
+    if (!d.in || !d.out) return;
+    n++;
+    lines.push("BEGIN:VEVENT",
+      "UID:wavebase-" + t.id + "-" + e.id + "@wavebase",
+      "DTSTAMP:" + stamp,
+      "DTSTART;VALUE=DATE:" + compact(d.in),
+      "DTEND;VALUE=DATE:" + compact(d.out),
+      "SUMMARY:" + esc(e.name + (e.town ? " — " + e.town : "")),
+      "DESCRIPTION:" + esc((t.name || "Trip") + " · planned on WaveBase"));
+    if (e.town) lines.push("LOCATION:" + esc(e.town));
+    lines.push("END:VEVENT");
+  });
+  lines.push("END:VCALENDAR");
+  return n ? lines.join("\r\n") : null;
+}
+
+/* Download a trip as an .ics file the user can import into any calendar. */
+function downloadTripICS(t) {
+  const ics = tripICS(t);
+  if (!ics) return;
+  const blob = new Blob([ics], { type: "text/calendar;charset=utf-8" });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  a.href = url;
+  a.download = (t.name || "trip").trim().replace(/[^\w.-]+/g, "-").toLowerCase().slice(0, 50) + ".ics";
+  document.body.appendChild(a);
+  a.click();
+  a.remove();
+  setTimeout(() => URL.revokeObjectURL(url), 2000);
 }
 
 /* The shared-trip page (trip.html) — decodes the trip from the ?t= URL
@@ -4868,6 +4997,7 @@ function renderSharedTrip() {
       if (d.in)  WaveBaseAccount.setStayDate(nt.id, id, "in", d.in);
       if (d.out) WaveBaseAccount.setStayDate(nt.id, id, "out", d.out);
     });
+    Object.keys(trip.dayNotes || {}).forEach(dt => WaveBaseAccount.setDayNote(nt.id, dt, trip.dayNotes[dt]));
     location.href = "account.html#trips";
   });
 }
@@ -5205,6 +5335,14 @@ function renderAccount() {
   wireTripNav(root);
   wireTripAdd(root);
   wireTripRename(root);
+  wireTripDayNotes(root);
+  // Export a trip to the user's calendar as a downloadable .ics file.
+  root.querySelectorAll("[data-ics]").forEach(b => {
+    b.addEventListener("click", () => {
+      const t = WaveBaseAccount.getTrips().find(x => x.id === b.dataset.ics);
+      if (t) downloadTripICS(t);
+    });
+  });
   // Share a trip — pack it into a URL and copy that to the clipboard.
   root.querySelectorAll("[data-share]").forEach(b => {
     b.addEventListener("click", () => {
