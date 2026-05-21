@@ -2537,7 +2537,23 @@ body:not(.is-home) .searchbar-wrap { display: none; }
   border: 1px solid var(--line);
   border-radius: 12px;
 }
-.ts-pills { display: flex; flex-wrap: wrap; gap: 10px; }
+.ts-pills { display: flex; flex-wrap: wrap; gap: 10px; flex: 1; }
+/* Overview strip zones — counts left, distance + dates centred, total
+   right. The two flank zones grow equally so the middle sits centred. */
+.ts-mid {
+  flex: 0 1 auto;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: center;
+  gap: 10px 18px;
+}
+.ts-end {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+}
 .ts-pill {
   display: inline-flex;
   align-items: center;

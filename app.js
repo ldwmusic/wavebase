@@ -4056,9 +4056,8 @@ function tripSummaryHTML(items, dates) {
   }
   return `<div class="trip-summary">
     <div class="ts-pills">${parts.join("")}</div>
-    ${distStr}
-    ${periodStr}
-    ${budgetStr}
+    <div class="ts-mid">${distStr}${periodStr}</div>
+    <div class="ts-end">${budgetStr}</div>
   </div>`;
 }
 
