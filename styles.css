@@ -3377,7 +3377,7 @@ button.rml-key.off .rml-dot {
 /* my trips — roadtrip-style map per trip. The count pills in the trip
    overview double as the map's type filter, so there's no legend here. */
 .trip-map {
-  height: 340px;
+  height: 480px;
   margin-top: 16px;
   border-radius: 12px;
   overflow: hidden;
@@ -3770,7 +3770,7 @@ button.rml-key.off .rml-dot {
   .cmp-col .thumb { height: 100px; }
 
   /* trip maps a touch shorter on phone */
-  .trip-map { height: 260px; }
+  .trip-map { height: 340px; }
 }
 
 /* ===== round 12: card / list view toggle on Discover ===== */
