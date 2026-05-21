@@ -4153,18 +4153,38 @@ function stayDatesHTML(trip, e) {
   </span>`;
 }
 
-/* One editable row in the Itinerary view — number + name, the inline
-   date fields for stays, and the remove button. idx is the item's
-   position in the flat trip order (drives the map pin number + drag). */
-function tripItemRowHTML(t, e, idx) {
-  return `<div class="trip-item-row${e.type === "stay" ? " trip-item-stay" : ""}" draggable="true" data-trip="${t.id}" data-idx="${idx}" title="Drag to reorder">
+/* One row in the Itinerary view — number + name, plus (for stays) the
+   dates. Editable rows carry the drag handle, date inputs and remove
+   button; readonly rows (shared trips) show the dates as plain text. */
+function tripItemRowHTML(t, e, idx, readonly) {
+  const main = `<span class="trip-item-main"><span class="ti-num">${idx + 1}</span><a href="spot.html?id=${e.id}" draggable="false">${escHTML(e.name)}</a> <span class="muted">&middot; ${typeLabel(e.type)} &middot; ${escHTML(e.town)}</span></span>`;
+  const stayCls = e.type === "stay" ? " trip-item-stay" : "";
+  if (readonly) {
+    return `<div class="trip-item-row${stayCls}">
+      ${main}
+      ${e.type === "stay" ? stayDatesReadonlyHTML(t, e) : ""}
+    </div>`;
+  }
+  return `<div class="trip-item-row${stayCls}" draggable="true" data-trip="${t.id}" data-idx="${idx}" title="Drag to reorder">
     <span class="drag-grip" aria-hidden="true">⠿</span>
-    <span class="trip-item-main"><span class="ti-num">${idx + 1}</span><a href="spot.html?id=${e.id}" draggable="false">${escHTML(e.name)}</a> <span class="muted">&middot; ${typeLabel(e.type)} &middot; ${escHTML(e.town)}</span></span>
+    ${main}
     ${e.type === "stay" ? stayDatesHTML(t, e) : ""}
     <span class="trip-item-ctrl">
       <button class="tc-btn tc-del" data-remove data-trip="${t.id}" data-spot="${e.id}" aria-label="Remove from trip" title="Remove from trip">✕</button>
     </span>
   </div>`;
+}
+
+/* Read-only stay dates for a shared trip — the period + nights + cost
+   as plain text, no inputs. */
+function stayDatesReadonlyHTML(t, e) {
+  const d = (t.dates && t.dates[e.id]) || { in: "", out: "" };
+  const nights = tripNights(d.in, d.out);
+  if (nights > 0) {
+    const est = stayCostEstimate(e, nights);
+    return `<span class="trip-stay-dates-ro">${fmtTripPeriod(d.in, d.out)} &middot; <strong>${nights} night${nights === 1 ? "" : "s"}</strong>${est ? " &middot; " + est : ""}</span>`;
+  }
+  return `<span class="trip-stay-dates-ro muted">No dates set</span>`;
 }
 
 /* Group a trip's items into legs for the Day-by-day view: each stay
@@ -4477,6 +4497,146 @@ function renderSurfLogMap() {
     .catch(() => { host.innerHTML = `<p class="muted" style="padding:14px;">Map unavailable.</p>`; });
 }
 
+/* Renders a whole trip card — overview header, the Itinerary <-> Day by
+   day views and the map. readonly drops the edit affordances (drag,
+   date inputs, remove, share) — used for shared-trip pages. */
+function tripCardHTML(t, readonly) {
+  const items = t.spotIds.map(byId).filter(Boolean);
+  const located = items.filter(e => e.coords);
+  const list = items.length ? (() => {
+    const { legs, unscheduled } = tripLegs(items);
+    const idxOf = e => items.indexOf(e);
+    const rows = arr => arr.map(e => tripItemRowHTML(t, e, idxOf(e), readonly)).join("");
+    if (!legs.length) return `<div class="trip-items">${rows(items)}</div>`;
+    const loose = unscheduled.length
+      ? `<div class="trip-leg trip-leg-loose"><span class="trip-leg-loose-label">Not coupled to a stay yet</span>${rows(unscheduled)}</div>`
+      : "";
+    const legHTML = legs.map(leg => {
+      const extras = leg.extras.length
+        ? `<div class="trip-leg-extras">${rows(leg.extras)}</div>` : "";
+      return `<div class="trip-leg">${tripItemRowHTML(t, leg.stay, idxOf(leg.stay), readonly)}${extras}</div>`;
+    }).join("");
+    return `<div class="trip-items">${loose}${legHTML}</div>`;
+  })() : `<p class="muted">Empty so far — add places from a detail page.</p>`;
+  const mapDiv = located.length ? `<div class="trip-map" id="trip-map-${t.id}"></div>` : "";
+  const summary = tripSummaryHTML(items, t.dates);
+  const viewToggle = items.length ? `<div class="trip-view-toggle" role="tablist">
+      <button type="button" class="tv-tab active" data-view="itinerary" role="tab" aria-selected="true">Itinerary</button>
+      <button type="button" class="tv-tab" data-view="day" role="tab" aria-selected="false">Day by day</button>
+    </div>` : "";
+  const headActions = readonly ? "" : `<span class="trip-head-actions">${
+    items.length ? `<button type="button" class="link-btn" data-share="${t.id}">share</button>` : ""
+  }<button type="button" class="link-btn" data-del="${t.id}">remove</button></span>`;
+  return `<div class="trip" id="trip-${t.id}">
+    <header class="trip-overview">
+      <div class="trip-head"><h3>${escHTML(t.name)}</h3>${headActions}</div>
+      ${summary}
+    </header>
+    ${viewToggle}
+    <div class="trip-view trip-view-itinerary">${list}${mapDiv}</div>
+    ${items.length ? `<div class="trip-view trip-view-day" hidden>${dayByDayHTML(items, t.dates)}</div>` : ""}
+  </div>`;
+}
+
+/* Wire the Itinerary <-> Day by day toggle on every trip card under root.
+   Shared between the account page and the shared-trip page. */
+function wireTripToggles(root) {
+  root.querySelectorAll(".tv-tab").forEach(tab => {
+    tab.addEventListener("click", () => {
+      const card = tab.closest(".trip");
+      if (!card) return;
+      const view = tab.dataset.view;
+      card.querySelectorAll(".tv-tab").forEach(b => {
+        const on = b === tab;
+        b.classList.toggle("active", on);
+        b.setAttribute("aria-selected", on ? "true" : "false");
+      });
+      card.querySelectorAll(".trip-view").forEach(v => {
+        v.hidden = !v.classList.contains("trip-view-" + view);
+      });
+      // Leaflet mis-sizes if its container was display:none — nudge it.
+      if (view === "itinerary") {
+        const mapEl = card.querySelector(".trip-map");
+        if (mapEl && mapEl._wbMap) setTimeout(() => mapEl._wbMap.invalidateSize(), 0);
+      }
+    });
+  });
+}
+
+/* Pack a trip into a URL-safe string — the whole trip (name, place ids,
+   dates) rides in the link itself, so a shared trip needs no backend. */
+function encodeTrip(t) {
+  const json = JSON.stringify({ n: t.name, s: t.spotIds, d: t.dates || {} });
+  return btoa(unescape(encodeURIComponent(json)))
+    .replace(/\+/g, "-").replace(/\//g, "_").replace(/=+$/, "");
+}
+/* Unpack + sanitise a shared-trip string from a URL. Returns null on
+   anything malformed. */
+function decodeTrip(param) {
+  try {
+    let b64 = String(param).replace(/-/g, "+").replace(/_/g, "/");
+    while (b64.length % 4) b64 += "=";
+    const p = JSON.parse(decodeURIComponent(escape(atob(b64))));
+    const isDate = s => typeof s === "string" && /^\d{4}-\d{2}-\d{2}$/.test(s);
+    const dates = {};
+    if (p && p.d && typeof p.d === "object") {
+      Object.keys(p.d).forEach(k => {
+        const v = p.d[k] || {};
+        const din = isDate(v.in) ? v.in : "";
+        const dout = isDate(v.out) ? v.out : "";
+        if (din || dout) dates[String(k)] = { in: din, out: dout };
+      });
+    }
+    return {
+      id: "shared",
+      name: (p && typeof p.n === "string") ? p.n.slice(0, 120) : "Shared trip",
+      spotIds: (p && Array.isArray(p.s)) ? p.s.filter(x => typeof x === "string").slice(0, 80) : [],
+      dates: dates
+    };
+  } catch (e) {
+    return null;
+  }
+}
+
+/* The shared-trip page (trip.html) — decodes the trip from the ?t= URL
+   param and renders it read-only, with a button to copy it into the
+   viewer's own WaveBase. */
+function renderSharedTrip() {
+  const root = document.getElementById("shared-trip-root");
+  if (!root) return;
+  const param = new URLSearchParams(location.search).get("t");
+  const trip = param ? decodeTrip(param) : null;
+  const items = trip ? trip.spotIds.map(byId).filter(Boolean) : [];
+  if (!trip || !items.length) {
+    root.innerHTML = `<div class="shared-trip-empty">
+      <h1>Trip link</h1>
+      <p class="muted">This shared trip link is empty or broken — ask whoever sent it for a fresh one.</p>
+      <a class="btn" href="index.html">Go to WaveBase</a>
+    </div>`;
+    return;
+  }
+  root.innerHTML = `
+    <p class="shared-trip-intro">📍 A WaveBase trip, shared with you</p>
+    ${tripCardHTML(trip, true)}
+    <div class="shared-trip-actions">
+      <button type="button" class="btn" id="save-shared-trip">Save to my WaveBase</button>
+      <a class="btn ghost" href="index.html">Explore WaveBase</a>
+    </div>`;
+  wireTripToggles(root);
+  initTripMaps([trip]);
+  const saveBtn = document.getElementById("save-shared-trip");
+  if (saveBtn) saveBtn.addEventListener("click", () => {
+    const nt = WaveBaseAccount.addTrip(trip.name);
+    trip.spotIds.filter(id => byId(id)).forEach(id => WaveBaseAccount.addToTrip(nt.id, id));
+    Object.keys(trip.dates || {}).forEach(id => {
+      const d = trip.dates[id] || {};
+      if (d.in)  WaveBaseAccount.setStayDate(nt.id, id, "in", d.in);
+      if (d.out) WaveBaseAccount.setStayDate(nt.id, id, "out", d.out);
+    });
+    location.href = "account.html#trips";
+  });
+}
+
 function renderAccount() {
   const root = document.getElementById("account-root");
   const p = WaveBaseAccount.getProfile();
@@ -4522,41 +4682,7 @@ function renderAccount() {
     + discoverCTA;
 
   const tripsHTML = trips.length
-    ? trips.map(t => {
-        const items = t.spotIds.map(byId).filter(Boolean);
-        const located = items.filter(e => e.coords);
-        const list = items.length ? (() => {
-          const { legs, unscheduled } = tripLegs(items);
-          const idxOf = e => items.indexOf(e);
-          const rows = arr => arr.map(e => tripItemRowHTML(t, e, idxOf(e))).join("");
-          if (!legs.length) return `<div class="trip-items">${rows(items)}</div>`;
-          const loose = unscheduled.length
-            ? `<div class="trip-leg trip-leg-loose"><span class="trip-leg-loose-label">Not coupled to a stay yet</span>${rows(unscheduled)}</div>`
-            : "";
-          const legHTML = legs.map(leg => {
-            const extras = leg.extras.length
-              ? `<div class="trip-leg-extras">${rows(leg.extras)}</div>` : "";
-            return `<div class="trip-leg">${tripItemRowHTML(t, leg.stay, idxOf(leg.stay))}${extras}</div>`;
-          }).join("");
-          return `<div class="trip-items">${loose}${legHTML}</div>`;
-        })()
-          : `<p class="muted">Empty so far — add places from a detail page.</p>`;
-        const mapDiv = located.length ? `<div class="trip-map" id="trip-map-${t.id}"></div>` : "";
-        const summary = tripSummaryHTML(items, t.dates);
-        const viewToggle = items.length ? `<div class="trip-view-toggle" role="tablist">
-            <button type="button" class="tv-tab active" data-view="itinerary" role="tab" aria-selected="true">Itinerary</button>
-            <button type="button" class="tv-tab" data-view="day" role="tab" aria-selected="false">Day by day</button>
-          </div>` : "";
-        return `<div class="trip" id="trip-${t.id}">
-          <header class="trip-overview">
-            <div class="trip-head"><h3>${t.name}</h3><button class="link-btn" data-del="${t.id}">remove</button></div>
-            ${summary}
-          </header>
-          ${viewToggle}
-          <div class="trip-view trip-view-itinerary">${list}${mapDiv}</div>
-          ${items.length ? `<div class="trip-view trip-view-day" hidden>${dayByDayHTML(items, t.dates)}</div>` : ""}
-        </div>`;
-      }).join("")
+    ? trips.map(t => tripCardHTML(t, false)).join("")
     : `<p class="muted">No trips yet.</p>`;
 
   const matchesLabel = { yes: "Matched our write-up", partial: "Partly matched", no: "Differed from our write-up" };
@@ -4770,24 +4896,18 @@ function renderAccount() {
       renderAccount();
     });
   });
-  // Itinerary <-> Day by day toggle on each trip card.
-  root.querySelectorAll(".tv-tab").forEach(tab => {
-    tab.addEventListener("click", () => {
-      const card = tab.closest(".trip");
-      if (!card) return;
-      const view = tab.dataset.view;
-      card.querySelectorAll(".tv-tab").forEach(b => {
-        const on = b === tab;
-        b.classList.toggle("active", on);
-        b.setAttribute("aria-selected", on ? "true" : "false");
-      });
-      card.querySelectorAll(".trip-view").forEach(v => {
-        v.hidden = !v.classList.contains("trip-view-" + view);
-      });
-      // Leaflet mis-sizes if its container was display:none — nudge it.
-      if (view === "itinerary") {
-        const mapEl = card.querySelector(".trip-map");
-        if (mapEl && mapEl._wbMap) setTimeout(() => mapEl._wbMap.invalidateSize(), 0);
+  wireTripToggles(root);
+  // Share a trip — pack it into a URL and copy that to the clipboard.
+  root.querySelectorAll("[data-share]").forEach(b => {
+    b.addEventListener("click", () => {
+      const t = WaveBaseAccount.getTrips().find(x => x.id === b.dataset.share);
+      if (!t) return;
+      const url = location.origin + location.pathname.replace(/[^/]*$/, "") + "trip.html?t=" + encodeTrip(t);
+      const done = () => { b.textContent = "link copied ✓"; setTimeout(() => { b.textContent = "share"; }, 2000); };
+      if (navigator.clipboard && navigator.clipboard.writeText) {
+        navigator.clipboard.writeText(url).then(done).catch(() => window.prompt("Copy this trip link:", url));
+      } else {
+        window.prompt("Copy this trip link:", url);
       }
     });
   });
@@ -6115,6 +6235,7 @@ document.addEventListener("DOMContentLoaded", () => {
   if (document.getElementById("exp-map")) initExplorer();
   if (document.getElementById("discover-root")) initDiscover();
   if (document.getElementById("account-root")) renderAccount();
+  if (document.getElementById("shared-trip-root")) renderSharedTrip();
   if (document.getElementById("compare-root")) renderCompare();
   if (document.getElementById("continent-root")) initContinent();
 });

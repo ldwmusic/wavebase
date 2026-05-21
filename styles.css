@@ -3423,6 +3423,53 @@ button.rml-key.off .rml-dot {
   color: var(--ink-soft);
 }
 
+/* ===== My Trip — share / shared-trip page ===== */
+
+/* Share + remove grouped on the right of a trip header. */
+.trip-head-actions {
+  display: inline-flex;
+  gap: 12px;
+  align-items: baseline;
+  flex-shrink: 0;
+}
+
+/* Read-only stay dates on a shared trip — text, not inputs. */
+.trip-stay-dates-ro {
+  margin-left: auto;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--ink);
+  font-variant-numeric: tabular-nums;
+}
+.trip-stay-dates-ro strong { color: var(--sea); font-weight: 700; }
+.trip-stay-dates-ro.muted {
+  color: var(--ink-soft);
+  font-weight: 500;
+  font-style: italic;
+}
+
+/* trip.html — the shared-trip page. */
+.shared-trip-intro {
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--clay);
+  margin: 8px 0 14px;
+}
+.shared-trip-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  margin: 22px 0 44px;
+}
+.shared-trip-empty {
+  text-align: center;
+  padding: 60px 20px;
+}
+.shared-trip-empty h1 { margin-bottom: 10px; }
+.shared-trip-empty p { margin-bottom: 22px; }
+
 /* town panel — on the detail page */
 .town-panel {
   background: var(--paper);
