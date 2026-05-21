@@ -4099,11 +4099,10 @@ function tripSummaryHTML(items, dates) {
   </div>`;
 }
 
-/* The check-in / check-out planner row shown under each STAY in a trip.
-   Editing a date re-renders the account so the per-stay estimate, the
-   trip period and the cost total all stay in sync. Spots and centers
-   get no date row — only stays are booked by the night. */
-function stayPlanHTML(trip, e) {
+/* The inline check-in / check-out fields for a stay's row in the
+   Itinerary view — part of the stay row itself (no separate box), so
+   the dates read as belonging to the stay. */
+function stayDatesHTML(trip, e) {
   const d = (trip.dates && trip.dates[e.id]) || { in: "", out: "" };
   const nights = tripNights(d.in, d.out);
   let calc;
@@ -4111,13 +4110,13 @@ function stayPlanHTML(trip, e) {
     const est = stayCostEstimate(e, nights);
     calc = `<span class="tsp-calc"><strong>${nights} night${nights === 1 ? "" : "s"}</strong>${est ? ` &middot; ${est}` : ""}</span>`;
   } else if (d.in && d.out) {
-    calc = `<span class="tsp-calc tsp-warn">Check-out must be after check-in</span>`;
+    calc = `<span class="tsp-calc tsp-warn">Check-out before check-in</span>`;
   } else if (d.in || d.out) {
     calc = `<span class="tsp-calc tsp-hint">Add the other date</span>`;
   } else {
-    calc = `<span class="tsp-calc tsp-hint">Add dates for a nights + cost estimate</span>`;
+    calc = `<span class="tsp-calc tsp-hint">Add dates</span>`;
   }
-  return `<div class="trip-stay-plan">
+  return `<span class="trip-stay-dates">
     <label class="tsp-field">Check-in
       <input type="date" class="tsp-date" data-trip="${trip.id}" data-spot="${e.id}" data-field="in" value="${d.in}">
     </label>
@@ -4125,6 +4124,20 @@ function stayPlanHTML(trip, e) {
       <input type="date" class="tsp-date" data-trip="${trip.id}" data-spot="${e.id}" data-field="out" value="${d.out}"${d.in ? ` min="${d.in}"` : ""}>
     </label>
     ${calc}
+  </span>`;
+}
+
+/* One editable row in the Itinerary view — number + name, the inline
+   date fields for stays, and the remove button. idx is the item's
+   position in the flat trip order (drives the map pin number + drag). */
+function tripItemRowHTML(t, e, idx) {
+  return `<div class="trip-item-row${e.type === "stay" ? " trip-item-stay" : ""}" draggable="true" data-trip="${t.id}" data-idx="${idx}" title="Drag to reorder">
+    <span class="drag-grip" aria-hidden="true">⠿</span>
+    <span class="trip-item-main"><span class="ti-num">${idx + 1}</span><a href="spot.html?id=${e.id}" draggable="false">${escHTML(e.name)}</a> <span class="muted">&middot; ${typeLabel(e.type)} &middot; ${escHTML(e.town)}</span></span>
+    ${e.type === "stay" ? stayDatesHTML(t, e) : ""}
+    <span class="trip-item-ctrl">
+      <button class="tc-btn tc-del" data-remove data-trip="${t.id}" data-spot="${e.id}" aria-label="Remove from trip" title="Remove from trip">✕</button>
+    </span>
   </div>`;
 }
 
@@ -4486,17 +4499,21 @@ function renderAccount() {
     ? trips.map(t => {
         const items = t.spotIds.map(byId).filter(Boolean);
         const located = items.filter(e => e.coords);
-        const list = items.length
-          ? `<ol class="trip-items">${items.map((e, i) => {
-              const row = `<div class="trip-item-row" draggable="true" data-trip="${t.id}" data-idx="${i}" title="Drag to reorder">
-                <span class="drag-grip" aria-hidden="true">⠿</span>
-                <span class="trip-item-main"><a href="spot.html?id=${e.id}" draggable="false">${e.name}</a> <span class="muted">&middot; ${typeLabel(e.type)} &middot; ${e.town}</span></span>
-                <span class="trip-item-ctrl">
-                  <button class="tc-btn tc-del" data-remove data-trip="${t.id}" data-spot="${e.id}" aria-label="Remove from trip" title="Remove from trip">✕</button>
-                </span>
-              </div>`;
-              return `<li>${row}${e.type === "stay" ? stayPlanHTML(t, e) : ""}</li>`;
-            }).join("")}</ol>`
+        const list = items.length ? (() => {
+          const { legs, unscheduled } = tripLegs(items);
+          const idxOf = e => items.indexOf(e);
+          const rows = arr => arr.map(e => tripItemRowHTML(t, e, idxOf(e))).join("");
+          if (!legs.length) return `<div class="trip-items">${rows(items)}</div>`;
+          const loose = unscheduled.length
+            ? `<div class="trip-leg trip-leg-loose"><span class="trip-leg-loose-label">Not coupled to a stay yet</span>${rows(unscheduled)}</div>`
+            : "";
+          const legHTML = legs.map(leg => {
+            const extras = leg.extras.length
+              ? `<div class="trip-leg-extras">${rows(leg.extras)}</div>` : "";
+            return `<div class="trip-leg">${tripItemRowHTML(t, leg.stay, idxOf(leg.stay))}${extras}</div>`;
+          }).join("");
+          return `<div class="trip-items">${loose}${legHTML}</div>`;
+        })()
           : `<p class="muted">Empty so far — add places from a detail page.</p>`;
         const mapDiv = located.length ? `<div class="trip-map" id="trip-map-${t.id}"></div>` : "";
         const summary = tripSummaryHTML(items, t.dates);
