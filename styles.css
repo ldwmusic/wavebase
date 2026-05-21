@@ -2520,7 +2520,22 @@ body:not(.is-home) .searchbar-wrap { display: none; }
 }
 .trip-head { display: flex; justify-content: space-between; align-items: baseline; }
 .trip-head h3 { font-size: 19px; }
-.trip-items { margin: 10px 0 0; display: flex; flex-direction: column; gap: 10px; }
+.trip-items {
+  margin: 10px 0 0;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  container-type: inline-size;
+}
+/* Narrow trip card (phones) — drop a stay's dates onto their own line so
+   the name + its controls stay together on the row above. A container
+   query, so it tracks the card's own width rather than just the viewport. */
+@container (max-width: 560px) {
+  .trip-items .trip-item-main { flex: 1 1 0; }
+  .trip-items .trip-stay-dates,
+  .trip-items .trip-stay-dates-ro { flex-basis: 100%; order: 1; margin-left: 0; }
+  .trip-items .tsp-calc { margin-left: 0; }
+}
 
 /* Trip summary — at-a-glance count of spots/centers/stays + estimated
    nightly budget. Sits between the trip header and the items list. */
