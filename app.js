@@ -4583,6 +4583,11 @@ function tripCardHTML(t, readonly) {
   const headActions = readonly ? "" : `<span class="trip-head-actions">${
     items.length ? `<button type="button" class="link-btn" data-share="${t.id}">share</button>` : ""
   }<button type="button" class="link-btn" data-del="${t.id}">remove</button></span>`;
+  // Trip name — a plain heading on the shared (read-only) page; a
+  // click-to-rename heading on the owner's account page.
+  const nameEl = readonly
+    ? `<h3>${escHTML(t.name)}</h3>`
+    : `<h3 class="trip-name" data-rename="${t.id}" role="button" tabindex="0" title="Rename this trip"><span class="trip-name-text">${escHTML(t.name)}</span><span class="trip-name-pencil" aria-hidden="true">✎</span></h3>`;
   const addBox = readonly ? "" : `<div class="trip-add" data-trip="${t.id}">
     <button type="button" class="trip-add-btn"${items.length ? "" : " hidden"}>+ Add a place</button>
     <div class="trip-add-search"${items.length ? " hidden" : ""}>
@@ -4595,13 +4600,63 @@ function tripCardHTML(t, readonly) {
   </div>`;
   return `<div class="trip" id="trip-${t.id}">
     <header class="trip-overview">
-      <div class="trip-head"><h3>${escHTML(t.name)}</h3>${headActions}</div>
+      <div class="trip-head">${nameEl}${headActions}</div>
       ${summary}
     </header>
     ${viewToggle}
     <div class="trip-view trip-view-itinerary">${list}${addBox}${mapDiv}</div>
     ${items.length ? `<div class="trip-view trip-view-day" hidden>${dayByDayHTML(items, t.dates)}</div>` : ""}
   </div>`;
+}
+
+/* Click a trip's name (account page only) to rename it inline. The
+   heading is swapped for a text input; Enter or blur saves, Escape
+   cancels. No full re-render is needed — nothing else on the page
+   shows the trip name, so only the heading text is updated. */
+function wireTripRename(root) {
+  root.querySelectorAll("h3.trip-name[data-rename]").forEach(h3 => {
+    const open = () => {
+      if (h3.dataset.editing === "1") return;
+      const id = h3.dataset.rename;
+      const trip = WaveBaseAccount.getTrips().find(x => x.id === id);
+      if (!trip) return;
+      h3.dataset.editing = "1";
+      const oldName = trip.name;
+      const input = document.createElement("input");
+      input.type = "text";
+      input.className = "trip-name-input";
+      input.value = oldName;
+      input.maxLength = 60;
+      input.setAttribute("aria-label", "Trip name");
+      h3.style.display = "none";
+      h3.insertAdjacentElement("afterend", input);
+      input.focus();
+      input.select();
+      let done = false;
+      const finish = save => {
+        if (done) return;
+        done = true;
+        const val = input.value.trim();
+        input.remove();
+        h3.style.display = "";
+        delete h3.dataset.editing;
+        if (save && val && val !== oldName) {
+          WaveBaseAccount.renameTrip(id, val);
+          const txt = h3.querySelector(".trip-name-text");
+          if (txt) txt.textContent = val;
+        }
+      };
+      input.addEventListener("keydown", e => {
+        if (e.key === "Enter") { e.preventDefault(); finish(true); }
+        else if (e.key === "Escape") { e.preventDefault(); finish(false); }
+      });
+      input.addEventListener("blur", () => finish(true));
+    };
+    h3.addEventListener("click", open);
+    h3.addEventListener("keydown", e => {
+      if (e.key === "Enter" || e.key === " ") { e.preventDefault(); open(); }
+    });
+  });
 }
 
 /* Wire the Itinerary <-> Day by day toggle on every trip card under root.
@@ -4985,6 +5040,7 @@ function renderAccount() {
   wireTripToggles(root);
   wireTripNav(root);
   wireTripAdd(root);
+  wireTripRename(root);
   // Share a trip — pack it into a URL and copy that to the clipboard.
   root.querySelectorAll("[data-share]").forEach(b => {
     b.addEventListener("click", () => {

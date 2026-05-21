@@ -2522,6 +2522,40 @@ body:not(.is-home) .searchbar-wrap { display: none; }
 }
 .trip-head { display: flex; justify-content: space-between; align-items: baseline; }
 .trip-head h3 { font-size: 19px; }
+/* Trip name on the account page — click the heading to rename it
+   inline. The faint pencil hints it's editable; firmer on hover. */
+.trip-name {
+  cursor: pointer;
+  border-radius: 6px;
+  padding-left: 6px;
+  padding-right: 6px;
+  margin-left: -6px;
+  margin-right: -6px;
+  transition: background 0.12s;
+}
+.trip-name:hover { background: var(--cream); }
+.trip-name:focus-visible { outline: 2px solid var(--sea); outline-offset: 1px; }
+.trip-name-pencil {
+  font-size: 0.62em;
+  margin-left: 7px;
+  color: var(--ink-soft);
+  opacity: 0.5;
+}
+.trip-name:hover .trip-name-pencil { opacity: 0.95; }
+/* Inline rename field — swapped in for the heading while editing. */
+.trip-name-input {
+  flex: 1 1 auto;
+  min-width: 0;
+  font-family: 'DM Sans', sans-serif;
+  font-size: 19px;
+  font-weight: 700;
+  color: var(--ink);
+  background: var(--paper);
+  border: 1px solid var(--sea);
+  border-radius: 7px;
+  padding: 2px 8px;
+}
+.trip-name-input:focus { outline: none; box-shadow: 0 0 0 3px var(--sea-soft); }
 .trip-items {
   margin: 10px 0 0;
   display: flex;

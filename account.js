@@ -122,6 +122,16 @@ const WaveBaseAccount = (function () {
       s.trips = s.trips.filter(t => t.id !== tripId);
       write(s);
     },
+    /* Rename a trip in place. Empty / whitespace-only names are
+       ignored so a trip always keeps a usable name. */
+    renameTrip(tripId, name) {
+      const s = state();
+      const t = s.trips.find(x => x.id === tripId);
+      if (!t) return;
+      const nm = (name || "").trim();
+      if (nm) t.name = nm;
+      write(s);
+    },
     addToTrip(tripId, spotId) {
       const s = state();
       const t = s.trips.find(x => x.id === tripId);
