@@ -4128,20 +4128,21 @@ function tripSummaryHTML(items, dates) {
 /* The inline check-in / check-out fields for a stay's row in the
    Itinerary view — part of the stay row itself (no separate box), so
    the dates read as belonging to the stay. */
-function stayDatesHTML(trip, e) {
-  const d = (trip.dates && trip.dates[e.id]) || { in: "", out: "" };
+/* The nights + cost-estimate cell shown under a stay's date inputs.
+   Split out so a date change can refresh just this cell in place,
+   without re-rendering (and destroying) the date inputs. */
+function stayCalcHTML(e, d) {
   const nights = tripNights(d.in, d.out);
-  let calc;
   if (nights > 0) {
     const est = stayCostEstimate(e, nights);
-    calc = `<span class="tsp-calc"><strong>${nights} night${nights === 1 ? "" : "s"}</strong>${est ? ` &middot; ${est}` : ""}</span>`;
-  } else if (d.in && d.out) {
-    calc = `<span class="tsp-calc tsp-warn">Check-out before check-in</span>`;
-  } else if (d.in || d.out) {
-    calc = `<span class="tsp-calc tsp-hint">Add the other date</span>`;
-  } else {
-    calc = `<span class="tsp-calc tsp-hint">Add dates</span>`;
+    return `<span class="tsp-calc"><strong>${nights} night${nights === 1 ? "" : "s"}</strong>${est ? ` &middot; ${est}` : ""}</span>`;
   }
+  if (d.in && d.out) return `<span class="tsp-calc tsp-warn">Check-out before check-in</span>`;
+  if (d.in || d.out) return `<span class="tsp-calc tsp-hint">Add the other date</span>`;
+  return `<span class="tsp-calc tsp-hint">Add dates</span>`;
+}
+function stayDatesHTML(trip, e) {
+  const d = (trip.dates && trip.dates[e.id]) || { in: "", out: "" };
   return `<span class="trip-stay-dates">
     <label class="tsp-field">Check-in
       <input type="date" class="tsp-date" data-trip="${trip.id}" data-spot="${e.id}" data-field="in" value="${d.in}">
@@ -4149,7 +4150,7 @@ function stayDatesHTML(trip, e) {
     <label class="tsp-field">Check-out
       <input type="date" class="tsp-date" data-trip="${trip.id}" data-spot="${e.id}" data-field="out" value="${d.out}"${d.in ? ` min="${d.in}"` : ""}>
     </label>
-    ${calc}
+    ${stayCalcHTML(e, d)}
   </span>`;
 }
 
@@ -4514,14 +4515,34 @@ function wireTripAdd(root) {
     const search = box.querySelector(".trip-add-search");
     const input = box.querySelector(".trip-add-input");
     const results = box.querySelector(".trip-add-results");
+    let activeIdx = -1;
     const open = () => { btn.hidden = true; search.hidden = false; input.focus(); };
-    const close = () => { search.hidden = true; btn.hidden = false; input.value = ""; results.innerHTML = ""; };
+    const close = () => { search.hidden = true; btn.hidden = false; input.value = ""; results.innerHTML = ""; activeIdx = -1; };
+    // Highlight the i-th selectable result (wraps around) for arrow-key nav.
+    const setActive = i => {
+      const opts = Array.from(results.querySelectorAll(".trip-add-result:not([disabled])"));
+      if (!opts.length) { activeIdx = -1; return; }
+      activeIdx = (i + opts.length) % opts.length;
+      opts.forEach((o, k) => o.classList.toggle("is-active", k === activeIdx));
+      opts[activeIdx].scrollIntoView({ block: "nearest" });
+    };
     btn.addEventListener("click", open);
     box.querySelector(".trip-add-close").addEventListener("click", close);
-    input.addEventListener("keydown", ev => { if (ev.key === "Escape") close(); });
+    // Arrow keys move the highlight through the results; Enter adds the
+    // highlighted one; Escape closes the search.
+    input.addEventListener("keydown", ev => {
+      if (ev.key === "Escape") { close(); return; }
+      const opts = Array.from(results.querySelectorAll(".trip-add-result:not([disabled])"));
+      if (ev.key === "ArrowDown") { ev.preventDefault(); setActive(activeIdx + 1); }
+      else if (ev.key === "ArrowUp") { ev.preventDefault(); setActive(activeIdx - 1); }
+      else if (ev.key === "Enter" && activeIdx >= 0 && opts[activeIdx]) {
+        ev.preventDefault();
+        opts[activeIdx].click();
+      }
+    });
     input.addEventListener("input", () => {
       const q = input.value.trim().toLowerCase();
-      if (!q) { results.innerHTML = ""; return; }
+      if (!q) { results.innerHTML = ""; activeIdx = -1; return; }
       const trip = WaveBaseAccount.getTrips().find(x => x.id === tripId);
       const inTrip = new Set(trip ? trip.spotIds : []);
       const matches = WAVEBASE_DATA.filter(e =>
@@ -4546,6 +4567,8 @@ function wireTripAdd(root) {
           renderAccount();
         });
       });
+      // Pre-highlight the first hit so Enter adds it without arrowing.
+      setActive(0);
     });
     if (reopenAddFor === tripId) { reopenAddFor = null; open(); }
   });
@@ -4983,25 +5006,39 @@ function renderAccount() {
     });
     row.addEventListener("dragend", () => {
       row.classList.remove("dragging");
-      root.querySelectorAll(".trip-item-row.drag-over").forEach(x => x.classList.remove("drag-over"));
+      root.querySelectorAll(".trip-item-row.drag-over").forEach(x => x.classList.remove("drag-over", "drop-below"));
       dragSrc = null;
     });
+    // While dragging over a row, show the drop line on the half the
+    // cursor is in — top half = land above this row, bottom = below.
     row.addEventListener("dragover", e => {
       if (!dragSrc || dragSrc.tripId !== row.dataset.trip) return;
+      if (parseInt(row.dataset.idx, 10) === dragSrc.fromIndex) return;
       e.preventDefault();
       if (e.dataTransfer) e.dataTransfer.dropEffect = "move";
+      const rect = row.getBoundingClientRect();
+      const below = (e.clientY - rect.top) > rect.height / 2;
       row.classList.add("drag-over");
+      row.classList.toggle("drop-below", below);
     });
     row.addEventListener("dragleave", () => {
-      row.classList.remove("drag-over");
+      row.classList.remove("drag-over", "drop-below");
     });
     row.addEventListener("drop", e => {
       e.preventDefault();
-      row.classList.remove("drag-over");
+      row.classList.remove("drag-over", "drop-below");
       if (!dragSrc || dragSrc.tripId !== row.dataset.trip) return;
-      const toIndex = parseInt(row.dataset.idx, 10);
-      if (dragSrc.fromIndex !== toIndex) {
-        WaveBaseAccount.reorderTrip(row.dataset.trip, dragSrc.fromIndex, toIndex);
+      const from = dragSrc.fromIndex;
+      const targetIdx = parseInt(row.dataset.idx, 10);
+      if (targetIdx === from) return;
+      const rect = row.getBoundingClientRect();
+      const below = (e.clientY - rect.top) > rect.height / 2;
+      // Index of the target row once the dragged item is pulled out,
+      // then +1 if the cursor was in its lower half (drop below it).
+      const shifted = from < targetIdx ? targetIdx - 1 : targetIdx;
+      const toIndex = below ? shifted + 1 : shifted;
+      if (from !== toIndex) {
+        WaveBaseAccount.reorderTrip(row.dataset.trip, from, toIndex);
         renderAccount();
       }
     });
@@ -5012,10 +5049,33 @@ function renderAccount() {
       renderAccount();
     });
   });
+  /* Per-stay date inputs. A change updates the data and refreshes the
+     stay's own nights/cost cell in place — it does NOT re-render the
+     whole account, because that would destroy the <input> mid-edit
+     and yank the open date picker shut (the iOS first-tap bug). The
+     full re-render (trip summary, day-by-day) is deferred to blur. */
+  let tripDatesDirty = false;
+  const refreshStayCalc = (tId, eId) => {
+    const trip = WaveBaseAccount.getTrips().find(x => x.id === tId);
+    const ent = byId(eId);
+    if (!trip || !ent) return;
+    const d = (trip.dates && trip.dates[eId]) || { in: "", out: "" };
+    const di = root.querySelector(`.tsp-date[data-trip="${tId}"][data-spot="${eId}"]`);
+    const wrap = di && di.closest(".trip-stay-dates");
+    const calcEl = wrap && wrap.querySelector(".tsp-calc");
+    if (calcEl) calcEl.outerHTML = stayCalcHTML(ent, d);
+  };
   root.querySelectorAll(".tsp-date").forEach(inp => {
     inp.addEventListener("change", () => {
       const tripId = inp.dataset.trip, entryId = inp.dataset.spot, field = inp.dataset.field;
       WaveBaseAccount.setStayDate(tripId, entryId, field, inp.value);
+      tripDatesDirty = true;
+      // Keep this stay's check-out picker from offering days before check-in.
+      if (field === "in") {
+        const wrap = inp.closest(".trip-stay-dates");
+        const outInp = wrap && wrap.querySelector('.tsp-date[data-field="out"]');
+        if (outInp) { if (inp.value) outInp.min = inp.value; else outInp.removeAttribute("min"); }
+      }
       // Smart default: setting a stay's check-out pre-fills the next
       // stay's check-in (trips are usually consecutive) — but never
       // overwrites a check-in the user already set.
@@ -5028,13 +5088,27 @@ function renderAccount() {
             const nx = byId(ids[i]);
             if (nx && nx.type === "stay") {
               const nd = trip.dates && trip.dates[ids[i]];
-              if (!nd || !nd.in) WaveBaseAccount.setStayDate(tripId, ids[i], "in", inp.value);
+              if (!nd || !nd.in) {
+                WaveBaseAccount.setStayDate(tripId, ids[i], "in", inp.value);
+                const nextIn = root.querySelector(`.tsp-date[data-trip="${tripId}"][data-spot="${ids[i]}"][data-field="in"]`);
+                if (nextIn) nextIn.value = inp.value;
+                const nextOut = root.querySelector(`.tsp-date[data-trip="${tripId}"][data-spot="${ids[i]}"][data-field="out"]`);
+                if (nextOut) nextOut.min = inp.value;
+                refreshStayCalc(tripId, ids[i]);
+              }
               break;
             }
           }
         }
       }
-      renderAccount();
+      refreshStayCalc(tripId, entryId);
+    });
+    // Defer the full re-render until focus leaves the date fields, so
+    // the picker stays open and tabbing between in / out keeps working.
+    inp.addEventListener("blur", e => {
+      if (e.relatedTarget && e.relatedTarget.classList &&
+          e.relatedTarget.classList.contains("tsp-date")) return;
+      if (tripDatesDirty) { tripDatesDirty = false; renderAccount(); }
     });
   });
   wireTripToggles(root);
