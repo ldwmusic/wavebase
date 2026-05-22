@@ -5395,6 +5395,40 @@ function renderAccount() {
   renderSurfLogMap();
 }
 
+// Tag recognised facility words in a free-text facilities string with a
+// small pictogram, for quick scanning in the compare scoreboard. The prose
+// is left intact — only the first hit of each keyword gets an icon, and
+// multi-word phrases are listed before their sub-words ("mountain bike"
+// before "bike") so the longer match wins.
+function iconizeFacilities(text) {
+  if (!text || typeof text !== "string") return text;
+  const map = [
+    [/\bwater fountain\b/i, "🚰"],
+    [/\bbeach volleyball\b/i, "🏐"],
+    [/\bchanging rooms?\b/i, "🚪"],
+    [/\bmountain bikes?\b/i, "🚲"],
+    [/\bequipment storage\b/i, "🧳"],
+    [/\brescue boat\b/i, "🛟"],
+    [/\bsun ?beds?\b/i, "⛱️"],
+    [/\bshowers?\b/i, "🚿"],
+    [/\blockers?\b/i, "🔒"],
+    [/\bparking\b/i, "🅿️"],
+    [/\bwi-?fi\b/i, "📶"],
+    [/\bwebcam\b/i, "📹"],
+    [/\brestaurants?\b/i, "🍽️"],
+    [/\byoga\b/i, "🧘"],
+    [/\blifeguard\b/i, "🛟"],
+    [/\binsurance\b/i, "🛡️"],
+    [/\bwheelchairs?\b/i, "♿"],
+    [/\bbars?\b/i, "🍹"]
+  ];
+  let out = text;
+  map.forEach(([re, icon]) => {
+    out = out.replace(re, m => icon + " " + m);
+  });
+  return out;
+}
+
 /* ---- COMPARE ---- */
 // Scoreboard above the text cards. Bar direction is always "less = left,
 // more = right" — short bar for "less of this dimension", long for more.
@@ -5527,10 +5561,11 @@ function compareScoreboardHTML(items) {
           return compact || raw;
         } },
       { icon: "🛠️", label: "Facilities", mode: "label", labelStyle: "wrap",
-        // Show which facilities, not a count (LDW/Michiel feedback).
+        // Show which facilities, not a count, and tag recognised facility
+        // words with a pictogram for quick scanning (LDW/Michiel feedback).
         get: e => {
           const raw = e.diensten && e.diensten.faciliteiten;
-          return (raw && typeof raw === "string" && raw.trim()) ? raw.trim() : null;
+          return (raw && typeof raw === "string" && raw.trim()) ? iconizeFacilities(raw.trim()) : null;
         } },
       // ---- Prices (partial: kept even if not all centers have the field) ----
       { icon: "💶", label: "Group lesson", max: 100, partial: true, winnerDirection: "lower",
@@ -5685,7 +5720,7 @@ function compareScoreboardHTML(items) {
 
   const tableHTML = `<div class="sb-table-wrap">
     <table class="sb-table">
-      <thead><tr><th></th>${headerCells}</tr></thead>
+      <thead><tr><th class="sb-dim-cell"></th>${headerCells}</tr></thead>
       <tbody>${rows}</tbody>
     </table>
   </div>`;

@@ -3250,6 +3250,15 @@ body:not(.is-home) .searchbar-wrap { display: none; }
 }
 .sb-cell.empty { color: var(--ink-soft); }
 
+/* Compare-tab scoreboard: fixed layout so every entry column gets an equal
+   share and long values (Facilities, Gear brands) wrap inside their column
+   instead of ballooning the table off-screen and scrolling later columns
+   out of view. Scoped away from the .mcc month-compare table, which keeps
+   its content-driven auto layout. */
+.sb-table:not(.mcc-table) { table-layout: fixed; }
+.sb-table:not(.mcc-table) .sb-dim-cell { width: 170px; white-space: normal; }
+.sb-table:not(.mcc-table) .sb-cell { white-space: normal; word-wrap: break-word; }
+
 /* 1-to-5 score → stars. Half star achieved by clipping a wrapped ★ to 50%. */
 .sb-stars { font-size: 16px; letter-spacing: 1px; color: var(--clay); white-space: nowrap; }
 .sb-stars .sb-star-half {
