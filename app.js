@@ -1364,17 +1364,20 @@ function tierRank(t) {
   return i === -1 ? 99 : i;
 }
 
-/* Price-level "degree bar" for a stay's detail page — a 4-step scale
-   (Budget → Luxury) with this stay's tier highlighted, so it reads as a
-   relative position rather than a vague label. */
+/* Price-level scale — the right half of a stay's split pricing panel.
+   A 4-step scale (Budget → Luxury), a pictogram per tier, this stay's
+   tier highlighted + a caret, so it reads as a position on the scale. */
 function tierDegreeHTML(t) {
   const meta = tierMeta(t);
   if (!meta) return "";
   const active = PRICE_TIERS.indexOf(t);
   const steps = PRICE_TIERS.map((k, i) =>
-    `<span class="tier-deg-step tier-${k}${i === active ? " on" : ""}">${escHTML(TIER_META[k].label)}</span>`
+    `<span class="tier-deg-step tier-${k}${i === active ? " on" : ""}">
+      <span class="tier-deg-ico" aria-hidden="true">${TIER_META[k].icon}</span>
+      <span class="tier-deg-lbl">${escHTML(TIER_META[k].label)}</span>
+    </span>`
   ).join("");
-  return `<div class="tier-degree">
+  return `<div class="price-panel-side price-panel-level">
     <div class="tier-degree-head">
       <span class="tier-degree-title">Price level</span>
       <span class="tier-degree-rel">📍 relative to local prices</span>
@@ -3252,14 +3255,29 @@ function pricesHTML(e) {
   }
   const verif = p.verified ? ` <span class="muted">verified ${escHTML(p.verified)}</span>` : "";
   const src = p.source ? `<div class="price-source"><strong>Source:</strong> ${escHTML(p.source)}${verif}</div>` : "";
-  const items = rows.map(([k, val]) =>
-    `<div class="cond-item"><span class="cond-label">${k}</span><span class="cond-val">${val}</span></div>`
-  ).join("");
-  const tierBlock = (e.type === "stay" && p && p.tier) ? tierDegreeHTML(p.tier) : "";
+  const tier = (e.type === "stay" && p && p.tier) ? p.tier : null;
+  let body;
+  if (tier) {
+    // Stay with a price tier → one box split down the middle: the
+    // indicative price on the left, the price-level scale on the right.
+    const indicVal = rows.length ? rows[0][1] : "";
+    body = `<div class="price-panel">
+      <div class="price-panel-side price-panel-indic">
+        <span class="cond-label">Indicative price</span>
+        <span class="cond-val">${indicVal}</span>
+      </div>
+      ${tierDegreeHTML(tier)}
+    </div>`;
+  } else {
+    // Centers (several price rows) or stays without a tier → plain grid.
+    const items = rows.map(([k, val]) =>
+      `<div class="cond-item"><span class="cond-label">${k}</span><span class="cond-val">${val}</span></div>`
+    ).join("");
+    body = `<div class="cond-grid verblijf-grid">${items}</div>`;
+  }
   return `<section class="condities">
     <h2>Pricing</h2>
-    <div class="cond-grid verblijf-grid">${items}</div>
-    ${tierBlock}
+    ${body}
     ${src}
   </section>`;
 }

@@ -4540,47 +4540,92 @@ button.rml-key.off .rml-dot {
 .tier-chip.tier-premium     { background: var(--clay-soft); color: var(--clay); border-color: #ecd0c2; }
 .tier-chip.tier-luxury      { background: #efe3f2; color: #6f3d7b; border-color: #ddc5e4; }
 
-/* Price-level degree bar — on a stay's detail page, replacing the old
-   one-word "tier" row. A 4-step scale with this stay's level filled in. */
-.tier-degree {
-  margin-top: 14px;
-  padding-top: 13px;
-  border-top: 1px solid var(--line);
+/* Pricing panel on a stay's detail page — one bordered box split down the
+   middle (same 1px-gap divider trick as .cond-grid): the indicative price
+   on the left, the price-level scale on the right. Stacks on narrow
+   screens, where the divider becomes a horizontal line. */
+.price-panel {
+  display: flex;
+  gap: 1px;
+  background: var(--sand);
+  border: 1px solid var(--sand);
+  border-radius: 12px;
+  overflow: hidden;
 }
+.price-panel-side {
+  flex: 1 1 0;
+  min-width: 0;
+  background: var(--paper);
+  padding: 14px 18px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 5px;
+}
+.price-panel-level { gap: 0; }
+
+/* Price-level scale — a 4-step Budget → Luxury scale, a pictogram per
+   tier, this stay's tier highlighted + a caret, so it reads as a position. */
 .tier-degree-head {
   display: flex;
   flex-wrap: wrap;
   align-items: baseline;
   gap: 4px 10px;
-  margin-bottom: 7px;
 }
 .tier-degree-title { font-weight: 700; font-size: 13px; color: var(--ink); }
 .tier-degree-rel { font-size: 11.5px; color: var(--ink-soft); }
-.tier-deg-bar { display: flex; gap: 3px; }
+.tier-deg-bar { display: flex; gap: 4px; margin-top: 13px; }
 .tier-deg-step {
   flex: 1;
-  text-align: center;
-  font-size: 11.5px;
-  font-weight: 600;
-  color: var(--ink-soft);
+  min-width: 0;
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 3px;
+  padding: 7px 3px 6px;
   background: var(--paper);
   border: 1px solid var(--line);
-  border-radius: 5px;
-  padding: 6px 4px;
+  border-radius: 7px;
+}
+.tier-deg-ico { font-size: 16px; line-height: 1; filter: grayscale(0.8); opacity: 0.5; }
+.tier-deg-lbl {
+  font-size: 10.5px;
+  font-weight: 600;
+  color: var(--ink-soft);
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
+  max-width: 100%;
 }
-.tier-deg-step.on { font-weight: 700; }
-.tier-deg-step.on.tier-budget      { background: #f0e5d0; color: #6f5a2c; border-color: #d8c9a4; }
-.tier-deg-step.on.tier-comfortable { background: var(--sea-soft); color: var(--sea); border-color: #b6cdd2; }
-.tier-deg-step.on.tier-premium     { background: var(--clay-soft); color: var(--clay); border-color: #ecd0c2; }
-.tier-deg-step.on.tier-luxury      { background: #efe3f2; color: #6f3d7b; border-color: #ddc5e4; }
+.tier-deg-step.on .tier-deg-ico { filter: none; opacity: 1; }
+.tier-deg-step.on .tier-deg-lbl { font-weight: 700; }
+.tier-deg-step.on.tier-budget      { background: #f0e5d0; border-color: #d8c9a4; }
+.tier-deg-step.on.tier-budget .tier-deg-lbl      { color: #6f5a2c; }
+.tier-deg-step.on.tier-comfortable { background: var(--sea-soft); border-color: #b6cdd2; }
+.tier-deg-step.on.tier-comfortable .tier-deg-lbl { color: var(--sea); }
+.tier-deg-step.on.tier-premium     { background: var(--clay-soft); border-color: #ecd0c2; }
+.tier-deg-step.on.tier-premium .tier-deg-lbl     { color: var(--clay); }
+.tier-deg-step.on.tier-luxury      { background: #efe3f2; border-color: #ddc5e4; }
+.tier-deg-step.on.tier-luxury .tier-deg-lbl      { color: #6f3d7b; }
+.tier-deg-step.on::before {
+  content: "";
+  position: absolute;
+  top: -9px;
+  left: 50%;
+  transform: translateX(-50%);
+  border-left: 5px solid transparent;
+  border-right: 5px solid transparent;
+  border-top: 6px solid var(--ink-soft);
+}
 .tier-degree-blurb {
-  margin: 8px 0 0;
+  margin: 10px 0 0;
   font-size: 12.5px;
   color: var(--ink-soft);
   line-height: 1.5;
+}
+@media (max-width: 600px) {
+  .price-panel { flex-direction: column; }
 }
 .card-price-val {
   font-family: 'DM Sans', sans-serif;
