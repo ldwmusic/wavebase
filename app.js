@@ -5082,8 +5082,7 @@ function renderAccount() {
 
   const discoverCTA = `<div class="saved-discover">
     <span class="saved-discover-text">Looking for more?</span>
-    <a class="exp-launch-btn" href="explorer.html">Explore spots near a base →</a>
-    <a class="exp-launch-btn" href="discover.html">Discover new places →</a>
+    <a class="exp-launch-btn" href="explorer.html?view=all">Discover new places →</a>
   </div>`;
   const savedHTML = (saved.length
     ? `<div class="grid">${saved.map(e => cardHTML(e)).join("")}</div>`
@@ -6432,7 +6431,7 @@ function initExplorer() {
   const params = new URLSearchParams(window.location.search);
   const stored = loadState();
   const state = {
-    region: (stored.region && regions.indexOf(stored.region) !== -1) ? stored.region : regions[0],
+    region: (stored.region === "all" || (stored.region && regions.indexOf(stored.region) !== -1)) ? stored.region : regions[0],
     base:   stored.base || null,          // {lat, lng, label}
     maxKm:  stored.maxKm || 25,
     sports: stored.sports || { wave: true, wind: true, kite: true, wing: true },
@@ -6454,6 +6453,12 @@ function initExplorer() {
   // ?region= override
   const urlRegion = params.get("region");
   if (urlRegion && regions.indexOf(urlRegion) !== -1) state.region = urlRegion;
+  // ?view=all — the "Discover new places" entry point: show every spot on
+  // the website at once, map zoomed out to fit them all (no base).
+  if (params.get("view") === "all") {
+    state.region = "all";
+    state.base = null;
+  }
   // ?base=<stayId> — the stay-page launch bridge
   const urlBase = params.get("base");
   if (urlBase) {
@@ -6479,7 +6484,8 @@ function initExplorer() {
 
   function regionSpots() {
     return WAVEBASE_DATA.filter(e =>
-      e.type === "spot" && entryCountry(e) === state.region && Array.isArray(e.coords));
+      e.type === "spot" && Array.isArray(e.coords) &&
+      (state.region === "all" || entryCountry(e) === state.region));
   }
   function sportOk(e) { return entrySports(e).some(s => state.sports[s]); }
   // Geolocation helper — snap the region to the country of the nearest spot.
@@ -6587,6 +6593,8 @@ function initExplorer() {
       head = inReachCount
         ? `<div class="exp-list-head">${inReachCount} spot${inReachCount===1?"":"s"} within ${state.maxKm} km${state.onlyNew ? "" : ` · <span class="exp-fresh-count">${freshCount} new to you</span>`}</div>`
         : `<div class="exp-list-head">Nothing within ${state.maxKm} km yet <span class="muted">— widen your reach</span></div>`;
+    } else if (state.region === "all") {
+      head = `<div class="exp-list-head">${list.length} spot${list.length===1?"":"s"} across every region <span class="muted">— set your base to sort by distance</span></div>`;
     } else {
       head = `<div class="exp-list-head">${list.length} spot${list.length===1?"":"s"} in ${escHTML(state.region)} <span class="muted">— set your base to sort by distance</span></div>`;
     }
@@ -6637,8 +6645,10 @@ function initExplorer() {
 
   // ---- controls ----
   const regionSel = document.getElementById("exp-region");
-  regionSel.innerHTML = regions.map(r =>
-    `<option value="${escHTML(r)}"${r===state.region?" selected":""}>${escHTML(r)}</option>`).join("");
+  regionSel.innerHTML =
+    `<option value="all"${state.region==="all"?" selected":""}>🌍 All regions</option>` +
+    regions.map(r =>
+      `<option value="${escHTML(r)}"${r===state.region?" selected":""}>${escHTML(r)}</option>`).join("");
   regionSel.addEventListener("change", () => {
     state.region = regionSel.value; saveState(); populateStays(); redraw(true);
   });
@@ -6646,7 +6656,8 @@ function initExplorer() {
   function populateStays() {
     const sel = document.getElementById("exp-stay");
     const stays = WAVEBASE_DATA.filter(e =>
-      e.type === "stay" && entryCountry(e) === state.region && Array.isArray(e.coords));
+      e.type === "stay" && Array.isArray(e.coords) &&
+      (state.region === "all" || entryCountry(e) === state.region));
     if (!stays.length) {
       sel.innerHTML = `<option value="">No stays in this region</option>`;
       sel.disabled = true; return;
