@@ -1364,6 +1364,26 @@ function tierRank(t) {
   return i === -1 ? 99 : i;
 }
 
+/* Price-level "degree bar" for a stay's detail page — a 4-step scale
+   (Budget → Luxury) with this stay's tier highlighted, so it reads as a
+   relative position rather than a vague label. */
+function tierDegreeHTML(t) {
+  const meta = tierMeta(t);
+  if (!meta) return "";
+  const active = PRICE_TIERS.indexOf(t);
+  const steps = PRICE_TIERS.map((k, i) =>
+    `<span class="tier-deg-step tier-${k}${i === active ? " on" : ""}">${escHTML(TIER_META[k].label)}</span>`
+  ).join("");
+  return `<div class="tier-degree">
+    <div class="tier-degree-head">
+      <span class="tier-degree-title">Price level</span>
+      <span class="tier-degree-rel">📍 relative to local prices</span>
+    </div>
+    <div class="tier-deg-bar">${steps}</div>
+    <p class="tier-degree-blurb">${escHTML(meta.blurb)}</p>
+  </div>`;
+}
+
 /* Currency. EUR is the storage baseline; rates updated quarterly.
    Auto-detect from navigator.language on first visit, allow user to
    override in the My-WaveBase profile. Persisted in localStorage. */
@@ -1739,10 +1759,9 @@ function updatePriceRangeForCountry(country) {
   const minIn = document.getElementById("pr-min");
   const maxIn = document.getElementById("pr-max");
   const bars  = document.getElementById("pr-bars");
-  const tiers = document.getElementById("pr-tiers");
   const label = document.getElementById("pr-label");
   const reset = document.getElementById("pr-reset");
-  if (!root || !minIn || !maxIn || !bars || !tiers) return;
+  if (!root || !minIn || !maxIn || !bars) return;
 
   const bounds = priceBoundsForCountry(country);
   if (!bounds) {
@@ -1750,9 +1769,6 @@ function updatePriceRangeForCountry(country) {
     label.textContent = country ? "No priced stays here yet" : "Pick a country first";
     reset.hidden = true;
     bars.innerHTML = "";
-    tiers.innerHTML = "";
-    const inlineEl = document.getElementById("pr-tier-inline");
-    if (inlineEl) inlineEl.innerHTML = "";
     return;
   }
   root.dataset.state = "ready";
@@ -1767,7 +1783,6 @@ function updatePriceRangeForCountry(country) {
     setPriceRange(null);
   }
   renderHistogram(country, bounds);
-  renderTierZones(country, bounds);
   if (root._syncFill) root._syncFill();
   if (root._syncLabel) root._syncLabel();
 }
@@ -3232,10 +3247,6 @@ function pricesHTML(e) {
     } else {
       rows.push(["Indicative price", `<em class="muted">No public rate — direct enquiry / check Booking on your dates.</em>`]);
     }
-    if (p.tier) {
-      const meta = tierMeta(p.tier);
-      if (meta) rows.push(["Trip-type tier", `<span class="tier-chip tier-${p.tier}">${meta.icon} ${meta.label}</span> <span class="muted">— ${escHTML(meta.blurb)}</span>`]);
-    }
   } else {
     return "";
   }
@@ -3244,9 +3255,11 @@ function pricesHTML(e) {
   const items = rows.map(([k, val]) =>
     `<div class="cond-item"><span class="cond-label">${k}</span><span class="cond-val">${val}</span></div>`
   ).join("");
+  const tierBlock = (e.type === "stay" && p && p.tier) ? tierDegreeHTML(p.tier) : "";
   return `<section class="condities">
     <h2>Pricing</h2>
     <div class="cond-grid verblijf-grid">${items}</div>
+    ${tierBlock}
     ${src}
   </section>`;
 }
