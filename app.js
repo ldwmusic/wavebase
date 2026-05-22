@@ -3288,7 +3288,7 @@ function dienstenHTML(d) {
     ["Lessons", d.lessen],
     ["Rental", d.rental],
     ["Gear brands", d.brands],
-    ["Facilities", d.faciliteiten],
+    ["Facilities", iconizeFacilities(d.faciliteiten)],
     ["Team & vibe", d.team]
   ];
   const items = rows.map(([k, val]) =>
@@ -5804,7 +5804,7 @@ function compareKeyPoints(e) {
       ["Lessons", d.lessen || "—"],
       ["Rental", d.rental || "—"],
       ["Gear brands", d.brands || "—"],
-      ["Facilities", d.faciliteiten || "—"],
+      ["Facilities", iconizeFacilities(d.faciliteiten) || "—"],
       ["Team & vibe", d.team || "—"]
     ];
   }
