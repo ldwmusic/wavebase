@@ -1138,7 +1138,7 @@ function seasonForMonth(stats, monthNum) {
   let klass = "neutral";
   if (lower.includes("peak"))          klass = "peak";
   else if (lower.includes("high"))     klass = "high";
-  else if (lower.includes("shoulder")) klass = "shoulder";
+  else if (lower.includes("shoulder") || lower.includes("low")) klass = "shoulder";
   else if (lower.includes("summer") && p.inSeason !== false) klass = "shoulder";
   else if (lower.includes("storm"))    klass = "peak";
   else if (lower.includes("off") || p.inSeason === false) klass = "off";
@@ -2646,7 +2646,7 @@ function renderPeakingCarousel() {
     if (top.length === 0) {
       sub.textContent = `${monthLabel} ${year}${sportLabel} — nothing's peaking right now.`;
     } else if (fallback) {
-      sub.textContent = `${monthLabel} ${year}${sportLabel} — shoulder season everywhere; here's what's still rideable.`;
+      sub.textContent = `${monthLabel} ${year}${sportLabel} — low season everywhere; here's what's still rideable.`;
     } else {
       sub.textContent = `${monthLabel} ${year}${sportLabel} — ${top.length} ${top.length === 1 ? "place" : "places"} in season right now.`;
     }
@@ -5514,8 +5514,6 @@ function compareScoreboardHTML(items) {
         get: e => Array.isArray(e.sports) ? e.sports.length : null },
       { icon: "📚", label: "Lessons variety", max: 6, unit: " types", winnerDirection: "higher",
         get: e => itemCount(e.diensten && e.diensten.lessen) },
-      { icon: "🛹", label: "Rental variety", max: 6, unit: " items", winnerDirection: "higher",
-        get: e => itemCount(e.diensten && e.diensten.rental) },
       { icon: "🏷️", label: "Gear brands", mode: "label", labelStyle: "wrap",
         // LDW (2026-05-20): show the actual brand names, not a count.
         // The brands string is usually formatted as "Name + Name + Name —
@@ -5528,11 +5526,13 @@ function compareScoreboardHTML(items) {
           const compact = raw.split(/[—.]/, 1)[0].trim();
           return compact || raw;
         } },
-      { icon: "🛠️", label: "Facilities", max: 8, unit: " items", winnerDirection: "higher",
-        get: e => itemCount(e.diensten && e.diensten.faciliteiten) },
+      { icon: "🛠️", label: "Facilities", mode: "label", labelStyle: "wrap",
+        // Show which facilities, not a count (LDW/Michiel feedback).
+        get: e => {
+          const raw = e.diensten && e.diensten.faciliteiten;
+          return (raw && typeof raw === "string" && raw.trim()) ? raw.trim() : null;
+        } },
       // ---- Prices (partial: kept even if not all centers have the field) ----
-      { icon: "🎟️", label: "Trip type", mode: "label", partial: true,
-        get: e => e.prices && e.prices.tier ? cap(e.prices.tier) : null },
       { icon: "💶", label: "Group lesson", max: 100, partial: true, winnerDirection: "lower",
         labelFor: x => "€" + x,
         get: e => (e.prices && typeof e.prices.groupLessonEUR === "number") ? e.prices.groupLessonEUR : null },
@@ -6383,7 +6383,7 @@ function initExplorer() {
     base:   stored.base || null,          // {lat, lng, label}
     maxKm:  stored.maxKm || 25,
     sports: stored.sports || { wave: true, wind: true, kite: true, wing: true },
-    onlyNew: !!stored.onlyNew             // Fase 2 — "only new to me"
+    onlyNew: false                        // "only new to me" — removed
   };
 
   // Fase 2 — "known" spots = surfed / saved / in a trip. A spot you've
@@ -6658,17 +6658,6 @@ function initExplorer() {
     });
   });
 
-  // "Only new to me" toggle (Fase 2) — hides surfed/saved/in-trip spots.
-  const onlyNewBtn = document.getElementById("exp-onlynew");
-  if (onlyNewBtn) {
-    onlyNewBtn.classList.toggle("on", state.onlyNew);
-    onlyNewBtn.addEventListener("click", () => {
-      state.onlyNew = !state.onlyNew;
-      onlyNewBtn.classList.toggle("on", state.onlyNew);
-      saveState(); redraw(false);
-    });
-  }
-
   // Click anywhere on the map → set/move the base there.
   map.on("click", e => setBase(e.latlng.lat, e.latlng.lng, "Your pin"));
 
@@ -6711,7 +6700,7 @@ function renderDiscover(month) {
   return blocks.map(b => {
     const sub = b.inSeason
       ? `${b.inSeason} ${b.inSeason === 1 ? "spot" : "spots"} in season in ${monthLabel}`
-      : `Quieter side of the year — ${monthLabel} is shoulder/off-season here, but here's the best of it`;
+      : `Quieter side of the year — ${monthLabel} is low season here, but here's the best of it`;
     return `<section class="discover-country">
       <div class="discover-country-head">
         <h2><span class="discover-flag" aria-hidden="true">${b.co.flag}</span> ${escHTML(b.co.name)}</h2>

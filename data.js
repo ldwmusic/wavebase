@@ -476,7 +476,7 @@ const WAVEBASE_DATA = [
       periods: [
         { name: "Peak winter swell", months: [11, 12, 1, 2],  inSeason: true,
           waveM: [1.5, 3.0], waterC: [16, 18] },
-        { name: "Shoulder",          months: [3, 4, 9, 10],   inSeason: true,
+        { name: "Low season",          months: [3, 4, 9, 10],   inSeason: true,
           waveM: [1.0, 2.0], waterC: [17, 22] },
         { name: "Summer (smaller)",  months: [5, 6, 7, 8],    inSeason: true,
           waveM: [0.5, 1.2], waterC: [19, 22] }
@@ -573,7 +573,7 @@ const WAVEBASE_DATA = [
       periods: [
         { name: "Peak winter swell", months: [11, 12, 1, 2],  inSeason: true,
           waveM: [1.5, 3.0], waterC: [16, 18] },
-        { name: "Shoulder",          months: [3, 4, 9, 10],   inSeason: true,
+        { name: "Low season",          months: [3, 4, 9, 10],   inSeason: true,
           waveM: [1.0, 2.0], waterC: [17, 22] },
         { name: "Summer (smaller)",  months: [5, 6, 7, 8],    inSeason: true,
           waveM: [0.5, 1.2], waterC: [19, 22] }
@@ -671,7 +671,7 @@ const WAVEBASE_DATA = [
       periods: [
         { name: "Peak winter swell", months: [11, 12, 1, 2],  inSeason: true,
           waveM: [1.5, 3.0], waterC: [16, 18] },
-        { name: "Shoulder",          months: [3, 4, 9, 10],   inSeason: true,
+        { name: "Low season",          months: [3, 4, 9, 10],   inSeason: true,
           waveM: [1.0, 2.0], waterC: [17, 22] },
         { name: "Summer (smaller)",  months: [5, 6, 7, 8],    inSeason: true,
           waveM: [0.5, 1.2], waterC: [19, 22] }
@@ -767,7 +767,7 @@ const WAVEBASE_DATA = [
       periods: [
         { name: "Peak winter swell", months: [11, 12, 1, 2],  inSeason: true,
           waveM: [1.5, 3.0], waterC: [16, 18] },
-        { name: "Shoulder",          months: [3, 4, 9, 10],   inSeason: true,
+        { name: "Low season",          months: [3, 4, 9, 10],   inSeason: true,
           waveM: [1.0, 2.0], waterC: [17, 22] },
         { name: "Summer (smaller)",  months: [5, 6, 7, 8],    inSeason: true,
           waveM: [0.5, 1.2], waterC: [19, 22] }
@@ -863,7 +863,7 @@ const WAVEBASE_DATA = [
       periods: [
         { name: "Peak winter swell", months: [11, 12, 1, 2],  inSeason: true,
           waveM: [1.5, 3.0], waterC: [16, 18] },
-        { name: "Shoulder",          months: [3, 4, 9, 10],   inSeason: true,
+        { name: "Low season",          months: [3, 4, 9, 10],   inSeason: true,
           waveM: [1.0, 2.0], waterC: [17, 22] },
         { name: "Summer (smaller)",  months: [5, 6, 7, 8],    inSeason: true,
           waveM: [0.5, 1.2], waterC: [19, 22] }
@@ -961,7 +961,7 @@ const WAVEBASE_DATA = [
       periods: [
         { name: "Peak winter swell", months: [11, 12, 1, 2],  inSeason: true,
           waveM: [1.5, 3.0], waterC: [16, 18] },
-        { name: "Shoulder",          months: [3, 4, 9, 10],   inSeason: true,
+        { name: "Low season",          months: [3, 4, 9, 10],   inSeason: true,
           waveM: [1.0, 2.0], waterC: [17, 22] },
         { name: "Summer (smaller)",  months: [5, 6, 7, 8],    inSeason: true,
           waveM: [0.5, 1.2], waterC: [19, 22] }
@@ -1059,7 +1059,7 @@ const WAVEBASE_DATA = [
       periods: [
         { name: "Peak winter swell", months: [11, 12, 1, 2],  inSeason: true,
           waveM: [1.5, 3.0], waterC: [16, 18] },
-        { name: "Shoulder",          months: [3, 4, 9, 10],   inSeason: true,
+        { name: "Low season",          months: [3, 4, 9, 10],   inSeason: true,
           waveM: [1.0, 2.0], waterC: [17, 22] },
         { name: "Summer (smaller)",  months: [5, 6, 7, 8],    inSeason: true,
           waveM: [0.5, 1.2], waterC: [19, 22] }
@@ -1158,7 +1158,7 @@ const WAVEBASE_DATA = [
       periods: [
         { name: "Peak winter swell", months: [11, 12, 1, 2],  inSeason: true,
           waveM: [1.5, 3.0], waterC: [16, 18] },
-        { name: "Shoulder",          months: [3, 4, 9, 10],   inSeason: true,
+        { name: "Low season",          months: [3, 4, 9, 10],   inSeason: true,
           waveM: [1.0, 2.0], waterC: [17, 22] },
         { name: "Summer (smaller)",  months: [5, 6, 7, 8],    inSeason: true,
           waveM: [0.5, 1.2], waterC: [19, 22] }
@@ -1257,7 +1257,7 @@ const WAVEBASE_DATA = [
       periods: [
         { name: "Peak winter swell", months: [11, 12, 1, 2],  inSeason: true,
           waveM: [1.5, 3.0], waterC: [16, 18] },
-        { name: "Shoulder",          months: [3, 4, 9, 10],   inSeason: true,
+        { name: "Low season",          months: [3, 4, 9, 10],   inSeason: true,
           waveM: [1.0, 2.0], waterC: [17, 22] },
         { name: "Summer (smaller)",  months: [5, 6, 7, 8],    inSeason: true,
           waveM: [0.5, 1.2], waterC: [19, 22] }
@@ -1354,7 +1354,7 @@ const WAVEBASE_DATA = [
       periods: [
         { name: "Peak winter swell", months: [11, 12, 1, 2],  inSeason: true,
           waveM: [1.5, 3.0], waterC: [16, 18] },
-        { name: "Shoulder",          months: [3, 4, 9, 10],   inSeason: true,
+        { name: "Low season",          months: [3, 4, 9, 10],   inSeason: true,
           waveM: [1.0, 2.0], waterC: [17, 22] },
         { name: "Summer (smaller)",  months: [5, 6, 7, 8],    inSeason: true,
           waveM: [0.5, 1.2], waterC: [19, 22] }
@@ -1451,7 +1451,7 @@ const WAVEBASE_DATA = [
       periods: [
         { name: "Peak winter swell", months: [11, 12, 1, 2],  inSeason: true,
           waveM: [1.5, 3.0], waterC: [16, 18] },
-        { name: "Shoulder",          months: [3, 4, 9, 10],   inSeason: true,
+        { name: "Low season",          months: [3, 4, 9, 10],   inSeason: true,
           waveM: [1.0, 2.0], waterC: [17, 22] },
         { name: "Summer (smaller)",  months: [5, 6, 7, 8],    inSeason: true,
           waveM: [0.5, 1.2], waterC: [19, 22] }
@@ -1549,7 +1549,7 @@ const WAVEBASE_DATA = [
       periods: [
         { name: "Peak winter swell", months: [11, 12, 1, 2],  inSeason: true,
           waveM: [1.5, 3.0], waterC: [16, 18] },
-        { name: "Shoulder",          months: [3, 4, 9, 10],   inSeason: true,
+        { name: "Low season",          months: [3, 4, 9, 10],   inSeason: true,
           waveM: [1.0, 2.0], waterC: [17, 22] },
         { name: "Summer (smaller)",  months: [5, 6, 7, 8],    inSeason: true,
           waveM: [0.5, 1.2], waterC: [19, 22] }
@@ -1646,7 +1646,7 @@ const WAVEBASE_DATA = [
       periods: [
         { name: "Peak winter swell", months: [11, 12, 1, 2],  inSeason: true,
           waveM: [1.5, 3.0], waterC: [16, 18] },
-        { name: "Shoulder",          months: [3, 4, 9, 10],   inSeason: true,
+        { name: "Low season",          months: [3, 4, 9, 10],   inSeason: true,
           waveM: [1.0, 2.0], waterC: [17, 22] },
         { name: "Summer (smaller)",  months: [5, 6, 7, 8],    inSeason: true,
           waveM: [0.5, 1.2], waterC: [19, 22] }
@@ -1743,7 +1743,7 @@ const WAVEBASE_DATA = [
       periods: [
         { name: "Peak winter swell", months: [11, 12, 1, 2],  inSeason: true,
           waveM: [1.5, 3.0], waterC: [16, 18] },
-        { name: "Shoulder",          months: [3, 4, 9, 10],   inSeason: true,
+        { name: "Low season",          months: [3, 4, 9, 10],   inSeason: true,
           waveM: [1.0, 2.0], waterC: [17, 22] },
         { name: "Summer (smaller)",  months: [5, 6, 7, 8],    inSeason: true,
           waveM: [0.5, 1.2], waterC: [19, 22] }
@@ -1841,7 +1841,7 @@ const WAVEBASE_DATA = [
       periods: [
         { name: "Peak winter swell", months: [11, 12, 1, 2],  inSeason: true,
           waveM: [1.5, 3.0], waterC: [16, 18] },
-        { name: "Shoulder",          months: [3, 4, 9, 10],   inSeason: true,
+        { name: "Low season",          months: [3, 4, 9, 10],   inSeason: true,
           waveM: [1.0, 2.0], waterC: [17, 22] },
         { name: "Summer (smaller)",  months: [5, 6, 7, 8],    inSeason: true,
           waveM: [0.5, 1.2], waterC: [19, 22] }
@@ -1938,7 +1938,7 @@ const WAVEBASE_DATA = [
       periods: [
         { name: "Peak winter swell", months: [11, 12, 1, 2],  inSeason: true,
           waveM: [1.5, 3.0], waterC: [16, 18] },
-        { name: "Shoulder",          months: [3, 4, 9, 10],   inSeason: true,
+        { name: "Low season",          months: [3, 4, 9, 10],   inSeason: true,
           waveM: [1.0, 2.0], waterC: [17, 22] },
         { name: "Summer (smaller)",  months: [5, 6, 7, 8],    inSeason: true,
           waveM: [0.5, 1.2], waterC: [19, 22] }
@@ -2036,7 +2036,7 @@ const WAVEBASE_DATA = [
       periods: [
         { name: "Peak winter swell", months: [11, 12, 1, 2],  inSeason: true,
           waveM: [1.5, 3.0], waterC: [16, 18] },
-        { name: "Shoulder",          months: [3, 4, 9, 10],   inSeason: true,
+        { name: "Low season",          months: [3, 4, 9, 10],   inSeason: true,
           waveM: [1.0, 2.0], waterC: [17, 22] },
         { name: "Summer (smaller)",  months: [5, 6, 7, 8],    inSeason: true,
           waveM: [0.5, 1.2], waterC: [19, 22] }
@@ -2158,7 +2158,7 @@ const WAVEBASE_DATA = [
           windKn: [20, 28], waterC: [23, 25], waveM: [0.5, 1.5] },
         { name: "High",     months: [6, 9],     inSeason: true,
           windKn: [15, 24], waterC: [21, 23], waveM: [0.5, 1.2] },
-        { name: "Shoulder", months: [5, 10],    inSeason: true,
+        { name: "Low season", months: [5, 10],    inSeason: true,
           windKn: [10, 20], waterC: [19, 21], waveM: [0.3, 1.0] },
         { name: "Off",      months: [11, 12, 1, 2, 3, 4], inSeason: false,
           windKn: [8, 22],  waterC: [14, 17], waveM: null }
@@ -2253,7 +2253,7 @@ const WAVEBASE_DATA = [
           windKn: [18, 28], waterC: [23, 25], waveM: [0.5, 1.5] },
         { name: "High",     months: [6, 9],     inSeason: true,
           windKn: [13, 22], waterC: [21, 23], waveM: [0.3, 1.2] },
-        { name: "Shoulder", months: [5, 10],    inSeason: true,
+        { name: "Low season", months: [5, 10],    inSeason: true,
           windKn: [10, 18], waterC: [19, 21], waveM: [0.3, 1.0] },
         { name: "Off",      months: [11, 12, 1, 2, 3, 4], inSeason: false,
           windKn: [10, 22], waterC: [14, 17], waveM: null }
@@ -2355,7 +2355,7 @@ const WAVEBASE_DATA = [
           windKn: [13, 20], waterC: [21, 23], waveM: [0.8, 2.0] },
         { name: "Storm season",  months: [10, 11, 12, 1, 2, 3],  inSeason: true,
           windKn: [12, 24], waterC: [16, 19], waveM: [1.0, 3.5] },
-        { name: "Shoulder",      months: [4, 5],     inSeason: true,
+        { name: "Low season",      months: [4, 5],     inSeason: true,
           windKn: [11, 18], waterC: [18, 20], waveM: [0.5, 1.5] }
       ],
       // J     F     M     A     M     J     J     A     S     O     N     D
@@ -2456,7 +2456,7 @@ const WAVEBASE_DATA = [
       periods: [
         { name: "Storm season", months: [11, 12, 1, 2, 3],  inSeason: true,
           windKn: [12, 22], waterC: [17, 19], waveM: [1.0, 2.5] },
-        { name: "Shoulder",     months: [4, 10],            inSeason: true,
+        { name: "Low season",     months: [4, 10],            inSeason: true,
           windKn: [10, 16], waterC: [19, 22], waveM: [0.3, 1.2] },
         { name: "Summer S",     months: [5, 6, 7, 8, 9],    inSeason: true,
           windKn: [8, 15],  waterC: [20, 26], waveM: [0.3, 0.8] }
@@ -3080,7 +3080,7 @@ const WAVEBASE_DATA = [
           windKn: [8, 11], waterC: [15, 22], waveM: null },
         { name: "High",     months: [7, 8],       inSeason: true,
           windKn: [7, 10], waterC: [19, 22], waveM: null },
-        { name: "Shoulder", months: [4, 10],      inSeason: true,
+        { name: "Low season", months: [4, 10],      inSeason: true,
           windKn: [8, 12], waterC: [10, 15], waveM: null },
         { name: "Off",      months: [11, 12, 1, 2, 3], inSeason: false,
           windKn: [8, 13], waterC: [5, 9],   waveM: null }
@@ -3168,7 +3168,7 @@ const WAVEBASE_DATA = [
           windKn: [14, 22], waterC: [10, 14], waveM: [0.6, 1.4] },
         { name: "High",     months: [9, 4],          inSeason: true,
           windKn: [12, 20], waterC: [12, 16], waveM: [0.5, 1.2] },
-        { name: "Shoulder", months: [5, 8],          inSeason: true,
+        { name: "Low season", months: [5, 8],          inSeason: true,
           windKn: [10, 18], waterC: [14, 18], waveM: [0.4, 1.0] },
         { name: "Light",    months: [6, 7],          inSeason: true,
           windKn: [8, 16],  waterC: [16, 19], waveM: [0.3, 0.8] },
@@ -3262,7 +3262,7 @@ const WAVEBASE_DATA = [
       periods: [
         { name: "Peak winter",   months: [11, 12, 1, 2], inSeason: true,
           windKn: [10, 15], waterC: [5, 8],   waveM: [0.8, 1.4] },
-        { name: "Shoulder",      months: [3, 4, 9, 10],  inSeason: true,
+        { name: "Low season",      months: [3, 4, 9, 10],  inSeason: true,
           windKn: [9, 14],  waterC: [6, 17],  waveM: [0.6, 1.2] },
         { name: "Light summer",  months: [5, 6, 7, 8],   inSeason: true,
           windKn: [8, 13],  waterC: [11, 18], waveM: [0.6, 1.0] }
@@ -3351,7 +3351,7 @@ const WAVEBASE_DATA = [
           windKn: [14, 22], waterC: [10, 14], waveM: [0.6, 1.4] },
         { name: "High",     months: [9, 4],          inSeason: true,
           windKn: [12, 20], waterC: [12, 16], waveM: [0.5, 1.2] },
-        { name: "Shoulder", months: [5, 8],          inSeason: true,
+        { name: "Low season", months: [5, 8],          inSeason: true,
           windKn: [10, 18], waterC: [14, 18], waveM: [0.4, 1.0] },
         { name: "Light",    months: [6, 7],          inSeason: true,
           windKn: [8, 16],  waterC: [16, 19], waveM: [0.3, 0.8] },
@@ -3435,7 +3435,7 @@ const WAVEBASE_DATA = [
           windKn: [14, 22], waterC: [10, 14], waveM: [0.6, 1.4] },
         { name: "High",     months: [9, 4],          inSeason: true,
           windKn: [12, 20], waterC: [12, 16], waveM: [0.5, 1.2] },
-        { name: "Shoulder", months: [5, 8],          inSeason: true,
+        { name: "Low season", months: [5, 8],          inSeason: true,
           windKn: [10, 18], waterC: [14, 18], waveM: [0.4, 1.0] },
         { name: "Light",    months: [6, 7],          inSeason: true,
           windKn: [8, 16],  waterC: [16, 19], waveM: [0.3, 0.8] },
@@ -3609,7 +3609,7 @@ const WAVEBASE_DATA = [
           windKn: [14, 22], waterC: [10, 14], waveM: [0.7, 1.5] },
         { name: "High",     months: [9, 4],          inSeason: true,
           windKn: [12, 20], waterC: [12, 16], waveM: [0.5, 1.3] },
-        { name: "Shoulder", months: [5, 8],          inSeason: true,
+        { name: "Low season", months: [5, 8],          inSeason: true,
           windKn: [10, 18], waterC: [14, 18], waveM: [0.4, 1.0] },
         { name: "Light",    months: [6, 7],          inSeason: true,
           windKn: [8, 16],  waterC: [16, 19], waveM: [0.3, 0.7] },
@@ -3694,7 +3694,7 @@ const WAVEBASE_DATA = [
           windKn: [14, 22], waterC: [10, 14], waveM: [0.5, 1.2] },
         { name: "High",     months: [9, 4],          inSeason: true,
           windKn: [12, 20], waterC: [12, 16], waveM: [0.4, 1.0] },
-        { name: "Shoulder", months: [5, 8],          inSeason: true,
+        { name: "Low season", months: [5, 8],          inSeason: true,
           windKn: [10, 18], waterC: [14, 18], waveM: [0.3, 0.9] },
         { name: "Light",    months: [6, 7],          inSeason: true,
           windKn: [8, 16],  waterC: [16, 19], waveM: [0.3, 0.7] },
@@ -3792,7 +3792,7 @@ const WAVEBASE_DATA = [
           windKn: [14, 22], waterC: [10, 14], waveM: [0.6, 1.4] },
         { name: "High",     months: [9, 4],          inSeason: true,
           windKn: [12, 20], waterC: [12, 16], waveM: [0.5, 1.2] },
-        { name: "Shoulder", months: [5, 8],          inSeason: true,
+        { name: "Low season", months: [5, 8],          inSeason: true,
           windKn: [10, 18], waterC: [14, 18], waveM: [0.4, 1.0] },
         { name: "Light",    months: [6, 7],          inSeason: true,
           windKn: [8, 16],  waterC: [16, 19], waveM: [0.3, 0.8] },
