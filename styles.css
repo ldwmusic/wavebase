@@ -3259,6 +3259,54 @@ body:not(.is-home) .searchbar-wrap { display: none; }
 .sb-table:not(.mcc-table) .sb-dim-cell { width: 170px; white-space: normal; }
 .sb-table:not(.mcc-table) .sb-cell { white-space: normal; word-wrap: break-word; }
 
+/* "Sports taught" cell: the four main sports show as our pictograms in
+   sea tone; any extra sport (SUP, sail) renders as a small text chip
+   alongside the icons. */
+.sb-cell .sport-icons.cmp-sports-cell {
+  display: inline-flex; gap: 8px; flex-wrap: wrap; align-items: center;
+}
+.sb-cell .sport-icon { display: inline-flex; color: var(--sea); opacity: 1; }
+.sb-cell .sport-icon svg { width: 30px; height: 30px; display: block; }
+.sb-cell .cmp-sport-text {
+  display: inline-flex; align-items: center;
+  padding: 3px 10px;
+  border-radius: 999px;
+  background: var(--sea-soft);
+  color: var(--sea);
+  font-size: 11.5px; font-weight: 600;
+  white-space: nowrap;
+}
+
+/* "Wind kn / month" cell: 3-row × 13-col mini-table — header months,
+   then "avg" and "gust" rows. Same data as the bar chart on the detail
+   page but no chart, so two centers' months line up cell-by-cell. */
+.cmp-wind-tbl {
+  border-collapse: collapse;
+  font-size: 11px;
+  line-height: 1.4;
+  font-variant-numeric: tabular-nums;
+  width: 100%;
+}
+.cmp-wind-tbl th, .cmp-wind-tbl td {
+  padding: 2px 3px;
+  text-align: center;
+  white-space: nowrap;
+}
+.cmp-wind-tbl thead th {
+  font-size: 10px; font-weight: 600;
+  color: var(--ink-soft);
+  border-bottom: 1px solid var(--line);
+  padding-bottom: 4px;
+}
+.cmp-wind-tbl tbody th {
+  text-align: left;
+  font-size: 10px; text-transform: uppercase; letter-spacing: 0.04em;
+  font-weight: 600;
+  color: var(--ink-soft);
+  padding-right: 6px;
+}
+.cmp-wind-tbl tbody td { color: var(--ink); font-weight: 500; }
+
 /* 1-to-5 score → stars. Half star achieved by clipping a wrapped ★ to 50%. */
 .sb-stars { font-size: 16px; letter-spacing: 1px; color: var(--clay); white-space: nowrap; }
 .sb-stars .sb-star-half {
