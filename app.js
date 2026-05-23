@@ -5959,13 +5959,27 @@ function renderCompare() {
       </div>
     </div>`;
   }).join("");
+  // Inline month switcher — pills for quick "how would it be in [other
+  // month]?" without going back to the home filter. Persists to the same
+  // wavebase_month_pref the rest of the site reads, so the choice sticks
+  // when you navigate to a detail page. Updates only the scoreboard slot
+  // on click so the map below doesn't re-instantiate.
+  const curM = userSelectedMonth();
+  const monthLbls = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
+  const monthSwitchHTML = `<div class="cmp-month-switch" role="group" aria-label="Switch month for comparison">
+    <span class="cmp-month-switch-label">📅 Compare for month:</span>
+    <div class="cmp-month-pills">${monthLbls.map((mn, i) =>
+      `<button type="button" class="cmp-month-pill${i + 1 === curM ? " on" : ""}" data-month="${i + 1}">${mn}</button>`
+    ).join("")}</div>
+  </div>`;
   root.innerHTML = `
     <div class="compare-head">
       <h1>Compare <span class="seccount">${items.length}</span></h1>
       <button class="btn ghost" id="clear-compare">Clear all</button>
     </div>
+    ${monthSwitchHTML}
     ${compareMapHTML(items)}
-    ${compareScoreboardHTML(items)}
+    <div id="compare-scoreboard-slot">${compareScoreboardHTML(items)}</div>
     <div class="cmp-grid">${cols}</div>`;
   initCompareMap(items);
   document.getElementById("clear-compare").addEventListener("click", () => {
@@ -5975,6 +5989,18 @@ function renderCompare() {
     b.addEventListener("click", () => {
       WaveBaseAccount.toggleCompare(b.dataset.uncompare);
       updateNav(); renderCompare();
+    });
+  });
+  root.querySelectorAll(".cmp-month-pill").forEach(btn => {
+    btn.addEventListener("click", () => {
+      const newM = parseInt(btn.dataset.month, 10);
+      setMonthPref(newM);
+      // Re-render only the scoreboard slot — leaves the map untouched.
+      const slot = document.getElementById("compare-scoreboard-slot");
+      if (slot) slot.innerHTML = compareScoreboardHTML(items);
+      root.querySelectorAll(".cmp-month-pill").forEach(p => {
+        p.classList.toggle("on", parseInt(p.dataset.month, 10) === newM);
+      });
     });
   });
 }

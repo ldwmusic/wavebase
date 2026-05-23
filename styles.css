@@ -3295,6 +3295,40 @@ body:not(.is-home) .searchbar-wrap { display: none; }
 }
 .cmp-wind-cell strong { font-weight: 700; }
 
+/* Compare-page month switcher: 12 pills above the map; click any to
+   re-render the scoreboard for that month. Persists to the global
+   wavebase_month_pref, so the choice sticks to detail pages too. */
+.cmp-month-switch {
+  display: flex; flex-wrap: wrap; align-items: center; gap: 10px 14px;
+  margin: 12px 0 18px;
+  padding: 12px 16px;
+  background: var(--paper);
+  border: 1px solid var(--sand);
+  border-radius: 12px;
+}
+.cmp-month-switch-label {
+  font-size: 12.5px; font-weight: 600; color: var(--ink-soft);
+}
+.cmp-month-pills {
+  display: inline-flex; flex-wrap: wrap; gap: 4px;
+}
+.cmp-month-pill {
+  appearance: none; background: var(--paper);
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  padding: 4px 11px;
+  font-size: 12px; font-weight: 600;
+  color: var(--ink-soft);
+  cursor: pointer;
+  transition: background .12s, color .12s, border-color .12s;
+}
+.cmp-month-pill:hover { border-color: var(--sea); color: var(--sea); }
+.cmp-month-pill.on {
+  background: var(--clay);
+  color: #fff;
+  border-color: var(--clay);
+}
+
 /* 1-to-5 score → stars. Half star achieved by clipping a wrapped ★ to 50%. */
 .sb-stars { font-size: 16px; letter-spacing: 1px; color: var(--clay); white-space: nowrap; }
 .sb-stars .sb-star-half {
