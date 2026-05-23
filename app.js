@@ -5470,28 +5470,20 @@ function sportsCellHTML(sports) {
 // without the chart, so two centers' seasonal wind profiles line up
 // cell-by-cell across the columns.
 function windMonthCellHTML(stats, currentIdx) {
-  const avg = (stats && Array.isArray(stats.monthlyWindKn)) ? stats.monthlyWindKn : null;
+  // Only the user's currently-selected month is shown (the month sits in
+  // the row label, so the cell itself is just two clean lines of label +
+  // value + unit). LDW: "toon enkel de wind van die maand".
+  const avg = (stats && Array.isArray(stats.monthlyWindKn)) ? stats.monthlyWindKn[currentIdx] : null;
   const gust = stats
-    ? (Array.isArray(stats.monthlyDailyPeakKn) ? stats.monthlyDailyPeakKn
-       : (Array.isArray(stats.monthlyGustKn) ? stats.monthlyGustKn : null))
+    ? (Array.isArray(stats.monthlyDailyPeakKn) ? stats.monthlyDailyPeakKn[currentIdx]
+       : (Array.isArray(stats.monthlyGustKn) ? stats.monthlyGustKn[currentIdx] : null))
     : null;
-  if (!avg || !gust) return `<span class="sb-cell empty">—</span>`;
-  const M = ["J","F","M","A","M","J","J","A","S","O","N","D"];
-  // The user's selected month column gets the .is-current class so the
-  // whole column reads as "you are here" — same idea as the highlighted
-  // bar on the detail-page chart.
-  const isCur = i => (i === currentIdx) ? ' class="is-current"' : '';
-  const head = M.map((label, i) => `<th${isCur(i)}>${label}</th>`).join("");
-  const cell = v => (v != null ? Math.round(v) : "—");
-  const avgRow = avg.map((v, i) => `<td${isCur(i)}>${cell(v)}</td>`).join("");
-  const gustRow = gust.map((v, i) => `<td${isCur(i)}>${cell(v)}</td>`).join("");
-  return `<table class="cmp-wind-tbl">
-    <thead><tr><th></th>${head}</tr></thead>
-    <tbody>
-      <tr><th>avg</th>${avgRow}</tr>
-      <tr><th>gust</th>${gustRow}</tr>
-    </tbody>
-  </table>`;
+  if (avg == null && gust == null) return `<span class="sb-cell empty">—</span>`;
+  const fmt = v => (v != null ? Math.round(v) : "—");
+  return `<div class="cmp-wind-cell">
+    <div class="cmp-wind-line"><span class="lbl">avg</span> <strong>${fmt(avg)}</strong> kn</div>
+    <div class="cmp-wind-line"><span class="lbl">gust</span> <strong>${fmt(gust)}</strong> kn</div>
+  </div>`;
 }
 
 /* ---- COMPARE ---- */
@@ -5631,11 +5623,11 @@ function compareScoreboardHTML(items) {
           const raw = e.diensten && e.diensten.faciliteiten;
           return (raw && typeof raw === "string" && raw.trim()) ? iconizeFacilities(raw.trim()) : null;
         } },
-      // Monthly wind for the spot this center sits on — average vs typical
-      // daily-peak gust, the same numbers the bar chart on the detail page
-      // uses but rendered as a compact mini-table so two centers' seasons
-      // line up cell-by-cell (LDW feedback).
-      { icon: "💨", label: "Wind kn / month",
+      // Wind for the user's currently selected month — average + typical
+      // daily-peak gust, the same numbers the bar chart on the detail
+      // page uses for that month. The month name lives in the row label
+      // so it reads as "Wind in May" at a glance (LDW feedback).
+      { icon: "💨", label: `Wind in ${monthNames[m]}`,
         cellHTML: e => windMonthCellHTML(getStatsFor(e), m) },
       // ---- Prices (partial: kept even if not all centers have the field) ----
       { icon: "💶", label: "Group lesson", max: 100, partial: true, winnerDirection: "lower",

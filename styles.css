@@ -3277,38 +3277,23 @@ body:not(.is-home) .searchbar-wrap { display: none; }
   white-space: nowrap;
 }
 
-/* "Wind kn / month" cell: 3-row × 13-col mini-table — header months,
-   then "avg" and "gust" rows. Same data as the bar chart on the detail
-   page but no chart, so two centers' months line up cell-by-cell. */
-.cmp-wind-tbl {
-  border-collapse: collapse;
-  font-size: 11px;
-  line-height: 1.4;
+/* "Wind in [Month]" cell: only the user's selected month — average +
+   typical daily-peak gust (kn). The month sits in the row label, so the
+   cell itself is just two clean rows of label + value + unit. */
+.cmp-wind-cell {
+  display: flex; flex-direction: column; gap: 4px;
+  font-size: 13px;
   font-variant-numeric: tabular-nums;
-  width: 100%;
+  color: var(--ink);
 }
-.cmp-wind-tbl th, .cmp-wind-tbl td {
-  padding: 2px 3px;
-  text-align: center;
-  white-space: nowrap;
-}
-.cmp-wind-tbl thead th {
-  font-size: 10px; font-weight: 600;
+.cmp-wind-cell .lbl {
+  display: inline-block; min-width: 34px;
   color: var(--ink-soft);
-  border-bottom: 1px solid var(--line);
-  padding-bottom: 4px;
-}
-.cmp-wind-tbl tbody th {
-  text-align: left;
-  font-size: 10px; text-transform: uppercase; letter-spacing: 0.04em;
+  font-size: 11px;
+  text-transform: uppercase; letter-spacing: 0.04em;
   font-weight: 600;
-  color: var(--ink-soft);
-  padding-right: 6px;
 }
-.cmp-wind-tbl tbody td { color: var(--ink); font-weight: 500; }
-.cmp-wind-tbl .is-current { background: var(--clay-soft); }
-.cmp-wind-tbl thead th.is-current,
-.cmp-wind-tbl tbody td.is-current { color: var(--clay); font-weight: 700; }
+.cmp-wind-cell strong { font-weight: 700; }
 
 /* 1-to-5 score → stars. Half star achieved by clipping a wrapped ★ to 50%. */
 .sb-stars { font-size: 16px; letter-spacing: 1px; color: var(--clay); white-space: nowrap; }
