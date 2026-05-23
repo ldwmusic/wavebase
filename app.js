@@ -5469,7 +5469,7 @@ function sportsCellHTML(sports) {
 // "gust" rows. Same numbers the bar chart on the detail page uses, just
 // without the chart, so two centers' seasonal wind profiles line up
 // cell-by-cell across the columns.
-function windMonthCellHTML(stats) {
+function windMonthCellHTML(stats, currentIdx) {
   const avg = (stats && Array.isArray(stats.monthlyWindKn)) ? stats.monthlyWindKn : null;
   const gust = stats
     ? (Array.isArray(stats.monthlyDailyPeakKn) ? stats.monthlyDailyPeakKn
@@ -5477,10 +5477,14 @@ function windMonthCellHTML(stats) {
     : null;
   if (!avg || !gust) return `<span class="sb-cell empty">—</span>`;
   const M = ["J","F","M","A","M","J","J","A","S","O","N","D"];
-  const head = M.map(m => `<th>${m}</th>`).join("");
+  // The user's selected month column gets the .is-current class so the
+  // whole column reads as "you are here" — same idea as the highlighted
+  // bar on the detail-page chart.
+  const isCur = i => (i === currentIdx) ? ' class="is-current"' : '';
+  const head = M.map((label, i) => `<th${isCur(i)}>${label}</th>`).join("");
   const cell = v => (v != null ? Math.round(v) : "—");
-  const avgRow = avg.map(v => `<td>${cell(v)}</td>`).join("");
-  const gustRow = gust.map(v => `<td>${cell(v)}</td>`).join("");
+  const avgRow = avg.map((v, i) => `<td${isCur(i)}>${cell(v)}</td>`).join("");
+  const gustRow = gust.map((v, i) => `<td${isCur(i)}>${cell(v)}</td>`).join("");
   return `<table class="cmp-wind-tbl">
     <thead><tr><th></th>${head}</tr></thead>
     <tbody>
@@ -5632,7 +5636,7 @@ function compareScoreboardHTML(items) {
       // uses but rendered as a compact mini-table so two centers' seasons
       // line up cell-by-cell (LDW feedback).
       { icon: "💨", label: "Wind kn / month",
-        cellHTML: e => windMonthCellHTML(getStatsFor(e)) },
+        cellHTML: e => windMonthCellHTML(getStatsFor(e), m) },
       // ---- Prices (partial: kept even if not all centers have the field) ----
       { icon: "💶", label: "Group lesson", max: 100, partial: true, winnerDirection: "lower",
         labelFor: x => "€" + x,

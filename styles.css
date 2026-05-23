@@ -3306,6 +3306,9 @@ body:not(.is-home) .searchbar-wrap { display: none; }
   padding-right: 6px;
 }
 .cmp-wind-tbl tbody td { color: var(--ink); font-weight: 500; }
+.cmp-wind-tbl .is-current { background: var(--clay-soft); }
+.cmp-wind-tbl thead th.is-current,
+.cmp-wind-tbl tbody td.is-current { color: var(--clay); font-weight: 700; }
 
 /* 1-to-5 score → stars. Half star achieved by clipping a wrapped ★ to 50%. */
 .sb-stars { font-size: 16px; letter-spacing: 1px; color: var(--clay); white-space: nowrap; }
