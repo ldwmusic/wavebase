@@ -2713,11 +2713,27 @@ function initIndex() {
   // the typed substring fades out + becomes unclickable.
   const fCountry = document.getElementById("f-country");
   if (fCountry) {
+    // On touch devices (iPhone/iPad) the field is "tap to open picker",
+    // not "tap to type". Focusing a real <input> on iOS opens the soft
+    // keyboard and leaves a blinking cursor floating behind the menu,
+    // both of which are pure noise here — the user picks a country chip,
+    // not types. So on touch: readonly + inputmode="none" + hidden caret
+    // + immediate blur. Desktop keeps the typing-to-filter flow intact.
+    const isTouch = matchMedia("(pointer: coarse)").matches;
+    if (isTouch) {
+      fCountry.readOnly = true;
+      fCountry.setAttribute("inputmode", "none");
+      fCountry.style.caretColor = "transparent";
+    }
     // Focus handler opens the menu WITHOUT scrolling — focus fires before
     // mouseup, so a scroll here would move the input out from under the
     // cursor and break the click. The click handler (which fires after
     // mouseup) is the one that scrolls.
-    fCountry.addEventListener("focus", () => openDestinationsMenu({ scroll: false }));
+    fCountry.addEventListener("focus", () => {
+      openDestinationsMenu({ scroll: false });
+      // On touch, release focus right after so iOS drops the keyboard.
+      if (isTouch) setTimeout(() => fCountry.blur(), 0);
+    });
     fCountry.addEventListener("click", ev => {
       ev.stopPropagation();
       openDestinationsMenu();
