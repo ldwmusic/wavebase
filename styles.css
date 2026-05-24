@@ -83,6 +83,17 @@ h1, h2, h3, h4 {
 a { color: var(--sea); text-decoration: none; }
 a:hover { text-decoration: underline; }
 
+/* iOS: prevent the legacy double-tap-to-zoom on interactive elements.
+   Without this, tapping a country chip / pill / button / link triggers
+   a brief 300-ms "wait, was that a second tap?" delay AND can zoom the
+   page in. `touch-action: manipulation` says "this is a click, not a
+   gesture-start" — single taps fire instantly, pinch-zoom still works. */
+a, button, input, select, textarea, label, [role="button"] {
+  touch-action: manipulation;
+}
+/* Subtler tap highlight than the iOS default grey flash. */
+a, button, [role="button"] { -webkit-tap-highlight-color: rgba(63,111,125,0.08); }
+
 .wrap { max-width: var(--maxw); margin: 0 auto; padding: 0 28px; }
 
 /* ---- header ---- */
