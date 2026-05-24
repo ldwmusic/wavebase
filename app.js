@@ -463,14 +463,20 @@ function statsPanelHTML(e) {
       note: crowdLabelText(s.crowd) },
     { label: "Locals",
       main: s.localism || "No verified reports in recent reviews yet.",
-      note: s.localism ? "⚠ Inferred from general spot character — not yet verified against recent reviews." : "" }
+      // The "inferred" warning used to sit in the right-hand note column,
+      // which on iPhone crushed the Locals prose into 1-2 words per line.
+      // It now renders as a single disclaimer at the bottom of the panel.
+      note: "" }
   ];
+  const localsDisclaimer = s.localism
+    ? `<p class="stats-disclaimer">⚠ "Locals" is inferred from the spot's general character — not yet verified against recent reviews.</p>`
+    : "";
   const topFacts = `<div class="stats-grid">${topRows.map(r =>
     `<div class="stats-row">
       <span class="stats-label">${r.label}</span>
       <span class="stats-main">${r.main}</span>
       <span class="stats-note">${r.note}</span>
-    </div>`).join("")}</div>`;
+    </div>`).join("")}</div>${localsDisclaimer}`;
 
   // Period comparison
   let periodComparison = "";
