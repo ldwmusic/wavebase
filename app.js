@@ -5789,8 +5789,10 @@ function compareScoreboardHTML(items) {
     </tr>`;
   }).join("");
 
+  // --n-items drives the mobile CSS-grid: each row gets that many equal
+  // columns when the layout flips below the 700-px breakpoint.
   const tableHTML = `<div class="sb-table-wrap">
-    <table class="sb-table">
+    <table class="sb-table" style="--n-items: ${items.length}">
       <thead><tr><th class="sb-dim-cell"></th>${headerCells}</tr></thead>
       <tbody>${rows}</tbody>
     </table>

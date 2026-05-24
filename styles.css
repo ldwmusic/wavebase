@@ -3259,6 +3259,57 @@ body:not(.is-home) .searchbar-wrap { display: none; }
 .sb-table:not(.mcc-table) .sb-dim-cell { width: 170px; white-space: normal; }
 .sb-table:not(.mcc-table) .sb-cell { white-space: normal; word-wrap: break-word; }
 
+/* ── Mobile (<700 px): flip the compare scoreboard from a 3-column table
+   (label-left + items-right) into a stacked layout (label on top spans
+   full width, items side-by-side below). Same HTML, layout flipped via
+   `display: block/grid` so each item gets ±half the screen instead of
+   ±a third. The number of item-columns is driven by --n-items on the
+   <table>, set from JS based on items.length, so 2-4 items all fit. */
+@media (max-width: 700px) {
+  .sb-table:not(.mcc-table),
+  .sb-table:not(.mcc-table) thead,
+  .sb-table:not(.mcc-table) tbody {
+    display: block;
+    width: 100%;
+  }
+  /* Header row: the empty corner cell disappears; entry headers form an
+     N-column grid so they sit shoulder-to-shoulder above the body. */
+  .sb-table:not(.mcc-table) thead tr {
+    display: grid;
+    grid-template-columns: repeat(var(--n-items, 2), 1fr);
+    gap: 8px;
+  }
+  .sb-table:not(.mcc-table) thead .sb-dim-cell { display: none; }
+  .sb-table:not(.mcc-table) .sb-entry-header {
+    min-width: 0; padding: 8px 6px;
+  }
+  /* Body row: dim-label cell spans the full width as a section heading,
+     value cells form an N-column grid underneath. */
+  .sb-table:not(.mcc-table) tbody tr {
+    display: grid;
+    grid-template-columns: repeat(var(--n-items, 2), 1fr);
+    gap: 6px 8px;
+    padding: 4px 0;
+  }
+  .sb-table:not(.mcc-table) tbody .sb-dim-cell {
+    grid-column: 1 / -1;
+    width: auto;
+    padding: 14px 4px 6px;
+    border-top: 1px dashed var(--sand);
+    background: transparent;
+  }
+  /* First body row: no top border (the thead already gives a divider). */
+  .sb-table:not(.mcc-table) tbody tr:first-child .sb-dim-cell { border-top: none; }
+  .sb-table:not(.mcc-table) .sb-cell {
+    padding: 4px 6px;
+    vertical-align: top;
+  }
+  /* Cells already have their own dashed border-top (.sb-table tbody tr +
+     tr td) on desktop — kill that on mobile so we don't double up. */
+  .sb-table:not(.mcc-table) tbody tr + tr th,
+  .sb-table:not(.mcc-table) tbody tr + tr td { border-top: none; }
+}
+
 /* "Sports taught" cell: the four main sports show as our pictograms in
    sea tone; any extra sport (SUP, sail) renders as a small text chip
    alongside the icons. */
