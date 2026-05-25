@@ -3573,6 +3573,23 @@ const WAVEBASE_DATA = [
         ]
       }
     ],
+    educational: [
+      {
+        q: `Why is the wind here so reliable?`,
+        a: `Belgium's coast catches a near-constant **westerly flow** from the Atlantic. The North Sea is a relatively narrow, compressed marine zone — it acts as a corridor between Atlantic depressions tracking over Iceland/UK and the European mainland. Add the daily sea-breeze cycle (sea cooler than land in summer → afternoon onshore wind reinforces the westerly), and you get the country's most reliable wind exposure. Our data: **~55% of Sep–Mar days ≥15kn**, dropping to ~30% in June–July.`,
+        source: `Atlantic synoptic patterns + Open-Meteo 5-year archive.`
+      },
+      {
+        q: `Why is the beach so wide at low tide?`,
+        a: `De Panne sits on a **shallow shelf** — the seabed angles gently away from the dune line for hundreds of meters before reaching deeper water. Combined with the Belgian coast's **~4–5m tidal range**, that means kilometres of flat sand emerge at low tide. For learners that's ideal: lots of room to launch a kite or rig a sail without crowd interference, soft landings if you crash, and easy walk-back if you drift downwind. The trade-off: at high tide the beach narrows fast.`,
+        source: `Coastal bathymetry + Belgian-coast tidal data.`
+      },
+      {
+        q: `Why is high season September–March (despite being cold)?`,
+        a: `The strongest, most reliable wind comes with the **Atlantic storm season — September through March**, when Iceland–UK depressions are most frequent and intense. Summer is lighter (the Azores High dominates), but warmer. The honest trade-off: peak wind quality requires a **5/4 winter wetsuit** for 5–8°C water; lighter summer wind comes with comfortable 16–18°C water. Pick your priority — most committed locals pick winter.`,
+        source: `North Atlantic storm-season patterns + KMI water-temp data.`
+      }
+    ],
     condities: {
       golftype: "Wind chop, occasional small wave on storm days",
       golfhoogte: "0.3–1.0 m typical chop, 1.5 m+ on big-wind days",
@@ -3669,6 +3686,23 @@ const WAVEBASE_DATA = [
         ]
       }
     ],
+    educational: [
+      {
+        q: `Why is the wind here so reliable?`,
+        a: `Belgium's coast catches a near-constant **westerly flow** from the Atlantic. The North Sea is a relatively narrow, compressed marine zone — it acts as a corridor between Atlantic depressions tracking over Iceland/UK and the European mainland. Add the daily sea-breeze cycle (sea cooler than land in summer → afternoon onshore wind reinforces the westerly), and you get the country's most reliable wind exposure. Our data: **~55% of Sep–Mar days ≥15kn**, dropping to ~30% in June–July.`,
+        source: `Atlantic synoptic patterns + Open-Meteo 5-year archive.`
+      },
+      {
+        q: `Why are there no groynes here — and why does it matter?`,
+        a: `Most of the Belgian coast has **groynes** (concrete breakwaters) every few hundred meters, built to slow sand erosion. They make wind sports dangerous: kite + wing riders can drift into them, beginners get fished out before reaching open water. This stretch of Oostduinkerke is **uniquely groyne-free** — a single uninterrupted launch corridor of several hundred meters. That's why **Surfclub Windekind reports 100+ surfers on windy days**: it's structurally the safest launch on the coast.`,
+        source: `Coastal-defence layout + Surfclub Windekind own site.`
+      },
+      {
+        q: `Why is high season September–March (despite being cold)?`,
+        a: `The strongest, most reliable wind comes with the **Atlantic storm season — September through March**, when Iceland–UK depressions are most frequent and intense. Summer is lighter (the Azores High dominates), but warmer. The honest trade-off: peak wind quality requires a **5/4 winter wetsuit** for 5–8°C water; lighter summer wind comes with comfortable 16–18°C water. Pick your priority — most committed locals pick winter.`,
+        source: `North Atlantic storm-season patterns + KMI water-temp data.`
+      }
+    ],
     condities: {
       golftype: "Wind chop, occasional small wave on storm days",
       golfhoogte: "0.6–1.0 m typical chop, 1.4 m+ on big-wind days",
@@ -3756,6 +3790,23 @@ const WAVEBASE_DATA = [
         ]
       }
     ],
+    educational: [
+      {
+        q: `Why is the wind here so reliable?`,
+        a: `Belgium's coast catches a near-constant **westerly flow** from the Atlantic. The North Sea is a relatively narrow, compressed marine zone — it acts as a corridor between Atlantic depressions tracking over Iceland/UK and the European mainland. Add the daily sea-breeze cycle (sea cooler than land in summer → afternoon onshore wind reinforces the westerly), and you get the country's most reliable wind exposure. Our data: **~55% of Sep–Mar days ≥15kn**, dropping to ~30% in June–July.`,
+        source: `Atlantic synoptic patterns + Open-Meteo 5-year archive.`
+      },
+      {
+        q: `Why does the only real Belgian wave break here — and how rare is it?`,
+        a: `The Yser river opens into the sea at Nieuwpoort, depositing sediment into a **sandbar near the harbour piers**. On rare **strong NW storm days** (~15–25 days a year), incoming swell hits that bar at the right angle to break instead of just chopping out — Belgium's only consistent wave window. It's small (often <1.5m), shifty, and conditions-dependent. The piers also **funnel the wind**: the windward side gets clean lines, the lee side stays sheltered for beginners.`,
+        source: `River-mouth bar dynamics + Belgian-coast surf guides.`
+      },
+      {
+        q: `Why is high season September–March (despite being cold)?`,
+        a: `The strongest, most reliable wind comes with the **Atlantic storm season — September through March**, when Iceland–UK depressions are most frequent and intense. Summer is lighter (the Azores High dominates), but warmer. The honest trade-off: peak wind quality requires a **5/4 winter wetsuit** for 5–8°C water; lighter summer wind comes with comfortable 16–18°C water. Pick your priority — most committed locals pick winter.`,
+        source: `North Atlantic storm-season patterns + KMI water-temp data.`
+      }
+    ],
     condities: {
       golftype: "Wind-chop on bigger days; rare small bar-break on NW storm windows",
       golfhoogte: "0.4–1.2 m typical chop; up to 1.5 m on NW storms",
@@ -3838,6 +3889,23 @@ const WAVEBASE_DATA = [
           { kop: "Best wind", tekst: `W–NW prevailing, side-shore to onshore. Strongest in Sep–Mar, lighter Jun–Aug.` },
           { kop: "Bottom + tide", tekst: `Sandy bottom, gentle shelf. Tide range ~4-5 m — beach width varies a lot between high and low.` }
         ]
+      }
+    ],
+    educational: [
+      {
+        q: `Why is the wind here so reliable?`,
+        a: `Belgium's coast catches a near-constant **westerly flow** from the Atlantic. The North Sea is a relatively narrow, compressed marine zone — it acts as a corridor between Atlantic depressions tracking over Iceland/UK and the European mainland. Add the daily sea-breeze cycle (sea cooler than land in summer → afternoon onshore wind reinforces the westerly), and you get the country's most reliable wind exposure. Our data: **~55% of Sep–Mar days ≥15kn**, dropping to ~30% in June–July.`,
+        source: `Atlantic synoptic patterns + Open-Meteo 5-year archive.`
+      },
+      {
+        q: `Why is it quieter than its neighbours?`,
+        a: `Westende sits between the bigger resort beaches of Oostende and Nieuwpoort, but with a **lower density of high-rises** and a less developed boardwalk. The municipality (Middelkerke) deliberately kept the seafront more residential. That means **fewer beach-day crowds**, more room for wind sports without dodging swimmers, and a local-vibe club scene (Surfclub De Kwinte) rather than a tourist-funnel. Same wind quality as the rest of the coast; far less buzz.`,
+        source: `Middelkerke municipal context + Surfclub De Kwinte.`
+      },
+      {
+        q: `Why is high season September–March (despite being cold)?`,
+        a: `The strongest, most reliable wind comes with the **Atlantic storm season — September through March**, when Iceland–UK depressions are most frequent and intense. Summer is lighter (the Azores High dominates), but warmer. The honest trade-off: peak wind quality requires a **5/4 winter wetsuit** for 5–8°C water; lighter summer wind comes with comfortable 16–18°C water. Pick your priority — most committed locals pick winter.`,
+        source: `North Atlantic storm-season patterns + KMI water-temp data.`
       }
     ],
     condities: {
@@ -3935,6 +4003,23 @@ const WAVEBASE_DATA = [
         ]
       }
     ],
+    educational: [
+      {
+        q: `Why is the water always flat regardless of sea state?`,
+        a: `The Spuikom is an **enclosed 65-hectare salt-water basin** — originally built in the 1860s as a tidal sluice to flush silt from Oostende's harbour, now repurposed as a watersport zone. Because it's separated from the open sea by a dike, **no swell can enter and no waves can form** (the basin is too small — max ~800m — for wind to build any meaningful chop). Sea blown out at Mariakerke beach 1 km away? Spuikom is still rideable.`,
+        source: `Oostende city documentation + basin geometry + VZW Inside-Outside.`
+      },
+      {
+        q: `Why does the wind feel calmer here than at the coast — even when it's the same wind?`,
+        a: `The Spuikom catches the **same SW–W Atlantic flow** as the rest of the coast (Mariakerke beach is a kilometre away). But the basin sits behind the city and dike, so **surrounding buildings + the dike itself break up the wind**. The data shows comparable means (9–12 kn) but on the water it feels less raw — no swell to ride over, sheltered approach, calmer angles. **Same wind on paper, different experience under foot.**`,
+        source: `Sheltered-terrain effects + Open-Meteo 5-year archive.`
+      },
+      {
+        q: `Why is the active season April–October?`,
+        a: `Two reasons, neither about wind (which is comparable year-round, actually slightly windier in winter). First: **water temperature** — winter water at 5–6°C means windchill at every fall is harsh even in a 5/4. Second: the **club season** — VZW Inside-Outside runs lessons + facilities Apr–Oct. Experienced sailors can use the basin year-round, but the school + social scene is the warm half.`,
+        source: `Water-temp climatology + VZW Inside-Outside calendar.`
+      }
+    ],
     condities: {
       golftype: "Flat — no waves (enclosed basin)",
       golfhoogte: "Effectively zero; small wind chop only on windy days",
@@ -4012,6 +4097,23 @@ const WAVEBASE_DATA = [
           { kop: "Best wave windows", tekst: `Sep–Mar, NW swell + low-incoming tide. Small (0.8–1.5 m typical), shifty, sandbank-dependent. Wetsuit always — 5/4 winter, 4/3 shoulder.` },
           { kop: "Wind sports", tekst: `Plenty when not waving — same W–NW prevailing as the rest of the coast. Less developed scene than Knokke or Oostende.` }
         ]
+      }
+    ],
+    educational: [
+      {
+        q: `Why is the wind here so reliable?`,
+        a: `Belgium's coast catches a near-constant **westerly flow** from the Atlantic. The North Sea is a relatively narrow, compressed marine zone — it acts as a corridor between Atlantic depressions tracking over Iceland/UK and the European mainland. Add the daily sea-breeze cycle (sea cooler than land in summer → afternoon onshore wind reinforces the westerly), and you get the country's most reliable wind exposure. Our data: **~55% of Sep–Mar days ≥15kn**, dropping to ~30% in June–July.`,
+        source: `Atlantic synoptic patterns + Open-Meteo 5-year archive.`
+      },
+      {
+        q: `Why are the sandbanks cleaner here — and why does that occasionally produce real waves?`,
+        a: `De Haan is the Belgian coast's anomaly: **protected by local rules since the early 20th century**, no high-rises were ever built, and the dune belt has stayed intact. That natural coast also means **fewer groynes** interrupting the sand flow, so sandbanks form and reshape more naturally. On the right combination of NW swell + low-incoming tide, those cleaner banks produce **small but rideable waves** — maybe 15–25 days a year. Small wave-surf community knows the windows. Otherwise: wind-chop like the rest of the coast.`,
+        source: `De Haan protection rules + Belgian-coast surf-guide accounts.`
+      },
+      {
+        q: `Why is high season September–March (despite being cold)?`,
+        a: `The strongest, most reliable wind comes with the **Atlantic storm season — September through March**, when Iceland–UK depressions are most frequent and intense. Summer is lighter (the Azores High dominates), but warmer. The honest trade-off: peak wind quality requires a **5/4 winter wetsuit** for 5–8°C water; lighter summer wind comes with comfortable 16–18°C water. Pick your priority — most committed locals pick winter.`,
+        source: `North Atlantic storm-season patterns + KMI water-temp data.`
       }
     ],
     condities: {
@@ -4097,6 +4199,23 @@ const WAVEBASE_DATA = [
           { kop: "Wind shape", tekst: `Piers block westerly chop. Cleaner wind for kite + wing than the open coast on W winds; less protected on N–NE winds.` },
           { kop: "Tide", tekst: `Big tidal range — the beach width swings a lot. Low-tide low-water exposed sand makes for easy launching.` }
         ]
+      }
+    ],
+    educational: [
+      {
+        q: `Why is the wind here so reliable?`,
+        a: `Belgium's coast catches a near-constant **westerly flow** from the Atlantic. The North Sea is a relatively narrow, compressed marine zone — it acts as a corridor between Atlantic depressions tracking over Iceland/UK and the European mainland. Add the daily sea-breeze cycle (sea cooler than land in summer → afternoon onshore wind reinforces the westerly), and you get the country's most reliable wind exposure. Our data: **~55% of Sep–Mar days ≥15kn**, dropping to ~30% in June–July.`,
+        source: `Atlantic synoptic patterns + Open-Meteo 5-year archive.`
+      },
+      {
+        q: `Why does the harbour pier clean the wind?`,
+        a: `One of Europe's biggest car-shipping ports sits just west of Zeebrugge beach, with **long piers reaching far out to sea**. Those piers act as a **breakwater for westerly chop** — the dominant Atlantic wind direction. The water in the pier's shadow stays smoother, with less wind-chop on the surface, making for cleaner kite + wing rides on W winds. The trade-off: industrial aesthetic (cranes, jetties, containers on the horizon), and the shelter doesn't work for N–NE winds (the wrong angle for the pier).`,
+        source: `Port layout + Belgian-kite-community accounts.`
+      },
+      {
+        q: `Why is high season September–March (despite being cold)?`,
+        a: `The strongest, most reliable wind comes with the **Atlantic storm season — September through March**, when Iceland–UK depressions are most frequent and intense. Summer is lighter (the Azores High dominates), but warmer. The honest trade-off: peak wind quality requires a **5/4 winter wetsuit** for 5–8°C water; lighter summer wind comes with comfortable 16–18°C water. Pick your priority — most committed locals pick winter.`,
+        source: `North Atlantic storm-season patterns + KMI water-temp data.`
       }
     ],
     condities: {
@@ -4195,6 +4314,23 @@ const WAVEBASE_DATA = [
         inhoud: [
           { kop: "By train", tekst: `Knokke is a terminus, direct from Brugge (15 min), onward to Brussels (~1h30). Easiest big-city access of the coast for kiters.` }
         ]
+      }
+    ],
+    educational: [
+      {
+        q: `Why is the wind here so reliable?`,
+        a: `Belgium's coast catches a near-constant **westerly flow** from the Atlantic. The North Sea is a relatively narrow, compressed marine zone — it acts as a corridor between Atlantic depressions tracking over Iceland/UK and the European mainland. Add the daily sea-breeze cycle (sea cooler than land in summer → afternoon onshore wind reinforces the westerly), and you get the country's most reliable wind exposure. Our data: **~55% of Sep–Mar days ≥15kn**, dropping to ~30% in June–July.`,
+        source: `Atlantic synoptic patterns + Open-Meteo 5-year archive.`
+      },
+      {
+        q: `Why is this Belgium's kite + wing capital?`,
+        a: `Three things lined up. First: the **beach geometry** — wide, flat, with **multiple wind angles working** (most prevailing W–NW directions are usable, plus N and NE on different parts of the bay). Second: **infrastructure** — the on-site Surfers Paradise center has lessons + rentals + events + a sport hostel, so the scene compounds (more riders → more events → more riders). Third: **access** — direct train from Brussels (~1h30) makes it the easiest big-city day-trip on the coast.`,
+        source: `Surfers Paradise center own site + NMBS schedules + kite-community accounts.`
+      },
+      {
+        q: `Why is high season September–March (despite being cold)?`,
+        a: `The strongest, most reliable wind comes with the **Atlantic storm season — September through March**, when Iceland–UK depressions are most frequent and intense. Summer is lighter (the Azores High dominates), but warmer. The honest trade-off: peak wind quality requires a **5/4 winter wetsuit** for 5–8°C water; lighter summer wind comes with comfortable 16–18°C water. Pick your priority — most committed locals pick winter.`,
+        source: `North Atlantic storm-season patterns + KMI water-temp data.`
       }
     ],
     condities: {
