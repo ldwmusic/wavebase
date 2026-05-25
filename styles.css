@@ -4152,7 +4152,12 @@ button.rml-key.off .rml-dot {
     border-top: 1px solid var(--sand);
     padding: 8px 0 calc(8px + env(safe-area-inset-bottom, 0px));
     box-shadow: 0 -4px 18px -10px rgba(0,0,0,0.12);
+    /* Slide down off-screen when the user scrolls down to read — gives
+       back the vertical room — and slide back up when they scroll up
+       (or are near the top). Set by initMobileTabbar's scroll handler. */
+    transition: transform 0.25s ease;
   }
+  .mobile-tabbar.is-hidden { transform: translateY(110%); }
   .mobile-tabbar .tab {
     flex: 1;
     display: flex;

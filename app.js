@@ -6190,6 +6190,33 @@ function initMobileTabbar() {
     const n = WaveBaseAccount.getCompare().length;
     if (n) cmpLabel.textContent = `Compare (${n})`;
   }
+
+  // Auto-hide-on-scroll: scrolling down hides the bar (more reading room
+  // for content-heavy pages — LDW: "doel is om meer plaats te winnen"),
+  // scrolling up brings it back. Always show near the top so the bar
+  // is reachable when the user just landed. rAF-throttled so the scroll
+  // listener stays cheap; a small px threshold ignores micro-jitter.
+  let lastY = window.scrollY;
+  let ticking = false;
+  const HIDE_AFTER_PX = 80;   // don't hide until scrolled past this
+  const DELTA = 6;            // px threshold to count as a real scroll
+  window.addEventListener("scroll", () => {
+    if (ticking) return;
+    ticking = true;
+    requestAnimationFrame(() => {
+      const y = window.scrollY;
+      const dy = y - lastY;
+      if (y < HIDE_AFTER_PX) {
+        nav.classList.remove("is-hidden");
+      } else if (dy > DELTA) {
+        nav.classList.add("is-hidden");
+      } else if (dy < -DELTA) {
+        nav.classList.remove("is-hidden");
+      }
+      lastY = y;
+      ticking = false;
+    });
+  }, { passive: true });
 }
 
 /* ---- Continent page — list of countries in one continent ----
