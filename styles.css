@@ -2039,6 +2039,13 @@ body:not(.is-home) .searchbar-wrap { display: none; }
 .header-search .searchbar-clear {
   width: 26px; height: 26px; font-size: 16px;
 }
+/* iPad landscape (and similar mid-widths): the search box was growing
+   towards 520 px and its × clear button was kissing "Destinations".
+   Cap the width tighter and bump the gap so the nav row breathes. */
+@media (max-width: 1100px) and (min-width: 721px) {
+  .header-search { max-width: 260px; margin: 0 28px; }
+  .header-search .searchbar-clear { width: 22px; height: 22px; font-size: 14px; }
+}
 @media (max-width: 720px) {
   .header-search { display: none; }
 }
