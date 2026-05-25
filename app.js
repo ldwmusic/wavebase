@@ -5081,10 +5081,19 @@ function renderSharedTrip() {
 
 function renderAccount() {
   const root = document.getElementById("account-root");
+  // Preserve the page scroll across the full re-render. Any inline
+  // action that calls renderAccount (add place, delete trip, reorder,
+  // rename, date edit, …) would otherwise jump the viewport back to
+  // the top — extra annoying when you have several trips on the page.
+  const __sy = window.scrollY;
   const p = WaveBaseAccount.getProfile();
   const saved = WaveBaseAccount.getSaved().map(byId).filter(Boolean);
   const trips = WaveBaseAccount.getTrips();
   const reviews = WaveBaseAccount.getReviews();
+  // Restore scroll after the DOM rebuild — at the end of this function
+  // via a queued micro-task so it runs after the synchronous innerHTML
+  // assignments have laid out the new content.
+  queueMicrotask(() => window.scrollTo(0, __sy));
 
   function opts(list, val) {
     return list.map(o => `<option value="${o}" ${val === o ? "selected" : ""}>${o}</option>`).join("");
