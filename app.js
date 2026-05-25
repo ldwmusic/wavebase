@@ -5498,7 +5498,9 @@ function renderAccount() {
           return { row: r, origIdx: i, top: rr.top + dy, bot: rr.bottom + dy };
         });
         // Collapse the dragged row out of flow so the list compacts.
-        row.classList.add("dragging");
+        // Touch-specific class so we don't break the desktop drag image
+        // (which uses `.dragging` for a subtle opacity-only preview).
+        row.classList.add("touch-dragging");
         touchDrag = { fromIndex, dropIdx: null };
       }, { passive: true });
       grip.addEventListener("touchmove", ev => {
@@ -5566,7 +5568,7 @@ function renderAccount() {
         if (!touchDrag) return;
         const { fromIndex, dropIdx } = touchDrag;
         if (ghost) { ghost.remove(); ghost = null; }
-        row.classList.remove("dragging");
+        row.classList.remove("touch-dragging");
         clearVisuals();
         touchDrag = null;
         siblingCache = [];

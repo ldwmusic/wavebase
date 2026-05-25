@@ -3860,10 +3860,14 @@ button.rml-key.off .rml-dot {
      during slow drag — long animations made it feel laggy/glitchy. */
   transition: background 0.12s ease, transform 0.10s ease;
 }
-/* Touch drag: original row collapses out of flow (the ghost clone shows
-   the content under the finger). Desktop mouse drag still gets the
-   subtle "half-visible" preview. */
-.trip-item-row.dragging {
+/* Desktop mouse drag: subtle "this is the row being dragged" preview —
+   keep the row in flow with reduced opacity so the native HTML5 drag
+   image (a screenshot of the row at dragstart) is still meaningful. */
+.trip-item-row.dragging { opacity: 0.4; }
+/* Touch drag: original row collapses out of flow (the floating ghost
+   clone shows the content under the finger). Separate class so it
+   doesn't break the desktop drag image. */
+.trip-item-row.touch-dragging {
   opacity: 0;
   height: 0;
   padding-top: 0; padding-bottom: 0;
