@@ -4766,6 +4766,26 @@ function wireTripAdd(root) {
   });
 }
 
+// Persisted collapse state for trip cards on the account page — keeps
+// the overview short when the user has many trips. Stored as a JSON
+// array of trip IDs in localStorage under "wavebase_trips_collapsed".
+function getCollapsedTrips() {
+  try { return JSON.parse(localStorage.getItem("wavebase_trips_collapsed") || "[]") || []; }
+  catch (e) { return []; }
+}
+function setTripCollapsed(id, val) {
+  let arr = getCollapsedTrips();
+  if (val) { if (arr.indexOf(id) === -1) arr.push(id); }
+  else { arr = arr.filter(x => x !== id); }
+  try { localStorage.setItem("wavebase_trips_collapsed", JSON.stringify(arr)); } catch (e) {}
+}
+function isTripCollapsed(id) { return getCollapsedTrips().indexOf(id) !== -1; }
+
+// renderAccount's scroll-restore default is "stay where you were";
+// set this from a callsite (currently: + New trip) to override it with
+// "scroll the freshly-rendered card with this trip ID into view."
+let __renderAccountScrollTo = null;
+
 /* Renders a whole trip card — overview header, the Itinerary <-> Day by
    day views and the map. readonly drops the edit affordances (drag,
    date inputs, remove, share, add) — used for shared-trip pages. */
@@ -4819,9 +4839,15 @@ function tripCardHTML(t, readonly) {
       <div class="trip-add-results"></div>
     </div>
   </div>`;
-  return `<div class="trip" id="trip-${t.id}">
+  // Collapse toggle (only on the owner's account, not on shared trips).
+  // Initial state from localStorage so a collapsed trip stays collapsed
+  // across re-renders. Click handler just toggles the class on the .trip
+  // element + persists — no full re-render needed.
+  const collapsed = !readonly && isTripCollapsed(t.id);
+  const collapseBtn = readonly ? "" : `<button type="button" class="trip-collapse-btn" data-collapse="${t.id}" aria-label="Show / hide trip" title="Show / hide trip"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="6 9 12 15 18 9"/></svg></button>`;
+  return `<div class="trip${collapsed ? " is-collapsed" : ""}" id="trip-${t.id}">
     <header class="trip-overview">
-      <div class="trip-head">${nameEl}${headActions}</div>
+      <div class="trip-head">${nameEl}${headActions}${collapseBtn}</div>
       ${summary}
     </header>
     ${viewToggle}
@@ -5081,19 +5107,26 @@ function renderSharedTrip() {
 
 function renderAccount() {
   const root = document.getElementById("account-root");
-  // Preserve the page scroll across the full re-render. Any inline
-  // action that calls renderAccount (add place, delete trip, reorder,
-  // rename, date edit, …) would otherwise jump the viewport back to
-  // the top — extra annoying when you have several trips on the page.
+  // Default: preserve the page scroll across the full re-render. Any
+  // inline action that calls renderAccount would otherwise jump back
+  // to the top — extra annoying when you have several trips. Callsites
+  // can override this by setting __renderAccountScrollTo to a trip ID
+  // before calling renderAccount — that trip's card gets scrolled into
+  // view instead (currently used by the + New trip button).
   const __sy = window.scrollY;
+  const __scrollTarget = __renderAccountScrollTo;
+  __renderAccountScrollTo = null;
   const p = WaveBaseAccount.getProfile();
   const saved = WaveBaseAccount.getSaved().map(byId).filter(Boolean);
   const trips = WaveBaseAccount.getTrips();
   const reviews = WaveBaseAccount.getReviews();
-  // Restore scroll after the DOM rebuild — at the end of this function
-  // via a queued micro-task so it runs after the synchronous innerHTML
-  // assignments have laid out the new content.
-  queueMicrotask(() => window.scrollTo(0, __sy));
+  queueMicrotask(() => {
+    if (__scrollTarget) {
+      const el = document.getElementById("trip-" + __scrollTarget);
+      if (el) { el.scrollIntoView({ behavior: "smooth", block: "start" }); return; }
+    }
+    window.scrollTo(0, __sy);
+  });
 
   function opts(list, val) {
     return list.map(o => `<option value="${o}" ${val === o ? "selected" : ""}>${o}</option>`).join("");
@@ -5294,10 +5327,29 @@ function renderAccount() {
   });
   document.getElementById("new-trip").addEventListener("click", () => {
     const name = window.prompt("Name your new trip:");
-    if (name) { WaveBaseAccount.addTrip(name); renderAccount(); }
+    if (name) {
+      const nt = WaveBaseAccount.addTrip(name);
+      // Override the default scroll-preserve so the freshly created
+      // trip card scrolls into view — without this you'd stay at the
+      // top of the page and have to hunt for it (LDW).
+      if (nt && nt.id) __renderAccountScrollTo = nt.id;
+      renderAccount();
+    }
   });
   root.querySelectorAll("[data-del]").forEach(b => {
     b.addEventListener("click", () => { WaveBaseAccount.deleteTrip(b.dataset.del); renderAccount(); });
+  });
+  // Collapse toggle on each trip card — pure class toggle, persists
+  // to localStorage so the state survives re-renders. No full re-render.
+  root.querySelectorAll("[data-collapse]").forEach(b => {
+    b.addEventListener("click", () => {
+      const id = b.dataset.collapse;
+      const tripEl = document.getElementById("trip-" + id);
+      if (!tripEl) return;
+      const nowCollapsed = !tripEl.classList.contains("is-collapsed");
+      tripEl.classList.toggle("is-collapsed", nowCollapsed);
+      setTripCollapsed(id, nowCollapsed);
+    });
   });
   let dragSrc = null;
   root.querySelectorAll(".trip-item-row[draggable='true']").forEach(row => {
