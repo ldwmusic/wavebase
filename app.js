@@ -1667,8 +1667,18 @@ function sportIsLive(key) {
 // values like "wave" still parse as a 1-element array via comma-split.
 function getSportPref() {
   // Returns Array<string> of sport keys. Empty = no sport filter.
-  // Priority: URL param (deep links) → localStorage (user's pinned picks)
-  // → profile.surfType (auto-default from identity) → empty.
+  // Priority: URL (intentional state from clicks / deep links / back-nav)
+  // → profile.surfType (the user's identity — primary source of truth)
+  // → localStorage (only for users without a profile yet)
+  // → empty (= "All").
+  //
+  // Why profile > localStorage: LDW reported that profile changes weren't
+  // reflected on the home page because old localStorage from earlier
+  // testing was winning. The user expectation is clear — profile IS the
+  // setting; localStorage is just historical pill clicks. Putting profile
+  // above means: edit account → next page load reflects it. Trade-off:
+  // clicking "All" doesn't survive a reload unless the URL preserves it
+  // (it does, via setParam in runSearch).
   const SURF_MAP = { surfer: "wave", windsurfer: "wind", kitesurfer: "kite", wingfoiler: "wing" };
   const parseList = s => {
     if (s == null || s === "" || s === "all") return [];
@@ -1677,6 +1687,11 @@ function getSportPref() {
   const params = new URLSearchParams(window.location.search);
   const fromUrl = params.get("sport");
   if (fromUrl !== null) return parseList(fromUrl);
+  if (typeof WaveBaseAccount !== "undefined") {
+    const types = WaveBaseAccount.getProfile().surfType || [];
+    const mapped = types.map(t => SURF_MAP[t]).filter(Boolean);
+    if (mapped.length) return mapped;
+  }
   // Legacy "wave" single-key in localStorage was an old implicit default —
   // clear it so it doesn't stick after the multi-select rollout.
   const stored = localStorage.getItem("wavebase_sport_pref");
@@ -1684,12 +1699,6 @@ function getSportPref() {
     localStorage.removeItem("wavebase_sport_pref");
   } else if (stored !== null) {
     return parseList(stored);
-  }
-  // Profile fallback — only when neither URL nor localStorage has anything.
-  if (typeof WaveBaseAccount !== "undefined") {
-    const types = WaveBaseAccount.getProfile().surfType || [];
-    const mapped = types.map(t => SURF_MAP[t]).filter(Boolean);
-    if (mapped.length) return mapped;
   }
   return [];
 }
@@ -1740,11 +1749,12 @@ function wireSportPills(container) {
         next = [...current];
       }
       setSportPref(next);
-      // Mirror to URL. Empty selection = ?sport=all (so the explicit choice
-      // is shareable + survives back-nav, just like the localStorage trick).
+      // Mirror to URL. Empty selection = ?sport=all (explicitly) so the
+      // choice survives a page reload — otherwise an empty URL would let
+      // the profile default re-apply and the "All" click would silently
+      // revert to the user's profile sport.
       const url = new URL(window.location.href);
-      if (next.length === 0) url.searchParams.delete("sport");
-      else url.searchParams.set("sport", next.join(","));
+      url.searchParams.set("sport", next.length === 0 ? "all" : next.join(","));
       window.history.replaceState(null, "", url.toString());
       runSearch();
     });
@@ -2198,8 +2208,10 @@ function runSearch() {
   setParam("type", type, type === "all");
   setParam("month", month, month === "all");
   // Sport URL uses comma-joined multi-select form (e.g. "wave,wind"), or
-  // is omitted entirely when no sports are selected (= "show all").
-  setParam("sport", sports.join(","), sportIsAll);
+  // "all" when nothing is selected. We DO write "all" explicitly (don't omit)
+  // so a refresh of an "All" URL stays on All — an absent param would let
+  // the profile-default re-apply on next load.
+  setParam("sport", sportIsAll ? "all" : sports.join(","), false);
   setParam("q", query, !query);
   window.history.replaceState(null, "", url.toString());
 
