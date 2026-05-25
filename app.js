@@ -1672,12 +1672,14 @@ function getSportPref() {
   if (fromUrl) return fromUrl;
   if (typeof WaveBaseAccount !== "undefined") {
     const types = WaveBaseAccount.getProfile().surfType || [];
-    if (types.length === 1) {
+    if (types.length >= 1) {
+      // Pick the first ticked sport. Users who do multiple sports can always
+      // click "All" — but defaulting to one of their actual sports is more
+      // useful than defaulting to "all" (which buries the spots they care about).
       const map = { surfer: "wave", windsurfer: "wind", kitesurfer: "kite", wingfoiler: "wing" };
       const mapped = map[types[0]];
       if (mapped) return mapped;
     }
-    // Multiple sports in profile → don't pick for them, fall through.
   }
   // One-time migration: "wave" used to be the implicit default in earlier
   // versions, so anyone with that stuck in localStorage shouldn't keep it.
