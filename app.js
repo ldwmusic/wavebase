@@ -5122,8 +5122,17 @@ function renderAccount() {
   const reviews = WaveBaseAccount.getReviews();
   queueMicrotask(() => {
     if (__scrollTarget) {
-      const el = document.getElementById("trip-" + __scrollTarget);
-      if (el) { el.scrollIntoView({ behavior: "smooth", block: "start" }); return; }
+      // Wait for layout so getBoundingClientRect is accurate, then scroll
+      // by computed pixel — scrollIntoView + scroll-margin-top under-shot
+      // and parked the new trip just below the viewport (LDW).
+      requestAnimationFrame(() => {
+        const el = document.getElementById("trip-" + __scrollTarget);
+        if (!el) { window.scrollTo(0, __sy); return; }
+        const HEADER_OFFSET = 96;   // clear the sticky site header
+        const targetY = el.getBoundingClientRect().top + window.scrollY - HEADER_OFFSET;
+        window.scrollTo({ top: Math.max(0, targetY), behavior: "smooth" });
+      });
+      return;
     }
     window.scrollTo(0, __sy);
   });
