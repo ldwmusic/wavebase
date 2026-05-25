@@ -25,10 +25,12 @@ const WaveBaseAccount = (function () {
         yearsSurfing: p.yearsSurfing || "",
         boardType: p.boardType || "",
         travelStyle: p.travelStyle || "",
+        travelStyles: Array.isArray(p.travelStyles) ? p.travelStyles : [],
         tripIntent: p.tripIntent || "",
         homeCountry: p.homeCountry || "",
         surfType: Array.isArray(p.surfType) ? p.surfType : [],
         discipline: Array.isArray(p.discipline) ? p.discipline : [],
+        tripPriorities: Array.isArray(p.tripPriorities) ? p.tripPriorities : [],
         howDidYouFindUs: p.howDidYouFindUs || "",
         currency: p.currency || ""
       },
@@ -59,10 +61,12 @@ const WaveBaseAccount = (function () {
         yearsSurfing: (p.yearsSurfing || "").toString().trim(),
         boardType: p.boardType || "",
         travelStyle: p.travelStyle || "",
+        travelStyles: Array.isArray(p.travelStyles) ? p.travelStyles : [],
         tripIntent: p.tripIntent || "",
         homeCountry: (p.homeCountry || "").trim(),
         surfType: Array.isArray(p.surfType) ? p.surfType : [],
         discipline: Array.isArray(p.discipline) ? p.discipline : [],
+        tripPriorities: Array.isArray(p.tripPriorities) ? p.tripPriorities : [],
         howDidYouFindUs: p.howDidYouFindUs || "",
         currency: p.currency || ""
       };

@@ -3315,6 +3315,31 @@ function vergelijkingHTML(v) {
     <table class="cal"><tr><th>Period</th><th>Surf</th><th>Stay</th></tr>${rows}</table></section>`;
 }
 
+/* Educational accordion — explains the "why" behind a spot's character.
+   Each item: { q, a, source }. Renders as a native <details> accordion
+   so it's accessible and JS-free. The answer text supports a tiny markdown
+   subset (**bold**) so technical terms like "fetch" or "thermische wind"
+   can be highlighted on first use; everything else is HTML-escaped. */
+function eduMarkdown(text) {
+  return escHTML(text).replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>');
+}
+function educationalHTML(items) {
+  if (!items || !items.length) return "";
+  const rows = items.map(item => `
+    <details class="edu-item">
+      <summary class="edu-q">${escHTML(item.q)}</summary>
+      <div class="edu-body">
+        <p class="edu-a">${eduMarkdown(item.a)}</p>
+        ${item.source ? `<p class="edu-source">Bron: ${escHTML(item.source)}</p>` : ""}
+      </div>
+    </details>`).join("");
+  return `<section class="educational">
+    <h2>Why this spot is like this</h2>
+    <p class="edu-intro">The mechanism behind the spot's wind, water and season — so you understand it, not just check it.</p>
+    <div class="edu-items">${rows}</div>
+  </section>`;
+}
+
 function druktelIndicator(niveau) {
   const order = ["rustig", "gemiddeld", "druk"];
   const idx = order.indexOf(niveau);
@@ -3844,6 +3869,8 @@ function initSpot() {
       <h2>The honest story</h2>
       ${verhaal}
     </div>
+
+    ${educationalHTML(e.educational)}
 
     ${lagen}
     ${buurtHTML(e.buurt, e.id)}
@@ -5224,6 +5251,39 @@ function renderSharedTrip() {
   });
 }
 
+/* Full list of UN-recognised countries, alphabetised. Used by the
+   profile-form Home base dropdown. Alphabetical so the native browser
+   picker (especially on iOS) is predictable; type-the-first-letter
+   jumps work in desktop browsers. */
+const WAVEBASE_COUNTRIES = [
+  "Afghanistan", "Albania", "Algeria", "Andorra", "Angola", "Antigua and Barbuda", "Argentina", "Armenia",
+  "Australia", "Austria", "Azerbaijan", "Bahamas", "Bahrain", "Bangladesh", "Barbados", "Belarus",
+  "Belgium", "Belize", "Benin", "Bhutan", "Bolivia", "Bosnia and Herzegovina", "Botswana", "Brazil",
+  "Brunei", "Bulgaria", "Burkina Faso", "Burundi", "Cabo Verde", "Cambodia", "Cameroon", "Canada",
+  "Central African Republic", "Chad", "Chile", "China", "Colombia", "Comoros", "Congo (Brazzaville)",
+  "Congo (Kinshasa)", "Costa Rica", "Côte d'Ivoire", "Croatia", "Cuba", "Cyprus", "Czech Republic",
+  "Denmark", "Djibouti", "Dominica", "Dominican Republic", "Ecuador", "Egypt", "El Salvador",
+  "Equatorial Guinea", "Eritrea", "Estonia", "Eswatini", "Ethiopia", "Fiji", "Finland", "France",
+  "Gabon", "Gambia", "Georgia", "Germany", "Ghana", "Greece", "Grenada", "Guatemala", "Guinea",
+  "Guinea-Bissau", "Guyana", "Haiti", "Honduras", "Hungary", "Iceland", "India", "Indonesia",
+  "Iran", "Iraq", "Ireland", "Israel", "Italy", "Jamaica", "Japan", "Jordan", "Kazakhstan", "Kenya",
+  "Kiribati", "Kuwait", "Kyrgyzstan", "Laos", "Latvia", "Lebanon", "Lesotho", "Liberia", "Libya",
+  "Liechtenstein", "Lithuania", "Luxembourg", "Madagascar", "Malawi", "Malaysia", "Maldives", "Mali",
+  "Malta", "Marshall Islands", "Mauritania", "Mauritius", "Mexico", "Micronesia", "Moldova", "Monaco",
+  "Mongolia", "Montenegro", "Morocco", "Mozambique", "Myanmar", "Namibia", "Nauru", "Nepal",
+  "Netherlands", "New Zealand", "Nicaragua", "Niger", "Nigeria", "North Korea", "North Macedonia",
+  "Norway", "Oman", "Pakistan", "Palau", "Palestine", "Panama", "Papua New Guinea", "Paraguay",
+  "Peru", "Philippines", "Poland", "Portugal", "Qatar", "Romania", "Russia", "Rwanda",
+  "Saint Kitts and Nevis", "Saint Lucia", "Saint Vincent and the Grenadines", "Samoa", "San Marino",
+  "São Tomé and Príncipe", "Saudi Arabia", "Senegal", "Serbia", "Seychelles", "Sierra Leone",
+  "Singapore", "Slovakia", "Slovenia", "Solomon Islands", "Somalia", "South Africa", "South Korea",
+  "South Sudan", "Spain", "Sri Lanka", "Sudan", "Suriname", "Sweden", "Switzerland", "Syria",
+  "Taiwan", "Tajikistan", "Tanzania", "Thailand", "Timor-Leste", "Togo", "Tonga", "Trinidad and Tobago",
+  "Tunisia", "Turkey", "Turkmenistan", "Tuvalu", "Uganda", "Ukraine", "United Arab Emirates",
+  "United Kingdom", "United States", "Uruguay", "Uzbekistan", "Vanuatu", "Vatican City", "Venezuela",
+  "Vietnam", "Yemen", "Zambia", "Zimbabwe"
+];
+
 function renderAccount() {
   const root = document.getElementById("account-root");
   // Default: preserve the page scroll across the full re-render. Any
@@ -5265,21 +5325,45 @@ function renderAccount() {
     window.scrollTo(0, __sy);
   });
 
-  function opts(list, val) {
-    return list.map(o => `<option value="${o}" ${val === o ? "selected" : ""}>${o}</option>`).join("");
-  }
+  // Level descriptions live in the dropdown text — gives the user a real
+  // sense of what each level means without an extra UI element.
+  const levelDescs = {
+    beginner:     "Beginner — just starting out",
+    intermediate: "Intermediate — pop up, paddle out, ride the face",
+    advanced:     "Advanced — overhead, tubes, no-paddle takeoffs"
+  };
   const levelOpts = ["beginner", "intermediate", "advanced"]
-    .map(l => `<option value="${l}" ${p.level === l ? "selected" : ""}>${cap(l)}</option>`).join("");
-  const boardOpts = opts(["Shortboard", "Longboard", "Funboard", "Fish", "Foamie", "Other"], p.boardType);
-  const styleOpts = opts(["Solo", "Couple", "Friends", "Family"], p.travelStyle);
-  const intentOpts = opts(["Pure surf", "Learn", "Progress", "Surf + chill"], p.tripIntent);
-  const foundOpts = opts(["Friend / word of mouth", "Social media", "Search engine", "Surf forum / community", "Press / article", "Other"], p.howDidYouFindUs);
+    .map(l => `<option value="${l}" ${p.level === l ? "selected" : ""}>${levelDescs[l]}</option>`).join("");
+
+  // Travel style — now a multi-pick checkbox set (was a single dropdown).
+  // Keys stay the same as the old single-value labels so back-compat
+  // migration is trivial: if the user has the old `travelStyle` string
+  // set but no `travelStyles` array, treat the string as a one-item array.
+  const travelStyleOpts = [
+    { key: "Solo",    label: "Solo / chill"      },
+    { key: "Couple",  label: "With partner"      },
+    { key: "Family",  label: "Family with kids"  },
+    { key: "Friends", label: "Group of friends"  }
+  ];
+  const initialTravelStyles = (p.travelStyles && p.travelStyles.length)
+    ? p.travelStyles
+    : (p.travelStyle ? [p.travelStyle] : []);
+
+  // Home base: dropdown of all UN-recognised countries (list at module
+  // scope). Belgium-default behaviour comes from the user's own selection,
+  // not a hardcoded default — don't pre-pick anything for them.
+  const countryOpts = WAVEBASE_COUNTRIES
+    .map(c => `<option value="${escHTML(c)}" ${p.homeCountry === c ? "selected" : ""}>${escHTML(c)}</option>`).join("");
+
+  const foundOptsList = ["Friend / word of mouth", "Social media", "Search engine", "Surf forum / community", "Press / article", "Other"];
+  const foundOpts = foundOptsList
+    .map(o => `<option value="${o}" ${p.howDidYouFindUs === o ? "selected" : ""}>${o}</option>`).join("");
 
   const surfTypes = [
-    { key: "surfer",     label: "Surfer"     },
-    { key: "windsurfer", label: "Windsurfer" },
-    { key: "kitesurfer", label: "Kitesurfer" },
-    { key: "wingfoiler", label: "Wingfoiler" }
+    { key: "surfer",     label: "Surf"      },
+    { key: "windsurfer", label: "Windsurf"  },
+    { key: "kitesurfer", label: "Kitesurf"  },
+    { key: "wingfoiler", label: "Wing-foil" }
   ];
   const disciplines = [
     { key: "freeride",  label: "Freeride"  },
@@ -5287,10 +5371,39 @@ function renderAccount() {
     { key: "freestyle", label: "Freestyle" },
     { key: "slalom",    label: "Slalom"    }
   ];
+  // Trip priorities — multi-select. Replaces the older single-value
+  // tripIntent dropdown; existing tripIntent stays in storage (unused).
+  const tripPriorities = [
+    { key: "wave-time",    label: "Wave time, lots of it"     },
+    { key: "lessons",      label: "Lessons / improvement"     },
+    { key: "vibe-food",    label: "Vibe, food, downtime"      },
+    { key: "hidden-gems",  label: "Hidden gems"                },
+    { key: "affordable",   label: "Affordable / budget"       },
+    { key: "comfort",      label: "Comfort / a bit of luxury" }
+  ];
   const showDiscipline = (p.surfType || []).some(t => t === "windsurfer" || t === "kitesurfer" || t === "wingfoiler");
   const cb = (name, items, selected) => items.map(it =>
     `<label class="cb"><input type="checkbox" name="${name}" value="${it.key}" ${selected.indexOf(it.key) !== -1 ? "checked" : ""}> ${it.label}</label>`
   ).join("");
+
+  // Profile completeness — drives the "Profile X% complete" pill and bar.
+  // Counts only fields the user can actually fill in *right now* (so the
+  // optional Wind discipline is only counted when wind/kite/wing is ticked).
+  const calcCompleteness = (prof) => {
+    const showDisc = (prof.surfType || []).some(t => t === "windsurfer" || t === "kitesurfer" || t === "wingfoiler");
+    let filled = 0, total = 0;
+    ["name", "email", "birthYear", "homeCountry"].forEach(f => {
+      total++; if ((prof[f] || "").toString().trim()) filled++;
+    });
+    total++; if ((prof.surfType || []).length) filled++;
+    total++; if (prof.level) filled++;
+    if (showDisc) { total++; if ((prof.discipline || []).length) filled++; }
+    total++; if ((prof.travelStyles || []).length) filled++;
+    total++; if ((prof.tripPriorities || []).length) filled++;
+    total++; if (prof.howDidYouFindUs) filled++;
+    return Math.round((filled / total) * 100);
+  };
+  const profPct = calcCompleteness(p);
 
   const discoverCTA = `<div class="saved-discover">
     <span class="saved-discover-text">Looking for more?</span>
@@ -5370,38 +5483,88 @@ function renderAccount() {
     <p class="muted lead-note">This is a fake account — everything is stored locally in your browser. There's no real login or server yet; that's phase 2.</p>
 
     <section class="acc-block">
-      <h2>Profile</h2>
-      <p class="muted form-note">The more you fill in, the better WaveBase can match spots and stays to you.</p>
-      <div class="profile-form">
-        <label>Name<input type="text" id="p-name" value="${p.name || ""}" placeholder="Your name"></label>
-        <label>Email<input type="email" id="p-email" value="${p.email || ""}" placeholder="you@example.com"></label>
-        <label>Birth year<input type="number" id="p-birthyear" value="${p.birthYear || ""}" placeholder="1995" min="1920" max="2020"></label>
-        <label>Home country<input type="text" id="p-country" value="${p.homeCountry || ""}" placeholder="e.g. Belgium"></label>
-        <div class="form-checkset form-wide" id="p-surftype-set">
-          <span class="form-checkset-label">What do you do? <span class="muted">(pick all that apply)</span></span>
-          <div class="form-checkset-options">${cb("surfType", surfTypes, p.surfType || [])}</div>
+      <div class="prof-head">
+        <h2>My WaveBase profile</h2>
+        <div class="prof-status">
+          <span class="prof-progress" id="prof-progress">
+            <span class="prof-progress-bar" style="--pct:${profPct}%"></span>
+            <span class="prof-progress-label">Profile ${profPct}% complete</span>
+          </span>
+          <span class="prof-saved" id="prof-saved" hidden>✓ saved</span>
         </div>
-        <div class="form-checkset form-wide ${showDiscipline ? "" : "hidden"}" id="p-discipline-set">
-          <span class="form-checkset-label">Discipline <span class="muted">(for wind / kite / wing)</span></span>
-          <div class="form-checkset-options">${cb("discipline", disciplines, p.discipline || [])}</div>
+      </div>
+      <p class="muted lead-note">Helps us filter the site for you. Honest, anonymous, never shared.</p>
+
+      <div class="profile-form-v2">
+
+        <div class="prof-block prof-block-required">
+          <div class="prof-block-head">
+            <span class="prof-block-title">You</span>
+          </div>
+          <p class="prof-block-why">We need this to create your account.</p>
+          <div class="prof-block-fields">
+            <label class="prof-field"><span>Name</span><input type="text" id="p-name" value="${escHTML(p.name || "")}" placeholder="Your name" autocomplete="name"></label>
+            <label class="prof-field"><span>Email</span><input type="email" id="p-email" value="${escHTML(p.email || "")}" placeholder="you@example.com" autocomplete="email"></label>
+            <label class="prof-field"><span>Birth year</span><input type="number" id="p-birthyear" value="${escHTML(p.birthYear || "")}" placeholder="1985" min="1920" max="2020" inputmode="numeric"></label>
+            <label class="prof-field"><span>Home base</span><select id="p-country" autocomplete="country-name"><option value="">— pick a country —</option>${countryOpts}</select></label>
+          </div>
         </div>
-        <label>Surf level<select id="p-level"><option value="">—</option>${levelOpts}</select></label>
-        <label>Years surfing<input type="number" id="p-years" value="${p.yearsSurfing || ""}" placeholder="3" min="0" max="80"></label>
-        <label>Board<select id="p-board"><option value="">—</option>${boardOpts}</select></label>
-        <label>Travel style<select id="p-style"><option value="">—</option>${styleOpts}</select></label>
-        <label>What you want from a trip<select id="p-intent"><option value="">—</option>${intentOpts}</select></label>
-        <label class="form-wide">How did you find us?<select id="p-found"><option value="">—</option>${foundOpts}</select></label>
-        <label class="form-wide">Display currency
-          <select id="p-currency">
-            ${Object.keys(CURRENCY_RATES).map(code => {
-              const cur = CURRENCY_RATES[code];
-              const sel = code === getCurrencyPref() ? " selected" : "";
-              return `<option value="${code}"${sel}>${cur.symbol} ${cur.code}</option>`;
-            }).join("")}
-          </select>
-          <span class="muted" style="font-size:12px;">Rates updated ${CURRENCY_RATES_UPDATED} · auto-detected from your browser, override here.</span>
-        </label>
-        <button class="btn" id="p-save">Save profile</button>
+
+        <div class="prof-block prof-block-helps">
+          <div class="prof-block-head">
+            <span class="prof-block-title">Your surfing</span>
+            <span class="prof-block-tag">unlocks better matches</span>
+          </div>
+          <p class="prof-block-why">Fill this in and the homepage starts showing spots and centers that fit your level and gear — instead of all of them.</p>
+          <div class="prof-block-fields">
+            <div class="form-checkset form-wide" id="p-surftype-set">
+              <span class="form-checkset-label">What do you do? <span class="muted">(tick all that apply)</span></span>
+              <div class="form-checkset-options">${cb("surfType", surfTypes, p.surfType || [])}</div>
+            </div>
+            <label class="prof-field form-wide"><span>Level</span><select id="p-level"><option value="">—</option>${levelOpts}</select></label>
+            <div class="form-checkset form-wide ${showDiscipline ? "" : "hidden"}" id="p-discipline-set">
+              <span class="form-checkset-label">Wind discipline <span class="muted">(for wind / kite / wing)</span></span>
+              <div class="form-checkset-options">${cb("discipline", disciplines, p.discipline || [])}</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="prof-block prof-block-helps">
+          <div class="prof-block-head">
+            <span class="prof-block-title">Trip kind</span>
+            <span class="prof-block-tag">unlocks better matches</span>
+          </div>
+          <p class="prof-block-why">Fill this in and the homepage shows trips that fit your style (family-friendly stays, hidden gems, budget-friendly...) instead of everything.</p>
+          <div class="prof-block-fields">
+            <div class="form-checkset form-wide" id="p-styles-set">
+              <span class="form-checkset-label">Travel style <span class="muted">(tick all that apply)</span></span>
+              <div class="form-checkset-options">${cb("travelStyles", travelStyleOpts, initialTravelStyles)}</div>
+            </div>
+            <div class="form-checkset form-wide" id="p-priorities-set">
+              <span class="form-checkset-label">What you want from a trip <span class="muted">(tick all that apply)</span></span>
+              <div class="form-checkset-options">${cb("tripPriorities", tripPriorities, p.tripPriorities || [])}</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="prof-block prof-block-optional">
+          <div class="prof-block-head">
+            <span class="prof-block-title">One last thing</span>
+            <span class="prof-block-tag prof-block-tag-optional">optional</span>
+          </div>
+          <div class="prof-block-fields">
+            <label class="prof-field form-wide">
+              <span>How did you find WaveBase?</span>
+              <select id="p-found"><option value="">—</option>${foundOpts}</select>
+              <span class="prof-field-hint muted">Helps us know which channels are working.</span>
+            </label>
+          </div>
+        </div>
+
+        <div class="prof-actions">
+          <span class="muted prof-autosave-hint">Auto-saves as you type.</span>
+          <button type="button" class="btn ghost" id="p-reset">Reset profile</button>
+        </div>
       </div>
     </section>
 
@@ -5432,35 +5595,116 @@ function renderAccount() {
     document.querySelectorAll(`input[name="${name}"]:checked`)
   ).map(el => el.value);
 
-  document.getElementById("p-save").addEventListener("click", () => {
-    const currency = document.getElementById("p-currency").value;
+  // Auto-save: text inputs save on blur, selects + checkboxes save on
+  // change. No explicit Save button, no alert popup — just a subtle
+  // "✓ saved" badge that fades and a live "Profile X% complete" pill.
+  // Cut fields (yearsSurfing, boardType, tripIntent, currency) are
+  // preserved by spreading the current profile, so existing saved
+  // data isn't wiped when we save through the new shape.
+  const saveProfile = () => {
+    const current = WaveBaseAccount.getProfile();
     WaveBaseAccount.setProfile({
-      name: document.getElementById("p-name").value,
-      email: document.getElementById("p-email").value,
-      birthYear: document.getElementById("p-birthyear").value,
-      homeCountry: document.getElementById("p-country").value,
-      level: document.getElementById("p-level").value,
-      yearsSurfing: document.getElementById("p-years").value,
-      boardType: document.getElementById("p-board").value,
-      travelStyle: document.getElementById("p-style").value,
-      tripIntent: document.getElementById("p-intent").value,
-      surfType: readChecks("surfType"),
-      discipline: readChecks("discipline"),
-      howDidYouFindUs: document.getElementById("p-found").value,
-      currency
+      ...current,
+      name:            document.getElementById("p-name").value,
+      email:           document.getElementById("p-email").value,
+      birthYear:       document.getElementById("p-birthyear").value,
+      homeCountry:     document.getElementById("p-country").value,
+      level:           document.getElementById("p-level").value,
+      travelStyles:    readChecks("travelStyles"),
+      surfType:        readChecks("surfType"),
+      discipline:      readChecks("discipline"),
+      tripPriorities:  readChecks("tripPriorities"),
+      howDidYouFindUs: document.getElementById("p-found").value
     });
-    setCurrencyPref(currency);
     updateNav();
-    alert("Profile saved.");
+    flashSaved();
+    updateProgressDisplay();
+  };
+
+  let _savedTimer = null;
+  const flashSaved = () => {
+    const el = document.getElementById("prof-saved");
+    if (!el) return;
+    el.hidden = false;
+    if (_savedTimer) clearTimeout(_savedTimer);
+    _savedTimer = setTimeout(() => { el.hidden = true; }, 1800);
+  };
+
+  // Live progress recompute — reads the in-DOM values without going
+  // through setProfile, so the bar updates as the user types/ticks
+  // even before a save fires (text inputs save on blur, not on input).
+  const updateProgressDisplay = () => {
+    const liveProf = {
+      name:           document.getElementById("p-name").value,
+      email:          document.getElementById("p-email").value,
+      birthYear:      document.getElementById("p-birthyear").value,
+      homeCountry:    document.getElementById("p-country").value,
+      level:          document.getElementById("p-level").value,
+      travelStyles:   readChecks("travelStyles"),
+      surfType:       readChecks("surfType"),
+      discipline:     readChecks("discipline"),
+      tripPriorities: readChecks("tripPriorities"),
+      howDidYouFindUs: document.getElementById("p-found").value
+    };
+    const pct = calcCompleteness(liveProf);
+    const wrap = document.getElementById("prof-progress");
+    if (!wrap) return;
+    const bar = wrap.querySelector(".prof-progress-bar");
+    if (bar) bar.style.setProperty("--pct", pct + "%");
+    const label = wrap.querySelector(".prof-progress-label");
+    if (label) label.textContent = `Profile ${pct}% complete`;
+  };
+
+  // Wire up auto-save + live progress on every field.
+  // Text inputs save on blur (so we don't spam localStorage per keystroke)
+  // but update the live progress on every input event.
+  ["p-name", "p-email", "p-birthyear"].forEach(id => {
+    const el = document.getElementById(id);
+    if (!el) return;
+    el.addEventListener("blur", saveProfile);
+    el.addEventListener("input", updateProgressDisplay);
+  });
+  // Selects + checkboxes save immediately on change.
+  ["p-country", "p-level", "p-found"].forEach(id => {
+    const el = document.getElementById(id);
+    if (el) el.addEventListener("change", saveProfile);
+  });
+  document.querySelectorAll('input[name="surfType"], input[name="discipline"], input[name="travelStyles"], input[name="tripPriorities"]').forEach(cbEl => {
+    cbEl.addEventListener("change", saveProfile);
   });
 
-  // Toggle discipline fieldset live when surfType selection changes
+  // Toggle Wind-discipline fieldset live when surfType selection changes.
+  // If we're hiding it, also clear any ticked disciplines so stale data
+  // doesn't linger in storage from a previous wind/kite session.
   document.querySelectorAll('input[name="surfType"]').forEach(cbEl => {
     cbEl.addEventListener("change", () => {
       const picked = readChecks("surfType");
       const show = picked.some(t => t === "windsurfer" || t === "kitesurfer" || t === "wingfoiler");
-      document.getElementById("p-discipline-set").classList.toggle("hidden", !show);
+      const set = document.getElementById("p-discipline-set");
+      set.classList.toggle("hidden", !show);
+      if (!show) {
+        set.querySelectorAll('input[name="discipline"]:checked').forEach(c => { c.checked = false; });
+      }
+      // Recompute progress — hiding/showing discipline changes the
+      // "total fields" denominator.
+      updateProgressDisplay();
     });
+  });
+
+  // Reset button — confirm, then clear profile fields (keeps the
+  // user's saved spots, trips and reviews untouched).
+  document.getElementById("p-reset").addEventListener("click", () => {
+    if (!confirm("Reset your profile? This clears all the fields above.\n\n(Your saved spots, trips and reviews stay safe.)")) return;
+    const current = WaveBaseAccount.getProfile();
+    WaveBaseAccount.setProfile({
+      ...current,
+      name: "", email: "", birthYear: "", homeCountry: "",
+      level: "",
+      surfType: [], discipline: [], travelStyles: [], tripPriorities: [],
+      howDidYouFindUs: ""
+    });
+    updateNav();
+    renderAccount();
   });
   document.getElementById("new-trip").addEventListener("click", () => {
     const name = window.prompt("Name your new trip:");

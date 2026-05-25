@@ -1034,6 +1034,98 @@ button.empty-clickable .empty-sub { color: var(--ink-soft); }
 .laag .blok h3 { font-size: 16px; color: var(--sea); margin-bottom: 4px; }
 .laag .blok p { color: var(--ink); }
 
+/* ---- Educational accordion ("Why this spot is like this") ----
+   Sits between the honest-story prose and the lagen (technical layers).
+   Uses native <details>/<summary> for a JS-free accordion; closed by
+   default to keep the page scannable. The chevron is custom-drawn
+   because Safari pre-renders <summary>'s default marker as a triangle
+   that we can't restyle. */
+.educational {
+  background: var(--paper);
+  border: 1px solid var(--sand);
+  border-left: 4px solid var(--sea);
+  border-radius: var(--radius);
+  padding: 22px 26px;
+  margin: 18px 0 32px;
+}
+.educational > h2 {
+  font-size: 22px;
+  color: var(--sea);
+  margin: 0 0 4px;
+}
+.edu-intro {
+  font-size: 14px;
+  color: var(--ink-soft);
+  margin: 0 0 16px;
+  max-width: 62ch;
+}
+.edu-items {
+  display: flex;
+  flex-direction: column;
+}
+.edu-item {
+  border-top: 1px solid var(--sand);
+  padding: 14px 0;
+}
+.edu-item:first-child {
+  border-top: none;
+  padding-top: 6px;
+}
+.edu-item[open] {
+  padding-bottom: 16px;
+}
+.edu-q {
+  font-size: 16px;
+  font-weight: 600;
+  color: var(--ink);
+  cursor: pointer;
+  list-style: none;
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  padding: 4px 0;
+}
+.edu-q::-webkit-details-marker { display: none; }
+.edu-q::marker { content: ""; }
+.edu-q::before {
+  content: "▸";
+  color: var(--sea);
+  font-size: 14px;
+  line-height: 1.45;
+  flex-shrink: 0;
+  transition: transform 0.18s ease;
+}
+.edu-item[open] .edu-q::before {
+  transform: rotate(90deg);
+}
+.edu-body {
+  padding: 10px 0 0 26px;
+}
+.edu-a {
+  font-size: 15px;
+  line-height: 1.6;
+  color: var(--ink);
+  margin: 0 0 10px;
+}
+.edu-a strong {
+  color: var(--sea);
+  font-weight: 700;
+}
+.edu-source {
+  font-size: 12px;
+  color: var(--ink-soft);
+  font-style: italic;
+  margin: 0;
+}
+
+@media (max-width: 700px) {
+  .educational { padding: 18px 20px; }
+  .educational > h2 { font-size: 20px; }
+  .edu-q { font-size: 15px; }
+  .edu-body { padding-left: 22px; }
+  .edu-a { font-size: 14px; }
+}
+
 .vergelijking {
   margin: 14px 0 36px;
 }
@@ -2605,6 +2697,159 @@ body:not(.is-home) .searchbar-wrap { display: none; }
 }
 .profile-form .cb input { min-width: 0; width: auto; margin: 0; cursor: pointer; }
 .profile-form .form-checkset.hidden { display: none; }
+
+/* ---- Profile form v2 — block-based layout, auto-save, progress bar ----
+   Replaces the flat single-card .profile-form. Each block is a separate
+   card with a coloured left border indicating its role:
+     required  → clay (we need this)
+     helps     → sea  (fill in to unlock better matches)
+     optional  → sand (vrijblijvend)
+   Auto-saves on input blur / select+checkbox change, so no Save button.
+   Subtle "✓ saved" badge and a live "Profile X% complete" pill replace
+   the old alert popup. */
+.prof-head {
+  display: flex; justify-content: space-between; align-items: center;
+  gap: 16px; margin-bottom: 6px; flex-wrap: wrap;
+}
+.prof-head h2 { margin: 0; }
+.prof-status {
+  display: inline-flex; align-items: center; gap: 12px;
+}
+.prof-progress {
+  display: inline-flex; align-items: center; gap: 10px;
+  font-size: 13px; color: var(--ink-soft);
+}
+.prof-progress-bar {
+  position: relative;
+  display: inline-block; width: 80px; height: 6px;
+  background: var(--sand); border-radius: 999px; overflow: hidden;
+}
+.prof-progress-bar::after {
+  content: ""; position: absolute; left: 0; top: 0; bottom: 0;
+  width: var(--pct, 0%); background: var(--sea);
+  border-radius: 999px;
+  transition: width 0.3s ease;
+}
+.prof-saved {
+  display: inline-flex; align-items: center;
+  font-size: 13px; font-weight: 600; color: var(--sea);
+  background: var(--sea-soft); padding: 4px 12px; border-radius: 999px;
+  animation: profSavedFade 0.25s ease;
+}
+@keyframes profSavedFade {
+  from { opacity: 0; transform: translateY(-3px); }
+  to   { opacity: 1; transform: none; }
+}
+
+.profile-form-v2 {
+  display: flex; flex-direction: column; gap: 16px;
+}
+.prof-block {
+  background: var(--paper); border: 1px solid var(--sand);
+  border-radius: var(--radius); padding: 20px 24px;
+  border-left-width: 4px;
+}
+.prof-block.prof-block-required { border-left-color: var(--clay); }
+.prof-block.prof-block-helps    { border-left-color: var(--sea); }
+.prof-block.prof-block-optional { border-left-color: var(--sand-deep); }
+/* Suppress the browser-autofill yellow/blue overlay on profile inputs.
+   Without this, Chrome/Safari paint a tinted background on fields with
+   `autocomplete` attributes (name, email, country-name etc.) while the
+   sibling fields without autocomplete render plain — looks inconsistent. */
+.prof-field input:-webkit-autofill,
+.prof-field input:-webkit-autofill:hover,
+.prof-field input:-webkit-autofill:focus,
+.prof-field select:-webkit-autofill {
+  -webkit-box-shadow: 0 0 0 1000px var(--cream) inset;
+  -webkit-text-fill-color: var(--ink);
+  caret-color: var(--ink);
+  transition: background-color 5000s ease-in-out 0s;
+}
+.prof-block-head {
+  display: flex; align-items: center; gap: 10px;
+  margin-bottom: 4px; flex-wrap: wrap;
+}
+.prof-block-title {
+  font-size: 16px; font-weight: 700; color: var(--ink);
+  text-transform: uppercase; letter-spacing: 0.06em;
+}
+.prof-block-tag {
+  display: inline-block; font-size: 11px; font-weight: 700;
+  text-transform: uppercase; letter-spacing: 0.05em;
+  color: var(--sea); background: var(--sea-soft);
+  padding: 3px 9px; border-radius: 999px;
+}
+.prof-block-tag.prof-block-tag-optional {
+  color: var(--ink-soft); background: var(--sand);
+}
+.prof-block-why {
+  font-size: 14px; color: var(--ink-soft); line-height: 1.5;
+  margin: 0 0 14px; max-width: 62ch;
+}
+.prof-block-fields {
+  display: flex; flex-wrap: wrap; gap: 14px 18px; align-items: flex-end;
+}
+.prof-field {
+  display: flex; flex-direction: column; gap: 6px;
+  font-size: 14px; font-weight: 600; color: var(--ink-soft);
+  flex: 1 1 220px; min-width: 0;
+}
+.prof-field input,
+.prof-field select {
+  font-family: 'DM Sans', sans-serif; font-size: 16px; color: var(--ink);
+  background: var(--cream); border: 1px solid var(--sand-deep);
+  border-radius: 10px; padding: 9px 12px; width: 100%; min-width: 0;
+}
+.prof-field.form-wide { flex-basis: 100%; }
+.prof-field-hint {
+  display: block;
+  font-size: 12px; font-weight: 400; color: var(--ink-soft);
+  margin-top: 2px;
+}
+/* Re-skin the existing form-checkset markup inside the new blocks so it
+   sits nicely next to the prof-field layout. */
+.prof-block .form-checkset {
+  display: flex; flex-direction: column; gap: 6px; margin: 0;
+  flex: 1 1 100%; min-width: 0;
+}
+.prof-block .form-checkset-label {
+  font-size: 14px; font-weight: 600; color: var(--ink-soft);
+}
+.prof-block .form-checkset-label .muted { font-weight: 400; }
+.prof-block .form-checkset-options {
+  display: flex; flex-wrap: wrap; gap: 10px 22px;
+  background: var(--cream); border: 1px solid var(--sand-deep);
+  border-radius: 10px; padding: 10px 14px;
+}
+.prof-block .cb {
+  display: inline-flex; align-items: center; gap: 8px;
+  font-size: 15px; font-weight: 500; color: var(--ink);
+  cursor: pointer; user-select: none;
+}
+.prof-block .cb input {
+  min-width: 0; width: auto; margin: 0; cursor: pointer;
+}
+.prof-block .form-checkset.hidden { display: none; }
+
+.prof-actions {
+  display: flex; justify-content: space-between; align-items: center;
+  gap: 14px; padding-top: 2px; flex-wrap: wrap;
+}
+.prof-autosave-hint {
+  font-size: 13px;
+}
+
+@media (max-width: 700px) {
+  .prof-head { gap: 8px; }
+  .prof-status { width: 100%; justify-content: space-between; }
+  .prof-block { padding: 16px 18px; }
+  .prof-block-title { font-size: 15px; }
+  .prof-block-why { font-size: 13px; margin-bottom: 12px; }
+  .prof-field { flex-basis: 100%; }
+  .prof-actions { flex-direction: column; align-items: flex-start; gap: 10px; }
+  .prof-actions .btn { width: 100%; }
+}
+
 .trip-section-head {
   display: flex; justify-content: space-between; align-items: center;
   margin-bottom: 16px; flex-wrap: wrap; gap: 10px;

@@ -554,6 +554,28 @@ const WAVEBASE_DATA = [
         ]
       }
     ],
+    educational: [
+      {
+        q: "Why are the waves like they are — sand-bottom A-frames?",
+        a: `De rivier Oued Tamraght heeft over duizenden jaren zand afgezet in een verder rotsachtige kust — een zachte zandbaai. Op die zandbodem vormt de zwell **sand-bars** (ondiepe zandruggen onder water die met storms verschuiven), waardoor de golf breekt in losse A-frame pieken in plaats van één lange clean wave. Vergevend voor beginners; minder cleane lijnen voor gevorderden.`,
+        source: "Oued Tamraght geografie + beach-break fysica."
+      },
+      {
+        q: "Why is the wind like it is — offshore mornings, side-shore afternoons?",
+        a: `Land koelt 's nachts sneller af dan zee. Bij zonsopgang stroomt koele lucht van land naar zee — een zachte offshore die de golf-faces clean houdt. Tegen de middag warmt het land sterk op (Marokko = woestijnklimaat), de stroming keert om naar zee-bries (NW, side-shore) die de oppervlakte choppy maakt. Vandaar: **surf in the morning, beach in the afternoon.**`,
+        source: "Kustmeteorologie + Open-Meteo data."
+      },
+      {
+        q: "Why is high season October–April?",
+        a: `Grote Atlantische depressies (lage drukgebieden) trekken in de winter tussen IJsland en de Britse eilanden. Die genereren W-NW zwellen die ~4500km reizen tot Marokko. In de zomer domineert het Azoren-hoog en blijven die depressies weg. Data: **97% swell-probability in december, 58% in augustus.**`,
+        source: "Noord-Atlantische zwell-patroon + Windguru 5-jaar archief."
+      },
+      {
+        q: "Why is it always busy — and where does everyone go when it gets too big?",
+        a: `Wandelafstand van élk Tamraght-stay + zandbodem zonder rif-gevaar (alle scholen brengen hier beginners) + werkt op kleine én grote dagen. Een normale dag: 3-4 schoolgroepen over 200-300m strand. **Wil je leeg water? Wees om 7u in de line-up.** Boven ~6ft sluit het dicht; gevorderden trekken naar de points — Anchor (10 min noord), Killer en Boilers (15-20 min).`,
+        source: "Drukte-data + stay-reviews."
+      }
+    ],
     condities: {
       golftype: "Beach break (sand bottom), A-frame peaks",
       golfhoogte: "~1–2 m; punchy on winter swell, soft on small days",
@@ -2134,6 +2156,23 @@ const WAVEBASE_DATA = [
         ]
       }
     ],
+    educational: [
+      {
+        q: "Why is the wind here so reliable?",
+        a: `De meltemi is een **thermische wind** — een wind veroorzaakt door temperatuurverschillen, niet door een gewoon weersysteem. In de zomer warmt de landmassa van Zuid-Azië extreem op en creëert er een lage druk die lucht aanzuigt vanuit een hoge druk boven de Balkan. Die N-NW luchtstroom trekt over de Egeïsche Zee. Far-east Kreta ligt vlak in de corridor; de Sitia-bergen lijnen de wind extra uit naar de oostkust. Data: **60% van de juni-dagen ≥20kn**, side-shore.`,
+        source: "Meltemi-meteorologie + Open-Meteo 5-jaar archief."
+      },
+      {
+        q: "Why does the bay work for both beginners AND advanced?",
+        a: `Ongewone combinatie: shallow zandbodem aan de binnenkant (vlak, perfect om te leren), terwijl een verder gelegen rif de wind-chop opbouwt tot 0.5–1.5m golfjes voor jumps en wave-rides. Je kiest gewoon waar je rigt. Een familie met verschillende skill-levels kan hier samen aan het water staan — wat op de meeste wind spots niet kan.`,
+        source: "Baai-morfologie + Lode's eerste hand."
+      },
+      {
+        q: "Why is high season June–September?",
+        a: `De meltemi werkt alleen als de Zuid-Aziatische landmassa volop opgewarmd is — wat samenvalt met de noordelijke zomer. In mei is dat systeem nog niet gevestigd; in oktober breekt het af onder herfst-fronten uit het westen. Data: juni-september haalt 42-60% wind-reliability, mei en oktober vallen terug op 10-26%.`,
+        source: "Meltemi-seizoensfysica + Open-Meteo data."
+      }
+    ],
     condities: {
       golftype: "Open bay — flat-to-chop on the inside, small wave on the outer reef",
       golfhoogte: "Flat on the inside; ~0.5–1.5 m chop/wave further out on strong meltemi days",
@@ -3059,6 +3098,23 @@ const WAVEBASE_DATA = [
           { kop: "By car", tekst: `~10 min from the E17 (exit Deinze), 25 min from Ghent, 1 h from Brussels, 1 h from the Belgian coast. Free parking at the clubhouse on Oudenaardsesteenweg 225.` },
           { kop: "By train", tekst: `Deinze station (line Ghent–Kortrijk, 12 min from Ghent–Sint-Pieters) + ~15 min cycle or local bus to the put.` }
         ]
+      }
+    ],
+    educational: [
+      {
+        q: "Why is there a flat-water put in the middle of Flemish farmland?",
+        a: `Begin jaren 70 werd hier zand uitgegraven voor de aanleg van de E17-snelweg. Het gat van ~600 × 300m vulde zich met grondwater. In 1982 namen windsurfers de site over en stichtten Windsurfing Deinze. Het water blijft vlak omdat golven **fetch** nodig hebben — de afstand waarover wind aan het water trekt om golven op te bouwen. Op 300m max is er gewoon geen ruimte: zelfs bij een 25kn-storm krijg je hooguit 10-20cm chop.`,
+        source: "windsurfingdeinze.be + golfvorming-fysica + Lode + Michiel eerste hand."
+      },
+      {
+        q: "Why is the wind lighter and gustier here than at the coast?",
+        a: `Deinze ligt ~50km landinwaarts. De luchtstroom passeert tientallen kilometers landoppervlakte (boerderijen, hagen, gebouwen, bomen) die de wind afremmen — typisch 30-40% trager dan op zee. Bovendien creëren obstakels rondom de put **turbulentie** (wervelingen in de lucht), dus gusts zijn frequenter dan een stabiele wind. Gemiddeld ~8kn vs ~11kn aan de kust, daily peaks tot 32kn. Sail-maat kiezen is hier moeilijker dan aan zee.`,
+        source: "Meteorologie + Open-Meteo 5-jaar data."
+      },
+      {
+        q: "Why is high season May–September?",
+        a: `Hier is **water temperatuur** de seizoens-driver, niet de wind (die is het hele jaar vergelijkbaar). Dec-feb is het water 4-5°C — zelfs in 5/4 wetsuit is windchill bij elke val een schok. Mei-sep: 14-22°C, draagbaar in 3/2 of shorty. De club opent zijn faciliteiten ook seizoens-gewijs: weekends in mei + september, dagelijks juli-augustus.`,
+        source: "Water-temp data + windsurfingdeinze.be openingsuren."
       }
     ],
     condities: {
