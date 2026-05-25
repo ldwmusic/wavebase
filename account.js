@@ -136,7 +136,33 @@ const WaveBaseAccount = (function () {
     addToTrip(tripId, spotId) {
       const s = state();
       const t = s.trips.find(x => x.id === tripId);
-      if (t && t.spotIds.indexOf(spotId) === -1) t.spotIds.push(spotId);
+      if (!t) { write(s); return; }
+      if (t.spotIds.indexOf(spotId) === -1) {
+        t.spotIds.push(spotId);
+        // Smart default: if the freshly added entry is a STAY and the
+        // most recent prior stay in this trip has a check-out date,
+        // pre-fill the new stay's check-in from it (consecutive-trip
+        // assumption). Only fills if the new stay has no check-in yet.
+        const data = (typeof WAVEBASE_DATA !== "undefined") ? WAVEBASE_DATA : [];
+        const newEntry = data.find(x => x.id === spotId);
+        if (newEntry && newEntry.type === "stay") {
+          for (let i = t.spotIds.length - 2; i >= 0; i--) {
+            const prev = data.find(x => x.id === t.spotIds[i]);
+            if (prev && prev.type === "stay") {
+              const pd = (t.dates && t.dates[t.spotIds[i]]) || {};
+              if (pd.out) {
+                if (!t.dates) t.dates = {};
+                const md = t.dates[spotId] || { in: "", out: "" };
+                if (!md.in) {
+                  md.in = pd.out;
+                  t.dates[spotId] = md;
+                }
+              }
+              break;
+            }
+          }
+        }
+      }
       write(s);
     },
     removeFromTrip(tripId, spotId) {
