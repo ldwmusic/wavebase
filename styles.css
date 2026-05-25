@@ -4052,8 +4052,9 @@ button.rml-key.off .rml-dot {
   .searcher input[type="text"],
   .searcher input[type="search"] { font-size: 15px; padding: 6px 10px; }
 
-  /* detail-actions — Book now goes full-width, others tighter */
-  .detail-actions { gap: 8px; }
+  /* detail-actions — Book now goes full-width, others tighter and the
+     whole row centers (LDW iPhone feedback: links uitlijnen voelt half). */
+  .detail-actions { gap: 8px; justify-content: center; }
   .detail-actions .btn { padding: 11px 18px; font-size: 14px; }
   .detail-actions select { padding: 9px 14px; font-size: 14px; }
   .btn.btn-book { width: 100%; justify-content: center; }
