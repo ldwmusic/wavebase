@@ -811,7 +811,7 @@ const WAVEBASE_DATA = [
     ],
     educational: [
       {
-        q: "Why is it called "a mini Anchor Point"?",
+        q: "Why is it called \"a mini Anchor Point\"?",
         a: `Same point-break physics as Anchor: a **headland sticking out into the swell** refracts the wave as it bends around the point. That refraction is what makes the wave **peel along the point** instead of breaking all at once — a long, orderly right-hand wall instead of a short A-frame. Banana Point is smaller and more sand-mixed than Anchor's flagship version, but the recipe is identical.`,
         source: "Point-break refraction physics + spot comparison data."
       },
@@ -826,7 +826,7 @@ const WAVEBASE_DATA = [
         source: "North Atlantic swell pattern + Windguru 5-year archive."
       },
       {
-        q: "Why is it busy on small days even though it's a "real" wave when big?",
+        q: "Why is it busy on small days even though it's a \"real\" wave when big?",
         a: `When the point isn't working (small days), the sand peaks beside it become a forgiving beach break — surf schools love it. When the point fires (5ft+), the small-day beginners stay put and intermediates take over the long rights. **Two waves in one spot, depending on size.** Honest fine print: don't surf right after heavy rain — Oued Tamraght dumps runoff into the river mouth here.`,
         source: "Spot data + river-mouth water-quality notes."
       }
@@ -1629,7 +1629,7 @@ const WAVEBASE_DATA = [
     ],
     educational: [
       {
-        q: "Why is it "wedgy" and lazy small, but hollow with size?",
+        q: "Why is it \"wedgy\" and lazy small, but hollow with size?",
         a: `Hash Point's sand-and-rock bottom creates a **refraction zone** at the village edge. Small swell wraps gently around the bend, fat and slow — the "wedgy almond" shape. As the swell grows, the same refraction can't bend it as easily; the wave starts pitching faster and hollower. **Same spot, two completely different waves depending on size.** Works on all tides (watch the rocks at low).`,
         source: "Refraction physics + spot data."
       },
