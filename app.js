@@ -1672,15 +1672,34 @@ function getSportPref() {
   const stored = localStorage.getItem("wavebase_sport_pref");
   if (stored === "wave") {
     localStorage.removeItem("wavebase_sport_pref");
-    return "all";
+  } else if (stored) {
+    return stored;
   }
-  return stored || "all";
+  // If the user has explicitly interacted with the pills (e.g. clicked
+  // "All"), respect that absence — don't auto-override from profile.
+  const userChose = localStorage.getItem("wavebase_sport_chosen") === "1";
+  if (userChose) return "all";
+  // Profile fallback: if user ticked exactly ONE sport in their profile,
+  // pre-select that pill. Multiple sports → "all" (don't pick for them).
+  if (typeof WaveBaseAccount !== "undefined") {
+    const types = WaveBaseAccount.getProfile().surfType || [];
+    if (types.length === 1) {
+      const map = { surfer: "wave", windsurfer: "wind", kitesurfer: "kite", wingfoiler: "wing" };
+      const mapped = map[types[0]];
+      if (mapped) return mapped;
+    }
+  }
+  return "all";
 }
 function setSportPref(sport) {
   // Don't persist the default — "all" is the natural starting state, no need
   // to take up a slot in localStorage for it.
   if (sport === "all") localStorage.removeItem("wavebase_sport_pref");
   else localStorage.setItem("wavebase_sport_pref", sport);
+  // Mark that the user made an explicit pill choice — prevents profile
+  // auto-pre-fill from re-overriding on the next page load, even when
+  // they pick "All" (which removes the main key above).
+  try { localStorage.setItem("wavebase_sport_chosen", "1"); } catch (e) { /* ignore */ }
 }
 function sportLabel(key) {
   const s = WAVEBASE_SPORTS.find(s => s.key === key);
