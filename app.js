@@ -5631,8 +5631,10 @@ function renderAccount() {
         if (outInp) { if (inp.value) outInp.min = inp.value; else outInp.removeAttribute("min"); }
       }
       // Smart default: setting a stay's check-out pre-fills the next
-      // stay's check-in (trips are usually consecutive) — but never
-      // overwrites a check-in the user already set.
+      // stay's check-in (trips are usually consecutive). We overwrite
+      // an existing check-in IF it's empty or now invalid (earlier
+      // than this stay's new check-out). If the user has set a LATER
+      // check-in for the next stay (a planned gap), we respect it.
       if (field === "out" && inp.value) {
         const trip = WaveBaseAccount.getTrips().find(x => x.id === tripId);
         const ids = trip ? trip.spotIds : [];
@@ -5641,8 +5643,10 @@ function renderAccount() {
           for (let i = myIdx + 1; i < ids.length; i++) {
             const nx = byId(ids[i]);
             if (nx && nx.type === "stay") {
-              const nd = trip.dates && trip.dates[ids[i]];
-              if (!nd || !nd.in) {
+              const nd = (trip.dates && trip.dates[ids[i]]) || {};
+              const existing = nd.in || "";
+              const shouldFill = !existing || existing < inp.value;
+              if (shouldFill) {
                 WaveBaseAccount.setStayDate(tripId, ids[i], "in", inp.value);
                 const nextIn = root.querySelector(`.tsp-date[data-trip="${tripId}"][data-spot="${ids[i]}"][data-field="in"]`);
                 if (nextIn) nextIn.value = inp.value;
