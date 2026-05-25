@@ -1662,59 +1662,89 @@ function sportIsLive(key) {
   if (typeof WAVEBASE_DATA === "undefined") return key === "wave";
   return WAVEBASE_DATA.some(e => entrySports(e).includes(key));
 }
+// Sport pref is now an ARRAY of sport keys (multi-select). Empty array
+// = "all sports" (no filter applied). Backward compat: legacy single-string
+// values like "wave" still parse as a 1-element array via comma-split.
 function getSportPref() {
-  // Priority: URL param (deep links) → profile (user's identity) →
-  // localStorage (last in-session click) → "all" default.
-  // Putting profile above localStorage means page reload reverts to your
-  // profile's sport — what users expect from "personalised home page".
+  // Returns Array<string> of sport keys. Empty = no sport filter.
+  // Priority: URL param (deep links) → localStorage (user's pinned picks)
+  // → profile.surfType (auto-default from identity) → empty.
+  const SURF_MAP = { surfer: "wave", windsurfer: "wind", kitesurfer: "kite", wingfoiler: "wing" };
+  const parseList = s => {
+    if (s == null || s === "" || s === "all") return [];
+    return s.split(",").map(x => x.trim()).filter(Boolean);
+  };
   const params = new URLSearchParams(window.location.search);
   const fromUrl = params.get("sport");
-  if (fromUrl) return fromUrl;
-  if (typeof WaveBaseAccount !== "undefined") {
-    const types = WaveBaseAccount.getProfile().surfType || [];
-    if (types.length >= 1) {
-      // Pick the first ticked sport. Users who do multiple sports can always
-      // click "All" — but defaulting to one of their actual sports is more
-      // useful than defaulting to "all" (which buries the spots they care about).
-      const map = { surfer: "wave", windsurfer: "wind", kitesurfer: "kite", wingfoiler: "wing" };
-      const mapped = map[types[0]];
-      if (mapped) return mapped;
-    }
-  }
-  // One-time migration: "wave" used to be the implicit default in earlier
-  // versions, so anyone with that stuck in localStorage shouldn't keep it.
+  if (fromUrl !== null) return parseList(fromUrl);
+  // Legacy "wave" single-key in localStorage was an old implicit default —
+  // clear it so it doesn't stick after the multi-select rollout.
   const stored = localStorage.getItem("wavebase_sport_pref");
   if (stored === "wave") {
     localStorage.removeItem("wavebase_sport_pref");
-    return "all";
+  } else if (stored !== null) {
+    return parseList(stored);
   }
-  return stored || "all";
+  // Profile fallback — only when neither URL nor localStorage has anything.
+  if (typeof WaveBaseAccount !== "undefined") {
+    const types = WaveBaseAccount.getProfile().surfType || [];
+    const mapped = types.map(t => SURF_MAP[t]).filter(Boolean);
+    if (mapped.length) return mapped;
+  }
+  return [];
 }
-function setSportPref(sport) {
-  // Don't persist the default — "all" is the natural starting state, no need
-  // to take up a slot in localStorage for it.
-  if (sport === "all") localStorage.removeItem("wavebase_sport_pref");
-  else localStorage.setItem("wavebase_sport_pref", sport);
+function setSportPref(sports) {
+  // sports = Array<string>. Empty array means "show all" — stored explicitly
+  // as "all" so this choice overrides the profile fallback on next load.
+  // (If we removed the key here, getSportPref would auto-re-apply the user's
+  // profile sport, which would feel like "All" doesn't stick.)
+  try {
+    if (!sports || sports.length === 0) {
+      localStorage.setItem("wavebase_sport_pref", "all");
+    } else {
+      localStorage.setItem("wavebase_sport_pref", sports.join(","));
+    }
+  } catch (e) { /* ignore */ }
 }
 function sportLabel(key) {
   const s = WAVEBASE_SPORTS.find(s => s.key === key);
   return s ? s.label : key;
 }
-function sportPillsHTML(active) {
+// Active state on pills:
+//   "All"   pill is active when the sport filter is empty (no sports selected)
+//   sport pill is active when its key is in the selected set
+function sportPillsHTML(activeArr) {
+  const set = new Set(activeArr || []);
+  const isAllActive = set.size === 0;
   return `<div class="sport-pills" role="tablist" aria-label="Surf sport">
     ${WAVEBASE_SPORTS.map(s => {
       const live = sportIsLive(s.key);
-      return `<button class="sport-pill ${s.key === active ? "active" : ""}${live ? "" : " soon"}" data-sport="${s.key}" role="tab" aria-selected="${s.key === active}">${s.label}${live ? "" : ' <span class="soon-tag">soon</span>'}</button>`;
+      const isActive = (s.key === "all") ? isAllActive : set.has(s.key);
+      return `<button class="sport-pill ${isActive ? "active" : ""}${live ? "" : " soon"}" data-sport="${s.key}" role="tab" aria-selected="${isActive}">${s.label}${live ? "" : ' <span class="soon-tag">soon</span>'}</button>`;
     }).join("")}
   </div>`;
 }
 function wireSportPills(container) {
   container.querySelectorAll(".sport-pill").forEach(btn => {
     btn.addEventListener("click", () => {
-      setSportPref(btn.dataset.sport);
+      const clicked = btn.dataset.sport;
+      let next;
+      if (clicked === "all") {
+        // Clicking "All" clears the entire selection — show every sport.
+        next = [];
+      } else {
+        // Toggle this sport in the current selection (multi-select).
+        const current = new Set(getSportPref());
+        if (current.has(clicked)) current.delete(clicked);
+        else current.add(clicked);
+        next = [...current];
+      }
+      setSportPref(next);
+      // Mirror to URL. Empty selection = ?sport=all (so the explicit choice
+      // is shareable + survives back-nav, just like the localStorage trick).
       const url = new URL(window.location.href);
-      if (btn.dataset.sport === "all") url.searchParams.delete("sport");
-      else url.searchParams.set("sport", btn.dataset.sport);
+      if (next.length === 0) url.searchParams.delete("sport");
+      else url.searchParams.set("sport", next.join(","));
       window.history.replaceState(null, "", url.toString());
       runSearch();
     });
@@ -2110,11 +2140,26 @@ function runSearch() {
   const level = document.getElementById("f-level").value;
   const month = document.getElementById("f-month").value;
   const type  = document.getElementById("f-type").value;
-  const sport = getSportPref();
+  // Sport filter is now multi-select. `sports` is the live array; `sport`
+  // is a backward-compat string ("all" or the first selected key) so the
+  // rest of runSearch + functions it calls keep working without a wider
+  // refactor. Predicates that need multi-select awareness use `sports` /
+  // `sportSet` directly below.
+  const sports = getSportPref();              // Array<string> — empty = all
+  const sportSet = new Set(sports);
+  const sportIsAll = sports.length === 0;
+  const sport = sportIsAll ? "all" : sports[0];
   const qEl   = document.getElementById("f-search");
   const query = qEl ? qEl.value.trim() : "";
   const results = document.getElementById("results");
-  const longSport = { all: "All surf sports", wave: "Wave surfing", wind: "Windsurfing", kite: "Kitesurfing", wing: "Wing foiling" };
+  // Heading label per current selection — used in a few "x spots in y" lines.
+  const SINGLE_LABEL = { all: "All surf sports", wave: "Wave surfing", wind: "Windsurfing", kite: "Kitesurfing", wing: "Wing foiling" };
+  const SHORT_LABEL = { wave: "Wave", wind: "Wind", kite: "Kite", wing: "Wing" };
+  let sportHeading;
+  if (sportIsAll)          sportHeading = "All surf sports";
+  else if (sports.length === 1) sportHeading = SINGLE_LABEL[sports[0]] || "Surf";
+  else                     sportHeading = sports.map(s => SHORT_LABEL[s] || s).join(" + ");
+  const longSport = SINGLE_LABEL; // legacy map for single-key lookups elsewhere
 
   // "Home state" — when the user hasn't picked a country or typed a query.
   // Plan-trip strip and the stats ticker only show in this state; other
@@ -2152,7 +2197,9 @@ function runSearch() {
   setParam("level", level, level === "all");
   setParam("type", type, type === "all");
   setParam("month", month, month === "all");
-  setParam("sport", sport, sport === "all");
+  // Sport URL uses comma-joined multi-select form (e.g. "wave,wind"), or
+  // is omitted entirely when no sports are selected (= "show all").
+  setParam("sport", sports.join(","), sportIsAll);
   setParam("q", query, !query);
   window.history.replaceState(null, "", url.toString());
 
@@ -2160,9 +2207,10 @@ function runSearch() {
   const clearBtn = document.getElementById("f-search-clear");
   if (clearBtn) clearBtn.hidden = !query;
 
-  // refresh sport pill active state to reflect current sport
+  // refresh sport pill active state. "All" pill = active when no sports are
+  // selected; each sport pill = active when its key is in the current set.
   document.querySelectorAll(".sport-pill").forEach(btn => {
-    const isActive = btn.dataset.sport === sport;
+    const isActive = (btn.dataset.sport === "all") ? sportIsAll : sportSet.has(btn.dataset.sport);
     btn.classList.toggle("active", isActive);
     btn.setAttribute("aria-selected", isActive ? "true" : "false");
   });
@@ -2177,7 +2225,7 @@ function runSearch() {
   if (query) {
     const matches = WAVEBASE_DATA.filter(e => {
       if (!searchMatch(e, query)) return false;
-      if (sport !== "all" && !entrySports(e).includes(sport)) return false;
+      if (!sportIsAll && !sports.some(s => entrySports(e).includes(s))) return false;
       const okL = level === "all" || e.levels.includes(level);
       const okM = month === "all" || e.goodMonths.includes(parseInt(month, 10));
       const okT = type === "all" || e.type === type;
@@ -2187,7 +2235,7 @@ function runSearch() {
     let html = `<div class="results-head"><h2>Search: &ldquo;${escHTML(query)}&rdquo; <span class="seccount">${matches.length}</span></h2>${matches.length ? viewToggleHTML(pref) : ""}</div>`;
     if (matches.length === 0) {
       html += `<div class="empty">
-        <strong>Nothing matches &ldquo;${escHTML(query)}&rdquo; in <strong>${longSport[sport]}</strong>.</strong><br>
+        <strong>Nothing matches &ldquo;${escHTML(query)}&rdquo; in <strong>${sportHeading}</strong>.</strong><br>
         Try a different spelling, a broader term, or another sport — or clear the search and browse by country.
       </div>`;
     } else {
@@ -2224,32 +2272,32 @@ function runSearch() {
 
   // Data-driven: filter entries by country (with default) and sport (with default)
   const liveCountrySportEntries = WAVEBASE_DATA.filter(e =>
-    entryCountry(e) === country && (sport === "all" || entrySports(e).includes(sport))
+    entryCountry(e) === country && (sportIsAll || sports.some(s => entrySports(e).includes(s)))
   );
 
   // No entries for this country×sport combo → COMING SOON with smart hints
   if (liveCountrySportEntries.length === 0) {
     const dest = findCountry(country);
     const flag = dest ? dest.flag : "";
-    const title = `${longSport[sport]} in ${country}`;
+    const title = `${sportHeading} in ${country}`;
 
-    // What is live for this country (other sports)?
+    // What is live for this country (sports the user has NOT picked)?
     const combos = getLiveCombos();
     const thisCountry = combos.find(c => c.country === country);
-    const otherSportsHere = thisCountry ? thisCountry.sports.filter(s => s !== sport) : [];
+    const otherSportsHere = thisCountry ? thisCountry.sports.filter(s => !sportSet.has(s)) : [];
 
-    // What countries are live for this sport?
+    // What countries are live for any of the picked sports?
     const otherCountriesForSport = combos
-      .filter(c => c.country !== country && c.sports.includes(sport))
+      .filter(c => c.country !== country && c.sports.some(s => sportSet.has(s)))
       .map(c => `${c.flag} ${c.country}`);
 
     let hint = "";
     if (otherSportsHere.length) {
-      const list = otherSportsHere.map(s => longSport[s]).join(", ");
+      const list = otherSportsHere.map(s => SINGLE_LABEL[s] || s).join(", ");
       hint += `<p>In <strong>${country}</strong>, <strong>${list}</strong> is already live — switch the sport pill above.</p>`;
     }
     if (otherCountriesForSport.length) {
-      hint += `<p>For <strong>${longSport[sport]}</strong>, live countries: ${otherCountriesForSport.join(" &middot; ")}.</p>`;
+      hint += `<p>For <strong>${sportHeading}</strong>, live countries: ${otherCountriesForSport.join(" &middot; ")}.</p>`;
     }
     if (!hint) {
       hint = `<p>WaveBase is rolling out worldwide and across all surf sports — more is on its way.</p>`;
