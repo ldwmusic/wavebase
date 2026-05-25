@@ -1498,7 +1498,11 @@ function escHTML(s) {
   return String(s).replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
 }
 
-/* Free-text matcher — checks name, town, country, tagline, summary, story and layer titles */
+/* Free-text matcher — checks name, town, country, tagline, summary,
+   story and layer titles. Exact substring wins (cheap); if that fails,
+   falls back to a per-word fuzzy compare using Levenshtein distance so
+   typos still match ("kremeenos" → "kouremenos", "tagazout" →
+   "taghazout", etc.). */
 function searchMatch(e, q) {
   const ql = String(q || "").toLowerCase().trim();
   if (!ql) return true;
@@ -1509,7 +1513,41 @@ function searchMatch(e, q) {
     ...(e.verhaal || []),
     layerText
   ].join(" ").toLowerCase();
-  return haystack.includes(ql);
+  if (haystack.includes(ql)) return true;
+  // Spelling tolerance: split the query into words ≥3 chars and check
+  // each against every haystack word ≥3 chars within an edit-distance
+  // budget proportional to length (≤4 → 1 typo, ≤7 → 2, else 3). A
+  // single tolerated query word is enough to match.
+  const qWords = ql.split(/\s+/).filter(w => w.length >= 3);
+  if (!qWords.length) return false;
+  const hayWords = haystack.split(/[^a-zà-ÿ0-9]+/i).filter(w => w.length >= 3);
+  for (const qw of qWords) {
+    const budget = qw.length <= 4 ? 1 : qw.length <= 7 ? 2 : 3;
+    for (const hw of hayWords) {
+      // Length-prefilter: words too different in length can't match.
+      if (Math.abs(hw.length - qw.length) > budget) continue;
+      if (levenshtein(qw, hw) <= budget) return true;
+    }
+  }
+  return false;
+}
+// Classic two-row DP Levenshtein. O(m*n) but trivial at this scale.
+function levenshtein(a, b) {
+  if (a === b) return 0;
+  if (!a.length) return b.length;
+  if (!b.length) return a.length;
+  let prev = new Array(b.length + 1);
+  let curr = new Array(b.length + 1);
+  for (let j = 0; j <= b.length; j++) prev[j] = j;
+  for (let i = 0; i < a.length; i++) {
+    curr[0] = i + 1;
+    for (let j = 0; j < b.length; j++) {
+      const cost = a.charCodeAt(i) === b.charCodeAt(j) ? 0 : 1;
+      curr[j + 1] = Math.min(curr[j] + 1, prev[j + 1] + 1, prev[j] + cost);
+    }
+    const tmp = prev; prev = curr; curr = tmp;
+  }
+  return prev[b.length];
 }
 
 /* Derive live country×sport combos from the actual data, so COMING SOON copy
