@@ -2781,10 +2781,17 @@ function initIndex() {
       });
     });
   }
-  // pre-select all filters from URL params (country + level/type/month + free-text q) — supports deep links and back-navigation
+  // pre-select all filters from URL params (country + level/type/month + free-text q) — supports deep links and back-navigation.
+  // If no URL param is set for a given filter, fall back to the user's profile
+  // value where it makes sense (currently: level only — country pre-fill would
+  // be wrong since the user is here to *explore* destinations beyond home base).
   const params = new URLSearchParams(window.location.search);
+  const profile = (typeof WaveBaseAccount !== "undefined") ? WaveBaseAccount.getProfile() : {};
+  const profileFallbacks = {
+    level: profile.level || ""
+  };
   [["country","f-country"],["level","f-level"],["type","f-type"],["month","f-month"],["q","f-search"]].forEach(([k, id]) => {
-    const v = params.get(k);
+    const v = params.get(k) || profileFallbacks[k];
     if (v) {
       const el = document.getElementById(id);
       if (el) el.value = v;
