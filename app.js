@@ -1663,24 +1663,13 @@ function sportIsLive(key) {
   return WAVEBASE_DATA.some(e => entrySports(e).includes(key));
 }
 function getSportPref() {
+  // Priority: URL param (deep links) → profile (user's identity) →
+  // localStorage (last in-session click) → "all" default.
+  // Putting profile above localStorage means page reload reverts to your
+  // profile's sport — what users expect from "personalised home page".
   const params = new URLSearchParams(window.location.search);
   const fromUrl = params.get("sport");
   if (fromUrl) return fromUrl;
-  // One-time migration: "wave" used to be the implicit default in earlier
-  // versions, so anyone with that stuck in localStorage shouldn't keep it.
-  // Treat a stored "wave" as if no pref was set.
-  const stored = localStorage.getItem("wavebase_sport_pref");
-  if (stored === "wave") {
-    localStorage.removeItem("wavebase_sport_pref");
-  } else if (stored) {
-    return stored;
-  }
-  // If the user has explicitly interacted with the pills (e.g. clicked
-  // "All"), respect that absence — don't auto-override from profile.
-  const userChose = localStorage.getItem("wavebase_sport_chosen") === "1";
-  if (userChose) return "all";
-  // Profile fallback: if user ticked exactly ONE sport in their profile,
-  // pre-select that pill. Multiple sports → "all" (don't pick for them).
   if (typeof WaveBaseAccount !== "undefined") {
     const types = WaveBaseAccount.getProfile().surfType || [];
     if (types.length === 1) {
@@ -1688,18 +1677,22 @@ function getSportPref() {
       const mapped = map[types[0]];
       if (mapped) return mapped;
     }
+    // Multiple sports in profile → don't pick for them, fall through.
   }
-  return "all";
+  // One-time migration: "wave" used to be the implicit default in earlier
+  // versions, so anyone with that stuck in localStorage shouldn't keep it.
+  const stored = localStorage.getItem("wavebase_sport_pref");
+  if (stored === "wave") {
+    localStorage.removeItem("wavebase_sport_pref");
+    return "all";
+  }
+  return stored || "all";
 }
 function setSportPref(sport) {
   // Don't persist the default — "all" is the natural starting state, no need
   // to take up a slot in localStorage for it.
   if (sport === "all") localStorage.removeItem("wavebase_sport_pref");
   else localStorage.setItem("wavebase_sport_pref", sport);
-  // Mark that the user made an explicit pill choice — prevents profile
-  // auto-pre-fill from re-overriding on the next page load, even when
-  // they pick "All" (which removes the main key above).
-  try { localStorage.setItem("wavebase_sport_chosen", "1"); } catch (e) { /* ignore */ }
 }
 function sportLabel(key) {
   const s = WAVEBASE_SPORTS.find(s => s.key === key);
