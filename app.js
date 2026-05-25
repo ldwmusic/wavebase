@@ -2062,12 +2062,20 @@ function runSearch() {
   // Once filtered, the prominent hero searchbar slides up into the sticky
   // header (between logo and nav). On home it lives in the hero again.
   // Single DOM node moved between two slots — no input value sync needed.
+  // SKIP THE MOVE WHILE THE INPUT IS FOCUSED: an appendChild detaches +
+  // re-attaches the element, which kills focus on iOS (keyboard drops,
+  // typing breaks). The slot-flip is deferred to the input's blur, which
+  // also calls runSearch — see wireSearch below.
   const heroSlot   = document.getElementById("hero-search-slot");
   const headerSlot = document.getElementById("header-search-slot");
   const searchbar  = document.querySelector(".searchbar");
   if (searchbar && heroSlot && headerSlot) {
+    const inp = searchbar.querySelector("input");
+    const inpFocused = inp && document.activeElement === inp;
     const wantHost = isHome ? heroSlot : headerSlot;
-    if (searchbar.parentElement !== wantHost) wantHost.appendChild(searchbar);
+    if (searchbar.parentElement !== wantHost && !inpFocused) {
+      wantHost.appendChild(searchbar);
+    }
   }
 
   // keep URL in sync — country + filters + sport + free-text query — so links are shareable AND back-navigation restores the state
@@ -2813,6 +2821,11 @@ function initIndex() {
     fSearch.addEventListener("keydown", ev => {
       if (ev.key === "Escape") { fSearch.value = ""; runSearch(); fSearch.blur(); }
     });
+    // When the user stops typing (taps elsewhere, hits Done on iOS),
+    // run the search once more so the searchbar can finally slide up
+    // into the header slot — runSearch skips that move while the
+    // input is focused (to keep iOS focus + keyboard alive).
+    fSearch.addEventListener("blur", () => runSearch());
   }
   const fClear = document.getElementById("f-search-clear");
   if (fClear && fSearch) {
