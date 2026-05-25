@@ -3837,7 +3837,11 @@ button.rml-key.off .rml-dot {
   font-size: 15px; line-height: 1;
   user-select: none;
   flex-shrink: 0;
-  padding: 2px;
+  /* Bigger touch target on phone/iPad (the visible glyph stays small)
+     and `touch-action: none` so the browser doesn't intercept the
+     start of a drag as a page-scroll gesture. */
+  padding: 6px 8px;
+  touch-action: none;
 }
 .drag-grip:active { cursor: grabbing; }
 .trip-item-row[draggable="true"] { border-radius: 8px; transition: background 0.12s ease; }

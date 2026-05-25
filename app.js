@@ -5327,6 +5327,58 @@ function renderAccount() {
         renderAccount();
       }
     });
+
+    // Touch-drag fallback for iPad / iPhone — HTML5 drag events don't
+    // fire on touchscreens, so we wire the same reorder flow to touch
+    // events via the .drag-grip handle. The grip has `touch-action:
+    // none` (CSS) so the browser doesn't claim the touch as a scroll.
+    const grip = row.querySelector(".drag-grip");
+    if (grip) {
+      let touchDrag = null;   // { fromIndex, lastTarget, below }
+      const clearHover = () => {
+        root.querySelectorAll(".trip-item-row.drag-over")
+          .forEach(x => x.classList.remove("drag-over", "drop-below"));
+      };
+      grip.addEventListener("touchstart", () => {
+        touchDrag = { fromIndex: parseInt(row.dataset.idx, 10), lastTarget: null, below: false };
+        row.classList.add("dragging");
+      }, { passive: true });
+      grip.addEventListener("touchmove", ev => {
+        if (!touchDrag) return;
+        ev.preventDefault();   // block page scroll during the drag
+        const t = ev.touches[0];
+        const under = document.elementFromPoint(t.clientX, t.clientY);
+        const targetRow = under && under.closest(".trip-item-row[draggable='true']");
+        clearHover();
+        if (!targetRow || targetRow === row) return;
+        if (targetRow.dataset.trip !== row.dataset.trip) return;
+        if (parseInt(targetRow.dataset.idx, 10) === touchDrag.fromIndex) return;
+        const rect = targetRow.getBoundingClientRect();
+        const below = (t.clientY - rect.top) > rect.height / 2;
+        targetRow.classList.add("drag-over");
+        targetRow.classList.toggle("drop-below", below);
+        touchDrag.lastTarget = targetRow;
+        touchDrag.below = below;
+      }, { passive: false });
+      const endTouch = () => {
+        if (!touchDrag) return;
+        row.classList.remove("dragging");
+        clearHover();
+        const { fromIndex, lastTarget, below } = touchDrag;
+        touchDrag = null;
+        if (!lastTarget) return;
+        const targetIdx = parseInt(lastTarget.dataset.idx, 10);
+        if (targetIdx === fromIndex) return;
+        const shifted = fromIndex < targetIdx ? targetIdx - 1 : targetIdx;
+        const toIndex = below ? shifted + 1 : shifted;
+        if (fromIndex !== toIndex) {
+          WaveBaseAccount.reorderTrip(row.dataset.trip, fromIndex, toIndex);
+          renderAccount();
+        }
+      };
+      grip.addEventListener("touchend", endTouch);
+      grip.addEventListener("touchcancel", endTouch);
+    }
   });
   root.querySelectorAll("[data-remove]").forEach(b => {
     b.addEventListener("click", () => {
