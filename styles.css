@@ -666,6 +666,48 @@ a, button, [role="button"] { -webkit-tap-highlight-color: rgba(63,111,125,0.08);
   box-shadow: var(--shadow-sm);
   padding: 6px 10px 6px 18px;
   transition: border-color 0.15s, box-shadow 0.15s;
+  /* anchor point for the suggestions dropdown below */
+  position: relative;
+}
+
+/* Live suggestions dropdown — appears under the home searchbar while
+   the user types, same pattern as "+ Add a place" in trip-add. Click
+   a row to navigate to that entry's detail page. */
+.search-suggestions {
+  position: absolute;
+  top: calc(100% + 8px);
+  left: 6px; right: 6px;
+  background: var(--paper);
+  border: 1px solid var(--sand);
+  border-radius: 14px;
+  box-shadow: 0 12px 32px rgba(20, 40, 50, 0.16);
+  padding: 6px;
+  max-height: 60vh;
+  overflow-y: auto;
+  z-index: 100;
+}
+.search-suggestion {
+  display: flex; flex-direction: column;
+  width: 100%;
+  padding: 10px 14px;
+  background: none;
+  border: none;
+  border-radius: 10px;
+  text-align: left;
+  cursor: pointer;
+  font-family: 'DM Sans', sans-serif;
+}
+.search-suggestion + .search-suggestion { margin-top: 2px; }
+.search-suggestion:hover,
+.search-suggestion.is-active { background: var(--sea-soft); }
+.search-suggestion-name {
+  font-size: 15px; font-weight: 600; color: var(--ink);
+}
+.search-suggestion-meta {
+  font-size: 12px; color: var(--ink-soft); margin-top: 2px;
+}
+.search-suggestion-empty {
+  padding: 14px; font-size: 13px; font-style: italic;
 }
 .searchbar:focus-within {
   border-color: var(--sea);

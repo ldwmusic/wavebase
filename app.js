@@ -1531,6 +1531,56 @@ function searchMatch(e, q) {
   }
   return false;
 }
+// Render the live suggestions dropdown under the home searchbar. Pure
+// JS, no full page render — keeps iOS focus + keyboard alive while the
+// user types. Click a suggestion (or Enter) to navigate to its detail.
+function updateSearchSuggestions(rawQ) {
+  const list = document.getElementById("search-suggestions");
+  if (!list) return;
+  const q = String(rawQ || "").trim();
+  if (!q) { list.hidden = true; list.innerHTML = ""; return; }
+  const matches = (typeof WAVEBASE_DATA !== "undefined" ? WAVEBASE_DATA : [])
+    .filter(e => searchMatch(e, q))
+    .slice(0, 8);
+  if (!matches.length) {
+    list.innerHTML = `<div class="search-suggestion-empty muted">No match — try a different spelling or a broader term.</div>`;
+    list.hidden = false;
+    return;
+  }
+  list.innerHTML = matches.map(e =>
+    `<button type="button" class="search-suggestion" role="option" data-href="spot.html?id=${escHTML(e.id)}">
+      <span class="search-suggestion-name">${escHTML(e.name)}</span>
+      <span class="search-suggestion-meta">${typeLabel(e.type)} · ${escHTML(e.town || "")}${e.town ? ", " : ""}${escHTML(entryCountry(e) || "")}</span>
+    </button>`
+  ).join("");
+  const first = list.querySelector(".search-suggestion");
+  if (first) first.classList.add("is-active");
+  // mousedown (not click) so the navigate fires BEFORE the input's blur
+  // hides the list. Otherwise clicking a suggestion would race with blur.
+  list.querySelectorAll(".search-suggestion").forEach(btn => {
+    btn.addEventListener("mousedown", ev => {
+      ev.preventDefault();
+      const href = btn.dataset.href;
+      if (href) window.location.href = href;
+    });
+  });
+  list.hidden = false;
+}
+function hideSearchSuggestions() {
+  const list = document.getElementById("search-suggestions");
+  if (list) { list.hidden = true; }
+}
+function navigateSearchSuggestion(dir) {
+  const list = document.getElementById("search-suggestions");
+  if (!list || list.hidden) return;
+  const items = [...list.querySelectorAll(".search-suggestion")];
+  if (!items.length) return;
+  const curIdx = items.findIndex(x => x.classList.contains("is-active"));
+  const nextIdx = ((curIdx + dir) + items.length) % items.length;
+  items.forEach((x, i) => x.classList.toggle("is-active", i === nextIdx));
+  items[nextIdx].scrollIntoView({ block: "nearest" });
+}
+
 // Classic two-row DP Levenshtein. O(m*n) but trivial at this scale.
 function levenshtein(a, b) {
   if (a === b) return 0;
@@ -2810,22 +2860,40 @@ function initIndex() {
   }
   document.getElementById("search-btn").addEventListener("click", runSearch);
 
-  // live free-text search (debounced — small dataset, so 150 ms is plenty)
+  // Free-text search: typing shows a live SUGGESTIONS dropdown right
+  // under the searchbar (same pattern as "+ Add a place" in trip-add).
+  // Clicking a suggestion navigates to that entry's detail page; Enter
+  // picks the highlighted (or first) suggestion. We deliberately DON'T
+  // call runSearch on input anymore — that triggered the page-render
+  // AND moved the bar to the header mid-typing, which dropped iOS
+  // focus and made the bar visibly jump. Suggestions are quieter +
+  // closer to what trip-add does (LDW request).
   const fSearch = document.getElementById("f-search");
   if (fSearch) {
-    let t;
-    fSearch.addEventListener("input", () => {
-      clearTimeout(t);
-      t = setTimeout(runSearch, 150);
+    fSearch.addEventListener("input", () => updateSearchSuggestions(fSearch.value));
+    fSearch.addEventListener("focus", () => updateSearchSuggestions(fSearch.value));
+    fSearch.addEventListener("blur", () => {
+      // Hide after a beat so a click on a suggestion still lands.
+      setTimeout(hideSearchSuggestions, 160);
     });
     fSearch.addEventListener("keydown", ev => {
-      if (ev.key === "Escape") { fSearch.value = ""; runSearch(); fSearch.blur(); }
+      if (ev.key === "Escape") {
+        fSearch.value = "";
+        hideSearchSuggestions();
+        fSearch.blur();
+      } else if (ev.key === "Enter") {
+        ev.preventDefault();
+        const list = document.getElementById("search-suggestions");
+        const sug = list && (list.querySelector(".search-suggestion.is-active") || list.querySelector(".search-suggestion"));
+        if (sug && sug.dataset.href) window.location.href = sug.dataset.href;
+      } else if (ev.key === "ArrowDown") {
+        ev.preventDefault();
+        navigateSearchSuggestion(1);
+      } else if (ev.key === "ArrowUp") {
+        ev.preventDefault();
+        navigateSearchSuggestion(-1);
+      }
     });
-    // When the user stops typing (taps elsewhere, hits Done on iOS),
-    // run the search once more so the searchbar can finally slide up
-    // into the header slot — runSearch skips that move while the
-    // input is focused (to keep iOS focus + keyboard alive).
-    fSearch.addEventListener("blur", () => runSearch());
   }
   const fClear = document.getElementById("f-search-clear");
   if (fClear && fSearch) {
