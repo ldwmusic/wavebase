@@ -22,6 +22,14 @@ The "special" Q4 for wave spots is the wildcard — only add it if there's somet
 
 If you can't come up with a strong Q4 for a wave spot, leave it at 3. Better strong-three than padded-four.
 
+### Clustered spots: repetition is OK
+
+When several adjacent spots share the same physical setting (a cluster of beach breaks along one bay, a row of point breaks along one headland), the answers to Q1 / Q2 / Q3 will be largely the same — because the underlying mechanism *is* the same. **Don't invent fake differences to make each spot's Q's unique.** That's how the volcanic-rocks mistake happens: stretching for novelty produces unverified claims.
+
+Rule: shared mechanism → shared explanation. Only the Q4 ("special") needs to differ per spot, because that's where the per-spot character lives (this point breaks long; that one breaks short; this one is crowded; that one is empty).
+
+Example: Devil's Rock, Crocro and Banana Beach are three adjacent beach breaks along the Tamraght bay. They share the same Atlantic swell, the same offshore-mornings / side-shore-afternoons wind cycle, the same Oct–Apr season pattern. Q1 / Q2 / Q3 can be near-identical for all three. Q4 is where they diverge (Devil's Rock = always busy + escape network; Crocro = quieter alternative; Banana Beach = ...).
+
 ---
 
 ## Writing rules

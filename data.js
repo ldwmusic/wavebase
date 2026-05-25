@@ -2273,6 +2273,23 @@ const WAVEBASE_DATA = [
         ]
       }
     ],
+    educational: [
+      {
+        q: "Why is the wind here so reliable?",
+        a: `Same engine as Kouremenos: the meltemi (a **thermal wind** caused by temperature differences, not a regular weather system) — the South Asian heat-low pulls air across the Aegean from a Balkan high. Tenda sits at Crete's very north-east tip, so it's directly exposed to that N–NW flow with even less shelter than Kouremenos. Our data: **63% of June days ≥20kn**. The trade-off for that exposure: no facilities, no easy bail-out — just gravel road and the wind.`,
+        source: "Meltemi meteorology + Open-Meteo 5-year archive + east-Crete wind guides."
+      },
+      {
+        q: "Why does the bay offer both wavy (Tenda) and flat (Eligas) options?",
+        a: `Two adjacent bays facing different directions. **Tenda Bay** faces west — the meltemi crossing the water builds chop and small waves here, the freestyle playground. **Eligas Bay** right next door faces east — sheltered from that same N–NW wind, the water stays flat. Drive 5 minutes between the two and pick what you want that day — chop for jumps, flat for tricks. Same wind, two different waters.`,
+        source: "cretanbeaches.com + east-Crete wind guides + bay-orientation geography."
+      },
+      {
+        q: "Why is high season June–September?",
+        a: `Same meltemi seasonality as Kouremenos: the wind only kicks in when the South Asian landmass is fully heated — northern summer. May is still building up; October already breaks down under westerly autumn fronts. Data: June–September hits 45–63% wind reliability, May and October fall to 10–28%. Off-season the bay is empty in every sense — no centers to even close.`,
+        source: "Meltemi seasonal physics + Open-Meteo data."
+      }
+    ],
     condities: {
       golftype: "Remote rocky bay — Tenda side wavy, Eligas side flatter",
       golfhoogte: "Choppy on strong meltemi days; flatter on the east side",
@@ -2369,6 +2386,28 @@ const WAVEBASE_DATA = [
           { kop: "Pattern", tekst: `The stronger the meltemi (N/NNW), the bigger the wave. Long Aegean fetch builds serious swell — mast-high common in winter and on the biggest meltemi cycles in summer.` },
           { kop: "Hazards", tekst: `Rocks in the line-up, rocks very close to where waves break, strong currents, small launch, no on-site help. Don't go solo.` }
         ]
+      }
+    ],
+    educational: [
+      {
+        q: "Why are the waves like they are — mast-high on meltemi?",
+        a: `The meltemi blows from the N/NNW with up to **~600 km of fetch** (the distance over which wind drags across the water to build waves) across the open Aegean. Long fetch + sustained strong wind = serious swell. The Faneromeni peninsula sticks out into that swell line and focuses it; rocky reef bottom shapes the swell into a sailable wave instead of amorphous chop. Hence the local nickname: "Greece's Pozo".`,
+        source: "cretanbeaches.com + kite-and-windsurfing-guide + Aegean fetch geography."
+      },
+      {
+        q: "Why is the wind side-shore here?",
+        a: `The peninsula's orientation puts it perpendicular to the meltemi's N/NNW direction. That makes the wind hit **side-on / side-shore** — exactly the angle a wave-sailor wants (you sail across the wave face, not into the wind, not pushed onto shore). Unlike Kouremenos where side-shore runs parallel to a long beach, here it runs across a rocky point — much more aggressive setup, much closer to the rocks.`,
+        source: "Peninsula geometry + meltemi direction data."
+      },
+      {
+        q: "Why is high season both summer AND winter?",
+        a: `Two different mechanisms produce big waves here. **Summer (Jun–Sep):** strong sustained meltemi over 600km fetch — wave builds during multi-day blow cycles. **Winter (Oct–Mar):** Mediterranean storm depressions generate direct swell, often bigger than summer cycles. Two seasons, two different physics, similar payoff. Off-season: only May and the deepest mid-winter calms are flat.`,
+        source: "Meltemi seasonality + Mediterranean storm patterns + spot data periods."
+      },
+      {
+        q: "Why is it expert-only — what makes it heavy?",
+        a: `Rocks in the line-up + waves break **very close to** rocks + small launch + strong currents + zero on-site help. Add mast-high size and side-on wind that pushes you toward those same rocks. The Pozo comparison is no exaggeration — Pozo Izquierdo (Gran Canaria's wave-sailing icon) has the same recipe: rocky launch, side-shore wind, big wave, expert-only. People have been hurt here. Bring spare gear, bring shoes, never go solo, know your exit (~200m downwind of the small church).`,
+        source: "cretanbeaches.com + SURF magazine + spot hazards data."
       }
     ],
     condities: {
@@ -2473,6 +2512,23 @@ const WAVEBASE_DATA = [
           { kop: "Winter (SW storms)", tekst: `Real wave spot — sideshore from the right, conditions for jumping and riding.` },
           { kop: "What does NOT work", tekst: `Meltemi (NW) blows fully offshore here. Wrong wind for this coast.` }
         ]
+      }
+    ],
+    educational: [
+      {
+        q: "Why does the meltemi NOT work here — and what wind does?",
+        a: `Xerokampos sits on Crete's south coast. The meltemi (N/NW) — the wind that makes Kouremenos and Tenda go off — blows **straight offshore** here. Offshore is useless for wind sports: you sail away from land and can't get back. What works: S winds (side-on from the right, summer days when the meltemi is quiet), and SW storm fronts in winter (sideshore, real wave conditions). Xerokampos is the **complement to Kouremenos** — when one works, the other often doesn't.`,
+        source: "surfingr.com + kite-and-windsurfing-guide + windfinder + south-coast wind geography."
+      },
+      {
+        q: "Why does it work for both flat-water cruising and real waves (depending on the season)?",
+        a: `Same beach, two completely different conditions depending on which wind shows up. **Summer S days:** gentle side-on flow → deep chop with playful small waves, fine white sand bottom, cruising and freeride. **Winter SW storms:** real wave spot — sideshore from the right, ridable size and jumping conditions. Fine sand bottom means crashes are forgiving in either mode.`,
+        source: "cretanbeaches.com + windfinder + spot conditions data."
+      },
+      {
+        q: "Why is the 'season' actually opposite of north-Crete?",
+        a: `Counter-intuitive but logical from the wind direction. North Crete (Kouremenos / Tenda) peaks in summer because that's when meltemi blows. Xerokampos peaks in winter because that's when SW storms deliver workable side-shore wind. Summer wind reliability here is only **6–13%**; winter SW storms can deliver multi-day windows. Practical: come specifically on days when the north-coast forecast is flat.`,
+        source: "Open-Meteo 5-year wind data + windfinder seasonal patterns."
       }
     ],
     condities: {
