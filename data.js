@@ -457,6 +457,28 @@ const WAVEBASE_DATA = [
         ]
       }
     ],
+    educational: [
+      {
+        q: "Why are the waves like they are — sand-bottom A-frames?",
+        a: `Same physics as Devil's Rock just 300m south: the river Oued Tamraght has deposited sand here over thousands of years, building a soft sandy bay. On that bottom the swell forms **sand-bars** (shallow underwater sand ridges that shift with storms), so the wave breaks into loose A-frame peaks rather than one long clean wave. Lefts and rights, more lefts here than at Devil's Rock.`,
+        source: "Oued Tamraght geography + beach-break physics."
+      },
+      {
+        q: "Why is the wind like it is — offshore mornings, side-shore afternoons?",
+        a: `Land cools faster than the sea overnight. At sunrise, cool air flows from land to sea — a gentle offshore breeze that keeps the wave faces clean. By midday the land heats up sharply (Morocco = desert climate), the flow reverses to a sea breeze (NW, side-shore) that chops up the surface. Hence the local rule: **surf in the morning, beach in the afternoon.**`,
+        source: "Coastal meteorology + Open-Meteo data."
+      },
+      {
+        q: "Why does it work year-round but peak October–April?",
+        a: `Large Atlantic depressions (low-pressure systems) track through the winter between Iceland and the British Isles. These generate W–NW swells that travel ~4500km to Morocco. In summer the Azores High dominates — smaller, softer waves but still surfable here because of the forgiving sand bottom. Our data: **97% swell-probability in December, 58% in August.** Winter = punchy; summer = learning-friendly.`,
+        source: "North Atlantic swell pattern + Windguru 5-year archive."
+      },
+      {
+        q: "Why is it the most consistent break in the Tamraght cluster?",
+        a: `Crocro's beach faces directly west into the open Atlantic — no headland blocks the W–NW swell, no point refracts it. Where Devil's Rock and Banana Beach need the swell to wrap, Crocro catches it head-on. The result: **a wave almost every winter day**, even on smaller pulses that leave other spots flat. The trade-off: minimal shelter from wind = clean only in the early morning.`,
+        source: "Bay orientation + cluster comparison data."
+      }
+    ],
     condities: {
       golftype: "Beach break (sand bottom)",
       golfhoogte: "Chest- to head-high; bigger on winter swell",
@@ -674,6 +696,23 @@ const WAVEBASE_DATA = [
         ]
       }
     ],
+    educational: [
+      {
+        q: "Why does it pitch so fast and hollow?",
+        a: `Spiders is a **flat-slab reef** — the bottom is a rock plateau (not the gradual sand slope of a beach break). When a swell hits that abrupt transition from deep water to shallow reef, the water can't slow down gradually — it gets forced upward and pitches **fast and vertical**. Same mechanism as famous slabs worldwide (Tahiti's Teahupo'o, Pipeline's inside section). Needs 4ft+ to even break.`,
+        source: "Slab-reef wave physics + spot data."
+      },
+      {
+        q: "Why is the wind like it is — offshore mornings, side-shore afternoons?",
+        a: `Land cools faster than the sea overnight. At sunrise, cool air flows from land to sea — a gentle offshore breeze that keeps the wave faces clean. By midday the land heats up sharply (Morocco = desert climate), the flow reverses to a sea breeze (NW, side-shore) that chops up the surface. Hence the local rule: **surf in the morning, beach in the afternoon.**`,
+        source: "Coastal meteorology + Open-Meteo data."
+      },
+      {
+        q: "Why does it only really work October–April?",
+        a: `This spot needs the big winter swells to come alive. Large Atlantic depressions between Iceland and the British Isles generate W–NW swells that travel ~4500km to Morocco — frequent in winter, rare in summer when the Azores High dominates. **97% swell-probability in December, 58% in August** — but here the August "swell" is too small to do the job. Summer = mostly flat. Plan your trip for the cold months.`,
+        source: "North Atlantic swell pattern + Windguru 5-year archive."
+      }
+    ],
     condities: {
       golftype: "Reef break / slab (flat reef)",
       golfhoogte: "From ~4 ft; doesn't work on small swell",
@@ -770,6 +809,28 @@ const WAVEBASE_DATA = [
         ]
       }
     ],
+    educational: [
+      {
+        q: "Why is it called "a mini Anchor Point"?",
+        a: `Same point-break physics as Anchor: a **headland sticking out into the swell** refracts the wave as it bends around the point. That refraction is what makes the wave **peel along the point** instead of breaking all at once — a long, orderly right-hand wall instead of a short A-frame. Banana Point is smaller and more sand-mixed than Anchor's flagship version, but the recipe is identical.`,
+        source: "Point-break refraction physics + spot comparison data."
+      },
+      {
+        q: "Why is the wind like it is — offshore mornings, side-shore afternoons?",
+        a: `Land cools faster than the sea overnight. At sunrise, cool air flows from land to sea — a gentle offshore breeze that keeps the wave faces clean. By midday the land heats up sharply (Morocco = desert climate), the flow reverses to a sea breeze (NW, side-shore) that chops up the surface. Hence the local rule: **surf in the morning, beach in the afternoon.**`,
+        source: "Coastal meteorology + Open-Meteo data."
+      },
+      {
+        q: "Why does it only really work October–April?",
+        a: `This spot needs the big winter swells to come alive. Large Atlantic depressions between Iceland and the British Isles generate W–NW swells that travel ~4500km to Morocco — frequent in winter, rare in summer when the Azores High dominates. **97% swell-probability in December, 58% in August** — but here the August "swell" is too small to do the job. Summer = mostly flat. Plan your trip for the cold months.`,
+        source: "North Atlantic swell pattern + Windguru 5-year archive."
+      },
+      {
+        q: "Why is it busy on small days even though it's a "real" wave when big?",
+        a: `When the point isn't working (small days), the sand peaks beside it become a forgiving beach break — surf schools love it. When the point fires (5ft+), the small-day beginners stay put and intermediates take over the long rights. **Two waves in one spot, depending on size.** Honest fine print: don't surf right after heavy rain — Oued Tamraght dumps runoff into the river mouth here.`,
+        source: "Spot data + river-mouth water-quality notes."
+      }
+    ],
     condities: {
       golftype: "Point break (right), sand-and-rock bottom",
       golfhoogte: "Works from ~1.5–2 m; holds well on big swell",
@@ -864,6 +925,23 @@ const WAVEBASE_DATA = [
           { kop: "High season · Oct–Apr", tekst: `Reliable on NW swell, but stays small and forgiving — also a fallback when the bigger spots are too big.` },
           { kop: "Low season · May–Sep", tekst: `At its friendliest — small, soft, warm water. A learning ground par excellence.` }
         ]
+      }
+    ],
+    educational: [
+      {
+        q: "Why is this the softest beginner wave in the region?",
+        a: `Banana Beach sits just north of Banana Point's headland, which **blocks most of the W–NW swell**. What reaches the beach is the leftover energy that wraps around the point — already partly dissipated. Result: small, mushy, slow waves that crumble rather than pitch. Sand bottom + sheltered angle = ideal first-stand-up wave. The same protection means: **you'll outgrow it in a week.**`,
+        source: "Banana Point headland geometry + spot data."
+      },
+      {
+        q: "Why is the wind like it is — offshore mornings, side-shore afternoons?",
+        a: `Land cools faster than the sea overnight. At sunrise, cool air flows from land to sea — a gentle offshore breeze that keeps the wave faces clean. By midday the land heats up sharply (Morocco = desert climate), the flow reverses to a sea breeze (NW, side-shore) that chops up the surface. Hence the local rule: **surf in the morning, beach in the afternoon.**`,
+        source: "Coastal meteorology + Open-Meteo data."
+      },
+      {
+        q: "Why does it work year-round but peak October–April?",
+        a: `Large Atlantic depressions (low-pressure systems) track through the winter between Iceland and the British Isles. These generate W–NW swells that travel ~4500km to Morocco. In summer the Azores High dominates — smaller, softer waves but still surfable here because of the forgiving sand bottom. Our data: **97% swell-probability in December, 58% in August.** Winter = punchy; summer = learning-friendly.`,
+        source: "North Atlantic swell pattern + Windguru 5-year archive."
       }
     ],
     condities: {
@@ -964,6 +1042,23 @@ const WAVEBASE_DATA = [
         ]
       }
     ],
+    educational: [
+      {
+        q: "Why does a reef break behave like a beach break here?",
+        a: `K12 sits over a **deep reef** — not the shallow flat slab of K11 or Spiders, but a reef well below the surface. The swell can build gradually rather than pitch abruptly, producing wide, fat, crumbly waves — the same shape you'd get from a sand-bar. That's why intermediates can practise here without reef-break consequences, and why it's rarely busy: it doesn't look "special" enough to draw crowds.`,
+        source: "Reef depth and wave physics + spot data."
+      },
+      {
+        q: "Why is the wind like it is — offshore mornings, side-shore afternoons?",
+        a: `Land cools faster than the sea overnight. At sunrise, cool air flows from land to sea — a gentle offshore breeze that keeps the wave faces clean. By midday the land heats up sharply (Morocco = desert climate), the flow reverses to a sea breeze (NW, side-shore) that chops up the surface. Hence the local rule: **surf in the morning, beach in the afternoon.**`,
+        source: "Coastal meteorology + Open-Meteo data."
+      },
+      {
+        q: "Why does it only really work October–April?",
+        a: `This spot needs the big winter swells to come alive. Large Atlantic depressions between Iceland and the British Isles generate W–NW swells that travel ~4500km to Morocco — frequent in winter, rare in summer when the Azores High dominates. **97% swell-probability in December, 58% in August** — but here the August "swell" is too small to do the job. Summer = mostly flat. Plan your trip for the cold months.`,
+        source: "North Atlantic swell pattern + Windguru 5-year archive."
+      }
+    ],
     condities: {
       golftype: "Reef break (deep) — behaves like a beach break",
       golfhoogte: "Wide, fat waves; punchy but forgiving",
@@ -1060,6 +1155,23 @@ const WAVEBASE_DATA = [
           { kop: "High season · Oct–Apr", tekst: `Comes to life on a solid NW winter swell of ~5–6 ft+, high to mid-rising tide.` },
           { kop: "Low season · May–Sep", tekst: `Usually too small to work as a reef — then at most the soft sand sections around it.` }
         ]
+      }
+    ],
+    educational: [
+      {
+        q: "Why does it pitch hollow on the left?",
+        a: `K11 is a **shallow left-hand reef** — the opposite of K12 next door. Where K12's deep reef makes waves crumble, K11's shallow reef forces water upward sharply: the wave pitches into a hollow, "wedgy" almond shape. Left-hand only because the reef tilts that way. Needs 5–6ft to start working — below that, the swell rides over without pitching.`,
+        source: "Shallow-reef pitching physics + spot data."
+      },
+      {
+        q: "Why is the wind like it is — offshore mornings, side-shore afternoons?",
+        a: `Land cools faster than the sea overnight. At sunrise, cool air flows from land to sea — a gentle offshore breeze that keeps the wave faces clean. By midday the land heats up sharply (Morocco = desert climate), the flow reverses to a sea breeze (NW, side-shore) that chops up the surface. Hence the local rule: **surf in the morning, beach in the afternoon.**`,
+        source: "Coastal meteorology + Open-Meteo data."
+      },
+      {
+        q: "Why does it only really work October–April?",
+        a: `This spot needs the big winter swells to come alive. Large Atlantic depressions between Iceland and the British Isles generate W–NW swells that travel ~4500km to Morocco — frequent in winter, rare in summer when the Azores High dominates. **97% swell-probability in December, 58% in August** — but here the August "swell" is too small to do the job. Summer = mostly flat. Plan your trip for the cold months.`,
+        source: "North Atlantic swell pattern + Windguru 5-year archive."
       }
     ],
     condities: {
@@ -1161,6 +1273,23 @@ const WAVEBASE_DATA = [
         ]
       }
     ],
+    educational: [
+      {
+        q: "Why does it have multiple peaks instead of one main wave?",
+        a: `K17 is a kilometre-long stretch of sand between Crocro and Panorama — not one wave but **many**. Sand-bars form independently along the beach as currents and storms reshape the bottom; each bar makes its own little break. That's why everyone spreads out — there's no central peak to mob. The trade-off: no single "best spot" — you have to walk the beach and read the water.`,
+        source: "Beach-break sand-bar dynamics + spot data."
+      },
+      {
+        q: "Why is the wind like it is — offshore mornings, side-shore afternoons?",
+        a: `Land cools faster than the sea overnight. At sunrise, cool air flows from land to sea — a gentle offshore breeze that keeps the wave faces clean. By midday the land heats up sharply (Morocco = desert climate), the flow reverses to a sea breeze (NW, side-shore) that chops up the surface. Hence the local rule: **surf in the morning, beach in the afternoon.**`,
+        source: "Coastal meteorology + Open-Meteo data."
+      },
+      {
+        q: "Why does it work year-round but peak October–April?",
+        a: `Large Atlantic depressions (low-pressure systems) track through the winter between Iceland and the British Isles. These generate W–NW swells that travel ~4500km to Morocco. In summer the Azores High dominates — smaller, softer waves but still surfable here because of the forgiving sand bottom. Our data: **97% swell-probability in December, 58% in August.** Winter = punchy; summer = learning-friendly.`,
+        source: "North Atlantic swell pattern + Windguru 5-year archive."
+      }
+    ],
     condities: {
       golftype: "Beach break (sand bottom, some rocks), multiple peaks",
       golfhoogte: "Variable; good punch mid-winter, small/foamy in summer",
@@ -1260,6 +1389,28 @@ const WAVEBASE_DATA = [
         ]
       }
     ],
+    educational: [
+      {
+        q: "Why does it work when everything else is flat?",
+        a: `Anza is the **most swell-exposed** beach in the region — first real break north of Agadir's bay, with no headlands or rocks blocking the incoming swell line. Sand-and-reef bottom: the reef sections build a wave even on tiny swell that the pure-sand beaches can't catch. On small days when Tamraght and Taghazout are flat, Anza is the fallback.`,
+        source: "Coast exposure geography + spot data."
+      },
+      {
+        q: "Why is the wind like it is — offshore mornings, side-shore afternoons?",
+        a: `Land cools faster than the sea overnight. At sunrise, cool air flows from land to sea — a gentle offshore breeze that keeps the wave faces clean. By midday the land heats up sharply (Morocco = desert climate), the flow reverses to a sea breeze (NW, side-shore) that chops up the surface. Hence the local rule: **surf in the morning, beach in the afternoon.**`,
+        source: "Coastal meteorology + Open-Meteo data."
+      },
+      {
+        q: "Why does it work year-round but peak October–April?",
+        a: `Large Atlantic depressions (low-pressure systems) track through the winter between Iceland and the British Isles. These generate W–NW swells that travel ~4500km to Morocco. In summer the Azores High dominates — smaller, softer waves but still surfable here because of the forgiving sand bottom. Our data: **97% swell-probability in December, 58% in August.** Winter = punchy; summer = learning-friendly.`,
+        source: "North Atlantic swell pattern + Windguru 5-year archive."
+      },
+      {
+        q: "Why does the pollution warning exist?",
+        a: `Anza sits closer to Agadir's urban sprawl than the Tamraght/Taghazout spots. Several reports describe **sewage runoff** reaching the water and surfers getting sick after sessions. The situation isn't constant — it depends on rainfall, sewer overflow, and time of year — but it's well-documented enough to belong on every WaveBase listing. **Check the current water-quality situation before paddling out**, especially after rain.`,
+        source: "Spot data sewage reports + multiple surf-guide caveats."
+      }
+    ],
     condities: {
       golftype: "Beach + reef (sand-bar), A-frame peaks",
       golfhoogte: "From small; holds up to 3 m+",
@@ -1357,6 +1508,28 @@ const WAVEBASE_DATA = [
         ]
       }
     ],
+    educational: [
+      {
+        q: "Why is the right so long — peeling over a kilometre?",
+        a: `An **angled rocky headland** sticks out into the W–NW swell line. As the wave approaches, the headland refracts it (bends it) so it breaks progressively along the rock instead of all at once. Combined with a sand-and-rock bottom that gives multiple sections (take-off, fast wall, inside reform), you can ride **500m to over a kilometre** on a good day. Holds 10–12ft regularly in winter, 16ft+ on the biggest swells.`,
+        source: "Point-break refraction physics + spot data."
+      },
+      {
+        q: "Why is the wind like it is — offshore mornings, side-shore afternoons?",
+        a: `Land cools faster than the sea overnight. At sunrise, cool air flows from land to sea — a gentle offshore breeze that keeps the wave faces clean. By midday the land heats up sharply (Morocco = desert climate), the flow reverses to a sea breeze (NW, side-shore) that chops up the surface. Hence the local rule: **surf in the morning, beach in the afternoon.**`,
+        source: "Coastal meteorology + Open-Meteo data."
+      },
+      {
+        q: "Why does it only really work October–April?",
+        a: `This spot needs the big winter swells to come alive. Large Atlantic depressions between Iceland and the British Isles generate W–NW swells that travel ~4500km to Morocco — frequent in winter, rare in summer when the Azores High dominates. **97% swell-probability in December, 58% in August** — but here the August "swell" is too small to do the job. Summer = mostly flat. Plan your trip for the cold months.`,
+        source: "North Atlantic swell pattern + Windguru 5-year archive."
+      },
+      {
+        q: "Why is it Morocco's flagship — and why does that make it busy?",
+        a: `Anchor Point is the wave that put Morocco on the international surf map. Long peeling right + reliable winter swell + Taghazout village two minutes away = international magnet. On a good day **the line-up is global**, and the rooftop bars become a spectator gallery. The honest fine print: the rocky jump-off is no place for beginners, currents are strong, and on the biggest days the take-off is committing. Skill respected, dropping in not tolerated.`,
+        source: "Crowd + access data + community reports."
+      }
+    ],
     condities: {
       golftype: "Point break (right), sand-and-rock bottom",
       golfhoogte: "Works from ~1–1.5 m; regularly 10–12 ft in winter",
@@ -1452,6 +1625,28 @@ const WAVEBASE_DATA = [
           { kop: "High season · Oct–Apr", tekst: `Works from ~1–1.5 m up to 2 m+; with size faster and hollower. Works on all tides — watch the rocks at low tide.` },
           { kop: "Low season · May–Sep", tekst: `Often fat and mellow — an accessible learning ground on the rocks.` }
         ]
+      }
+    ],
+    educational: [
+      {
+        q: "Why is it "wedgy" and lazy small, but hollow with size?",
+        a: `Hash Point's sand-and-rock bottom creates a **refraction zone** at the village edge. Small swell wraps gently around the bend, fat and slow — the "wedgy almond" shape. As the swell grows, the same refraction can't bend it as easily; the wave starts pitching faster and hollower. **Same spot, two completely different waves depending on size.** Works on all tides (watch the rocks at low).`,
+        source: "Refraction physics + spot data."
+      },
+      {
+        q: "Why is the wind like it is — offshore mornings, side-shore afternoons?",
+        a: `Land cools faster than the sea overnight. At sunrise, cool air flows from land to sea — a gentle offshore breeze that keeps the wave faces clean. By midday the land heats up sharply (Morocco = desert climate), the flow reverses to a sea breeze (NW, side-shore) that chops up the surface. Hence the local rule: **surf in the morning, beach in the afternoon.**`,
+        source: "Coastal meteorology + Open-Meteo data."
+      },
+      {
+        q: "Why does it work year-round but peak October–April?",
+        a: `Large Atlantic depressions (low-pressure systems) track through the winter between Iceland and the British Isles. These generate W–NW swells that travel ~4500km to Morocco. In summer the Azores High dominates — smaller, softer waves but still surfable here because of the forgiving sand bottom. Our data: **97% swell-probability in December, 58% in August.** Winter = punchy; summer = learning-friendly.`,
+        source: "North Atlantic swell pattern + Windguru 5-year archive."
+      },
+      {
+        q: "Why is it the village break — and what's the pollution caveat?",
+        a: `Hash Point is where you walk out your front door in Taghazout and you're in the water. **Maximum accessibility**, classic first reef break for those graduating from beach breaks. Local groms surf it after school. Honest fine print: being right at the village edge means **slightly higher chance of polluted water**, especially after rain or in tourist-peak periods when village drainage strains.`,
+        source: "Village geography + spot data + pollution reports."
       }
     ],
     condities: {
@@ -1552,6 +1747,28 @@ const WAVEBASE_DATA = [
         ]
       }
     ],
+    educational: [
+      {
+        q: "Why is it a point AND a beach in one?",
+        a: `A small headland at the south end of Taghazout creates a **right-hand point** on one side; the sand spreads out forming a **beach section** beside it. Same swell hits both differently — beginners on the soft beach peaks, intermediates on the long point rights. **Two waves, one spot.** Goes too fast if the swell becomes too westerly (refraction breaks down).`,
+        source: "Headland geometry + spot data."
+      },
+      {
+        q: "Why is the wind like it is — offshore mornings, side-shore afternoons?",
+        a: `Land cools faster than the sea overnight. At sunrise, cool air flows from land to sea — a gentle offshore breeze that keeps the wave faces clean. By midday the land heats up sharply (Morocco = desert climate), the flow reverses to a sea breeze (NW, side-shore) that chops up the surface. Hence the local rule: **surf in the morning, beach in the afternoon.**`,
+        source: "Coastal meteorology + Open-Meteo data."
+      },
+      {
+        q: "Why does it work year-round but peak October–April?",
+        a: `Large Atlantic depressions (low-pressure systems) track through the winter between Iceland and the British Isles. These generate W–NW swells that travel ~4500km to Morocco. In summer the Azores High dominates — smaller, softer waves but still surfable here because of the forgiving sand bottom. Our data: **97% swell-probability in December, 58% in August.** Winter = punchy; summer = learning-friendly.`,
+        source: "North Atlantic swell pattern + Windguru 5-year archive."
+      },
+      {
+        q: "Why does it have such a strong current?",
+        a: `The water that funnels along the point has to go somewhere — it pushes back out to sea through a strong **rip current** parallel to the rocks. That current acts as a free conveyor belt to the take-off (if you know how to use it), but it'll tire out anyone who paddles against it. **Plan your paddle, swim with the rip not against it.** This is why Panorama "asks for solid paddling".`,
+        source: "Point-break rip-current dynamics + spot data."
+      }
+    ],
     condities: {
       golftype: "Point + beach break, sand-and-rock bottom",
       golfhoogte: "From <1 m up to 3 m+ — mellow to quality shortboard wave",
@@ -1649,6 +1866,23 @@ const WAVEBASE_DATA = [
         ]
       }
     ],
+    educational: [
+      {
+        q: "Why is it Anchor Point's quieter neighbour — same swell, different wave?",
+        a: `Mysteries sits **100m from Anchor** but over a **reef plateau + sand bottom** (Anchor is sand-and-rock). That reef plateau forces a **"sucky" slabby take-off** — the wave goes from flat to pitching in a much shorter distance than Anchor's gradual refraction. Technically harder, which filters out beginners and overflow-from-Anchor surfers. **Same swell. Different physics. Quieter line-up.** Go-to when Anchor is mobbed.`,
+        source: "Reef-plateau wave physics + spot data."
+      },
+      {
+        q: "Why is the wind like it is — offshore mornings, side-shore afternoons?",
+        a: `Land cools faster than the sea overnight. At sunrise, cool air flows from land to sea — a gentle offshore breeze that keeps the wave faces clean. By midday the land heats up sharply (Morocco = desert climate), the flow reverses to a sea breeze (NW, side-shore) that chops up the surface. Hence the local rule: **surf in the morning, beach in the afternoon.**`,
+        source: "Coastal meteorology + Open-Meteo data."
+      },
+      {
+        q: "Why does it only really work October–April?",
+        a: `This spot needs the big winter swells to come alive. Large Atlantic depressions between Iceland and the British Isles generate W–NW swells that travel ~4500km to Morocco — frequent in winter, rare in summer when the Azores High dominates. **97% swell-probability in December, 58% in August** — but here the August "swell" is too small to do the job. Summer = mostly flat. Plan your trip for the cold months.`,
+        source: "North Atlantic swell pattern + Windguru 5-year archive."
+      }
+    ],
     condities: {
       golftype: "Point break (right), reef plateau + sand bottom",
       golfhoogte: "From ~1–1.5 m; slabby and thick with size",
@@ -1744,6 +1978,23 @@ const WAVEBASE_DATA = [
           { kop: "High season · Oct–Apr", tekst: `Works on small to medium NW swell; chest- to head-high in winter, hollower at low tide.` },
           { kop: "Low season · May–Sep", tekst: `Quieter and smaller; usable on the better days.` }
         ]
+      }
+    ],
+    educational: [
+      {
+        q: "Why is it the forgiving reef in a town of intimidating reefs?",
+        a: `Where Killer Point and Boilers are sharp-rock slabs that punish mistakes, La Source's reef is **smoother hard rock** with A-frame shape (lefts and rights). The wave is short (often <50m) but the take-off is more like a beach-break A-frame than a heaving point. That's why it's the **classic overflow when Anchor Point is too crowded** — intermediates can ride a reef wave here without committing to the gnarlier alternatives. **Avoid very low tide** — the rock slab gets exposed.`,
+        source: "Reef-shape comparison + spot data."
+      },
+      {
+        q: "Why is the wind like it is — offshore mornings, side-shore afternoons?",
+        a: `Land cools faster than the sea overnight. At sunrise, cool air flows from land to sea — a gentle offshore breeze that keeps the wave faces clean. By midday the land heats up sharply (Morocco = desert climate), the flow reverses to a sea breeze (NW, side-shore) that chops up the surface. Hence the local rule: **surf in the morning, beach in the afternoon.**`,
+        source: "Coastal meteorology + Open-Meteo data."
+      },
+      {
+        q: "Why does it only really work October–April?",
+        a: `This spot needs the big winter swells to come alive. Large Atlantic depressions between Iceland and the British Isles generate W–NW swells that travel ~4500km to Morocco — frequent in winter, rare in summer when the Azores High dominates. **97% swell-probability in December, 58% in August** — but here the August "swell" is too small to do the job. Summer = mostly flat. Plan your trip for the cold months.`,
+        source: "North Atlantic swell pattern + Windguru 5-year archive."
       }
     ],
     condities: {
@@ -1844,6 +2095,28 @@ const WAVEBASE_DATA = [
         ]
       }
     ],
+    educational: [
+      {
+        q: "Why does it hold the biggest swells in the region?",
+        a: `Killer's position on the cape exposes it to the most direct W–NW swell line — nothing blocks it. The wave breaks over a **flat reef** with deep-water approach: the swell maintains energy until the very last moment, then pitches off the reef. That deep approach + flat reef = waves can hold **13ft+** where other spots have closed out. Peels up to 500m on the right swell.`,
+        source: "Cape exposure geometry + reef wave physics + spot data."
+      },
+      {
+        q: "Why is the wind like it is — offshore mornings, side-shore afternoons?",
+        a: `Land cools faster than the sea overnight. At sunrise, cool air flows from land to sea — a gentle offshore breeze that keeps the wave faces clean. By midday the land heats up sharply (Morocco = desert climate), the flow reverses to a sea breeze (NW, side-shore) that chops up the surface. Hence the local rule: **surf in the morning, beach in the afternoon.**`,
+        source: "Coastal meteorology + Open-Meteo data."
+      },
+      {
+        q: "Why does it only really work October–April?",
+        a: `This spot needs the big winter swells to come alive. Large Atlantic depressions between Iceland and the British Isles generate W–NW swells that travel ~4500km to Morocco — frequent in winter, rare in summer when the Azores High dominates. **97% swell-probability in December, 58% in August** — but here the August "swell" is too small to do the job. Summer = mostly flat. Plan your trip for the cold months.`,
+        source: "North Atlantic swell pattern + Windguru 5-year archive."
+      },
+      {
+        q: "Why does the long paddle thin the crowd — and what's the localism?",
+        a: `Reaching the take-off means a **15–20 min paddle** at high tide, or scrambling under cliffs at low. That filters out casual visitors and surf-school groups; only committed surfers make it out. The trade-off: when it fires, the line-up is mostly **locals who know the spot**, and they expect respect. **Don't drop in. Wait your turn. Reef boots recommended** — sharp jump-off.`,
+        source: "Access data + localism reports."
+      }
+    ],
     condities: {
       golftype: "Point break (right), flat reef/rock",
       golfhoogte: "Needs ~6–8 ft+; holds the biggest (13 ft+)",
@@ -1939,6 +2212,28 @@ const WAVEBASE_DATA = [
           { kop: "High season · Oct–Apr", tekst: `At its best — works from ~1.5–2 m, holds 4 m+, prime 6–10 ft. Rarely offshore-wrong thanks to the wind shadow.` },
           { kop: "Low season · May–Sep", tekst: `Quieter; it needs a solid winter NW swell to really fire.` }
         ]
+      }
+    ],
+    educational: [
+      {
+        q: "Why does it pick up more swell than Anchor Point?",
+        a: `Boilers sits at the **northernmost cape**, ~35–45 min north of Taghazout, near the Cap Ghir lighthouse. That northern position + open exposure = it catches the swell line before refraction reduces its energy. The reef is a **rocky boulder field** (named after a shipwreck boiler in the bay) that focuses the swell into a long right-hand wall. Holds 4m+, prime at 6–10ft.`,
+        source: "Cape position + spot data."
+      },
+      {
+        q: "Why is the wind like it is — offshore mornings, side-shore afternoons?",
+        a: `Land cools faster than the sea overnight. At sunrise, cool air flows from land to sea — a gentle offshore breeze that keeps the wave faces clean. By midday the land heats up sharply (Morocco = desert climate), the flow reverses to a sea breeze (NW, side-shore) that chops up the surface. Hence the local rule: **surf in the morning, beach in the afternoon.**`,
+        source: "Coastal meteorology + Open-Meteo data."
+      },
+      {
+        q: "Why does it only really work October–April?",
+        a: `This spot needs the big winter swells to come alive. Large Atlantic depressions between Iceland and the British Isles generate W–NW swells that travel ~4500km to Morocco — frequent in winter, rare in summer when the Azores High dominates. **97% swell-probability in December, 58% in August** — but here the August "swell" is too small to do the job. Summer = mostly flat. Plan your trip for the cold months.`,
+        source: "North Atlantic swell pattern + Windguru 5-year archive."
+      },
+      {
+        q: "Why does it stay clean when other spots are blown out?",
+        a: `Boilers sits in a **natural wind shadow from the Atlas foothills** — the cliffs and mountain ridges block the NW sea-breeze that turns Anchor Point choppy by mid-afternoon. While the rest of the cluster gets onshore-chopped, Boilers stays glassy. The trade-off for that quality: **35–45 min drive, no facilities, sea urchins, sharp rocks, tricky entry, currents**. Bring everything, including food and water.`,
+        source: "Wind-shadow geography + spot data."
       }
     ],
     condities: {
@@ -2037,6 +2332,23 @@ const WAVEBASE_DATA = [
           { kop: "High season · Oct–Apr", tekst: `Bigger and messier on winter swells; stays largely lesson-friendly. Cleanest in the morning before the wind turns.` },
           { kop: "Low season · May–Sep", tekst: `Small and mushy — beginner scale, at its best as a learning ground.` }
         ]
+      }
+    ],
+    educational: [
+      {
+        q: "Why is it the village's gentlest learn-to-surf wave?",
+        a: `Taghazout Beach sits **directly below the village**, sheltered by Anchor Point's headland to the north. That headland blocks the brunt of the W–NW swell — what reaches the beach is the soft, refracted leftover. Sand bottom + gentle slope = small, friendly rollers that crumble rather than pitch. **Maximum accessibility** (you're literally next to your guesthouse), zero reef hazard.`,
+        source: "Anchor Point headland shadow + beach-break physics + spot data."
+      },
+      {
+        q: "Why is the wind like it is — offshore mornings, side-shore afternoons?",
+        a: `Land cools faster than the sea overnight. At sunrise, cool air flows from land to sea — a gentle offshore breeze that keeps the wave faces clean. By midday the land heats up sharply (Morocco = desert climate), the flow reverses to a sea breeze (NW, side-shore) that chops up the surface. Hence the local rule: **surf in the morning, beach in the afternoon.**`,
+        source: "Coastal meteorology + Open-Meteo data."
+      },
+      {
+        q: "Why does it work year-round but peak October–April?",
+        a: `Large Atlantic depressions (low-pressure systems) track through the winter between Iceland and the British Isles. These generate W–NW swells that travel ~4500km to Morocco. In summer the Azores High dominates — smaller, softer waves but still surfable here because of the forgiving sand bottom. Our data: **97% swell-probability in December, 58% in August.** Winter = punchy; summer = learning-friendly.`,
+        source: "North Atlantic swell pattern + Windguru 5-year archive."
       }
     ],
     condities: {
