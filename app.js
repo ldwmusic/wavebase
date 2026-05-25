@@ -5667,11 +5667,22 @@ function renderAccount() {
     // if the user dismisses the picker without confirming.
     inp.addEventListener("change", handleDate);
     inp.addEventListener("input", handleDate);
-    // Touch devices: auto-dismiss the iOS calendar after a date is
-    // tapped — LDW doesn't want to confirm twice (input fires on tap,
-    // we blur to close the picker, then change/blur fire normally).
+    // Touch devices: auto-dismiss the iOS calendar AFTER the user has
+    // actually picked a date — but skip the auto-blur if input fires
+    // within ~500 ms of focus, because for an empty date field iOS
+    // pre-fires `input` with "today" as soon as the popup opens, and
+    // an immediate blur would dismiss the picker with today silently
+    // committed (LDW: "selecteerd automatisch de dag van vandaag en
+    // bevestigd die ook"). 500 ms gives the user time to actually
+    // interact before we treat input as a real pick.
     if (isTouch) {
-      inp.addEventListener("input", () => setTimeout(() => inp.blur(), 0));
+      let focusedAt = 0;
+      inp.addEventListener("focus", () => { focusedAt = Date.now(); });
+      inp.addEventListener("input", () => {
+        if (Date.now() - focusedAt > 500) {
+          setTimeout(() => inp.blur(), 0);
+        }
+      });
     }
     // Defer the full re-render until focus leaves the date fields, so
     // the picker stays open and tabbing between in / out keeps working.
