@@ -3846,8 +3846,9 @@ button.rml-key.off .rml-dot {
 .drag-grip:active { cursor: grabbing; }
 .trip-item-row[draggable="true"] {
   border-radius: 8px;
-  /* Smooth shift when other rows open a gap during touch drag. */
-  transition: background 0.12s ease, transform 0.16s cubic-bezier(0.2, 0.7, 0.2, 1);
+  /* Snappier shift (0.10 s) so the gap follows the finger without lag
+     during slow drag — long animations made it feel laggy/glitchy. */
+  transition: background 0.12s ease, transform 0.10s ease;
 }
 /* Touch drag: original row collapses out of flow (the ghost clone shows
    the content under the finger). Desktop mouse drag still gets the

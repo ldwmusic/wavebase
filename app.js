@@ -5329,20 +5329,25 @@ function renderAccount() {
     });
 
     // Touch-drag fallback for iPad / iPhone — HTML5 drag events don't
-    // fire on touchscreens, so we wire the same reorder flow to touch
-    // events via the .drag-grip handle. With visual polish: a floating
-    // clone follows the finger, the original row collapses out of the
-    // flow, and the rows above/below the drop position shift to open
-    // a real gap — iOS-style reorder feedback.
+    // fire on touchscreens. Reorder UX with iOS-feel: a floating clone
+    // follows the finger, the original row collapses, and rows shift
+    // to open a gap at the prospective drop position.
+    //
+    // Critical detail: hit-testing uses positions CAPTURED ONCE at
+    // touchstart (post-collapse), not live getBoundingClientRect. Live
+    // rects move with our own shift transforms, which creates a feedback
+    // loop where the gap flickers under slow movement. Stable caches +
+    // "only re-apply on dropIdx change" + nearest-row fallback when the
+    // finger is over an open gap = no jitter.
     const grip = row.querySelector(".drag-grip");
     if (grip) {
       let touchDrag = null;
       let ghost = null;
       let touchOffsetY = 0;
-      // All draggable rows in the same trip — recomputed at drag start.
-      let siblings = [];
+      let draggedH = 0;
+      let siblingCache = [];   // [{ row, origIdx, top, bot }]
       const clearVisuals = () => {
-        siblings.forEach(r => { r.style.transform = ""; });
+        siblingCache.forEach(c => { c.row.style.transform = ""; });
         root.querySelectorAll(".trip-item-row.drag-over")
           .forEach(x => x.classList.remove("drag-over", "drop-below"));
       };
@@ -5350,6 +5355,7 @@ function renderAccount() {
         const t = ev.touches[0];
         const rect = row.getBoundingClientRect();
         touchOffsetY = t.clientY - rect.top;
+        draggedH = rect.height;
         // Clone the row, position fixed at its current spot, follow finger.
         ghost = row.cloneNode(true);
         ghost.classList.add("trip-ghost");
@@ -5358,11 +5364,23 @@ function renderAccount() {
         ghost.style.top = rect.top + "px";
         ghost.style.width = rect.width + "px";
         document.body.appendChild(ghost);
-        // Collapse the original row out of flow so the list compacts.
-        row.classList.add("dragging");
-        siblings = [...root.querySelectorAll(".trip-item-row[draggable='true']")]
+        const fromIndex = parseInt(row.dataset.idx, 10);
+        // Cache sibling positions BEFORE collapsing the dragged row, then
+        // adjust for the upcoming collapse: rows below the dragged row
+        // shift up by draggedH once the row collapses. We hit-test against
+        // these adjusted-stable coordinates — they DON'T change as we
+        // apply gap shifts later (which is what kills the feedback loop).
+        const sibs = [...root.querySelectorAll(".trip-item-row[draggable='true']")]
           .filter(r => r !== row && r.dataset.trip === row.dataset.trip);
-        touchDrag = { fromIndex: parseInt(row.dataset.idx, 10), dropIdx: null };
+        siblingCache = sibs.map(r => {
+          const rr = r.getBoundingClientRect();
+          const i = parseInt(r.dataset.idx, 10);
+          const dy = i > fromIndex ? -draggedH : 0;   // post-collapse offset
+          return { row: r, origIdx: i, top: rr.top + dy, bot: rr.bottom + dy };
+        });
+        // Collapse the dragged row out of flow so the list compacts.
+        row.classList.add("dragging");
+        touchDrag = { fromIndex, dropIdx: null };
       }, { passive: true });
       grip.addEventListener("touchmove", ev => {
         if (!touchDrag) return;
@@ -5370,58 +5388,59 @@ function renderAccount() {
         const t = ev.touches[0];
         // Float the ghost under the finger.
         if (ghost) ghost.style.top = (t.clientY - touchOffsetY) + "px";
-        // Hide ghost briefly so elementFromPoint sees what's underneath.
-        if (ghost) ghost.style.visibility = "hidden";
-        const under = document.elementFromPoint(t.clientX, t.clientY);
-        if (ghost) ghost.style.visibility = "";
-        const targetRow = under && under.closest(".trip-item-row[draggable='true']");
-        // Clear previous hover/shift state before deciding the new one.
+        // Find the target row using STABLE cached coordinates. If finger
+        // is over an open gap (no direct hit), pick the nearest row.
+        const ty = t.clientY;
+        let target = null;
+        let bestDist = Infinity;
+        for (const c of siblingCache) {
+          if (ty >= c.top && ty <= c.bot) { target = c; break; }
+          const d = ty < c.top ? c.top - ty : ty - c.bot;
+          if (d < bestDist) { bestDist = d; target = c; }
+        }
+        // Compute drop index in the post-removal space.
+        let dropIdx;
+        if (!target) {
+          dropIdx = null;
+        } else {
+          const mid = (target.top + target.bot) / 2;
+          const below = ty > mid;
+          const visIdx = target.origIdx < touchDrag.fromIndex
+            ? target.origIdx
+            : target.origIdx - 1;
+          dropIdx = below ? visIdx + 1 : visIdx;
+        }
+        // Only update visuals if dropIdx actually changed — prevents
+        // re-triggering transform animations on every micro-touchmove,
+        // which is what caused the slow-movement glitching.
+        if (dropIdx === touchDrag.dropIdx) return;
+        touchDrag.dropIdx = dropIdx;
+        // Repaint hover state + gap shifts.
         root.querySelectorAll(".trip-item-row.drag-over")
           .forEach(x => x.classList.remove("drag-over", "drop-below"));
-        let dropIdx = null;
-        if (targetRow && targetRow !== row
-            && targetRow.dataset.trip === row.dataset.trip
-            && parseInt(targetRow.dataset.idx, 10) !== touchDrag.fromIndex) {
-          const tRect = targetRow.getBoundingClientRect();
-          const below = (t.clientY - tRect.top) > tRect.height / 2;
-          targetRow.classList.add("drag-over");
-          targetRow.classList.toggle("drop-below", below);
-          // visIdx of targetRow in the "row-removed" list:
-          const tIdx = parseInt(targetRow.dataset.idx, 10);
-          const tVis = tIdx < touchDrag.fromIndex ? tIdx : tIdx - 1;
-          dropIdx = below ? tVis + 1 : tVis;
+        if (target && dropIdx != null) {
+          const mid = (target.top + target.bot) / 2;
+          target.row.classList.add("drag-over");
+          target.row.classList.toggle("drop-below", ty > mid);
         }
-        touchDrag.dropIdx = dropIdx;
-        // Apply gap-opening shifts: siblings whose post-removal index is
-        // >= dropIdx slide down by one row-height to make space.
-        siblings.forEach(r => {
-          const i = parseInt(r.dataset.idx, 10);
-          const visIdx = i < touchDrag.fromIndex ? i : i - 1;
-          r.style.transform = (dropIdx != null && visIdx >= dropIdx)
-            ? "translateY(100%)"
+        siblingCache.forEach(c => {
+          const visIdx = c.origIdx < touchDrag.fromIndex ? c.origIdx : c.origIdx - 1;
+          c.row.style.transform = (dropIdx != null && visIdx >= dropIdx)
+            ? `translateY(${draggedH}px)`
             : "";
         });
       }, { passive: false });
       const endTouch = () => {
         if (!touchDrag) return;
         const { fromIndex, dropIdx } = touchDrag;
-        // Snap-end animation: drop the ghost back to row's spot before
-        // tearing it down, so the user sees the row "land". Tiny delay.
         if (ghost) { ghost.remove(); ghost = null; }
         row.classList.remove("dragging");
         clearVisuals();
         touchDrag = null;
-        siblings = [];
+        siblingCache = [];
         if (dropIdx == null) return;
-        // Convert dropIdx (post-removal index) back to the canonical
-        // toIndex understood by reorderTrip (original-array index).
-        const toIndex = dropIdx <= fromIndex ? dropIdx : dropIdx;
-        if (toIndex !== fromIndex && toIndex !== fromIndex + 1) {
-          // reorderTrip's contract: from / to in the ORIGINAL array; if
-          // moving down past own slot, the target index already accounts
-          // for the removal. The compute above gives the right value
-          // directly because dropIdx is in the post-removal space.
-          WaveBaseAccount.reorderTrip(row.dataset.trip, fromIndex, toIndex);
+        if (dropIdx !== fromIndex && dropIdx !== fromIndex + 1) {
+          WaveBaseAccount.reorderTrip(row.dataset.trip, fromIndex, dropIdx);
           renderAccount();
         }
       };
