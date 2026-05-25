@@ -5613,8 +5613,14 @@ function renderAccount() {
     const calcEl = wrap && wrap.querySelector(".tsp-calc");
     if (calcEl) calcEl.outerHTML = stayCalcHTML(ent, d);
   };
+  const isTouch = matchMedia("(pointer: coarse)").matches;
   root.querySelectorAll(".tsp-date").forEach(inp => {
-    inp.addEventListener("change", () => {
+    // Dedupe: input + change both fire on iOS calendar picks; we only
+    // want to run the logic once per actual value commit.
+    let lastValue = inp.value;
+    const handleDate = () => {
+      if (inp.value === lastValue) return;
+      lastValue = inp.value;
       const tripId = inp.dataset.trip, entryId = inp.dataset.spot, field = inp.dataset.field;
       WaveBaseAccount.setStayDate(tripId, entryId, field, inp.value);
       tripDatesDirty = true;
@@ -5650,7 +5656,19 @@ function renderAccount() {
         }
       }
       refreshStayCalc(tripId, entryId);
-    });
+    };
+    // Listen to BOTH events: iOS calendar popup fires `input` as soon
+    // as the user taps a date; change only fires on Done. Listening to
+    // both means the auto-fill of the next stay's check-in runs even
+    // if the user dismisses the picker without confirming.
+    inp.addEventListener("change", handleDate);
+    inp.addEventListener("input", handleDate);
+    // Touch devices: auto-dismiss the iOS calendar after a date is
+    // tapped — LDW doesn't want to confirm twice (input fires on tap,
+    // we blur to close the picker, then change/blur fire normally).
+    if (isTouch) {
+      inp.addEventListener("input", () => setTimeout(() => inp.blur(), 0));
+    }
     // Defer the full re-render until focus leaves the date fields, so
     // the picker stays open and tabbing between in / out keeps working.
     inp.addEventListener("blur", e => {
