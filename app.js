@@ -5476,7 +5476,13 @@ function renderAccount() {
         touchDrag = null;
         siblingCache = [];
         if (dropIdx == null) return;
-        if (dropIdx !== fromIndex && dropIdx !== fromIndex + 1) {
+        // dropIdx is in post-removal index space, same as reorderTrip's
+        // `to` argument. The only no-op is dropping back into the slot
+        // the dragged row originally occupied (= dropIdx === fromIndex).
+        // Earlier code also excluded fromIndex + 1, which incorrectly
+        // skipped legitimate "move past the next neighbour" drops (LDW:
+        // kon Panorama niet onder Surf Hostel zetten — exact dat geval).
+        if (dropIdx !== fromIndex) {
           WaveBaseAccount.reorderTrip(row.dataset.trip, fromIndex, dropIdx);
           renderAccount();
         }
