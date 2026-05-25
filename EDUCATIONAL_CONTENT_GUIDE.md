@@ -188,6 +188,24 @@ Why it's bad:
 
 ---
 
+## Lesson learned — bulk script safety
+
+When adding educational content for many spots via a Python script (rather than one Edit call per spot), **use JS template literals (backticks) for ALL string fields**, not only for the `a` answer text. The `q` and `source` fields can also contain quotes ("wedgy", "a mini Anchor Point", etc.) — and a single unescaped `"` inside a double-quoted JS string ends the string mid-value, breaking the entire `data.js` parse. Symptom: the whole site shows no data (worldmap, destinations, spots all gone).
+
+The safe template for each Q&A entry in `data.js`:
+
+```js
+{
+  q: `Why is it called "a mini Anchor Point"?`,
+  a: `... text with **bold** and "quotes" freely ...`,
+  source: `Source line with whatever punctuation.`
+}
+```
+
+All three fields in backticks. No escape headaches.
+
+If you have to use double quotes anywhere, ALWAYS escape inner ones with `\\"` and verify with: `grep -n 'q: "[^"]*"[^"]*"' data.js` (catches any q-string with multiple unescaped double quotes).
+
 ## Lessons learned (from the original 3-spot iteration with Lode)
 
 These are the points where the first draft was wrong and Lode corrected me. Don't repeat them.
