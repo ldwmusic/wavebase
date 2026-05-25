@@ -3894,6 +3894,18 @@ button.rml-key.off .rml-dot {
   border: 1px solid var(--sand);
   border-radius: 12px;
   padding: 4px 12px;
+  /* Smooth padding/colour change when this leg becomes the touch-drag
+     drop target (so the kader visibly grows as preview, not only after). */
+  transition: padding 0.12s ease, background 0.12s ease, border-color 0.12s ease;
+}
+/* Live preview while a spot is being touch-dragged towards this leg:
+   highlight the kader AND grow its bottom padding by the dragged row's
+   height (set via --leg-grow inline) so the user sees the destination
+   physically expand under their finger. */
+.trip-leg.drop-leg-target {
+  background: var(--sea-soft);
+  border-color: var(--sea);
+  padding-bottom: calc(4px + var(--leg-grow, 0px));
 }
 .trip-leg-extras {
   margin: 2px 0 4px 24px;

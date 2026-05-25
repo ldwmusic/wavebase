@@ -5350,6 +5350,30 @@ function renderAccount() {
         siblingCache.forEach(c => { c.row.style.transform = ""; });
         root.querySelectorAll(".trip-item-row.drag-over")
           .forEach(x => x.classList.remove("drag-over", "drop-below"));
+        root.querySelectorAll(".trip-leg.drop-leg-target")
+          .forEach(l => {
+            l.classList.remove("drop-leg-target");
+            l.style.removeProperty("--leg-grow");
+          });
+      };
+      // Find the stay-leg the dropped spot will belong to: spots group
+      // under the most recent preceding stay, so we scan all rows up to
+      // dropIdx and remember the last stay-row we saw — its enclosing
+      // .trip-leg is the highlight target.
+      const legForDrop = (dropIdx, fromIdx) => {
+        if (dropIdx == null) return null;
+        const allRows = [...root.querySelectorAll(".trip-item-row[draggable='true']")]
+          .filter(r => r.dataset.trip === row.dataset.trip);
+        let lastStayLeg = null;
+        for (const r of allRows) {
+          const i = parseInt(r.dataset.idx, 10);
+          const visIdx = i < fromIdx ? i : i - 1;
+          if (visIdx >= dropIdx) break;
+          if (r.classList.contains("trip-item-stay")) {
+            lastStayLeg = r.closest(".trip-leg");
+          }
+        }
+        return lastStayLeg;
       };
       grip.addEventListener("touchstart", ev => {
         const t = ev.touches[0];
@@ -5429,6 +5453,19 @@ function renderAccount() {
             ? `translateY(${draggedH}px)`
             : "";
         });
+        // Light up the destination stay-leg so it's visually obvious which
+        // leg the spot will join — plus give it extra bottom padding so
+        // the kader actually grows as preview (LDW feedback).
+        root.querySelectorAll(".trip-leg.drop-leg-target")
+          .forEach(l => {
+            l.classList.remove("drop-leg-target");
+            l.style.removeProperty("--leg-grow");
+          });
+        const targetLeg = legForDrop(dropIdx, touchDrag.fromIndex);
+        if (targetLeg) {
+          targetLeg.style.setProperty("--leg-grow", draggedH + "px");
+          targetLeg.classList.add("drop-leg-target");
+        }
       }, { passive: false });
       const endTouch = () => {
         if (!touchDrag) return;
