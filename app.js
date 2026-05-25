@@ -4847,7 +4847,7 @@ function tripCardHTML(t, readonly) {
   const collapseBtn = readonly ? "" : `<button type="button" class="trip-collapse-btn" data-collapse="${t.id}" aria-label="Show / hide trip" title="Show / hide trip"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="6 9 12 15 18 9"/></svg></button>`;
   return `<div class="trip${collapsed ? " is-collapsed" : ""}" id="trip-${t.id}">
     <header class="trip-overview">
-      <div class="trip-head">${nameEl}${headActions}${collapseBtn}</div>
+      <div class="trip-head"><span class="trip-name-wrap">${collapseBtn}${nameEl}</span>${headActions}</div>
       ${summary}
     </header>
     ${viewToggle}

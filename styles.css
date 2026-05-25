@@ -3924,15 +3924,20 @@ button.rml-key.off .rml-dot {
 }
 .trip-leg-extras .trip-item-row + .trip-item-row { border-top: 1px solid var(--sand); }
 
-/* Collapsible trip card — when collapsed, only the .trip-head row
-   (name + actions + chevron) stays visible. Summary, view toggle and
-   the itinerary / day-by-day panes hide. Lets you keep an overview
-   with several trips on the account page. */
+/* Collapsible trip card — chevron sits next to the trip name on the
+   left; share / add-to-calendar / remove stay on the right. When
+   collapsed, only the head row (name + chevron + actions) stays
+   visible — summary, view toggle and panes hide. */
+.trip-name-wrap {
+  display: inline-flex; align-items: center; gap: 6px;
+  min-width: 0;
+}
 .trip-collapse-btn {
-  background: none; border: none; padding: 6px 8px;
+  background: none; border: none; padding: 6px;
   cursor: pointer; color: var(--ink-soft);
   display: inline-flex; align-items: center; justify-content: center;
   border-radius: 999px;
+  flex-shrink: 0;
 }
 .trip-collapse-btn:hover { color: var(--sea); background: var(--sea-soft); }
 .trip-collapse-btn svg { transition: transform 0.18s ease; }
@@ -3940,6 +3945,10 @@ button.rml-key.off .rml-dot {
 .trip.is-collapsed > header > .trip-summary,
 .trip.is-collapsed > .trip-view-toggle,
 .trip.is-collapsed > .trip-view { display: none; }
+/* Leave room for the sticky site header when a freshly-added trip
+   scrolls itself into view — otherwise the trip's top edge hides
+   under the header. */
+.trip { scroll-margin-top: 90px; }
 .trip-leg-loose { border-style: dashed; }
 .trip-leg-loose-label {
   display: block;
