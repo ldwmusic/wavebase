@@ -3844,8 +3844,37 @@ button.rml-key.off .rml-dot {
   touch-action: none;
 }
 .drag-grip:active { cursor: grabbing; }
-.trip-item-row[draggable="true"] { border-radius: 8px; transition: background 0.12s ease; }
-.trip-item-row.dragging { opacity: 0.4; }
+.trip-item-row[draggable="true"] {
+  border-radius: 8px;
+  /* Smooth shift when other rows open a gap during touch drag. */
+  transition: background 0.12s ease, transform 0.16s cubic-bezier(0.2, 0.7, 0.2, 1);
+}
+/* Touch drag: original row collapses out of flow (the ghost clone shows
+   the content under the finger). Desktop mouse drag still gets the
+   subtle "half-visible" preview. */
+.trip-item-row.dragging {
+  opacity: 0;
+  height: 0;
+  padding-top: 0; padding-bottom: 0;
+  margin: 0;
+  overflow: hidden;
+  pointer-events: none;
+  border: none;
+}
+/* The floating clone that follows the finger — slight lift + shadow so
+   it reads as "picked up." pointer-events: none so it doesn't block
+   elementFromPoint while we look for the drop target underneath. */
+.trip-ghost {
+  pointer-events: none;
+  z-index: 10000;
+  box-shadow: 0 10px 28px rgba(20, 40, 50, 0.22);
+  transform: scale(1.02);
+  opacity: 0.97;
+  background: var(--paper);
+  border: 1px solid var(--sand);
+  border-radius: 10px;
+  transition: none;
+}
 .trip-item-row.drag-over {
   background: var(--sea-soft);
   box-shadow: inset 0 2px 0 0 var(--sea);

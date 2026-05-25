@@ -5330,48 +5330,97 @@ function renderAccount() {
 
     // Touch-drag fallback for iPad / iPhone — HTML5 drag events don't
     // fire on touchscreens, so we wire the same reorder flow to touch
-    // events via the .drag-grip handle. The grip has `touch-action:
-    // none` (CSS) so the browser doesn't claim the touch as a scroll.
+    // events via the .drag-grip handle. With visual polish: a floating
+    // clone follows the finger, the original row collapses out of the
+    // flow, and the rows above/below the drop position shift to open
+    // a real gap — iOS-style reorder feedback.
     const grip = row.querySelector(".drag-grip");
     if (grip) {
-      let touchDrag = null;   // { fromIndex, lastTarget, below }
-      const clearHover = () => {
+      let touchDrag = null;
+      let ghost = null;
+      let touchOffsetY = 0;
+      // All draggable rows in the same trip — recomputed at drag start.
+      let siblings = [];
+      const clearVisuals = () => {
+        siblings.forEach(r => { r.style.transform = ""; });
         root.querySelectorAll(".trip-item-row.drag-over")
           .forEach(x => x.classList.remove("drag-over", "drop-below"));
       };
-      grip.addEventListener("touchstart", () => {
-        touchDrag = { fromIndex: parseInt(row.dataset.idx, 10), lastTarget: null, below: false };
+      grip.addEventListener("touchstart", ev => {
+        const t = ev.touches[0];
+        const rect = row.getBoundingClientRect();
+        touchOffsetY = t.clientY - rect.top;
+        // Clone the row, position fixed at its current spot, follow finger.
+        ghost = row.cloneNode(true);
+        ghost.classList.add("trip-ghost");
+        ghost.style.position = "fixed";
+        ghost.style.left = rect.left + "px";
+        ghost.style.top = rect.top + "px";
+        ghost.style.width = rect.width + "px";
+        document.body.appendChild(ghost);
+        // Collapse the original row out of flow so the list compacts.
         row.classList.add("dragging");
+        siblings = [...root.querySelectorAll(".trip-item-row[draggable='true']")]
+          .filter(r => r !== row && r.dataset.trip === row.dataset.trip);
+        touchDrag = { fromIndex: parseInt(row.dataset.idx, 10), dropIdx: null };
       }, { passive: true });
       grip.addEventListener("touchmove", ev => {
         if (!touchDrag) return;
-        ev.preventDefault();   // block page scroll during the drag
+        ev.preventDefault();
         const t = ev.touches[0];
+        // Float the ghost under the finger.
+        if (ghost) ghost.style.top = (t.clientY - touchOffsetY) + "px";
+        // Hide ghost briefly so elementFromPoint sees what's underneath.
+        if (ghost) ghost.style.visibility = "hidden";
         const under = document.elementFromPoint(t.clientX, t.clientY);
+        if (ghost) ghost.style.visibility = "";
         const targetRow = under && under.closest(".trip-item-row[draggable='true']");
-        clearHover();
-        if (!targetRow || targetRow === row) return;
-        if (targetRow.dataset.trip !== row.dataset.trip) return;
-        if (parseInt(targetRow.dataset.idx, 10) === touchDrag.fromIndex) return;
-        const rect = targetRow.getBoundingClientRect();
-        const below = (t.clientY - rect.top) > rect.height / 2;
-        targetRow.classList.add("drag-over");
-        targetRow.classList.toggle("drop-below", below);
-        touchDrag.lastTarget = targetRow;
-        touchDrag.below = below;
+        // Clear previous hover/shift state before deciding the new one.
+        root.querySelectorAll(".trip-item-row.drag-over")
+          .forEach(x => x.classList.remove("drag-over", "drop-below"));
+        let dropIdx = null;
+        if (targetRow && targetRow !== row
+            && targetRow.dataset.trip === row.dataset.trip
+            && parseInt(targetRow.dataset.idx, 10) !== touchDrag.fromIndex) {
+          const tRect = targetRow.getBoundingClientRect();
+          const below = (t.clientY - tRect.top) > tRect.height / 2;
+          targetRow.classList.add("drag-over");
+          targetRow.classList.toggle("drop-below", below);
+          // visIdx of targetRow in the "row-removed" list:
+          const tIdx = parseInt(targetRow.dataset.idx, 10);
+          const tVis = tIdx < touchDrag.fromIndex ? tIdx : tIdx - 1;
+          dropIdx = below ? tVis + 1 : tVis;
+        }
+        touchDrag.dropIdx = dropIdx;
+        // Apply gap-opening shifts: siblings whose post-removal index is
+        // >= dropIdx slide down by one row-height to make space.
+        siblings.forEach(r => {
+          const i = parseInt(r.dataset.idx, 10);
+          const visIdx = i < touchDrag.fromIndex ? i : i - 1;
+          r.style.transform = (dropIdx != null && visIdx >= dropIdx)
+            ? "translateY(100%)"
+            : "";
+        });
       }, { passive: false });
       const endTouch = () => {
         if (!touchDrag) return;
+        const { fromIndex, dropIdx } = touchDrag;
+        // Snap-end animation: drop the ghost back to row's spot before
+        // tearing it down, so the user sees the row "land". Tiny delay.
+        if (ghost) { ghost.remove(); ghost = null; }
         row.classList.remove("dragging");
-        clearHover();
-        const { fromIndex, lastTarget, below } = touchDrag;
+        clearVisuals();
         touchDrag = null;
-        if (!lastTarget) return;
-        const targetIdx = parseInt(lastTarget.dataset.idx, 10);
-        if (targetIdx === fromIndex) return;
-        const shifted = fromIndex < targetIdx ? targetIdx - 1 : targetIdx;
-        const toIndex = below ? shifted + 1 : shifted;
-        if (fromIndex !== toIndex) {
+        siblings = [];
+        if (dropIdx == null) return;
+        // Convert dropIdx (post-removal index) back to the canonical
+        // toIndex understood by reorderTrip (original-array index).
+        const toIndex = dropIdx <= fromIndex ? dropIdx : dropIdx;
+        if (toIndex !== fromIndex && toIndex !== fromIndex + 1) {
+          // reorderTrip's contract: from / to in the ORIGINAL array; if
+          // moving down past own slot, the target index already accounts
+          // for the removal. The compute above gives the right value
+          // directly because dropIdx is in the post-removal space.
           WaveBaseAccount.reorderTrip(row.dataset.trip, fromIndex, toIndex);
           renderAccount();
         }
