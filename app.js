@@ -4751,7 +4751,18 @@ function wireTripAdd(root) {
       // Pre-highlight the first hit so Enter adds it without arrowing.
       setActive(0);
     });
-    if (reopenAddFor === tripId) { reopenAddFor = null; open(); }
+    if (reopenAddFor === tripId) {
+      reopenAddFor = null;
+      // After an add, re-open the search box so a follow-up add is one
+      // click away. On touch (iPad/iPhone) DON'T auto-focus the input —
+      // that would pop the soft keyboard back up immediately after the
+      // user just picked a result, which is annoying (LDW). Desktop
+      // keeps the auto-focus for keyboard-driven flow.
+      const isTouch = matchMedia("(pointer: coarse)").matches;
+      btn.hidden = true;
+      search.hidden = false;
+      if (!isTouch) input.focus();
+    }
   });
 }
 
@@ -5323,8 +5334,13 @@ function renderAccount() {
       const shifted = from < targetIdx ? targetIdx - 1 : targetIdx;
       const toIndex = below ? shifted + 1 : shifted;
       if (from !== toIndex) {
+        // Snapshot + restore scroll so the page doesn't jump to top
+        // after the re-render. Critical when there are several trips
+        // and the user moved a spot deep in the second/third trip.
+        const sy = window.scrollY;
         WaveBaseAccount.reorderTrip(row.dataset.trip, from, toIndex);
         renderAccount();
+        window.scrollTo(0, sy);
       }
     });
 
@@ -5483,8 +5499,13 @@ function renderAccount() {
         // skipped legitimate "move past the next neighbour" drops (LDW:
         // kon Panorama niet onder Surf Hostel zetten — exact dat geval).
         if (dropIdx !== fromIndex) {
+          // Same scroll-preservation as the desktop drop handler — don't
+          // jump to top after re-render (especially noticeable on iPad
+          // with several trips, LDW).
+          const sy = window.scrollY;
           WaveBaseAccount.reorderTrip(row.dataset.trip, fromIndex, dropIdx);
           renderAccount();
+          window.scrollTo(0, sy);
         }
       };
       grip.addEventListener("touchend", endTouch);
