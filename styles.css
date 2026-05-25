@@ -1978,6 +1978,24 @@ body.has-pinned-months .bar-tooltip .bt-hint { display: none; }
 }
 @media (max-width: 720px) {
   .region-card { flex-basis: 250px; }
+  /* Edge-to-edge scroll on phone: escape the .wrap's 28-px side padding
+     so the country strip flows to the actual screen edges (native-mobile
+     carousel feel — no "kader" gutter), and re-add the same inset to
+     the inner .region-cards so the first card still starts visually
+     indented and the last card has breathing room. */
+  .region-strip {
+    margin-left: -28px;
+    margin-right: -28px;
+    padding-left: 0;
+    padding-right: 0;
+    max-width: none;
+    width: auto;
+  }
+  .region-cards {
+    padding-left: 28px;
+    padding-right: 28px;
+    justify-content: flex-start;
+  }
 }
 
 /* Home-only blocks: visible only when no country picked and no query
