@@ -571,6 +571,15 @@ a, button, [role="button"] { -webkit-tap-highlight-color: rgba(63,111,125,0.08);
     font-weight: 600;
     box-shadow: 0 8px 20px rgba(0,0,0,0.22);
     cursor: pointer;
+    /* Slide down with the tabbar when it auto-hides on scroll, slide up
+       again when it returns — same timing as the tabbar's transition so
+       the two feel like one coordinated layer. */
+    transition: bottom 0.25s ease, transform 0.12s ease;
+  }
+  /* When the tabbar is hidden, the Filters pill drops to just above the
+     home-indicator safe area — claims the room the tabbar gave back. */
+  body.tabbar-hidden .mobile-filters-trigger {
+    bottom: calc(16px + env(safe-area-inset-bottom, 0px));
   }
   .mobile-filters-trigger:active { transform: scale(0.96); }
   body.mobile-filters-open .mobile-filters-trigger { display: none; }

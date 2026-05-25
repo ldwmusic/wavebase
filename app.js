@@ -6213,6 +6213,10 @@ function initMobileTabbar() {
       } else if (dy < -DELTA) {
         nav.classList.remove("is-hidden");
       }
+      // Mirror the state on <body> so other fixed elements (e.g. the
+      // .mobile-filters-trigger floating button) can drop to the real
+      // bottom when the tabbar slides away and rise back when it returns.
+      document.body.classList.toggle("tabbar-hidden", nav.classList.contains("is-hidden"));
       lastY = y;
       ticking = false;
     });
