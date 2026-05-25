@@ -1140,7 +1140,10 @@ table.cal td.host { color: var(--clay); }
 /* ===== ronde 2: nav, secties, samenvatting, opslaan, account, kaart ===== */
 
 .site-nav { display: flex; gap: 22px; align-items: baseline; }
-.site-nav a { font-size: 15px; font-weight: 600; color: var(--ink-soft); }
+/* Keep each nav label on one line — "My WaveBase" was breaking
+   between "My" and "WaveBase" on iPad once the search box stole the
+   space (LDW). nowrap forces the link to stay whole. */
+.site-nav a { font-size: 15px; font-weight: 600; color: var(--ink-soft); white-space: nowrap; }
 .site-nav a:hover { color: var(--sea); text-decoration: none; }
 .site-nav a.active { color: var(--ink); }
 
