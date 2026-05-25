@@ -5122,15 +5122,24 @@ function renderAccount() {
   const reviews = WaveBaseAccount.getReviews();
   queueMicrotask(() => {
     if (__scrollTarget) {
-      // Wait for layout so getBoundingClientRect is accurate, then scroll
-      // by computed pixel — scrollIntoView + scroll-margin-top under-shot
-      // and parked the new trip just below the viewport (LDW).
+      // Two-pass scroll: first an instant scroll right after layout so
+      // we land roughly on the new trip, then a delayed smooth scroll
+      // that re-measures — other trips' Leaflet maps initialise async
+      // and push subsequent cards down, which previously parked the
+      // new trip just below the viewport (LDW).
+      const HEADER_OFFSET = 96;
+      const computeY = el => Math.max(0, el.getBoundingClientRect().top + window.scrollY - HEADER_OFFSET);
       requestAnimationFrame(() => {
         const el = document.getElementById("trip-" + __scrollTarget);
         if (!el) { window.scrollTo(0, __sy); return; }
-        const HEADER_OFFSET = 96;   // clear the sticky site header
-        const targetY = el.getBoundingClientRect().top + window.scrollY - HEADER_OFFSET;
-        window.scrollTo({ top: Math.max(0, targetY), behavior: "smooth" });
+        // Pass 1: jump immediately (instant) so the user isn't confused.
+        window.scrollTo({ top: computeY(el), behavior: "auto" });
+        // Pass 2: re-measure after a beat to absorb late content. If the
+        // card moved, smooth-scroll to its new position.
+        setTimeout(() => {
+          const el2 = document.getElementById("trip-" + __scrollTarget);
+          if (el2) window.scrollTo({ top: computeY(el2), behavior: "smooth" });
+        }, 400);
       });
       return;
     }
