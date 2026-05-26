@@ -4690,7 +4690,16 @@ button.rml-key.off .rml-dot {
   gap: 6px;
   transition: background 0.15s ease, color 0.15s ease, border-color 0.15s ease;
 }
-.sport-pill:hover { background: var(--sea-soft); border-color: #cde0e3; color: var(--sea); }
+/* Hover preview — ONLY on real mouse devices. On touch (iPad / iPhone)
+   iOS Safari sticks :hover after a tap, which makes a just-tapped pill
+   look semi-active until you tap elsewhere — confusing alongside the
+   actual .active pill. The hover-media query gates it cleanly. */
+@media (hover: hover) and (pointer: fine) {
+  .sport-pill:hover { background: var(--sea-soft); border-color: #cde0e3; color: var(--sea); }
+}
+/* Touch press feedback — brief darker tint while finger is down, then
+   the .active class (if it got toggled) does the persistent highlight. */
+.sport-pill:active { background: var(--sea-soft); border-color: #cde0e3; color: var(--sea); }
 .sport-pill.active {
   background: var(--sea);
   border-color: var(--sea);
