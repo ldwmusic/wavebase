@@ -1,0 +1,796 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>WaveBase — palette preview</title>
+<style>
+/* ============================================================
+   PALETTE PREVIEW — standalone tool. NOT linked from main site.
+   Click a palette button to swap the brand variables on the fly.
+   The mockup below mirrors WaveBase's main visual vocabulary so
+   Michiel can see how each palette feels across header, hero,
+   searchbar, sport pills, spot cards, profile blocks, CTAs.
+   ============================================================ */
+
+/* ---- DEFAULT palette = the current live WaveBase one ---- */
+:root {
+  --cream:      #f6f1e7;
+  --paper:      #fffefb;
+  --ink:        #2a2723;
+  --ink-soft:   #6f6658;
+  --sand:       #e7dcc4;
+  --sand-deep:  #d8c9a8;
+  --sea:        #3f6f7d;
+  --sea-soft:   #dde8ea;
+  --clay:       #bd6242;
+  --clay-soft:  #f0ddd2;
+  --amber:      #e0a447;
+  --amber-soft: #f5e5c4;
+  --shadow:     0 14px 40px -18px rgba(42, 39, 35, 0.28);
+  --shadow-sm:  0 6px 20px -12px rgba(42, 39, 35, 0.30);
+  --radius:     18px;
+}
+
+/* ---- ALTERNATIVE palettes — applied via [data-palette="..."] ---- */
+[data-palette="ocean"] {
+  --cream:      #eef3f7;
+  --paper:      #ffffff;
+  --ink:        #0c1f2e;
+  --ink-soft:   #5c6b78;
+  --sand:       #d8dfe6;
+  --sand-deep:  #b3bdc7;
+  --sea:        #0d4f7c;
+  --sea-soft:   #d4e6f3;
+  --clay:       #ff6b6b;
+  --clay-soft:  #ffd9d9;
+  --amber:      #ffb84d;
+  --amber-soft: #ffead0;
+  --shadow:     0 14px 40px -18px rgba(12, 31, 46, 0.30);
+  --shadow-sm:  0 6px 20px -12px rgba(12, 31, 46, 0.32);
+}
+[data-palette="sunset"] {
+  --cream:      #faf2e8;
+  --paper:      #fffcf7;
+  --ink:        #2d1f2d;
+  --ink-soft:   #7a5d6a;
+  --sand:       #f0d9c4;
+  --sand-deep:  #e1bfa5;
+  --sea:        #4a8a96;
+  --sea-soft:   #d8eaed;
+  --clay:       #d65a4c;
+  --clay-soft:  #f4d4cf;
+  --amber:      #f4b942;
+  --amber-soft: #fbe6b0;
+  --shadow:     0 14px 40px -18px rgba(45, 31, 45, 0.28);
+  --shadow-sm:  0 6px 20px -12px rgba(45, 31, 45, 0.30);
+}
+[data-palette="forest"] {
+  --cream:      #f4f1ea;
+  --paper:      #fefdf9;
+  --ink:        #1f2e26;
+  --ink-soft:   #5a665d;
+  --sand:       #ddd9c4;
+  --sand-deep:  #c6bfa1;
+  --sea:        #2d5d6e;
+  --sea-soft:   #d0e0e5;
+  --clay:       #a86b3c;
+  --clay-soft:  #ecd9c2;
+  --amber:      #b8a042;
+  --amber-soft: #ece4bc;
+  --shadow:     0 14px 40px -18px rgba(31, 46, 38, 0.28);
+  --shadow-sm:  0 6px 20px -12px rgba(31, 46, 38, 0.30);
+}
+
+/* ============================================================
+   Layout reset + base
+   ============================================================ */
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body {
+  font-family: -apple-system, BlinkMacSystemFont, "Helvetica Neue", Arial, sans-serif;
+  background: #2a2723;
+  color: var(--ink);
+  min-height: 100vh;
+  transition: background 0.2s ease;
+}
+
+/* ============================================================
+   Top palette switcher bar (above the mockup, dark for contrast)
+   ============================================================ */
+.palette-bar {
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  background: #1a1815;
+  color: #fff;
+  padding: 14px 24px;
+  display: flex;
+  align-items: center;
+  gap: 18px;
+  flex-wrap: wrap;
+  box-shadow: 0 2px 10px rgba(0,0,0,0.25);
+}
+.palette-bar h1 {
+  font-size: 14px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: #fff;
+  margin-right: auto;
+}
+.palette-bar h1 small {
+  display: block;
+  font-size: 11px;
+  letter-spacing: 0.04em;
+  text-transform: none;
+  font-weight: 400;
+  color: #aaa;
+  margin-top: 2px;
+}
+.palette-btn {
+  font-family: inherit;
+  font-size: 13px;
+  font-weight: 600;
+  padding: 9px 16px;
+  border-radius: 999px;
+  border: 1.5px solid #444;
+  background: #2a2723;
+  color: #ddd;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  transition: background 0.15s ease, border-color 0.15s ease, color 0.15s ease;
+}
+.palette-btn:hover { background: #3a3530; border-color: #666; color: #fff; }
+.palette-btn.active {
+  background: #fff;
+  color: #1a1815;
+  border-color: #fff;
+}
+.palette-swatch {
+  display: inline-flex;
+  gap: 2px;
+}
+.palette-swatch span {
+  width: 11px;
+  height: 11px;
+  border-radius: 50%;
+  border: 1px solid rgba(0,0,0,0.1);
+}
+
+/* ============================================================
+   Mockup stage — where the brand-painted UI lives
+   ============================================================ */
+.stage {
+  background: var(--cream);
+  min-height: calc(100vh - 60px);
+  padding: 30px 0;
+  transition: background 0.2s ease;
+}
+.stage > .wrap {
+  max-width: 980px;
+  margin: 0 auto;
+  padding: 0 22px;
+}
+
+/* ---- Mock header ---- */
+.mock-header {
+  background: var(--cream);
+  border-bottom: 1px solid var(--sand);
+  padding: 14px 0;
+  margin-bottom: 18px;
+}
+.mock-header .wrap {
+  display: flex;
+  align-items: center;
+  gap: 18px;
+}
+.mock-logo {
+  font-family: Georgia, serif;
+  font-size: 22px;
+  font-weight: 700;
+  color: var(--ink);
+  letter-spacing: -0.02em;
+}
+.mock-logo span { color: var(--clay); }
+.mock-nav {
+  margin-left: auto;
+  display: flex;
+  gap: 18px;
+}
+.mock-nav a {
+  font-size: 13px;
+  color: var(--ink-soft);
+  text-decoration: none;
+  padding: 6px 4px;
+  border-bottom: 2px solid transparent;
+}
+.mock-nav a.active {
+  color: var(--ink);
+  border-bottom-color: var(--clay);
+}
+
+/* ---- Hero ---- */
+.mock-hero {
+  text-align: center;
+  padding: 20px 0 26px;
+}
+.mock-kicker {
+  font-size: 11px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--clay);
+  font-weight: 700;
+  margin-bottom: 8px;
+}
+.mock-hero h2 {
+  font-family: Georgia, serif;
+  font-size: 40px;
+  line-height: 1.1;
+  color: var(--ink);
+  margin-bottom: 12px;
+}
+.mock-hero h2 .ul {
+  background-image: linear-gradient(transparent 62%, var(--sand-deep) 62%, var(--sand-deep) 92%, transparent 92%);
+}
+.mock-hero p {
+  font-size: 15px;
+  color: var(--ink-soft);
+  max-width: 540px;
+  margin: 0 auto;
+}
+
+/* ---- Searchbar ---- */
+.mock-searchbar {
+  background: var(--paper);
+  border: 1px solid var(--sand);
+  border-radius: 999px;
+  padding: 11px 18px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  box-shadow: var(--shadow-sm);
+  margin-bottom: 16px;
+}
+.mock-searchbar-icon {
+  color: var(--ink-soft);
+  font-size: 16px;
+}
+.mock-searchbar input {
+  flex: 1;
+  border: none;
+  background: transparent;
+  font-family: inherit;
+  font-size: 14px;
+  color: var(--ink);
+  outline: none;
+}
+.mock-searchbar input::placeholder { color: var(--ink-soft); }
+
+/* ---- Filter row (the searcher) ---- */
+.mock-searcher {
+  background: var(--paper);
+  border: 1px solid var(--sand);
+  border-radius: var(--radius);
+  padding: 18px 22px;
+  box-shadow: var(--shadow-sm);
+  margin-bottom: 22px;
+}
+.mock-pills {
+  display: flex;
+  gap: 8px;
+  justify-content: center;
+  flex-wrap: wrap;
+  margin-bottom: 16px;
+}
+.mock-pill {
+  font-family: inherit;
+  font-size: 14px;
+  font-weight: 600;
+  background: var(--paper);
+  border: 1px solid var(--sand);
+  border-radius: 999px;
+  padding: 8px 16px;
+  color: var(--ink);
+  cursor: pointer;
+}
+.mock-pill.active {
+  background: var(--sea);
+  border-color: var(--sea);
+  color: #fff;
+}
+.mock-fields {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 14px 22px;
+  align-items: flex-end;
+  margin-bottom: 14px;
+}
+.mock-field {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--ink-soft);
+  flex: 1 1 160px;
+}
+.mock-field-input {
+  background: var(--cream);
+  border: 1px solid var(--sand-deep);
+  border-radius: 10px;
+  padding: 8px 12px;
+  font-size: 14px;
+  color: var(--ink);
+  font-weight: 400;
+}
+.mock-actions {
+  text-align: center;
+}
+.mock-btn {
+  font-family: inherit;
+  font-size: 14px;
+  font-weight: 700;
+  padding: 11px 26px;
+  border-radius: 999px;
+  border: none;
+  cursor: pointer;
+  background: var(--clay);
+  color: #fff;
+  letter-spacing: 0.02em;
+}
+.mock-btn.ghost {
+  background: transparent;
+  color: var(--ink);
+  border: 1px solid var(--sand-deep);
+}
+
+/* ---- Spot cards ---- */
+.mock-cards-head {
+  font-family: Georgia, serif;
+  font-size: 22px;
+  color: var(--ink);
+  margin-bottom: 14px;
+}
+.mock-cards {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 18px;
+  margin-bottom: 28px;
+}
+.mock-card {
+  background: var(--paper);
+  border: 1px solid var(--sand);
+  border-radius: var(--radius);
+  overflow: hidden;
+  box-shadow: var(--shadow-sm);
+}
+.mock-card-photo {
+  height: 110px;
+  background: linear-gradient(135deg, var(--sand) 0%, var(--sand-deep) 60%, var(--sea-soft) 100%);
+  position: relative;
+}
+.mock-card-photo::after {
+  content: "🏝";
+  font-size: 28px;
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  opacity: 0.5;
+}
+.mock-card-body { padding: 14px 16px 16px; }
+.mock-chip-row {
+  display: flex;
+  gap: 6px;
+  font-size: 11px;
+  color: var(--ink-soft);
+  margin-bottom: 6px;
+  letter-spacing: 0.04em;
+}
+.mock-chip-row .sep { color: var(--sand-deep); }
+.mock-card h3 {
+  font-family: Georgia, serif;
+  font-size: 18px;
+  color: var(--ink);
+  margin-bottom: 4px;
+}
+.mock-card .tag {
+  font-size: 12px;
+  color: var(--ink-soft);
+  margin-bottom: 10px;
+  line-height: 1.4;
+}
+.mock-card-meta {
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+.mock-tag {
+  font-size: 11px;
+  font-weight: 600;
+  padding: 3px 9px;
+  border-radius: 999px;
+  background: var(--sea-soft);
+  color: var(--sea);
+}
+.mock-tag.clay { background: var(--clay-soft); color: var(--clay); }
+.mock-tag.amber { background: var(--amber-soft); color: #8a6020; }
+
+/* ---- Profile preview ---- */
+.mock-section-head {
+  font-family: Georgia, serif;
+  font-size: 22px;
+  color: var(--ink);
+  margin-bottom: 14px;
+}
+.mock-profile {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin-bottom: 30px;
+}
+.mock-profile-block {
+  background: var(--paper);
+  border: 1px solid var(--sand);
+  border-left: 4px solid var(--clay);
+  border-radius: var(--radius);
+  padding: 14px 18px;
+}
+.mock-profile-block.helps { border-left-color: var(--sea); }
+.mock-profile-block.optional { border-left-color: var(--sand-deep); }
+.mock-profile-block-head {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 4px;
+}
+.mock-profile-block-title {
+  font-size: 13px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--ink);
+}
+.mock-profile-tag {
+  font-size: 10px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  padding: 2px 7px;
+  border-radius: 999px;
+  color: var(--sea);
+  background: var(--sea-soft);
+}
+.mock-profile-tag.opt { color: var(--ink-soft); background: var(--sand); }
+.mock-profile-block .why {
+  font-size: 12px;
+  color: var(--ink-soft);
+  line-height: 1.4;
+}
+
+/* ---- Educational accordion mock ---- */
+.mock-edu {
+  background: var(--paper);
+  border: 1px solid var(--sand);
+  border-left: 4px solid var(--sea);
+  border-radius: var(--radius);
+  padding: 18px 22px;
+  margin-bottom: 30px;
+}
+.mock-edu h3 {
+  font-size: 18px;
+  color: var(--sea);
+  margin-bottom: 4px;
+}
+.mock-edu-intro {
+  font-size: 12px;
+  color: var(--ink-soft);
+  margin-bottom: 12px;
+}
+.mock-edu-q {
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--ink);
+  padding: 10px 0;
+  border-top: 1px solid var(--sand);
+  display: flex;
+  gap: 10px;
+  align-items: flex-start;
+}
+.mock-edu-q:first-of-type { border-top: none; padding-top: 4px; }
+.mock-edu-q::before {
+  content: "▸";
+  color: var(--sea);
+  flex-shrink: 0;
+}
+.mock-edu-q-open {
+  border-top: 1px solid var(--sand);
+  padding: 10px 0 12px;
+}
+.mock-edu-q-open .mock-edu-q { border-top: none; padding-bottom: 8px; }
+.mock-edu-q-open .mock-edu-q::before { transform: rotate(90deg); }
+.mock-edu-q-open .mock-edu-a {
+  padding-left: 22px;
+  font-size: 13px;
+  color: var(--ink);
+  line-height: 1.55;
+}
+.mock-edu-q-open .mock-edu-a strong { color: var(--sea); }
+.mock-edu-q-open .mock-edu-source {
+  padding-left: 22px;
+  font-size: 11px;
+  color: var(--ink-soft);
+  font-style: italic;
+  margin-top: 6px;
+}
+
+/* ---- Footer ---- */
+.mock-footer {
+  border-top: 1px solid var(--sand);
+  padding: 18px 0;
+  color: var(--ink-soft);
+  font-size: 12px;
+  text-align: center;
+}
+.mock-footer a {
+  color: var(--clay);
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+
+/* ---- Palette name banner inside stage ---- */
+.palette-name {
+  text-align: center;
+  font-size: 12px;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  color: var(--ink-soft);
+  font-weight: 700;
+  padding: 0 0 18px;
+}
+.palette-name strong {
+  color: var(--clay);
+  font-weight: 700;
+}
+.palette-meta {
+  text-align: center;
+  font-size: 11px;
+  color: var(--ink-soft);
+  margin-top: -10px;
+  margin-bottom: 18px;
+  font-style: italic;
+}
+
+@media (max-width: 700px) {
+  .mock-hero h2 { font-size: 28px; }
+  .mock-cards { grid-template-columns: 1fr; }
+  .palette-bar { padding: 10px 14px; gap: 10px; }
+  .palette-bar h1 { font-size: 12px; }
+  .palette-btn { font-size: 12px; padding: 7px 12px; }
+}
+</style>
+</head>
+<body>
+
+<!-- ===================== Palette switcher bar ===================== -->
+<div class="palette-bar">
+  <h1>WaveBase palette preview<small>Live styles unchanged — this is a standalone mock for picking a direction</small></h1>
+  <button class="palette-btn active" data-set="beach">
+    <span class="palette-swatch">
+      <span style="background:#f6f1e7"></span>
+      <span style="background:#3f6f7d"></span>
+      <span style="background:#bd6242"></span>
+      <span style="background:#e0a447"></span>
+    </span>
+    Beach (current)
+  </button>
+  <button class="palette-btn" data-set="ocean">
+    <span class="palette-swatch">
+      <span style="background:#eef3f7"></span>
+      <span style="background:#0d4f7c"></span>
+      <span style="background:#ff6b6b"></span>
+      <span style="background:#ffb84d"></span>
+    </span>
+    Deep Ocean
+  </button>
+  <button class="palette-btn" data-set="sunset">
+    <span class="palette-swatch">
+      <span style="background:#faf2e8"></span>
+      <span style="background:#4a8a96"></span>
+      <span style="background:#d65a4c"></span>
+      <span style="background:#f4b942"></span>
+    </span>
+    Sunset
+  </button>
+  <button class="palette-btn" data-set="forest">
+    <span class="palette-swatch">
+      <span style="background:#f4f1ea"></span>
+      <span style="background:#2d5d6e"></span>
+      <span style="background:#a86b3c"></span>
+      <span style="background:#b8a042"></span>
+    </span>
+    Forest + Sea
+  </button>
+</div>
+
+<!-- ===================== Mockup stage ===================== -->
+<div class="stage" id="stage">
+
+  <header class="mock-header">
+    <div class="wrap">
+      <a class="mock-logo">Wave<span>Base</span></a>
+      <nav class="mock-nav">
+        <a class="active">Home</a>
+        <a>Explorer</a>
+        <a>Map</a>
+        <a>Compare</a>
+        <a>About</a>
+        <a>My WaveBase</a>
+      </nav>
+    </div>
+  </header>
+
+  <div class="wrap">
+    <p class="palette-name">Palette · <strong id="palette-label">Beach (current)</strong></p>
+    <p class="palette-meta" id="palette-meta">Cream + teal + terracotta — warm, lived-in, "honest beach guide" feel.</p>
+
+    <section class="mock-hero">
+      <p class="mock-kicker">Honest surf guide</p>
+      <h2>Surfing, told <span class="ul">honestly</span></h2>
+      <p>No marketing spin. Just what a spot or stay is really like — by season, for your level — based on recent reviews and people who've actually been there.</p>
+    </section>
+
+    <div class="mock-searchbar">
+      <span class="mock-searchbar-icon">🔍</span>
+      <input placeholder="Search by city, beach, country, spot or center…">
+    </div>
+
+    <section class="mock-searcher">
+      <div class="mock-pills">
+        <button class="mock-pill">All</button>
+        <button class="mock-pill active">Wave</button>
+        <button class="mock-pill">Wind</button>
+        <button class="mock-pill">Kite</button>
+        <button class="mock-pill">Wing</button>
+      </div>
+      <div class="mock-fields">
+        <span class="mock-field">Where?<span class="mock-field-input">Morocco</span></span>
+        <span class="mock-field">For who?<span class="mock-field-input">Intermediate</span></span>
+        <span class="mock-field">What?<span class="mock-field-input">Spots, stays &amp; centers</span></span>
+        <span class="mock-field">When?<span class="mock-field-input">December</span></span>
+      </div>
+      <div class="mock-actions">
+        <button class="mock-btn">Show what fits me</button>
+      </div>
+    </section>
+
+    <h3 class="mock-cards-head">Spots in Morocco · December</h3>
+    <div class="mock-cards">
+      <div class="mock-card">
+        <div class="mock-card-photo"></div>
+        <div class="mock-card-body">
+          <p class="mock-chip-row">Spot <span class="sep">·</span> Tamraght <span class="sep">·</span> Morocco</p>
+          <h3>Devil's Rock</h3>
+          <p class="tag">Tamraght's home break — accessible, year-round, busier as the swell builds.</p>
+          <div class="mock-card-meta">
+            <span class="mock-tag">Intermediate</span>
+            <span class="mock-tag clay">Peak Dec</span>
+            <span class="mock-tag amber">Wave</span>
+          </div>
+        </div>
+      </div>
+      <div class="mock-card">
+        <div class="mock-card-photo"></div>
+        <div class="mock-card-body">
+          <p class="mock-chip-row">Stay <span class="sep">·</span> Tamraght <span class="sep">·</span> Morocco</p>
+          <h3>Surf Camp Aourir</h3>
+          <p class="tag">Family-run guesthouse, walking distance to Devil's Rock and Crocro.</p>
+          <div class="mock-card-meta">
+            <span class="mock-tag">Comfortable</span>
+            <span class="mock-tag clay">€45-65/night</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <h3 class="mock-section-head">My WaveBase profile</h3>
+    <div class="mock-profile">
+      <div class="mock-profile-block">
+        <div class="mock-profile-block-head">
+          <span class="mock-profile-block-title">You</span>
+        </div>
+        <p class="why">We need this to create your account.</p>
+      </div>
+      <div class="mock-profile-block helps">
+        <div class="mock-profile-block-head">
+          <span class="mock-profile-block-title">Your surfing</span>
+          <span class="mock-profile-tag">unlocks better matches</span>
+        </div>
+        <p class="why">Fill this in and the homepage starts showing spots that fit your level and gear.</p>
+      </div>
+      <div class="mock-profile-block helps">
+        <div class="mock-profile-block-head">
+          <span class="mock-profile-block-title">Trip kind</span>
+          <span class="mock-profile-tag">unlocks better matches</span>
+        </div>
+        <p class="why">Fill this in and the homepage shows trips that fit your style.</p>
+      </div>
+      <div class="mock-profile-block optional">
+        <div class="mock-profile-block-head">
+          <span class="mock-profile-block-title">One last thing</span>
+          <span class="mock-profile-tag opt">optional</span>
+        </div>
+        <p class="why">How did you find WaveBase?</p>
+      </div>
+    </div>
+
+    <h3 class="mock-section-head">Why this spot is like this</h3>
+    <div class="mock-edu">
+      <h3>Sample educational accordion</h3>
+      <p class="mock-edu-intro">The mechanism behind the spot's wind, water and season — so you understand it, not just check it.</p>
+      <div class="mock-edu-q-open">
+        <div class="mock-edu-q">Why are the waves like they are — sand-bottom A-frames?</div>
+        <p class="mock-edu-a">The river Oued Tamraght has deposited sand here over thousands of years. On that sandy bottom the swell forms <strong>sand-bars</strong> that shift with storms, so the wave breaks into loose A-frame peaks rather than one long clean wave. Forgiving for beginners; less clean lines for advanced surfers.</p>
+        <p class="mock-edu-source">Source: Oued Tamraght geography + beach-break physics.</p>
+      </div>
+      <div class="mock-edu-q">Why is the wind like it is — offshore mornings, side-shore afternoons?</div>
+      <div class="mock-edu-q">Why is high season October–April?</div>
+    </div>
+
+    <footer class="mock-footer">
+      WaveBase — <a>privacy</a> · <a>legal</a> · <a>contact</a> &nbsp;·&nbsp; honest surf guide
+    </footer>
+  </div>
+</div>
+
+<script>
+const PALETTE_INFO = {
+  beach: {
+    label: "Beach (current)",
+    meta: "Cream + teal + terracotta — warm, lived-in, \"honest beach guide\" feel. Matches the brand voice."
+  },
+  ocean: {
+    label: "Deep Ocean",
+    meta: "Cool deep blues + crisp white + coral accent — more \"Surfline / professional surf-media\" energy. Loses warmth."
+  },
+  sunset: {
+    label: "Sunset",
+    meta: "Peach + teal + sunset orange + golden yellow — Bali / Sayulita vibes. Romantic, more aspirational."
+  },
+  forest: {
+    label: "Forest + Sea",
+    meta: "Sage warm cream + deep sea-blue + mustard accents — earthy, grounded, hiker-meets-surfer. Quieter, less bright."
+  }
+};
+
+const stage = document.getElementById("stage");
+const label = document.getElementById("palette-label");
+const meta  = document.getElementById("palette-meta");
+
+document.querySelectorAll(".palette-btn").forEach(btn => {
+  btn.addEventListener("click", () => {
+    const key = btn.dataset.set;
+    document.querySelectorAll(".palette-btn").forEach(b => b.classList.remove("active"));
+    btn.classList.add("active");
+    if (key === "beach") stage.removeAttribute("data-palette");
+    else stage.setAttribute("data-palette", key);
+    label.textContent = PALETTE_INFO[key].label;
+    meta.textContent = PALETTE_INFO[key].meta;
+    try { localStorage.setItem("wavebase_preview_palette", key); } catch(e) {}
+  });
+});
+
+// restore last picked palette
+try {
+  const last = localStorage.getItem("wavebase_preview_palette");
+  if (last && PALETTE_INFO[last]) {
+    const btn = document.querySelector(`.palette-btn[data-set="${last}"]`);
+    if (btn) btn.click();
+  }
+} catch(e) {}
+</script>
+
+</body>
+</html>
