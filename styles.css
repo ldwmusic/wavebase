@@ -4097,12 +4097,12 @@ button.rml-key.off .rml-dot {
   display: inline-flex;
   align-items: center;
   flex-shrink: 0;
+  font-size: 15px;
+  line-height: 1;
+  /* Emojis carry their own colour (from the OS font), so no per-type
+     tint here — the row's coloured left border is the brand-coloured
+     type signal; the emoji is the shape signal. */
 }
-.trip-item-stay   .trip-item-icon { color: var(--clay); }
-.trip-item-center .trip-item-icon { color: var(--sea); }
-/* Amber on cream is faint — bump the spot icon to a darker tone for
-   legibility while staying in the warm-yellow family. */
-.trip-item-spot   .trip-item-icon { color: #b8801a; }
 /* Stay row deserves a touch more vertical breathing room — it's the
    leg's header and tends to carry the dates / Book button. */
 .trip-leg > .trip-item-row.trip-item-stay {
