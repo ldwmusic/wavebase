@@ -208,6 +208,32 @@ a, button, [role="button"] { -webkit-tap-highlight-color: rgba(63,111,125,0.08);
   border-radius: 3px;
   font-style: italic;
 }
+/* Prominent warning / disclaimer box — used in legal.html for the
+   safety-and-liability section. Clay accent so it reads as "important",
+   not a passive paragraph. */
+.legal-callout {
+  background: var(--clay-soft);
+  border-left: 4px solid var(--clay);
+  border-radius: 10px;
+  padding: 16px 20px;
+  margin: 8px 0 22px;
+  font-size: 17px;
+  line-height: 1.5;
+  color: var(--ink);
+}
+.legal-callout strong { color: var(--clay); }
+.about-section h3 {
+  font-size: 18px;
+  color: var(--ink);
+  margin: 22px 0 8px;
+}
+.about-section ul {
+  margin: 0 0 12px 22px;
+  font-size: 16px;
+  color: var(--ink);
+  line-height: 1.55;
+}
+.about-section ul li { margin-bottom: 4px; }
 
 /* About — "Then & Now" photo diptych. One landscape, one portrait, each
    fills its equal-height column via object-fit cover. Stacks on mobile. */
