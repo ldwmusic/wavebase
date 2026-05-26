@@ -4449,17 +4449,34 @@ function stayDatesHTML(trip, e) {
 }
 
 /* Type icon for a trip row — replaces the text label "Stay / Center /
-   Spot" with a visual cue. Stroke-only SVGs that take their colour from
-   the row's CSS (clay / sea / amber per type) — see styles.css. */
+   Spot" with a visual cue. Mix of filled + stroked so each silhouette
+   reads at 16x16 (LDW v=324 feedback: stroke-only center / spot looked
+   like indistinct squiggles). Colour comes from the row's CSS
+   (clay / sea / amber per type — see styles.css). */
 function tripTypeIcon(type) {
-  const wrap = inner =>
-    `<svg viewBox="0 0 16 16" width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${inner}</svg>`;
-  // House outline = stay
-  if (type === "stay")   return wrap(`<path d="M2 7l6-5 6 5v7H2z"/><path d="M6 14v-4h4v4"/>`);
-  // Mortarboard = center (surf school)
-  if (type === "center") return wrap(`<path d="M1 5.5L8 3l7 2.5L8 8z"/><path d="M4 7v3c2.5 1.5 5.5 1.5 8 0V7"/><path d="M14 6v3"/>`);
-  // Wave squiggle = spot
-  if (type === "spot")   return wrap(`<path d="M1 9c2-3 4-3 6 0s5 3 8 0"/><path d="M1 12c2-3 4-3 6 0s5 3 8 0" opacity="0.45"/>`);
+  // Stay — outlined house silhouette (clear roof + door cut-out)
+  if (type === "stay") {
+    return `<svg viewBox="0 0 16 16" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+      <path d="M2 7l6-5 6 5v7H2z"/>
+      <path d="M6 14v-4h4v4"/>
+    </svg>`;
+  }
+  // Center — solid mortarboard cap (top diamond filled, bottom curve + tassel outlined)
+  if (type === "center") {
+    return `<svg viewBox="0 0 16 16" width="16" height="16" aria-hidden="true">
+      <path d="M8 2.5L0.8 6L8 9.5L15.2 6z" fill="currentColor"/>
+      <path d="M4 7.4v2.8c0 0.9 1.8 1.6 4 1.6s4-0.7 4-1.6V7.4" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/>
+      <path d="M14 6.5v3.5" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/>
+      <circle cx="14" cy="11" r="0.8" fill="currentColor"/>
+    </svg>`;
+  }
+  // Spot — bold breaking-wave S-curve (not a tilde — has real curl shape)
+  if (type === "spot") {
+    return `<svg viewBox="0 0 16 16" width="16" height="16" aria-hidden="true">
+      <path d="M1 11.5 C 3 6, 6 6, 8 10.5 C 10 14, 13 14, 15 11" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/>
+      <path d="M1.5 14 C 5 13, 11 13, 14.5 14" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" opacity="0.45"/>
+    </svg>`;
+  }
   return "";
 }
 
