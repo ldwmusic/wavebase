@@ -4079,10 +4079,36 @@ button.rml-key.off .rml-dot {
   align-items: center;
   flex-wrap: wrap;
   gap: 6px 10px;
-  padding: 6px 4px;
+  padding: 6px 4px 6px 8px;
+  border-left: 3px solid transparent;
+  border-radius: 4px;
 }
-.trip-item-main { flex: 1 1 200px; min-width: 0; }
+.trip-item-main { flex: 1 1 200px; min-width: 0; display: inline-flex; align-items: center; flex-wrap: wrap; gap: 6px; }
 .trip-item-stay .trip-item-main a { font-weight: 700; }
+
+/* Visual type system — one glance tells you stay vs center vs spot via
+   the left-edge colour bar + the inline icon (replaces the old text
+   label "· Stay ·" etc.). Stays = clay (warm, your home base), centers
+   = sea (water-school), spots = amber (wave energy). */
+.trip-item-stay   { border-left-color: var(--clay);  }
+.trip-item-center { border-left-color: var(--sea);   }
+.trip-item-spot   { border-left-color: var(--amber); }
+.trip-item-icon {
+  display: inline-flex;
+  align-items: center;
+  flex-shrink: 0;
+}
+.trip-item-stay   .trip-item-icon { color: var(--clay); }
+.trip-item-center .trip-item-icon { color: var(--sea); }
+/* Amber on cream is faint — bump the spot icon to a darker tone for
+   legibility while staying in the warm-yellow family. */
+.trip-item-spot   .trip-item-icon { color: #b8801a; }
+/* Stay row deserves a touch more vertical breathing room — it's the
+   leg's header and tends to carry the dates / Book button. */
+.trip-leg > .trip-item-row.trip-item-stay {
+  padding-top: 9px;
+  padding-bottom: 9px;
+}
 .ti-num {
   font-weight: 700;
   color: var(--ink-soft);

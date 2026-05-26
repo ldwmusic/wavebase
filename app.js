@@ -4448,31 +4448,51 @@ function stayDatesHTML(trip, e) {
   </span>`;
 }
 
+/* Type icon for a trip row — replaces the text label "Stay / Center /
+   Spot" with a visual cue. Stroke-only SVGs that take their colour from
+   the row's CSS (clay / sea / amber per type) — see styles.css. */
+function tripTypeIcon(type) {
+  const wrap = inner =>
+    `<svg viewBox="0 0 16 16" width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${inner}</svg>`;
+  // House outline = stay
+  if (type === "stay")   return wrap(`<path d="M2 7l6-5 6 5v7H2z"/><path d="M6 14v-4h4v4"/>`);
+  // Mortarboard = center (surf school)
+  if (type === "center") return wrap(`<path d="M1 5.5L8 3l7 2.5L8 8z"/><path d="M4 7v3c2.5 1.5 5.5 1.5 8 0V7"/><path d="M14 6v3"/>`);
+  // Wave squiggle = spot
+  if (type === "spot")   return wrap(`<path d="M1 9c2-3 4-3 6 0s5 3 8 0"/><path d="M1 12c2-3 4-3 6 0s5 3 8 0" opacity="0.45"/>`);
+  return "";
+}
+
 /* One row in the Itinerary view — number + name, plus (for stays) the
    dates and a one-tap navigate button. Editable rows carry the drag
    handle, date inputs and remove button; readonly rows (shared trips)
-   show the dates as plain text. */
+   show the dates as plain text.
+   Visual type system: each row gets a per-type class (trip-item-stay /
+   -center / -spot) that drives the coloured left border + icon tint
+   via CSS. Replaces the old text label "· Stay ·" / "· Center ·" with
+   the icon prefix from tripTypeIcon — visible at a glance, no scanning. */
 function tripItemRowHTML(t, e, idx, readonly) {
   // Only stays carry a number — they're the trip's "stops". Spots and
   // centers sit unnumbered under the stay they're coupled to.
   const stayNo = e.type === "stay"
     ? t.spotIds.map(byId).filter(x => x && x.type === "stay").indexOf(e) + 1
     : 0;
-  const main = `<span class="trip-item-main">${stayNo ? `<span class="ti-num">${stayNo}</span>` : ""}<a href="spot.html?id=${e.id}" draggable="false">${escHTML(e.name)}</a> <span class="muted">&middot; ${typeLabel(e.type)} &middot; ${escHTML(e.town)}</span></span>`;
-  const stayCls = e.type === "stay" ? " trip-item-stay" : "";
+  const icon = tripTypeIcon(e.type);
+  const main = `<span class="trip-item-main">${stayNo ? `<span class="ti-num">${stayNo}</span>` : ""}<span class="trip-item-icon">${icon}</span><a href="spot.html?id=${e.id}" draggable="false">${escHTML(e.name)}</a> <span class="muted">&middot; ${escHTML(e.town)}</span></span>`;
+  const typeCls = ` trip-item-${e.type}`;
   const navBtn = e.coords
     ? `<button type="button" class="tc-btn tc-nav" data-nav="${e.id}" title="Navigate here" aria-label="Navigate to ${escHTML(e.name)}"><svg viewBox="0 0 24 24" width="13" height="13" fill="currentColor" aria-hidden="true"><path d="M3 11l18-8-8 18-2-8-8-2z"/></svg></button>`
     : "";
   const bookBtn = bookBtnHTML(e);
   if (readonly) {
     const ctrl = (bookBtn || navBtn) ? `<span class="trip-item-ctrl">${bookBtn}${navBtn}</span>` : "";
-    return `<div class="trip-item-row${stayCls}">
+    return `<div class="trip-item-row${typeCls}">
       ${main}
       ${e.type === "stay" ? stayDatesReadonlyHTML(t, e) : ""}
       ${ctrl}
     </div>`;
   }
-  return `<div class="trip-item-row${stayCls}" draggable="true" data-trip="${t.id}" data-idx="${idx}" title="Drag to reorder">
+  return `<div class="trip-item-row${typeCls}" draggable="true" data-trip="${t.id}" data-idx="${idx}" title="Drag to reorder">
     <span class="drag-grip" aria-hidden="true">⠿</span>
     ${main}
     ${e.type === "stay" ? stayDatesHTML(t, e) : ""}
