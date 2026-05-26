@@ -82,6 +82,98 @@
   --shadow-sm:  0 6px 20px -12px rgba(31, 46, 38, 0.30);
 }
 
+/* ---- DRAMATIC palettes (Michiel asked for "drastischer") ---- */
+
+/* Midnight Surf — full dark mode. Night-surf energy, electric accents. */
+[data-palette="midnight"] {
+  --cream:      #0d1419;
+  --paper:      #1a232c;
+  --ink:        #e8edf0;
+  --ink-soft:   #8a929a;
+  --sand:       #2a323b;
+  --sand-deep:  #3a4451;
+  --sea:        #00d4ff;
+  --sea-soft:   #0e3340;
+  --clay:       #ff6b8a;
+  --clay-soft:  #3a1a25;
+  --amber:      #ffd93d;
+  --amber-soft: #2a2615;
+  --shadow:     0 14px 40px -18px rgba(0, 0, 0, 0.6);
+  --shadow-sm:  0 6px 20px -12px rgba(0, 0, 0, 0.7);
+}
+
+/* Neon Tropics — Miami / festival energy. Maximum loudness. */
+[data-palette="neon"] {
+  --cream:      #0a0a0a;
+  --paper:      #161616;
+  --ink:        #f5f5f5;
+  --ink-soft:   #999;
+  --sand:       #2a2a2a;
+  --sand-deep:  #444;
+  --sea:        #00e5e0;
+  --sea-soft:   #003a39;
+  --clay:       #ff2d92;
+  --clay-soft:  #3a0020;
+  --amber:      #ffea00;
+  --amber-soft: #2a2500;
+  --shadow:     0 14px 40px -18px rgba(255, 45, 146, 0.4);
+  --shadow-sm:  0 6px 20px -12px rgba(0, 229, 224, 0.3);
+}
+
+/* Editorial Mono — high-end magazine. Single bold accent on stark white. */
+[data-palette="editorial"] {
+  --cream:      #fafafa;
+  --paper:      #ffffff;
+  --ink:        #0a0a0a;
+  --ink-soft:   #555;
+  --sand:       #e5e5e5;
+  --sand-deep:  #bbb;
+  --sea:        #ff5733;
+  --sea-soft:   #ffe5dc;
+  --clay:       #2a2a2a;
+  --clay-soft:  #d5d5d5;
+  --amber:      #ff5733;
+  --amber-soft: #ffe5dc;
+  --shadow:     0 14px 40px -18px rgba(0, 0, 0, 0.18);
+  --shadow-sm:  0 6px 20px -12px rgba(0, 0, 0, 0.20);
+}
+
+/* 70s Retro — vintage surf shop. Burnt orange + avocado + chocolate. */
+[data-palette="retro"] {
+  --cream:      #f0e4cc;
+  --paper:      #fbf3dc;
+  --ink:        #3a2415;
+  --ink-soft:   #7a5a3a;
+  --sand:       #d9c397;
+  --sand-deep:  #b89c6a;
+  --sea:        #6b8e23;
+  --sea-soft:   #e3edcb;
+  --clay:       #c5471d;
+  --clay-soft:  #f4d4c2;
+  --amber:      #d68f2c;
+  --amber-soft: #f3e0b8;
+  --shadow:     0 14px 40px -18px rgba(58, 36, 21, 0.32);
+  --shadow-sm:  0 6px 20px -12px rgba(58, 36, 21, 0.34);
+}
+
+/* Nordic Cold Surf — Patagonia / Finisterre vibe. Cold-water energy. */
+[data-palette="nordic"] {
+  --cream:      #f0f4f7;
+  --paper:      #ffffff;
+  --ink:        #1a2530;
+  --ink-soft:   #5a6878;
+  --sand:       #d5dde4;
+  --sand-deep:  #adb8c4;
+  --sea:        #2a4858;
+  --sea-soft:   #d8e2ea;
+  --clay:       #fcc419;
+  --clay-soft:  #fff5d6;
+  --amber:      #339af0;
+  --amber-soft: #d3e8fa;
+  --shadow:     0 14px 40px -18px rgba(26, 37, 48, 0.20);
+  --shadow-sm:  0 6px 20px -12px rgba(26, 37, 48, 0.22);
+}
+
 /* ============================================================
    Layout reset + base
    ============================================================ */
@@ -613,6 +705,51 @@ body {
     </span>
     Forest + Sea
   </button>
+  <button class="palette-btn" data-set="midnight">
+    <span class="palette-swatch">
+      <span style="background:#0d1419"></span>
+      <span style="background:#00d4ff"></span>
+      <span style="background:#ff6b8a"></span>
+      <span style="background:#ffd93d"></span>
+    </span>
+    Midnight Surf
+  </button>
+  <button class="palette-btn" data-set="neon">
+    <span class="palette-swatch">
+      <span style="background:#0a0a0a"></span>
+      <span style="background:#00e5e0"></span>
+      <span style="background:#ff2d92"></span>
+      <span style="background:#ffea00"></span>
+    </span>
+    Neon Tropics
+  </button>
+  <button class="palette-btn" data-set="editorial">
+    <span class="palette-swatch">
+      <span style="background:#ffffff;border-color:#ccc"></span>
+      <span style="background:#0a0a0a"></span>
+      <span style="background:#ff5733"></span>
+      <span style="background:#bbbbbb"></span>
+    </span>
+    Editorial Mono
+  </button>
+  <button class="palette-btn" data-set="retro">
+    <span class="palette-swatch">
+      <span style="background:#f0e4cc"></span>
+      <span style="background:#6b8e23"></span>
+      <span style="background:#c5471d"></span>
+      <span style="background:#d68f2c"></span>
+    </span>
+    70s Retro
+  </button>
+  <button class="palette-btn" data-set="nordic">
+    <span class="palette-swatch">
+      <span style="background:#f0f4f7"></span>
+      <span style="background:#2a4858"></span>
+      <span style="background:#fcc419"></span>
+      <span style="background:#339af0"></span>
+    </span>
+    Nordic Cold
+  </button>
 </div>
 
 <!-- ===================== Mockup stage ===================== -->
@@ -762,6 +899,26 @@ const PALETTE_INFO = {
   forest: {
     label: "Forest + Sea",
     meta: "Sage warm cream + deep sea-blue + mustard accents — earthy, grounded, hiker-meets-surfer. Quieter, less bright."
+  },
+  midnight: {
+    label: "Midnight Surf",
+    meta: "Full dark mode. Deep navy + electric cyan + hot pink + sunshine yellow. Night-surf energy, dramatic and modern. Unusual for a surf-travel site — that's the point."
+  },
+  neon: {
+    label: "Neon Tropics",
+    meta: "Pure black + electric turquoise + hot pink + sun yellow. Miami / festival energy, maximum loudness. Bold, polarising, instantly memorable."
+  },
+  editorial: {
+    label: "Editorial Mono",
+    meta: "Stark white + near-black + a single bold accent (blood orange). High-end magazine / fashion brand vibe. Premium, restrained, confident — almost no color."
+  },
+  retro: {
+    label: "70s Retro",
+    meta: "Burnt orange + avocado green + chocolate brown on warm cream. Vintage California surf shop vibe — Hang Loose meets Slowdive album cover. Period and nostalgic."
+  },
+  nordic: {
+    label: "Nordic Cold Surf",
+    meta: "Cool icy whites + deep slate-blue + safety yellow + bright sky accent. Patagonia / Finisterre / Cold Hawaii vibe. For when surfing is also an endurance activity."
   }
 };
 
