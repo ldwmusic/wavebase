@@ -1,0 +1,531 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SurfCompass — branding preview</title>
+<style>
+/* ============================================================
+   BRANDING PREVIEW — standalone tool. NOT linked from main site.
+   Shows what the current WaveBase UI vocabulary would look like
+   rebranded as "SurfCompass" with a compass-rose icon. Live styles
+   unchanged.
+   ============================================================ */
+
+/* ---- Brand variables (locked to current WaveBase palette) ---- */
+:root {
+  --cream:      #f6f1e7;
+  --paper:      #fffefb;
+  --ink:        #2a2723;
+  --ink-soft:   #6f6658;
+  --sand:       #e7dcc4;
+  --sand-deep:  #d8c9a8;
+  --sea:        #3f6f7d;
+  --sea-soft:   #dde8ea;
+  --clay:       #bd6242;
+  --clay-soft:  #f0ddd2;
+  --amber:      #e0a447;
+  --shadow:     0 14px 40px -18px rgba(42, 39, 35, 0.28);
+  --shadow-sm:  0 6px 20px -12px rgba(42, 39, 35, 0.30);
+  --radius:     18px;
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body {
+  font-family: -apple-system, BlinkMacSystemFont, "Helvetica Neue", Arial, sans-serif;
+  background: #1a1815;
+  color: var(--ink);
+  min-height: 100vh;
+}
+
+/* Top bar — explains the preview */
+.preview-bar {
+  background: #1a1815;
+  color: #fff;
+  padding: 14px 24px;
+  text-align: center;
+  border-bottom: 1px solid #333;
+}
+.preview-bar h1 {
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: #fff;
+}
+.preview-bar small {
+  display: block;
+  font-size: 11px;
+  letter-spacing: 0.03em;
+  text-transform: none;
+  font-weight: 400;
+  color: #aaa;
+  margin-top: 3px;
+}
+
+/* Logo lockup section (top) — show variants */
+.logo-lab {
+  background: var(--cream);
+  padding: 40px 24px;
+}
+.logo-lab .wrap {
+  max-width: 980px;
+  margin: 0 auto;
+}
+.logo-lab h2 {
+  font-family: Georgia, serif;
+  font-size: 22px;
+  color: var(--ink);
+  margin-bottom: 6px;
+}
+.logo-lab p.lead {
+  color: var(--ink-soft);
+  font-size: 14px;
+  margin-bottom: 22px;
+}
+.logo-variants {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 16px;
+  margin-bottom: 24px;
+}
+.logo-variant {
+  background: var(--paper);
+  border: 1px solid var(--sand);
+  border-radius: var(--radius);
+  padding: 24px 22px;
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 140px;
+}
+.logo-variant-label {
+  font-size: 10px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--ink-soft);
+  font-weight: 700;
+  margin-top: 18px;
+}
+
+/* Logo typographic styles */
+.logo-text {
+  font-family: Georgia, serif;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  color: var(--ink);
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 30px;
+  line-height: 1;
+}
+.logo-text .accent { color: var(--clay); }
+.logo-text-sm { font-size: 22px; }
+.logo-text.split { letter-spacing: -0.01em; }
+
+/* Compass-rose icon — currentColor for tinting */
+.compass-icon { color: var(--clay); display: inline-block; vertical-align: middle; }
+.compass-icon-sea { color: var(--sea); }
+.compass-icon-ink { color: var(--ink); }
+
+/* Site mockup — same vocabulary as palette-preview.html, rebranded */
+.stage {
+  background: var(--cream);
+  padding: 0 0 40px;
+}
+.stage > .wrap {
+  max-width: 980px;
+  margin: 0 auto;
+  padding: 0 22px;
+}
+.mock-header {
+  background: var(--cream);
+  border-bottom: 1px solid var(--sand);
+  padding: 14px 0;
+  margin-bottom: 18px;
+}
+.mock-header .wrap {
+  display: flex;
+  align-items: center;
+  gap: 18px;
+  max-width: 980px;
+  margin: 0 auto;
+  padding: 0 22px;
+}
+.mock-nav {
+  margin-left: auto;
+  display: flex;
+  gap: 18px;
+}
+.mock-nav a {
+  font-size: 13px;
+  color: var(--ink-soft);
+  text-decoration: none;
+  padding: 6px 4px;
+  border-bottom: 2px solid transparent;
+}
+.mock-nav a.active {
+  color: var(--ink);
+  border-bottom-color: var(--clay);
+}
+
+.mock-hero {
+  text-align: center;
+  padding: 24px 0 28px;
+}
+.mock-kicker {
+  font-size: 11px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--clay);
+  font-weight: 700;
+  margin-bottom: 8px;
+}
+.mock-hero h2 {
+  font-family: Georgia, serif;
+  font-size: 40px;
+  line-height: 1.1;
+  color: var(--ink);
+  margin-bottom: 12px;
+}
+.mock-hero h2 .ul {
+  background-image: linear-gradient(transparent 62%, var(--sand-deep) 62%, var(--sand-deep) 92%, transparent 92%);
+}
+.mock-hero p {
+  font-size: 15px;
+  color: var(--ink-soft);
+  max-width: 540px;
+  margin: 0 auto;
+}
+
+.mock-searchbar {
+  background: var(--paper);
+  border: 1px solid var(--sand);
+  border-radius: 999px;
+  padding: 11px 18px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  box-shadow: var(--shadow-sm);
+  margin-bottom: 16px;
+}
+.mock-searchbar input {
+  flex: 1;
+  border: none;
+  background: transparent;
+  font-family: inherit;
+  font-size: 14px;
+  color: var(--ink);
+  outline: none;
+}
+.mock-searchbar input::placeholder { color: var(--ink-soft); }
+.mock-searchbar-icon { color: var(--ink-soft); font-size: 16px; }
+
+.mock-searcher {
+  background: var(--paper);
+  border: 1px solid var(--sand);
+  border-radius: var(--radius);
+  padding: 18px 22px;
+  box-shadow: var(--shadow-sm);
+  margin-bottom: 22px;
+}
+.mock-pills {
+  display: flex; gap: 8px; justify-content: center; flex-wrap: wrap;
+  margin-bottom: 16px;
+}
+.mock-pill {
+  font-family: inherit; font-size: 14px; font-weight: 600;
+  background: var(--paper); border: 1px solid var(--sand);
+  border-radius: 999px; padding: 8px 16px; color: var(--ink); cursor: pointer;
+}
+.mock-pill.active { background: var(--sea); border-color: var(--sea); color: #fff; }
+.mock-btn {
+  font-family: inherit; font-size: 14px; font-weight: 700;
+  padding: 11px 26px; border-radius: 999px; border: none;
+  cursor: pointer; background: var(--clay); color: #fff;
+}
+
+.mock-cards-head {
+  font-family: Georgia, serif;
+  font-size: 22px;
+  color: var(--ink);
+  margin-bottom: 14px;
+}
+.mock-cards { display: grid; grid-template-columns: repeat(2, 1fr); gap: 18px; margin-bottom: 30px; }
+.mock-card {
+  background: var(--paper); border: 1px solid var(--sand);
+  border-radius: var(--radius); overflow: hidden; box-shadow: var(--shadow-sm);
+}
+.mock-card-photo {
+  height: 110px;
+  background: linear-gradient(135deg, var(--sand) 0%, var(--sand-deep) 60%, var(--sea-soft) 100%);
+}
+.mock-card-body { padding: 14px 16px 16px; }
+.mock-chip-row { display: flex; gap: 6px; font-size: 11px; color: var(--ink-soft); margin-bottom: 6px; letter-spacing: 0.04em; }
+.mock-card h3 { font-family: Georgia, serif; font-size: 18px; color: var(--ink); margin-bottom: 4px; }
+.mock-card .tag { font-size: 12px; color: var(--ink-soft); margin-bottom: 10px; line-height: 1.4; }
+
+.mock-footer {
+  border-top: 1px solid var(--sand);
+  padding: 18px 0;
+  color: var(--ink-soft);
+  font-size: 12px;
+  text-align: center;
+}
+
+/* Trip row mock with new icons */
+.mock-trip {
+  background: var(--paper);
+  border: 1px solid var(--sand);
+  border-radius: var(--radius);
+  padding: 14px 16px 16px;
+  margin-bottom: 16px;
+}
+.mock-trip h3 {
+  font-family: Georgia, serif;
+  font-size: 18px;
+  margin-bottom: 8px;
+}
+.mock-trip-row {
+  display: flex; align-items: center; gap: 10px;
+  padding: 8px 4px 8px 9px;
+  border-left: 3px solid transparent;
+  border-radius: 4px;
+  font-size: 14px;
+}
+.mock-trip-stay   { border-left-color: var(--clay); }
+.mock-trip-center { border-left-color: var(--sea); }
+.mock-trip-spot   { border-left-color: var(--amber); }
+.mock-trip-icon { display: inline-block; font-size: 15px; }
+.mock-trip-name { font-weight: 600; }
+.mock-trip-meta { color: var(--ink-soft); font-size: 12px; margin-left: auto; }
+.mock-trip-extras { margin-left: 24px; padding-left: 12px; border-left: 2px solid var(--sand-deep); }
+
+@media (max-width: 700px) {
+  .mock-hero h2 { font-size: 28px; }
+  .mock-cards { grid-template-columns: 1fr; }
+  .logo-variants { grid-template-columns: 1fr; }
+}
+</style>
+</head>
+<body>
+
+<div class="preview-bar">
+  <h1>SurfCompass — branding preview<small>Standalone preview. Live styles unchanged. Compares the current UI rebranded with the new name + compass-rose icon.</small></h1>
+</div>
+
+<!-- ============ Logo lab ============ -->
+<section class="logo-lab">
+  <div class="wrap">
+    <h2>Logo + icon variants</h2>
+    <p class="lead">The compass-rose icon below uses <code>currentColor</code> — same SVG works in clay, sea, or any brand colour. Variants below show different lockups for the wordmark.</p>
+
+    <div class="logo-variants">
+      <!-- Variant 1: icon left + camelCase wordmark with clay accent -->
+      <div class="logo-variant">
+        <span class="logo-text">
+          <svg class="compass-icon" viewBox="0 0 64 64" width="42" height="42" xmlns="http://www.w3.org/2000/svg">
+            <circle cx="32" cy="32" r="28" fill="none" stroke="currentColor" stroke-width="1.4" opacity="0.45"/>
+            <path d="M48 16 L34 30 L32 32 L30 30 Z" fill="currentColor" opacity="0.35"/>
+            <path d="M48 48 L34 34 L32 32 L30 34 Z" fill="currentColor" opacity="0.35"/>
+            <path d="M16 48 L30 34 L32 32 L34 34 Z" fill="currentColor" opacity="0.35"/>
+            <path d="M16 16 L30 30 L32 32 L34 30 Z" fill="currentColor" opacity="0.35"/>
+            <path d="M32 4 L36 30 L32 32 Z" fill="currentColor" opacity="0.6"/>
+            <path d="M32 4 L28 30 L32 32 Z" fill="currentColor"/>
+            <path d="M60 32 L34 28 L32 32 Z" fill="currentColor" opacity="0.6"/>
+            <path d="M60 32 L34 36 L32 32 Z" fill="currentColor"/>
+            <path d="M32 60 L28 34 L32 32 Z" fill="currentColor" opacity="0.6"/>
+            <path d="M32 60 L36 34 L32 32 Z" fill="currentColor"/>
+            <path d="M4 32 L30 36 L32 32 Z" fill="currentColor" opacity="0.6"/>
+            <path d="M4 32 L30 28 L32 32 Z" fill="currentColor"/>
+            <circle cx="32" cy="32" r="2.2" fill="currentColor"/>
+          </svg>
+          Surf<span class="accent">Compass</span>
+        </span>
+        <span class="logo-variant-label">A · Icon + camelCase (recommended)</span>
+      </div>
+
+      <!-- Variant 2: icon left + two-word wordmark, no colour split -->
+      <div class="logo-variant">
+        <span class="logo-text logo-text-sm split">
+          <svg class="compass-icon-ink" viewBox="0 0 64 64" width="36" height="36" xmlns="http://www.w3.org/2000/svg">
+            <circle cx="32" cy="32" r="28" fill="none" stroke="currentColor" stroke-width="1.4" opacity="0.45"/>
+            <path d="M48 16 L34 30 L32 32 L30 30 Z" fill="currentColor" opacity="0.35"/>
+            <path d="M48 48 L34 34 L32 32 L30 34 Z" fill="currentColor" opacity="0.35"/>
+            <path d="M16 48 L30 34 L32 32 L34 34 Z" fill="currentColor" opacity="0.35"/>
+            <path d="M16 16 L30 30 L32 32 L34 30 Z" fill="currentColor" opacity="0.35"/>
+            <path d="M32 4 L36 30 L32 32 Z" fill="currentColor" opacity="0.6"/>
+            <path d="M32 4 L28 30 L32 32 Z" fill="currentColor"/>
+            <path d="M60 32 L34 28 L32 32 Z" fill="currentColor" opacity="0.6"/>
+            <path d="M60 32 L34 36 L32 32 Z" fill="currentColor"/>
+            <path d="M32 60 L28 34 L32 32 Z" fill="currentColor" opacity="0.6"/>
+            <path d="M32 60 L36 34 L32 32 Z" fill="currentColor"/>
+            <path d="M4 32 L30 36 L32 32 Z" fill="currentColor" opacity="0.6"/>
+            <path d="M4 32 L30 28 L32 32 Z" fill="currentColor"/>
+            <circle cx="32" cy="32" r="2.2" fill="currentColor"/>
+          </svg>
+          Surf Compass
+        </span>
+        <span class="logo-variant-label">B · Two-word + ink monocolour</span>
+      </div>
+
+      <!-- Variant 3: standalone mark (icon only, e.g. for favicon) -->
+      <div class="logo-variant">
+        <svg class="compass-icon" viewBox="0 0 64 64" width="64" height="64" xmlns="http://www.w3.org/2000/svg">
+          <circle cx="32" cy="32" r="28" fill="none" stroke="currentColor" stroke-width="1.4" opacity="0.45"/>
+          <path d="M48 16 L34 30 L32 32 L30 30 Z" fill="currentColor" opacity="0.35"/>
+          <path d="M48 48 L34 34 L32 32 L30 34 Z" fill="currentColor" opacity="0.35"/>
+          <path d="M16 48 L30 34 L32 32 L34 34 Z" fill="currentColor" opacity="0.35"/>
+          <path d="M16 16 L30 30 L32 32 L34 30 Z" fill="currentColor" opacity="0.35"/>
+          <path d="M32 4 L36 30 L32 32 Z" fill="currentColor" opacity="0.6"/>
+          <path d="M32 4 L28 30 L32 32 Z" fill="currentColor"/>
+          <path d="M60 32 L34 28 L32 32 Z" fill="currentColor" opacity="0.6"/>
+          <path d="M60 32 L34 36 L32 32 Z" fill="currentColor"/>
+          <path d="M32 60 L28 34 L32 32 Z" fill="currentColor" opacity="0.6"/>
+          <path d="M32 60 L36 34 L32 32 Z" fill="currentColor"/>
+          <path d="M4 32 L30 36 L32 32 Z" fill="currentColor" opacity="0.6"/>
+          <path d="M4 32 L30 28 L32 32 Z" fill="currentColor"/>
+          <circle cx="32" cy="32" r="2.2" fill="currentColor"/>
+        </svg>
+        <span class="logo-variant-label">C · Standalone mark (favicon / avatar)</span>
+      </div>
+
+      <!-- Variant 4: sea-tinted icon + ink wordmark (alt colour combo) -->
+      <div class="logo-variant">
+        <span class="logo-text">
+          <svg class="compass-icon-sea" viewBox="0 0 64 64" width="42" height="42" xmlns="http://www.w3.org/2000/svg">
+            <circle cx="32" cy="32" r="28" fill="none" stroke="currentColor" stroke-width="1.4" opacity="0.45"/>
+            <path d="M48 16 L34 30 L32 32 L30 30 Z" fill="currentColor" opacity="0.35"/>
+            <path d="M48 48 L34 34 L32 32 L30 34 Z" fill="currentColor" opacity="0.35"/>
+            <path d="M16 48 L30 34 L32 32 L34 34 Z" fill="currentColor" opacity="0.35"/>
+            <path d="M16 16 L30 30 L32 32 L34 30 Z" fill="currentColor" opacity="0.35"/>
+            <path d="M32 4 L36 30 L32 32 Z" fill="currentColor" opacity="0.6"/>
+            <path d="M32 4 L28 30 L32 32 Z" fill="currentColor"/>
+            <path d="M60 32 L34 28 L32 32 Z" fill="currentColor" opacity="0.6"/>
+            <path d="M60 32 L34 36 L32 32 Z" fill="currentColor"/>
+            <path d="M32 60 L28 34 L32 32 Z" fill="currentColor" opacity="0.6"/>
+            <path d="M32 60 L36 34 L32 32 Z" fill="currentColor"/>
+            <path d="M4 32 L30 36 L32 32 Z" fill="currentColor" opacity="0.6"/>
+            <path d="M4 32 L30 28 L32 32 Z" fill="currentColor"/>
+            <circle cx="32" cy="32" r="2.2" fill="currentColor"/>
+          </svg>
+          Surf<span class="accent">Compass</span>
+        </span>
+        <span class="logo-variant-label">D · Sea-tinted compass + clay wordmark</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ Full site mockup as SurfCompass ============ -->
+<div class="stage">
+
+  <header class="mock-header">
+    <div class="wrap">
+      <span class="logo-text logo-text-sm">
+        <svg class="compass-icon" viewBox="0 0 64 64" width="28" height="28" xmlns="http://www.w3.org/2000/svg">
+          <circle cx="32" cy="32" r="28" fill="none" stroke="currentColor" stroke-width="1.4" opacity="0.45"/>
+          <path d="M48 16 L34 30 L32 32 L30 30 Z" fill="currentColor" opacity="0.35"/>
+          <path d="M48 48 L34 34 L32 32 L30 34 Z" fill="currentColor" opacity="0.35"/>
+          <path d="M16 48 L30 34 L32 32 L34 34 Z" fill="currentColor" opacity="0.35"/>
+          <path d="M16 16 L30 30 L32 32 L34 30 Z" fill="currentColor" opacity="0.35"/>
+          <path d="M32 4 L36 30 L32 32 Z" fill="currentColor" opacity="0.6"/>
+          <path d="M32 4 L28 30 L32 32 Z" fill="currentColor"/>
+          <path d="M60 32 L34 28 L32 32 Z" fill="currentColor" opacity="0.6"/>
+          <path d="M60 32 L34 36 L32 32 Z" fill="currentColor"/>
+          <path d="M32 60 L28 34 L32 32 Z" fill="currentColor" opacity="0.6"/>
+          <path d="M32 60 L36 34 L32 32 Z" fill="currentColor"/>
+          <path d="M4 32 L30 36 L32 32 Z" fill="currentColor" opacity="0.6"/>
+          <path d="M4 32 L30 28 L32 32 Z" fill="currentColor"/>
+          <circle cx="32" cy="32" r="2.2" fill="currentColor"/>
+        </svg>
+        Surf<span class="accent">Compass</span>
+      </span>
+      <nav class="mock-nav">
+        <a class="active">Home</a>
+        <a>Explorer</a>
+        <a>Map</a>
+        <a>Compare</a>
+        <a>About</a>
+        <a>My SurfCompass</a>
+      </nav>
+    </div>
+  </header>
+
+  <div class="wrap">
+    <section class="mock-hero">
+      <p class="mock-kicker">Honest surf guide</p>
+      <h2>Surfing, told <span class="ul">honestly</span></h2>
+      <p>No marketing spin. Just what a spot or stay is really like — by season, for your level — based on recent reviews and people who've actually been there.</p>
+    </section>
+
+    <div class="mock-searchbar">
+      <span class="mock-searchbar-icon">🔍</span>
+      <input placeholder="Search by city, beach, country, spot or center…">
+    </div>
+
+    <section class="mock-searcher">
+      <div class="mock-pills">
+        <button class="mock-pill">All</button>
+        <button class="mock-pill active">Wave</button>
+        <button class="mock-pill">Wind</button>
+        <button class="mock-pill">Kite</button>
+        <button class="mock-pill">Wing</button>
+      </div>
+      <div style="text-align:center;">
+        <button class="mock-btn">Show what fits me</button>
+      </div>
+    </section>
+
+    <h3 class="mock-cards-head">Spots in Morocco · December</h3>
+    <div class="mock-cards">
+      <div class="mock-card">
+        <div class="mock-card-photo"></div>
+        <div class="mock-card-body">
+          <p class="mock-chip-row">Spot · Tamraght · Morocco</p>
+          <h3>Devil's Rock</h3>
+          <p class="tag">Tamraght's home break — accessible, year-round, busier as the swell builds.</p>
+        </div>
+      </div>
+      <div class="mock-card">
+        <div class="mock-card-photo"></div>
+        <div class="mock-card-body">
+          <p class="mock-chip-row">Stay · Tamraght · Morocco</p>
+          <h3>Surf Camp Aourir</h3>
+          <p class="tag">Family-run guesthouse, walking distance to Devil's Rock and Crocro.</p>
+        </div>
+      </div>
+    </div>
+
+    <h3 class="mock-cards-head">My SurfCompass trip — Morocco, Dec 2026</h3>
+    <div class="mock-trip">
+      <div class="mock-trip-row mock-trip-stay">
+        <span class="mock-trip-icon">🏠</span>
+        <span class="mock-trip-name">Surf Camp Aourir</span>
+        <span class="mock-trip-meta">Aourir · 7 nights</span>
+      </div>
+      <div class="mock-trip-extras">
+        <div class="mock-trip-row mock-trip-center">
+          <span class="mock-trip-icon">🎓</span>
+          <span class="mock-trip-name">Surf Berbere</span>
+          <span class="mock-trip-meta">Aourir</span>
+        </div>
+        <div class="mock-trip-row mock-trip-spot">
+          <span class="mock-trip-icon">🌊</span>
+          <span class="mock-trip-name">Devil's Rock</span>
+          <span class="mock-trip-meta">Tamraght</span>
+        </div>
+      </div>
+    </div>
+
+    <footer class="mock-footer">
+      SurfCompass — honest surf guide · privacy · legal · contact
+    </footer>
+  </div>
+</div>
+
+</body>
+</html>
