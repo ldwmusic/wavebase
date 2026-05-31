@@ -5857,6 +5857,51 @@ button.rml-key.off .rml-dot {
   font-size: 16px; line-height: 1.55;
 }
 
+/* Anon gate — shown when an unauthenticated visitor lands on
+   account.html. Replaces the entire page content with a friendly
+   "sign in to continue" CTA. */
+.acc-anon-gate {
+  text-align: center;
+  max-width: 560px;
+  margin: 40px auto 60px;
+  padding: 0 20px;
+}
+.acc-anon-gate .kicker { margin: 0 0 8px; }
+.acc-anon-gate h1      { margin: 0 0 16px; }
+.acc-anon-gate .lead   { margin: 0 0 28px; }
+.acc-anon-cta {
+  display: flex; gap: 12px; justify-content: center; flex-wrap: wrap;
+}
+
+/* Danger zone — Delete account block. Visually quieter than a
+   regular section (no fill, just border) and the button is
+   neutral-styled until hover so it can't be triggered by a single
+   distracted click. */
+.acc-danger-zone {
+  margin-top: 32px;
+  border: 1px dashed var(--sand-deep);
+  border-radius: var(--radius);
+  background: transparent;
+}
+.acc-danger-zone h2     { color: var(--ink-soft); font-size: 18px; }
+.acc-danger-zone .btn-danger {
+  background: transparent;
+  color: var(--clay);
+  border: 1px solid var(--clay);
+  font-weight: 600;
+}
+.acc-danger-zone .btn-danger:hover:not(:disabled) {
+  background: var(--clay);
+  color: #fff;
+  transform: none;
+}
+.acc-danger-zone .btn-danger:disabled {
+  background: var(--sand);
+  color: var(--ink-soft);
+  border-color: var(--sand-deep);
+  cursor: not-allowed;
+}
+
 /* During onboarding the Continue button is the primary CTA and the
    Skip is a quiet escape hatch — flip the visual weight so Continue
    is the obvious right-hand action. */

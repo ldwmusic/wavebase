@@ -5589,6 +5589,36 @@ function renderAccount() {
   const authUser     = authed ? WaveBaseAuth.currentUser() : null;
   const authEmail    = (authUser && authUser.email) || "";
 
+  // Anon gate. Account features (saved spots, trips, surf log,
+  // reviews, profile) are signed-in-only. If a visitor lands here
+  // without a token (typed the URL, followed an old bookmark, or
+  // clicked a stale link), don't show them an empty/local account
+  // form — show a "Sign in to access" CTA that opens the modal.
+  // The onboarding flow is exempt because it always implies signed-in
+  // (the auth modal redirects with ?onboarding=1 only after signup).
+  if (!authed && !isOnboarding) {
+    root.innerHTML = `
+      <section class="acc-anon-gate">
+        <p class="kicker">My WaveBase</p>
+        <h1>Sign in to your <span class="ul">account</span>.</h1>
+        <p class="lead">Your saved spots, trips, surf log and reviews live here.
+          Sign in or create an account to access them.</p>
+        <div class="acc-anon-cta">
+          <button type="button" class="btn"       id="acc-anon-signin">Sign in</button>
+          <button type="button" class="btn ghost" id="acc-anon-signup">Create account</button>
+        </div>
+      </section>
+    `;
+    const open = (mode) => {
+      if (typeof WaveBaseAuthModal !== "undefined") {
+        WaveBaseAuthModal.open({ mode: mode });
+      }
+    };
+    document.getElementById("acc-anon-signin").addEventListener("click", () => open("login"));
+    document.getElementById("acc-anon-signup").addEventListener("click", () => open("signup"));
+    return;  // bail before rendering the logged-in shell
+  }
+
   // Three head variants:
   //   1. Onboarding   — welcome banner, no signed-in-as line (it'd be
   //                     redundant with the email they just typed)
@@ -5603,18 +5633,12 @@ function renderAccount() {
            spots for your level and trip style. You can skip it and add it later.
          </p>
        </div>`
-    : authed
-      ? `<div class="acc-head-row">
-           <h1>My WaveBase</h1>
-           <div class="acc-head-meta">
-             <span class="muted">Signed in as <strong>${escHTML(authEmail)}</strong></span>
-             <button type="button" class="btn ghost btn-quiet" id="acc-signout">Sign out</button>
-           </div>
-         </div>`
-      : `<h1>My WaveBase</h1>
-         <p class="muted lead-note">Everything below is stored locally in your browser.
-            <a href="#" id="acc-signin-link">Sign in or create an account</a>
-            to keep your saved spots and trips across devices.</p>`;
+    : `<div class="acc-head-row">
+         <h1>My WaveBase</h1>
+         <div class="acc-head-meta">
+           <span class="muted">Signed in as <strong>${escHTML(authEmail)}</strong></span>
+         </div>
+       </div>`;
 
   root.innerHTML = `
     ${headHTML}
@@ -5703,7 +5727,8 @@ function renderAccount() {
             ? `<button type="button" class="btn ghost" id="p-skip">Skip for now</button>
                <button type="button" class="btn"       id="p-continue">Save and continue &rarr;</button>`
             : `<span class="muted prof-autosave-hint">Auto-saves as you type${authed ? " &middot; synced to your account" : ""}.</span>
-               <button type="button" class="btn ghost" id="p-reset">Reset profile</button>`
+               <button type="button" class="btn ghost" id="p-reset">Reset profile</button>
+               ${authed ? `<button type="button" class="btn ghost btn-quiet" id="acc-signout">Sign out</button>` : ``}`
           }
         </div>
       </div>
@@ -5732,6 +5757,14 @@ function renderAccount() {
         They'll turn into real, shared reviews when the backend is live (phase 2).</p>
       ${reviewsHTML}
     </section>
+
+    ${authed ? `
+    <section class="acc-block acc-danger-zone">
+      <h2>Delete account</h2>
+      <p class="muted form-note">Permanently delete your WaveBase account and the data we have on the server (email, profile fields, saved spots). Your trips, surf log and reviews live in your browser and are unaffected — clear your browser data if you want those gone too. This action can&rsquo;t be undone.</p>
+      <button type="button" class="btn btn-danger" id="acc-delete">Delete my account &hellip;</button>
+    </section>
+    ` : ``}
     `}`;
 
   const readChecks = name => Array.from(
@@ -5934,22 +5967,42 @@ function renderAccount() {
     window.location.href = "index.html";
   });
 
-  // Sign-out button (shown when logged in, non-onboarding).
+  // Sign-out button (shown next to Reset profile when logged in).
+  // Redirects home rather than reloading the account page — without
+  // the user's data the page would just be the anon-gate, which
+  // makes for a confusing "wait, am I still here?" moment. Home is
+  // a clean landing that signals the sign-out succeeded.
   const signoutBtn = document.getElementById("acc-signout");
   if (signoutBtn) signoutBtn.addEventListener("click", () => {
     if (!confirm("Sign out of WaveBase?")) return;
     if (typeof WaveBaseAuth !== "undefined") WaveBaseAuth.logout();
-    window.location.reload();
+    window.location.href = "index.html";
   });
 
-  // "Sign in or create an account" link in the anon-on-account-page
-  // lead note. Opens the modal instead of navigating to itself.
-  const signinLink = document.getElementById("acc-signin-link");
-  if (signinLink) signinLink.addEventListener("click", (ev) => {
-    ev.preventDefault();
-    if (typeof WaveBaseAuthModal !== "undefined") {
-      WaveBaseAuthModal.open({ mode: "login" });
+  // Delete account button (very bottom of the page, danger zone).
+  // Double-confirm: a generic confirm() first, then a typed-string
+  // check so it's not a single mis-click. On success we wipe local
+  // auth state inside deleteAccount() and ship the user home; on
+  // failure we surface the server error verbatim so they can retry.
+  const deleteBtn = document.getElementById("acc-delete");
+  if (deleteBtn) deleteBtn.addEventListener("click", async () => {
+    if (!confirm("Delete your account permanently?\n\nThis wipes your email, profile and saved spots from our server. It cannot be undone.")) return;
+    const typed = window.prompt('To confirm, type the word  DELETE  in capitals:');
+    if (typed !== "DELETE") {
+      alert("Cancelled — nothing was deleted.");
+      return;
     }
+    deleteBtn.disabled = true;
+    deleteBtn.textContent = "Deleting…";
+    try {
+      await WaveBaseAuth.deleteAccount();
+    } catch (e) {
+      alert("Couldn't delete your account: " + (e.message || e));
+      deleteBtn.disabled = false;
+      deleteBtn.textContent = "Delete my account …";
+      return;
+    }
+    window.location.href = "index.html";
   });
 
   // + New trip button — hidden in onboarding mode, so null-guard.

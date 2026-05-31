@@ -552,6 +552,31 @@ const WaveBaseAuth = (function () {
     fetchMe().catch(function () { /* silent — see comment above */ });
   }
 
+  /* ---- permanent account delete. Hits DELETE /users/me (which
+          cascades the user record + saved-spots server-side), then
+          wipes the local token + cached user so the UI returns to
+          the anon state. Throws on server failure — caller is
+          expected to keep the user on the page and show the error
+          so they can retry. ---- */
+  async function deleteAccount() {
+    const res = await authFetch("/users/me", { method: "DELETE" });
+    if (!res.ok && res.status !== 204) {
+      let detail = "";
+      try { detail = (await res.json()).detail || ""; } catch (e) {}
+      const err = new Error(detail || ("Account delete failed (" + res.status + ")"));
+      err.status = res.status;
+      throw err;
+    }
+    // Wipe local auth state. We don't go via logout() because that
+    // also dispatches auth-changed with user=null — which is what
+    // we want, but we want the UI to react AFTER the caller has
+    // navigated away (otherwise the account page briefly flashes
+    // its anon-gate). Caller does the redirect first, then this
+    // returns and broadcasts the empty state.
+    clearAuth();
+    broadcast(null);
+  }
+
   return {
     signup: signup,
     login: login,
@@ -560,6 +585,7 @@ const WaveBaseAuth = (function () {
     currentUser: currentUser,
     fetchMe: fetchMe,
     updateProfile: updateProfile,
+    deleteAccount: deleteAccount,
     authFetch: authFetch,
     bootRefresh: bootRefresh,
   };
@@ -970,13 +996,15 @@ function _renderAuthNav() {
     let firstName = "";
     if (user && user.name) {
       firstName = String(user.name).trim().split(/\s+/)[0];
-      // Capitalise the first letter so "lode" displays as "Lode" even
-      // if the user typed their name lowercase in the profile form.
+      // Capitalise the first letter so "lode" displays as "Lode"
+      // even if the user typed their name lowercase in the form.
       if (firstName) firstName = firstName.charAt(0).toUpperCase() + firstName.slice(1);
-    } else if (user && user.email) {
-      firstName = String(user.email).split("@")[0];
     }
-    link.textContent = firstName ? ("Hi, " + firstName) : "My WaveBase";
+    // Friendly fallback when the account has no name yet (typical
+    // right after a Skip-for-now signup). An email prefix like
+    // "lode.b162" would look weird up there, so we skip it and use
+    // the universal "surfer" greeting instead.
+    link.textContent = firstName ? ("Hi, " + firstName) : "Hi, surfer";
     link.setAttribute("href", "account.html");
     link.removeAttribute("data-anon");
   } else {
