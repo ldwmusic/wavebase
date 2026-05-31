@@ -5831,6 +5831,39 @@ button.rml-key.off .rml-dot {
   .auth-title { font-size: 21px; }
 }
 
+/* Profile step — the modal's step 2 after signup. Wider card so
+   the 4 prof-blocks have room to breathe (the YOU block has 4
+   fields in a row on the account page; we let them flow vertically
+   in the modal but still want generous width). Tall content
+   scrolls inside the card so the page itself doesn't move. */
+.auth-modal.is-profile-step  { max-width: 580px; }
+.auth-view                   { display: block; }
+.auth-view[hidden]           { display: none !important; }
+
+.auth-view-profile .auth-title    { margin: 0 0 8px; }
+.auth-view-profile .auth-subtitle { margin: -2px 0 18px; }
+
+/* The slot the profile form lands in. Reuses the same .profile-form-v2
+   styling used on the account page so visuals are identical. */
+.auth-view-profile .auth-profile-slot { display: block; }
+
+/* Save + Skip row at the bottom of the profile step. Skip ghost-left,
+   Continue clay-right, mobile stacks if cramped. */
+.auth-profile-actions {
+  display: flex;
+  gap: 10px;
+  margin-top: 18px;
+  align-items: center;
+}
+.auth-profile-actions .btn:last-child { margin-left: auto; }
+@media (max-width: 460px) {
+  .auth-profile-actions {
+    flex-direction: column-reverse;
+    align-items: stretch;
+  }
+  .auth-profile-actions .btn { margin-left: 0 !important; }
+}
+
 /* ============================================================
    Account-page head variants — one row when signed in (h1 + sign-
    out), a welcome banner during onboarding, the old "fake account"

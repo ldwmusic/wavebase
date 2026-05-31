@@ -714,7 +714,14 @@ const WaveBaseAuthModal = (function () {
   let emailEl = null;
   let passwordEl = null;
   let tabsEl = null;
-  let mode = "login";    // "login" | "signup"
+  // Profile-view (step 2 after signup). Assigned in build().
+  let authViewEl     = null;  // .auth-view-auth   — login / signup form
+  let profileViewEl  = null;  // .auth-view-profile — full profile form
+  let profileSlot    = null;
+  let profileSkipBtn = null;
+  let profileContBtn = null;
+  let profileWired   = null;  // controller returned by WaveBaseProfileForm.wire()
+  let mode = "login";    // "login" | "signup" | "profile"
   let onSuccess = null;  // optional callback fired after a successful auth
 
   /* Build the DOM once. Re-opens just toggle visibility + reset
@@ -730,55 +737,75 @@ const WaveBaseAuthModal = (function () {
       <div class="auth-modal" role="dialog" aria-modal="true" aria-labelledby="auth-modal-title">
         <button type="button" class="auth-modal-close" aria-label="Close">&times;</button>
 
-        <div class="auth-modal-tabs" role="tablist">
-          <button type="button" class="auth-tab is-active" data-mode="login"  role="tab">Sign in</button>
-          <button type="button" class="auth-tab"            data-mode="signup" role="tab">Create account</button>
+        <!-- Login + Signup view (mode === "login" | "signup") -->
+        <div class="auth-view auth-view-auth">
+          <div class="auth-modal-tabs" role="tablist">
+            <button type="button" class="auth-tab is-active" data-mode="login"  role="tab">Sign in</button>
+            <button type="button" class="auth-tab"            data-mode="signup" role="tab">Create account</button>
+          </div>
+
+          <form class="auth-form" novalidate>
+            <h2 class="auth-title"    id="auth-modal-title">Sign in to WaveBase</h2>
+            <p  class="auth-subtitle">Save spots, plan trips, take your list with you.</p>
+
+            <label class="auth-field">
+              <span>Email</span>
+              <input type="email" name="email" required autocomplete="email" inputmode="email" autocapitalize="none" />
+            </label>
+
+            <label class="auth-field">
+              <span>Password</span>
+              <div class="auth-password-wrap">
+                <input type="password" name="password" required minlength="6" autocomplete="current-password" />
+                <button type="button" class="auth-password-toggle" aria-label="Show password" aria-pressed="false">
+                  <!-- Eye (currently hidden — click to show) -->
+                  <svg class="icon-show" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                    <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/>
+                    <circle cx="12" cy="12" r="3"/>
+                  </svg>
+                  <!-- Eye with slash (currently shown — click to hide) -->
+                  <svg class="icon-hide" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                    <path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"/>
+                    <line x1="1" y1="1" x2="23" y2="23"/>
+                  </svg>
+                </button>
+              </div>
+            </label>
+
+            <div class="auth-error" hidden></div>
+
+            <button type="submit" class="auth-submit">Sign in</button>
+
+            <p class="auth-footer">
+              <span class="auth-toggle-prompt">Don&rsquo;t have an account?</span>
+              <button type="button" class="auth-toggle-btn">Create one</button>
+            </p>
+
+            <p class="auth-fineprint">
+              By creating an account you agree to our
+              <a href="legal.html" target="_blank" rel="noopener">terms</a> and
+              <a href="privacy.html" target="_blank" rel="noopener">privacy</a>.
+              We store your email + a hashed password. We never sell it. You can delete the account any time.
+            </p>
+          </form>
         </div>
 
-        <form class="auth-form" novalidate>
-          <h2 class="auth-title"    id="auth-modal-title">Sign in to WaveBase</h2>
-          <p  class="auth-subtitle">Save spots, plan trips, take your list with you.</p>
-
-          <label class="auth-field">
-            <span>Email</span>
-            <input type="email" name="email" required autocomplete="email" inputmode="email" autocapitalize="none" />
-          </label>
-
-          <label class="auth-field">
-            <span>Password</span>
-            <div class="auth-password-wrap">
-              <input type="password" name="password" required minlength="6" autocomplete="current-password" />
-              <button type="button" class="auth-password-toggle" aria-label="Show password" aria-pressed="false">
-                <!-- Eye (currently hidden — click to show) -->
-                <svg class="icon-show" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-                  <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/>
-                  <circle cx="12" cy="12" r="3"/>
-                </svg>
-                <!-- Eye with slash (currently shown — click to hide) -->
-                <svg class="icon-hide" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-                  <path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"/>
-                  <line x1="1" y1="1" x2="23" y2="23"/>
-                </svg>
-              </button>
-            </div>
-          </label>
-
-          <div class="auth-error" hidden></div>
-
-          <button type="submit" class="auth-submit">Sign in</button>
-
-          <p class="auth-footer">
-            <span class="auth-toggle-prompt">Don&rsquo;t have an account?</span>
-            <button type="button" class="auth-toggle-btn">Create one</button>
-          </p>
-
-          <p class="auth-fineprint">
-            By creating an account you agree to our
-            <a href="legal.html" target="_blank" rel="noopener">terms</a> and
-            <a href="privacy.html" target="_blank" rel="noopener">privacy</a>.
-            We store your email + a hashed password. We never sell it. You can delete the account any time.
-          </p>
-        </form>
+        <!-- Profile view (mode === "profile") — step 2 of the popup
+             right after a successful signup. Form HTML is injected
+             by WaveBaseProfileForm.buildBlocksHTML() at open-time so
+             it always reflects the latest options + the user's
+             current localStorage profile (empty for a fresh signup,
+             pre-filled if they had typed anything as an anon visitor
+             before creating the account). -->
+        <div class="auth-view auth-view-profile" hidden>
+          <h2 class="auth-title">One last step — your <span class="ul">profile</span>.</h2>
+          <p class="auth-subtitle">Tell us a bit about yourself and the home page starts showing the right spots for your level and trip style. You can skip and add it later.</p>
+          <div class="auth-profile-slot profile-form-v2"></div>
+          <div class="auth-profile-actions">
+            <button type="button" class="btn ghost" data-action="skip">Skip for now</button>
+            <button type="button" class="btn"       data-action="continue">Save and continue &rarr;</button>
+          </div>
+        </div>
       </div>
     `;
 
@@ -786,8 +813,8 @@ const WaveBaseAuthModal = (function () {
 
     cardEl          = rootEl.querySelector(".auth-modal");
     formEl          = rootEl.querySelector(".auth-form");
-    titleEl         = rootEl.querySelector(".auth-title");
-    subtitleEl      = rootEl.querySelector(".auth-subtitle");
+    titleEl         = formEl.querySelector(".auth-title");
+    subtitleEl      = formEl.querySelector(".auth-subtitle");
     errorEl         = rootEl.querySelector(".auth-error");
     submitEl        = rootEl.querySelector(".auth-submit");
     footerPromptEl  = rootEl.querySelector(".auth-toggle-prompt");
@@ -795,6 +822,12 @@ const WaveBaseAuthModal = (function () {
     emailEl         = rootEl.querySelector('input[name="email"]');
     passwordEl      = rootEl.querySelector('input[name="password"]');
     tabsEl          = rootEl.querySelector(".auth-modal-tabs");
+    // Profile-view elements — the modal's step 2 after signup.
+    authViewEl     = rootEl.querySelector(".auth-view-auth");
+    profileViewEl  = rootEl.querySelector(".auth-view-profile");
+    profileSlot    = profileViewEl.querySelector(".auth-profile-slot");
+    profileSkipBtn = profileViewEl.querySelector('[data-action="skip"]');
+    profileContBtn = profileViewEl.querySelector('[data-action="continue"]');
 
     // Close: X button, backdrop click, Escape key.
     rootEl.querySelector(".auth-modal-close").addEventListener("click", close);
@@ -834,10 +867,68 @@ const WaveBaseAuthModal = (function () {
 
     // Submit handler.
     formEl.addEventListener("submit", onSubmit);
+
+    // Profile-step Skip + Continue. Both close the modal and land
+    // the user on account.html where their full account UI lives.
+    // Continue first flushes any pending debounced server-sync so
+    // we don't navigate with unsaved field edits in flight.
+    profileSkipBtn.addEventListener("click", function () {
+      close();
+      window.location.href = "account.html";
+    });
+    profileContBtn.addEventListener("click", async function () {
+      profileContBtn.disabled = true;
+      profileContBtn.textContent = "Saving…";
+      try {
+        if (profileWired && typeof profileWired.flushPendingSave === "function") {
+          await profileWired.flushPendingSave();
+        }
+      } catch (e) {
+        // Surface the error inside the modal so the user can retry
+        // without losing what they typed.
+        alert("Couldn't save your profile: " + (e.message || e));
+        profileContBtn.disabled = false;
+        profileContBtn.textContent = "Save and continue →";
+        return;
+      }
+      close();
+      window.location.href = "account.html";
+    });
   }
 
   function setMode(next) {
     mode = next;
+    if (mode === "profile") {
+      // Step 2 of the popup after a successful signup. Hide the
+      // email/password view, show the profile form, and widen the
+      // modal so the form blocks have room.
+      authViewEl.setAttribute("hidden", "");
+      profileViewEl.removeAttribute("hidden");
+      cardEl.classList.add("is-profile-step");
+      // Render the profile form inside the modal slot. Read fresh
+      // profile state — a brand-new account has empty defaults; a
+      // user who'd filled in profile fields as anon before signing
+      // up sees their previous answers pre-filled.
+      const p = WaveBaseAccount.getProfile();
+      profileSlot.innerHTML = WaveBaseProfileForm.buildBlocksHTML(p);
+      profileWired = WaveBaseProfileForm.wire(profileSlot, {
+        // No flash badge or progress pill in the modal — neither
+        // exists in this layout, and the auto-save is enough
+        // feedback (fields stay where the user puts them).
+      });
+      profileContBtn.disabled = false;
+      profileContBtn.textContent = "Save and continue →";
+      return;
+    }
+
+    // login / signup view
+    authViewEl.removeAttribute("hidden");
+    profileViewEl.setAttribute("hidden", "");
+    cardEl.classList.remove("is-profile-step");
+    // Tear down the wired profile form if we were in profile mode
+    // before — listeners stay until the slot is wiped on next render.
+    if (profileWired) profileWired = null;
+
     // Tab visual state
     tabsEl.querySelectorAll(".auth-tab").forEach(function (b) {
       b.classList.toggle("is-active", b.dataset.mode === mode);
@@ -900,31 +991,34 @@ const WaveBaseAuthModal = (function () {
 
     setBusy(true);
     try {
-      const user = (mode === "login")
-        ? await WaveBaseAuth.login({ email: email, password: password })
-        : await WaveBaseAuth.signup({ email: email, password: password });
-      // Success — close the modal and hand the user object to whoever
-      // opened the modal (e.g. so signup can route into the Profile
-      // step). If no callback was supplied, default to:
-      //   - signup → account.html?onboarding=1 (Profile-stap with Skip)
-      //   - login  → account.html              (their existing account)
+      const wasSignup = (mode === "signup");
+      const user = wasSignup
+        ? await WaveBaseAuth.signup({ email: email, password: password })
+        : await WaveBaseAuth.login({ email: email, password: password });
+
+      if (wasSignup) {
+        // Signup success → transition the SAME modal to its profile
+        // step. The user keeps the popup context (no page jump) and
+        // can fill in the form or hit Skip — both close the modal
+        // and land them on account.html.
+        setBusy(false);
+        setMode("profile");
+        if (typeof onSuccess === "function") {
+          try { onSuccess(user, "signup"); } catch (e) { console.error(e); }
+        }
+        return;
+      }
+
+      // Login success — close + navigate to the account page (or
+      // refresh if we're already there) so the user lands on their
+      // account UI.
       close();
       if (typeof onSuccess === "function") {
-        try { onSuccess(user, mode); } catch (e) { console.error(e); }
+        try { onSuccess(user, "login"); } catch (e) { console.error(e); }
       } else {
-        const dest = (mode === "signup")
-          ? "account.html?onboarding=1"
-          : "account.html";
-        // Only navigate if we're not already on the destination page.
-        // Avoids a full reload when the user opens the modal from the
-        // account page itself (e.g. via a "Sign in" prompt rendered
-        // there for anon visitors).
-        if (window.location.pathname.split("/").pop() !== "account.html"
-            || mode === "signup") {
-          window.location.href = dest;
+        if (window.location.pathname.split("/").pop() !== "account.html") {
+          window.location.href = "account.html";
         } else {
-          // Already on account.html and logging in — just refresh in
-          // place so the page picks up the new auth state.
           window.location.reload();
         }
       }

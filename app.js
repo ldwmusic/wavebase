@@ -5390,6 +5390,279 @@ const WAVEBASE_COUNTRIES = [
   "Vietnam", "Yemen", "Zambia", "Zimbabwe"
 ];
 
+/* ============================================================
+   WaveBaseProfileForm — extracted profile-form renderer so the same
+   4 prof-blocks work both on the account page (renderAccount) and
+   inside the auth modal's "profile" step (account.js).
+
+   Two methods:
+     buildBlocksHTML(p)
+       Returns the HTML for the 4 prof-blocks pre-filled from `p`
+       (a WaveBaseAccount-shaped profile object). No wrapper div,
+       no actions row — caller wraps + adds its own actions.
+
+     wire(rootEl, opts)
+       Wires up auto-save (localStorage every blur/change), debounced
+       server-sync when signed in, and the conditional discipline
+       fieldset show/hide. opts:
+         - onSavedFlash()    — called after each save (account page
+                               uses to flash the "✓ saved" badge)
+         - updateProgress()  — called after each save AND on input
+                               (account page uses to update the
+                               "Profile X% complete" pill live)
+         - serverSync (bool) — default true, set false to skip the
+                               PATCH /users/me/profile call
+       Returns { flushPendingSave } — call to force the debounced
+       server sync to fire now and get a promise back. Modal uses
+       this on the Continue button so the user isn't left with a
+       pending save mid-redirect.
+   ============================================================ */
+const WaveBaseProfileForm = (function () {
+  const SURF_TYPES = [
+    { key: "surfer",     label: "Surf"      },
+    { key: "windsurfer", label: "Windsurf"  },
+    { key: "kitesurfer", label: "Kitesurf"  },
+    { key: "wingfoiler", label: "Wing-foil" }
+  ];
+  const DISCIPLINES = [
+    { key: "freeride",  label: "Freeride"  },
+    { key: "wave",      label: "Wave"      },
+    { key: "freestyle", label: "Freestyle" },
+    { key: "slalom",    label: "Slalom"    }
+  ];
+  const TRAVEL_STYLES = [
+    { key: "Solo",    label: "Solo / chill"      },
+    { key: "Couple",  label: "With partner"      },
+    { key: "Family",  label: "Family with kids"  },
+    { key: "Friends", label: "Group of friends"  }
+  ];
+  const TRIP_PRIORITIES = [
+    { key: "wave-time",   label: "Wave time, lots of it"     },
+    { key: "lessons",     label: "Lessons / improvement"     },
+    { key: "vibe-food",   label: "Vibe, food, downtime"      },
+    { key: "hidden-gems", label: "Hidden gems"               },
+    { key: "affordable",  label: "Affordable / budget"       },
+    { key: "comfort",     label: "Comfort / a bit of luxury" }
+  ];
+  const FOUND_OPTS = [
+    "Friend / word of mouth", "Social media", "Search engine",
+    "Surf forum / community", "Press / article", "Other"
+  ];
+  const LEVEL_DESCS = {
+    beginner:     "Beginner — just starting out",
+    intermediate: "Intermediate — pop up, paddle out, ride the face",
+    advanced:     "Advanced — overhead, tubes, no-paddle takeoffs"
+  };
+  // Backend wants title-cased SurfLevel enum values.
+  const SURF_LEVEL_MAP = { beginner: "Beginner", intermediate: "Intermediate", advanced: "Advanced" };
+
+  function _esc(s) {
+    return (typeof escHTML === "function") ? escHTML(s) : String(s == null ? "" : s).replace(/[&<>"']/g, ch => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[ch]));
+  }
+  function _cb(name, items, selected) {
+    return items.map(it =>
+      `<label class="cb"><input type="checkbox" name="${name}" value="${it.key}" ${selected.indexOf(it.key) !== -1 ? "checked" : ""}> ${it.label}</label>`
+    ).join("");
+  }
+  function _readChecks(rootEl, name) {
+    return Array.from(rootEl.querySelectorAll('input[name="' + name + '"]:checked')).map(el => el.value);
+  }
+  function _buildApiPatch(rootEl) {
+    const get = id => rootEl.querySelector("#" + id);
+    const byr = parseInt(get("p-birthyear").value, 10);
+    return {
+      name:                (get("p-name").value || "").trim() || null,
+      birth_year:          Number.isFinite(byr) ? byr : null,
+      home_country:        get("p-country").value || null,
+      surf_types:          _readChecks(rootEl, "surfType"),
+      surf_level:          SURF_LEVEL_MAP[get("p-level").value] || null,
+      discipline:          _readChecks(rootEl, "discipline"),
+      travel_styles:       _readChecks(rootEl, "travelStyles"),
+      trip_priorities:     _readChecks(rootEl, "tripPriorities"),
+      how_did_you_find_us: get("p-found").value || null,
+    };
+  }
+
+  function buildBlocksHTML(p) {
+    p = p || {};
+    const levelOpts = Object.keys(LEVEL_DESCS).map(l =>
+      `<option value="${l}" ${p.level === l ? "selected" : ""}>${LEVEL_DESCS[l]}</option>`
+    ).join("");
+    const countryList = (typeof WAVEBASE_COUNTRIES !== "undefined") ? WAVEBASE_COUNTRIES : [];
+    const countryOpts = countryList.map(c =>
+      `<option value="${_esc(c)}" ${p.homeCountry === c ? "selected" : ""}>${_esc(c)}</option>`
+    ).join("");
+    const foundOpts = FOUND_OPTS.map(o =>
+      `<option value="${o}" ${p.howDidYouFindUs === o ? "selected" : ""}>${o}</option>`
+    ).join("");
+    const initialTravelStyles = (p.travelStyles && p.travelStyles.length)
+      ? p.travelStyles
+      : (p.travelStyle ? [p.travelStyle] : []);
+    const showDiscipline = (p.surfType || []).some(t => t === "windsurfer" || t === "kitesurfer" || t === "wingfoiler");
+
+    return `
+      <div class="prof-block prof-block-required">
+        <div class="prof-block-head">
+          <span class="prof-block-title">You</span>
+        </div>
+        <p class="prof-block-why">We need this to create your account.</p>
+        <div class="prof-block-fields">
+          <label class="prof-field"><span>Name</span><input type="text" id="p-name" value="${_esc(p.name || "")}" placeholder="Your name" autocomplete="name"></label>
+          <label class="prof-field"><span>Email</span><input type="email" id="p-email" value="${_esc(p.email || "")}" placeholder="you@example.com" autocomplete="email"></label>
+          <label class="prof-field"><span>Birth year</span><input type="number" id="p-birthyear" value="${_esc(p.birthYear || "")}" placeholder="1985" min="1920" max="2020" inputmode="numeric"></label>
+          <label class="prof-field"><span>Home base</span><select id="p-country" autocomplete="country-name"><option value="">— pick a country —</option>${countryOpts}</select></label>
+        </div>
+      </div>
+
+      <div class="prof-block prof-block-helps">
+        <div class="prof-block-head">
+          <span class="prof-block-title">Your surfing</span>
+          <span class="prof-block-tag">unlocks better matches</span>
+        </div>
+        <p class="prof-block-why">Fill this in and the homepage starts showing spots and centers that fit your level and gear — instead of all of them.</p>
+        <div class="prof-block-fields">
+          <div class="form-checkset form-wide" id="p-surftype-set">
+            <span class="form-checkset-label">What do you do? <span class="muted">(tick all that apply)</span></span>
+            <div class="form-checkset-options">${_cb("surfType", SURF_TYPES, p.surfType || [])}</div>
+          </div>
+          <label class="prof-field form-wide"><span>Level</span><select id="p-level"><option value="">—</option>${levelOpts}</select></label>
+          <div class="form-checkset form-wide ${showDiscipline ? "" : "hidden"}" id="p-discipline-set">
+            <span class="form-checkset-label">Wind discipline <span class="muted">(for wind / kite / wing)</span></span>
+            <div class="form-checkset-options">${_cb("discipline", DISCIPLINES, p.discipline || [])}</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="prof-block prof-block-helps">
+        <div class="prof-block-head">
+          <span class="prof-block-title">Trip kind</span>
+          <span class="prof-block-tag">unlocks better matches</span>
+        </div>
+        <p class="prof-block-why">Fill this in and the homepage shows trips that fit your style (family-friendly stays, hidden gems, budget-friendly...) instead of everything.</p>
+        <div class="prof-block-fields">
+          <div class="form-checkset form-wide" id="p-styles-set">
+            <span class="form-checkset-label">Travel style <span class="muted">(tick all that apply)</span></span>
+            <div class="form-checkset-options">${_cb("travelStyles", TRAVEL_STYLES, initialTravelStyles)}</div>
+          </div>
+          <div class="form-checkset form-wide" id="p-priorities-set">
+            <span class="form-checkset-label">What you want from a trip <span class="muted">(tick all that apply)</span></span>
+            <div class="form-checkset-options">${_cb("tripPriorities", TRIP_PRIORITIES, p.tripPriorities || [])}</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="prof-block prof-block-optional">
+        <div class="prof-block-head">
+          <span class="prof-block-title">One last thing</span>
+          <span class="prof-block-tag prof-block-tag-optional">optional</span>
+        </div>
+        <div class="prof-block-fields">
+          <label class="prof-field form-wide">
+            <span>How did you find WaveBase?</span>
+            <select id="p-found"><option value="">—</option>${foundOpts}</select>
+            <span class="prof-field-hint muted">Helps us know which channels are working.</span>
+          </label>
+        </div>
+      </div>
+    `;
+  }
+
+  function wire(rootEl, opts) {
+    opts = opts || {};
+    const authed = (typeof WaveBaseAuth !== "undefined") && WaveBaseAuth.isLoggedIn();
+    const doServerSync = (opts.serverSync !== false);
+    let serverSyncTimer = null;
+    const get = id => rootEl.querySelector("#" + id);
+
+    function localSave() {
+      // Spread current first so cut fields (yearsSurfing, currency,
+      // etc.) survive across saves through the new form shape.
+      const current = WaveBaseAccount.getProfile();
+      WaveBaseAccount.setProfile({
+        ...current,
+        name:            get("p-name").value,
+        email:           get("p-email").value,
+        birthYear:       get("p-birthyear").value,
+        homeCountry:     get("p-country").value,
+        level:           get("p-level").value,
+        travelStyles:    _readChecks(rootEl, "travelStyles"),
+        surfType:        _readChecks(rootEl, "surfType"),
+        discipline:      _readChecks(rootEl, "discipline"),
+        tripPriorities:  _readChecks(rootEl, "tripPriorities"),
+        howDidYouFindUs: get("p-found").value,
+      });
+      if (typeof updateNav === "function") updateNav();
+      if (typeof opts.onSavedFlash === "function") opts.onSavedFlash();
+      if (typeof opts.updateProgress === "function") opts.updateProgress();
+    }
+    function scheduleServerSync() {
+      if (!authed || !doServerSync || typeof WaveBaseAuth === "undefined") return;
+      if (serverSyncTimer) clearTimeout(serverSyncTimer);
+      serverSyncTimer = setTimeout(() => {
+        WaveBaseAuth.updateProfile(_buildApiPatch(rootEl)).catch(e => {
+          console.warn("[profile form] sync failed:", e.message || e);
+        });
+      }, 1500);
+    }
+    function save() { localSave(); scheduleServerSync(); }
+
+    function flushPendingSave() {
+      if (!authed || !doServerSync || typeof WaveBaseAuth === "undefined") {
+        return Promise.resolve(null);
+      }
+      if (serverSyncTimer) {
+        clearTimeout(serverSyncTimer);
+        serverSyncTimer = null;
+      }
+      return WaveBaseAuth.updateProfile(_buildApiPatch(rootEl));
+    }
+
+    // Text inputs: save on blur (avoid spamming localStorage per
+    // keystroke), live progress on input.
+    ["p-name", "p-email", "p-birthyear"].forEach(id => {
+      const el = get(id);
+      if (!el) return;
+      el.addEventListener("blur", save);
+      if (typeof opts.updateProgress === "function") {
+        el.addEventListener("input", opts.updateProgress);
+      }
+    });
+    // Selects: save on change.
+    ["p-country", "p-level", "p-found"].forEach(id => {
+      const el = get(id);
+      if (el) el.addEventListener("change", save);
+    });
+    // Checkboxes: save on change.
+    rootEl.querySelectorAll('input[name="surfType"], input[name="discipline"], input[name="travelStyles"], input[name="tripPriorities"]').forEach(cbEl => {
+      cbEl.addEventListener("change", save);
+    });
+
+    // Conditional Wind-discipline fieldset show/hide. Clears
+    // disciplines when hiding so stale data doesn't linger.
+    rootEl.querySelectorAll('input[name="surfType"]').forEach(cbEl => {
+      cbEl.addEventListener("change", () => {
+        const picked = _readChecks(rootEl, "surfType");
+        const show = picked.some(t => t === "windsurfer" || t === "kitesurfer" || t === "wingfoiler");
+        const set = get("p-discipline-set");
+        if (set) {
+          set.classList.toggle("hidden", !show);
+          if (!show) {
+            set.querySelectorAll('input[name="discipline"]:checked').forEach(c => { c.checked = false; });
+          }
+        }
+        if (typeof opts.updateProgress === "function") opts.updateProgress();
+      });
+    });
+
+    return { flushPendingSave: flushPendingSave };
+  }
+
+  return {
+    buildBlocksHTML: buildBlocksHTML,
+    wire:            wire,
+  };
+})();
+
 function renderAccount() {
   const root = document.getElementById("account-root");
   // Default: preserve the page scroll across the full re-render. Any
@@ -5431,66 +5704,10 @@ function renderAccount() {
     window.scrollTo(0, __sy);
   });
 
-  // Level descriptions live in the dropdown text — gives the user a real
-  // sense of what each level means without an extra UI element.
-  const levelDescs = {
-    beginner:     "Beginner — just starting out",
-    intermediate: "Intermediate — pop up, paddle out, ride the face",
-    advanced:     "Advanced — overhead, tubes, no-paddle takeoffs"
-  };
-  const levelOpts = ["beginner", "intermediate", "advanced"]
-    .map(l => `<option value="${l}" ${p.level === l ? "selected" : ""}>${levelDescs[l]}</option>`).join("");
-
-  // Travel style — now a multi-pick checkbox set (was a single dropdown).
-  // Keys stay the same as the old single-value labels so back-compat
-  // migration is trivial: if the user has the old `travelStyle` string
-  // set but no `travelStyles` array, treat the string as a one-item array.
-  const travelStyleOpts = [
-    { key: "Solo",    label: "Solo / chill"      },
-    { key: "Couple",  label: "With partner"      },
-    { key: "Family",  label: "Family with kids"  },
-    { key: "Friends", label: "Group of friends"  }
-  ];
-  const initialTravelStyles = (p.travelStyles && p.travelStyles.length)
-    ? p.travelStyles
-    : (p.travelStyle ? [p.travelStyle] : []);
-
-  // Home base: dropdown of all UN-recognised countries (list at module
-  // scope). Belgium-default behaviour comes from the user's own selection,
-  // not a hardcoded default — don't pre-pick anything for them.
-  const countryOpts = WAVEBASE_COUNTRIES
-    .map(c => `<option value="${escHTML(c)}" ${p.homeCountry === c ? "selected" : ""}>${escHTML(c)}</option>`).join("");
-
-  const foundOptsList = ["Friend / word of mouth", "Social media", "Search engine", "Surf forum / community", "Press / article", "Other"];
-  const foundOpts = foundOptsList
-    .map(o => `<option value="${o}" ${p.howDidYouFindUs === o ? "selected" : ""}>${o}</option>`).join("");
-
-  const surfTypes = [
-    { key: "surfer",     label: "Surf"      },
-    { key: "windsurfer", label: "Windsurf"  },
-    { key: "kitesurfer", label: "Kitesurf"  },
-    { key: "wingfoiler", label: "Wing-foil" }
-  ];
-  const disciplines = [
-    { key: "freeride",  label: "Freeride"  },
-    { key: "wave",      label: "Wave"      },
-    { key: "freestyle", label: "Freestyle" },
-    { key: "slalom",    label: "Slalom"    }
-  ];
-  // Trip priorities — multi-select. Replaces the older single-value
-  // tripIntent dropdown; existing tripIntent stays in storage (unused).
-  const tripPriorities = [
-    { key: "wave-time",    label: "Wave time, lots of it"     },
-    { key: "lessons",      label: "Lessons / improvement"     },
-    { key: "vibe-food",    label: "Vibe, food, downtime"      },
-    { key: "hidden-gems",  label: "Hidden gems"                },
-    { key: "affordable",   label: "Affordable / budget"       },
-    { key: "comfort",      label: "Comfort / a bit of luxury" }
-  ];
-  const showDiscipline = (p.surfType || []).some(t => t === "windsurfer" || t === "kitesurfer" || t === "wingfoiler");
-  const cb = (name, items, selected) => items.map(it =>
-    `<label class="cb"><input type="checkbox" name="${name}" value="${it.key}" ${selected.indexOf(it.key) !== -1 ? "checked" : ""}> ${it.label}</label>`
-  ).join("");
+  // Profile-form option arrays + HTML building are now owned by
+  // WaveBaseProfileForm so the modal can reuse them. renderAccount
+  // composes: header + WaveBaseProfileForm.buildBlocksHTML(p) +
+  // a page-specific actions row + the other account sections.
 
   // Profile completeness — drives the "Profile X% complete" pill and bar.
   // Counts only fields the user can actually fill in *right now* (so the
@@ -5662,71 +5879,9 @@ function renderAccount() {
       </div>
       <p class="muted lead-note">Helps us filter the site for you. Honest, anonymous, never shared.</p>
 
-      <div class="profile-form-v2">
+      <div class="profile-form-v2" id="profile-form-root">
 
-        <div class="prof-block prof-block-required">
-          <div class="prof-block-head">
-            <span class="prof-block-title">You</span>
-          </div>
-          <p class="prof-block-why">We need this to create your account.</p>
-          <div class="prof-block-fields">
-            <label class="prof-field"><span>Name</span><input type="text" id="p-name" value="${escHTML(p.name || "")}" placeholder="Your name" autocomplete="name"></label>
-            <label class="prof-field"><span>Email</span><input type="email" id="p-email" value="${escHTML(p.email || "")}" placeholder="you@example.com" autocomplete="email"></label>
-            <label class="prof-field"><span>Birth year</span><input type="number" id="p-birthyear" value="${escHTML(p.birthYear || "")}" placeholder="1985" min="1920" max="2020" inputmode="numeric"></label>
-            <label class="prof-field"><span>Home base</span><select id="p-country" autocomplete="country-name"><option value="">— pick a country —</option>${countryOpts}</select></label>
-          </div>
-        </div>
-
-        <div class="prof-block prof-block-helps">
-          <div class="prof-block-head">
-            <span class="prof-block-title">Your surfing</span>
-            <span class="prof-block-tag">unlocks better matches</span>
-          </div>
-          <p class="prof-block-why">Fill this in and the homepage starts showing spots and centers that fit your level and gear — instead of all of them.</p>
-          <div class="prof-block-fields">
-            <div class="form-checkset form-wide" id="p-surftype-set">
-              <span class="form-checkset-label">What do you do? <span class="muted">(tick all that apply)</span></span>
-              <div class="form-checkset-options">${cb("surfType", surfTypes, p.surfType || [])}</div>
-            </div>
-            <label class="prof-field form-wide"><span>Level</span><select id="p-level"><option value="">—</option>${levelOpts}</select></label>
-            <div class="form-checkset form-wide ${showDiscipline ? "" : "hidden"}" id="p-discipline-set">
-              <span class="form-checkset-label">Wind discipline <span class="muted">(for wind / kite / wing)</span></span>
-              <div class="form-checkset-options">${cb("discipline", disciplines, p.discipline || [])}</div>
-            </div>
-          </div>
-        </div>
-
-        <div class="prof-block prof-block-helps">
-          <div class="prof-block-head">
-            <span class="prof-block-title">Trip kind</span>
-            <span class="prof-block-tag">unlocks better matches</span>
-          </div>
-          <p class="prof-block-why">Fill this in and the homepage shows trips that fit your style (family-friendly stays, hidden gems, budget-friendly...) instead of everything.</p>
-          <div class="prof-block-fields">
-            <div class="form-checkset form-wide" id="p-styles-set">
-              <span class="form-checkset-label">Travel style <span class="muted">(tick all that apply)</span></span>
-              <div class="form-checkset-options">${cb("travelStyles", travelStyleOpts, initialTravelStyles)}</div>
-            </div>
-            <div class="form-checkset form-wide" id="p-priorities-set">
-              <span class="form-checkset-label">What you want from a trip <span class="muted">(tick all that apply)</span></span>
-              <div class="form-checkset-options">${cb("tripPriorities", tripPriorities, p.tripPriorities || [])}</div>
-            </div>
-          </div>
-        </div>
-
-        <div class="prof-block prof-block-optional">
-          <div class="prof-block-head">
-            <span class="prof-block-title">One last thing</span>
-            <span class="prof-block-tag prof-block-tag-optional">optional</span>
-          </div>
-          <div class="prof-block-fields">
-            <label class="prof-field form-wide">
-              <span>How did you find WaveBase?</span>
-              <select id="p-found"><option value="">—</option>${foundOpts}</select>
-              <span class="prof-field-hint muted">Helps us know which channels are working.</span>
-            </label>
-          </div>
-        </div>
+        ${WaveBaseProfileForm.buildBlocksHTML(p)}
 
         <div class="prof-actions">
           ${isOnboarding
@@ -5773,69 +5928,13 @@ function renderAccount() {
     ` : ``}
     `}`;
 
+  // readChecks helper for the calcCompleteness call below — the
+  // form's own checkboxes are read by WaveBaseProfileForm.wire(),
+  // but updateProgressDisplay still needs to peek at the DOM to
+  // compute live completeness without going through a save.
   const readChecks = name => Array.from(
-    document.querySelectorAll(`input[name="${name}"]:checked`)
+    document.querySelectorAll('input[name="' + name + '"]:checked')
   ).map(el => el.value);
-
-  // Auto-save: text inputs save on blur, selects + checkboxes save on
-  // change. No explicit Save button, no alert popup — just a subtle
-  // "✓ saved" badge that fades and a live "Profile X% complete" pill.
-  // Cut fields (yearsSurfing, boardType, tripIntent, currency) are
-  // preserved by spreading the current profile, so existing saved
-  // data isn't wiped when we save through the new shape.
-  //
-  // When the user is signed in, we ALSO push the profile to the API
-  // via PATCH /users/me/profile — debounced 1.5s so a flurry of
-  // keystrokes turns into one request, not twenty. Failure is
-  // silent (logged to console only): localStorage is the offline
-  // truth and the next successful sync will catch the server up.
-  let _serverSyncTimer = null;
-  const SURF_LEVEL_MAP = { beginner: "Beginner", intermediate: "Intermediate", advanced: "Advanced" };
-
-  const saveProfile = () => {
-    const current = WaveBaseAccount.getProfile();
-    WaveBaseAccount.setProfile({
-      ...current,
-      name:            document.getElementById("p-name").value,
-      email:           document.getElementById("p-email").value,
-      birthYear:       document.getElementById("p-birthyear").value,
-      homeCountry:     document.getElementById("p-country").value,
-      level:           document.getElementById("p-level").value,
-      travelStyles:    readChecks("travelStyles"),
-      surfType:        readChecks("surfType"),
-      discipline:      readChecks("discipline"),
-      tripPriorities:  readChecks("tripPriorities"),
-      howDidYouFindUs: document.getElementById("p-found").value
-    });
-    updateNav();
-    flashSaved();
-    updateProgressDisplay();
-
-    // Debounced server sync for signed-in users. Sends every
-    // profile field the backend tracks (all of them as of v=331).
-    // PATCH /users/me/profile uses exclude_unset so server-side
-    // we only touch fields whose JSON key is present here.
-    if (authed && typeof WaveBaseAuth !== "undefined") {
-      if (_serverSyncTimer) clearTimeout(_serverSyncTimer);
-      _serverSyncTimer = setTimeout(() => {
-        const byr = parseInt(document.getElementById("p-birthyear").value, 10);
-        const patch = {
-          name:                (document.getElementById("p-name").value || "").trim() || null,
-          birth_year:          Number.isFinite(byr) ? byr : null,
-          home_country:        document.getElementById("p-country").value || null,
-          surf_types:          readChecks("surfType"),
-          surf_level:          SURF_LEVEL_MAP[document.getElementById("p-level").value] || null,
-          discipline:          readChecks("discipline"),
-          travel_styles:       readChecks("travelStyles"),
-          trip_priorities:     readChecks("tripPriorities"),
-          how_did_you_find_us: document.getElementById("p-found").value || null,
-        };
-        WaveBaseAuth.updateProfile(patch).catch(e => {
-          console.warn("[account] Profile sync to server failed:", e.message || e);
-        });
-      }, 1500);
-    }
-  };
 
   let _savedTimer = null;
   const flashSaved = () => {
@@ -5871,41 +5970,23 @@ function renderAccount() {
     if (label) label.textContent = `Profile ${pct}% complete`;
   };
 
-  // Wire up auto-save + live progress on every field.
-  // Text inputs save on blur (so we don't spam localStorage per keystroke)
-  // but update the live progress on every input event.
-  ["p-name", "p-email", "p-birthyear"].forEach(id => {
-    const el = document.getElementById(id);
-    if (!el) return;
-    el.addEventListener("blur", saveProfile);
-    el.addEventListener("input", updateProgressDisplay);
-  });
-  // Selects + checkboxes save immediately on change.
-  ["p-country", "p-level", "p-found"].forEach(id => {
-    const el = document.getElementById(id);
-    if (el) el.addEventListener("change", saveProfile);
-  });
-  document.querySelectorAll('input[name="surfType"], input[name="discipline"], input[name="travelStyles"], input[name="tripPriorities"]').forEach(cbEl => {
-    cbEl.addEventListener("change", saveProfile);
-  });
-
-  // Toggle Wind-discipline fieldset live when surfType selection changes.
-  // If we're hiding it, also clear any ticked disciplines so stale data
-  // doesn't linger in storage from a previous wind/kite session.
-  document.querySelectorAll('input[name="surfType"]').forEach(cbEl => {
-    cbEl.addEventListener("change", () => {
-      const picked = readChecks("surfType");
-      const show = picked.some(t => t === "windsurfer" || t === "kitesurfer" || t === "wingfoiler");
-      const set = document.getElementById("p-discipline-set");
-      set.classList.toggle("hidden", !show);
-      if (!show) {
-        set.querySelectorAll('input[name="discipline"]:checked').forEach(c => { c.checked = false; });
-      }
-      // Recompute progress — hiding/showing discipline changes the
-      // "total fields" denominator.
-      updateProgressDisplay();
+  // Wire the profile-form via the shared module so the account page
+  // and the modal stay in sync. The module handles all the field
+  // listeners (auto-save to localStorage on blur/change, debounced
+  // server sync when signed in, conditional Wind-discipline show/
+  // hide). We pass the flash + progress callbacks that are unique
+  // to this page.
+  const profileFormRoot = document.getElementById("profile-form-root");
+  if (profileFormRoot && typeof WaveBaseProfileForm !== "undefined") {
+    const wired = WaveBaseProfileForm.wire(profileFormRoot, {
+      onSavedFlash:   flashSaved,
+      updateProgress: updateProgressDisplay,
+      // serverSync defaults to true; gated server-side by authed
     });
-  });
+    // Stash the wired controller on the form node so the onboarding
+    // Continue handler can call flushPendingSave() before navigating.
+    profileFormRoot.__wbWired = wired;
+  }
 
   // Reset button — confirm, then clear profile fields (keeps the
   // user's saved spots, trips and reviews untouched). Hidden in
@@ -5936,34 +6017,17 @@ function renderAccount() {
 
   const continueBtn = document.getElementById("p-continue");
   if (continueBtn) continueBtn.addEventListener("click", async () => {
-    // Flush the latest form values into localStorage first — same
-    // path as the auto-save uses, so the local profile and the
-    // server profile stay aligned.
-    saveProfile();
-
-    // SurfLevel enum on the backend is title-cased ("Beginner" etc.)
-    // — the local select uses lowercase. Map only if a value is set,
-    // so we don't send "null" or an empty string.
-    const lvl = document.getElementById("p-level").value;
-    const surfLevelMap = { beginner: "Beginner", intermediate: "Intermediate", advanced: "Advanced" };
-
-    const byr = parseInt(document.getElementById("p-birthyear").value, 10);
-    const patch = {
-      name:                document.getElementById("p-name").value.trim()    || null,
-      birth_year:          Number.isFinite(byr)                              ? byr : null,
-      home_country:        document.getElementById("p-country").value        || null,
-      surf_types:          readChecks("surfType"),
-      surf_level:          surfLevelMap[lvl]                                 || null,
-      discipline:          readChecks("discipline"),
-      travel_styles:       readChecks("travelStyles"),
-      trip_priorities:     readChecks("tripPriorities"),
-      how_did_you_find_us: document.getElementById("p-found").value          || null,
-    };
-
+    // Force the debounced server-sync to fire NOW (it'd otherwise
+    // wait 1.5s after the last field change, which we can't afford
+    // because we're about to navigate away). flushPendingSave is
+    // exposed by WaveBaseProfileForm.wire() via the stashed wired
+    // controller.
     continueBtn.disabled = true;
     continueBtn.textContent = "Saving…";
     try {
-      if (authed) await WaveBaseAuth.updateProfile(patch);
+      if (profileFormRoot && profileFormRoot.__wbWired) {
+        await profileFormRoot.__wbWired.flushPendingSave();
+      }
     } catch (e) {
       alert("Couldn't save your profile: " + (e.message || e));
       continueBtn.disabled = false;
