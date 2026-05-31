@@ -331,7 +331,10 @@ const WaveBaseAccount = (function () {
       for (const lid of Array.from(localSet)) {
         if (!serverSet.has(lid)) _syncSurfedToServer(lid, "add");
       }
-      if (changed) write(s);
+      if (changed) {
+        write(s);
+        try { window.dispatchEvent(new CustomEvent("wavebase:surfed-changed")); } catch (e) {}
+      }
     },
 
     /* trips */
@@ -498,7 +501,10 @@ const WaveBaseAccount = (function () {
         if (!t.serverId) _scheduleTripSync(t.id);
       });
 
-      if (changed) write(s);
+      if (changed) {
+        write(s);
+        try { window.dispatchEvent(new CustomEvent("wavebase:trips-changed")); } catch (e) {}
+      }
     },
 
     /* reviews — local previews of submissions. Persist the full review

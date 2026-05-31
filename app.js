@@ -8021,6 +8021,27 @@ window.addEventListener("wavebase:data-ready", () => {
   if (document.getElementById("continent-root")) initContinent();
 });
 
+// Re-render the visible page when a server-sync brings in new items.
+// syncSavedFromServer / syncSurfedFromServer / syncTripsFromServer are
+// async — they fetch + merge AFTER renderAccount has already drawn the
+// initial state. Without these listeners the user's new spots / trips
+// from another device only appear after a manual refresh.
+//
+// Account page is the obvious one (it lists saved + trips + surf log
+// + reviews). Compare page also reads getSaved. Other pages don't show
+// these lists directly.
+function _reRenderForChange() {
+  if (document.getElementById("account-root") && typeof renderAccount === "function") {
+    renderAccount();
+  }
+  if (document.getElementById("compare-root") && typeof renderCompare === "function") {
+    renderCompare();
+  }
+  if (typeof updateNav === "function") updateNav();
+}
+["wavebase:saved-changed", "wavebase:surfed-changed", "wavebase:trips-changed"]
+  .forEach(name => window.addEventListener(name, _reRenderForChange));
+
 /* Drop saved / compare / surfed entries whose IDs no longer resolve
    to anything in WAVEBASE_DATA. Self-healing: runs once per page
    load after data is ready, so a phantom badge ("Compare (2)" with
