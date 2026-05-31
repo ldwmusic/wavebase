@@ -2251,7 +2251,11 @@ function runSearch() {
     const matches = WAVEBASE_DATA.filter(e => {
       if (!searchMatch(e, query)) return false;
       if (!sportIsAll && !sports.some(s => entrySports(e).includes(s))) return false;
-      const okL = level === "all" || e.levels.includes(level);
+      // Stays (guesthouses) host every level — filtering them by the
+      // user's wave skill makes no sense and just hides options for
+      // advanced surfers (LDW May 2026). Same in the country/sport
+      // browse path below.
+      const okL = level === "all" || e.type === "stay" || e.levels.includes(level);
       const okM = month === "all" || e.goodMonths.includes(parseInt(month, 10));
       const okT = type === "all" || e.type === type;
       return okL && okM && okT && passesPriceFilter(e);
@@ -2343,7 +2347,9 @@ function runSearch() {
   // browsing the full inventory while knowing what's actually peaking.
   const monthInt = parseInt(month, 10);
   const passLevelType = e => {
-    const okL = level === "all" || e.levels.includes(level);
+    // Stays bypass the level filter — guesthouses host every level
+    // (see comment in the free-text-search branch above).
+    const okL = level === "all" || e.type === "stay" || e.levels.includes(level);
     const okT = type === "all" || e.type === type;
     return okL && okT && passesPriceFilter(e);
   };
