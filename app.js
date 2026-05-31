@@ -5578,9 +5578,46 @@ function renderAccount() {
       }).join("")}</ul>`
     : `<p class="muted">No reviews yet. Use any spot, center or stay page — the review form at the bottom saves a preview here.</p>`;
 
+  // Auth state — drives the page chrome (h1 + lead note + sign-out
+  // button) and the onboarding flow. `isOnboarding` is set when the
+  // user just signed up: ?onboarding=1 is appended by the auth modal
+  // before redirecting here. In that mode we trim away saved/trips/
+  // reviews so the user only sees the profile form they're meant to
+  // fill (or skip).
+  const isOnboarding = new URLSearchParams(window.location.search).get("onboarding") === "1";
+  const authed       = (typeof WaveBaseAuth !== "undefined") && WaveBaseAuth.isLoggedIn();
+  const authUser     = authed ? WaveBaseAuth.currentUser() : null;
+  const authEmail    = (authUser && authUser.email) || "";
+
+  // Three head variants:
+  //   1. Onboarding   — welcome banner, no signed-in-as line (it'd be
+  //                     redundant with the email they just typed)
+  //   2. Logged in    — "My WaveBase" + signed-in-as line + Sign out
+  //   3. Anonymous    — old "fake account" lead note + Sign in CTA
+  const headHTML = isOnboarding
+    ? `<div class="acc-onboard-head">
+         <p class="kicker">Welcome to WaveBase</p>
+         <h1>One last step — your <span class="ul">profile</span>.</h1>
+         <p class="lead-note acc-onboard-lead">
+           Tell us a bit about yourself and the home page starts showing the right
+           spots for your level and trip style. You can skip it and add it later.
+         </p>
+       </div>`
+    : authed
+      ? `<div class="acc-head-row">
+           <h1>My WaveBase</h1>
+           <div class="acc-head-meta">
+             <span class="muted">Signed in as <strong>${escHTML(authEmail)}</strong></span>
+             <button type="button" class="btn ghost btn-quiet" id="acc-signout">Sign out</button>
+           </div>
+         </div>`
+      : `<h1>My WaveBase</h1>
+         <p class="muted lead-note">Everything below is stored locally in your browser.
+            <a href="#" id="acc-signin-link">Sign in or create an account</a>
+            to keep your saved spots and trips across devices.</p>`;
+
   root.innerHTML = `
-    <h1>My WaveBase</h1>
-    <p class="muted lead-note">This is a fake account — everything is stored locally in your browser. There's no real login or server yet; that's phase 2.</p>
+    ${headHTML}
 
     <section class="acc-block">
       <div class="prof-head">
@@ -5662,12 +5699,17 @@ function renderAccount() {
         </div>
 
         <div class="prof-actions">
-          <span class="muted prof-autosave-hint">Auto-saves as you type.</span>
-          <button type="button" class="btn ghost" id="p-reset">Reset profile</button>
+          ${isOnboarding
+            ? `<button type="button" class="btn ghost" id="p-skip">Skip for now</button>
+               <button type="button" class="btn"       id="p-continue">Save and continue &rarr;</button>`
+            : `<span class="muted prof-autosave-hint">Auto-saves as you type${authed ? " &middot; synced to your account" : ""}.</span>
+               <button type="button" class="btn ghost" id="p-reset">Reset profile</button>`
+          }
         </div>
       </div>
     </section>
 
+    ${isOnboarding ? "" : `
     ${surfLogHTML()}
 
     <section class="acc-block">
@@ -5689,7 +5731,8 @@ function renderAccount() {
       <p class="muted form-note">Previews of reviews you wrote — saved locally on this device.
         They'll turn into real, shared reviews when the backend is live (phase 2).</p>
       ${reviewsHTML}
-    </section>`;
+    </section>
+    `}`;
 
   const readChecks = name => Array.from(
     document.querySelectorAll(`input[name="${name}"]:checked`)
@@ -5701,6 +5744,15 @@ function renderAccount() {
   // Cut fields (yearsSurfing, boardType, tripIntent, currency) are
   // preserved by spreading the current profile, so existing saved
   // data isn't wiped when we save through the new shape.
+  //
+  // When the user is signed in, we ALSO push the profile to the API
+  // via PATCH /users/me/profile — debounced 1.5s so a flurry of
+  // keystrokes turns into one request, not twenty. Failure is
+  // silent (logged to console only): localStorage is the offline
+  // truth and the next successful sync will catch the server up.
+  let _serverSyncTimer = null;
+  const SURF_LEVEL_MAP = { beginner: "Beginner", intermediate: "Intermediate", advanced: "Advanced" };
+
   const saveProfile = () => {
     const current = WaveBaseAccount.getProfile();
     WaveBaseAccount.setProfile({
@@ -5719,6 +5771,27 @@ function renderAccount() {
     updateNav();
     flashSaved();
     updateProgressDisplay();
+
+    // Debounced server sync for signed-in users. We only push the
+    // fields the backend understands (it doesn't yet have columns
+    // for travelStyles / tripPriorities / etc. — those are added in
+    // a later task and stay localStorage-only for now).
+    if (authed && typeof WaveBaseAuth !== "undefined") {
+      if (_serverSyncTimer) clearTimeout(_serverSyncTimer);
+      _serverSyncTimer = setTimeout(() => {
+        const byr = parseInt(document.getElementById("p-birthyear").value, 10);
+        const patch = {
+          name:         (document.getElementById("p-name").value || "").trim() || null,
+          birth_year:   Number.isFinite(byr) ? byr : null,
+          home_country: document.getElementById("p-country").value || null,
+          surf_types:   readChecks("surfType"),
+          surf_level:   SURF_LEVEL_MAP[document.getElementById("p-level").value] || null,
+        };
+        WaveBaseAuth.updateProfile(patch).catch(e => {
+          console.warn("[account] Profile sync to server failed:", e.message || e);
+        });
+      }, 1500);
+    }
   };
 
   let _savedTimer = null;
@@ -5792,8 +5865,10 @@ function renderAccount() {
   });
 
   // Reset button — confirm, then clear profile fields (keeps the
-  // user's saved spots, trips and reviews untouched).
-  document.getElementById("p-reset").addEventListener("click", () => {
+  // user's saved spots, trips and reviews untouched). Hidden in
+  // onboarding mode (replaced by Skip + Continue), so null-guard.
+  const resetBtn = document.getElementById("p-reset");
+  if (resetBtn) resetBtn.addEventListener("click", () => {
     if (!confirm("Reset your profile? This clears all the fields above.\n\n(Your saved spots, trips and reviews stay safe.)")) return;
     const current = WaveBaseAccount.getProfile();
     WaveBaseAccount.setProfile({
@@ -5806,7 +5881,72 @@ function renderAccount() {
     updateNav();
     renderAccount();
   });
-  document.getElementById("new-trip").addEventListener("click", () => {
+
+  // Onboarding-only: Skip + Continue. Skip just navigates home; Continue
+  // pushes the form values to the server (PATCH /users/me/profile) and
+  // then navigates home. We map our local UI shape (camelCase, plain
+  // strings) to the API's snake_case + capitalised enum values.
+  const skipBtn = document.getElementById("p-skip");
+  if (skipBtn) skipBtn.addEventListener("click", () => {
+    window.location.href = "index.html";
+  });
+
+  const continueBtn = document.getElementById("p-continue");
+  if (continueBtn) continueBtn.addEventListener("click", async () => {
+    // Flush the latest form values into localStorage first — same
+    // path as the auto-save uses, so the local profile and the
+    // server profile stay aligned.
+    saveProfile();
+
+    // SurfLevel enum on the backend is title-cased ("Beginner" etc.)
+    // — the local select uses lowercase. Map only if a value is set,
+    // so we don't send "null" or an empty string.
+    const lvl = document.getElementById("p-level").value;
+    const surfLevelMap = { beginner: "Beginner", intermediate: "Intermediate", advanced: "Advanced" };
+
+    const byr = parseInt(document.getElementById("p-birthyear").value, 10);
+    const patch = {
+      name:          document.getElementById("p-name").value.trim()    || null,
+      birth_year:    Number.isFinite(byr)                              ? byr : null,
+      home_country:  document.getElementById("p-country").value        || null,
+      surf_types:    readChecks("surfType"),
+      surf_level:    surfLevelMap[lvl]                                 || null,
+    };
+
+    continueBtn.disabled = true;
+    continueBtn.textContent = "Saving…";
+    try {
+      if (authed) await WaveBaseAuth.updateProfile(patch);
+    } catch (e) {
+      alert("Couldn't save your profile: " + (e.message || e));
+      continueBtn.disabled = false;
+      continueBtn.textContent = "Save and continue →";
+      return;
+    }
+    window.location.href = "index.html";
+  });
+
+  // Sign-out button (shown when logged in, non-onboarding).
+  const signoutBtn = document.getElementById("acc-signout");
+  if (signoutBtn) signoutBtn.addEventListener("click", () => {
+    if (!confirm("Sign out of WaveBase?")) return;
+    if (typeof WaveBaseAuth !== "undefined") WaveBaseAuth.logout();
+    window.location.reload();
+  });
+
+  // "Sign in or create an account" link in the anon-on-account-page
+  // lead note. Opens the modal instead of navigating to itself.
+  const signinLink = document.getElementById("acc-signin-link");
+  if (signinLink) signinLink.addEventListener("click", (ev) => {
+    ev.preventDefault();
+    if (typeof WaveBaseAuthModal !== "undefined") {
+      WaveBaseAuthModal.open({ mode: "login" });
+    }
+  });
+
+  // + New trip button — hidden in onboarding mode, so null-guard.
+  const newTripBtn = document.getElementById("new-trip");
+  if (newTripBtn) newTripBtn.addEventListener("click", () => {
     const name = window.prompt("Name your new trip:");
     if (name) {
       const nt = WaveBaseAccount.addTrip(name);

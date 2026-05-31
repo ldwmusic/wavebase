@@ -270,9 +270,27 @@ function _apiToFrontendTown(t) {
     return;
   }
 
-  // Step 4: build api-id → slug map for resolving linkedSpotId on centers/stays.
+  // Step 4: build the two cross-boundary id maps and expose them on
+  // window so other modules can translate IDs across the slug/UUID
+  // boundary. account.js uses these when syncing saved-spots: it
+  // stores slugs in localStorage but needs the API UUID when POSTing
+  // to /users/me/saved-spots/{spot_id}. Same problem in reverse on
+  // the way back (GET returns UUIDs; we need slugs to render).
   const slugByApiId = {};
-  (spots || []).forEach(s => { slugByApiId[s.id] = slugByName[s.name] || s.id; });
+  const apiIdBySlug = {};
+  function _registerIdPair(apiId, name) {
+    const slug = slugByName[name] || apiId;
+    slugByApiId[apiId] = slug;
+    apiIdBySlug[slug]  = apiId;
+  }
+  (spots   || []).forEach(s => _registerIdPair(s.id, s.name));
+  // Centers + stays go in the same maps — the saved-spots endpoint
+  // accepts any entry-id and Lode will likely save those too in v2.
+  // Doing it now means we don't have to revisit this mapper later.
+  (centers || []).forEach(c => _registerIdPair(c.id, c.name));
+  (stays   || []).forEach(s => _registerIdPair(s.id, s.name));
+  window.WAVEBASE_SLUG_BY_API_ID = slugByApiId;
+  window.WAVEBASE_API_ID_BY_SLUG = apiIdBySlug;
 
   // Step 5: assemble the global data the rest of app.js consumes.
   WAVEBASE_DATA = [

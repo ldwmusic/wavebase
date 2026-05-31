@@ -14,7 +14,7 @@
   <meta name="description" content="What WaveBase collects, why, how long, and how to opt out. Plain English.">
   <meta name="robots" content="index, follow">
   <link rel="canonical" href="https://wavebase.lode-b162.workers.dev/privacy.html">
-  <link rel="stylesheet" href="styles.css?v=329">
+  <link rel="stylesheet" href="styles.css?v=330">
 </head>
 <body class="is-home">
 
@@ -49,10 +49,10 @@
     <section class="wrap about-section">
       <h2>The short version</h2>
       <ul class="about-list">
-        <li><strong>Your saved places, trips and compare list</strong> live in your browser only (<code>localStorage</code>). They never reach our servers.</li>
+        <li><strong>You can use WaveBase without an account.</strong> Saved places, trips and compare list then live in your browser only (<code>localStorage</code>) and never reach our servers.</li>
+        <li><strong>If you do create an account</strong>, we store your email, a hashed password, optional profile fields you choose to fill in, and your saved spots — so they follow you across devices. We never sell that data.</li>
         <li><strong>Anonymous traffic stats</strong> via Cloudflare Web Analytics — no cookies, no personal profiles. You can switch this off in the cookie banner or via the footer link.</li>
         <li><strong>No third-party trackers</strong>. No Google Analytics, no Facebook Pixel, no remarketing.</li>
-        <li><strong>No selling of personal data</strong> to brokers, advertisers, or anyone else.</li>
       </ul>
     </section>
 
@@ -75,8 +75,14 @@
       <p>If you reject analytics (in the cookie banner or via "Cookie preferences" in the footer), we don't load the Cloudflare beacon at all from that point on. Your visit becomes invisible to us.</p>
       <p>Legal basis: your consent (Art. 6(1)(a) GDPR), withdrawable at any time.</p>
 
-      <h3 class="ab-h3">3. Email and account data (when you make an account)</h3>
-      <p>WaveBase doesn't yet offer real user accounts. When that ships (Phase 2), creating an account will mean providing an email address and optionally a few profile details (surf level, preferred sport, etc.) so we can tailor recommendations. We'll update this page before that goes live, and ask for fresh consent.</p>
+      <h3 class="ab-h3">3. Email and account data (optional)</h3>
+      <p>You can use WaveBase without an account. If you choose to create one (via "Login" in the header), here's what we store on our server:</p>
+      <ul class="about-list">
+        <li><strong>Required:</strong> your email address and a <em>hashed</em> password (we use bcrypt &mdash; we never see your plaintext password and can't recover it).</li>
+        <li><strong>Optional, you can skip these:</strong> your name, birth year, home country, sports you do, your surf level. These help us tailor recommendations on the home page but aren't shared with anyone else.</li>
+        <li><strong>Synced from your browser:</strong> the spots you save with the heart icon get synced to your account so they follow you across devices. Your trips, your "Surfed it" log, your reviews and your travel-style preferences currently stay on your device only &mdash; we may sync more in future versions and will tell you here when that changes.</li>
+      </ul>
+      <p>Legal basis: contract (Art. 6(1)(b) GDPR) for the data needed to provide the account, and your consent (Art. 6(1)(a) GDPR) for optional profile fields. You can delete your account any time by emailing <a href="mailto:info@wavebase.com">info@wavebase.com</a> &mdash; we&rsquo;ll wipe the account record and its saved-spots from the database within 30 days (a self-service delete button is on our roadmap).</p>
 
       <h3 class="ab-h3">4. Affiliate links (no data shared by us)</h3>
       <p>Some "Book now" buttons on the site link to partners like Booking.com or stay-property websites. When you click such a link, the partner's site sets its own cookies and processes data according to its own privacy policy. We earn a small commission if you book through them; we never share your personal data with them beyond what you actively send by clicking the link and continuing on their site.</p>
@@ -112,9 +118,10 @@
     <section class="wrap about-section">
       <h2>How long we keep things</h2>
       <ul class="about-list">
-        <li><strong>localStorage data</strong> (saved places, trips): as long as you keep it &mdash; you control it from your browser settings.</li>
+        <li><strong>localStorage data</strong> (saved places, trips, profile when not signed in): as long as you keep it &mdash; you control it from your browser settings.</li>
+        <li><strong>Account data</strong> (email, hashed password, optional profile fields, saved spots): kept for as long as your account exists. Deleted within 30 days of you asking us to delete your account.</li>
         <li><strong>Cloudflare Web Analytics</strong>: Cloudflare retains anonymous aggregate metrics for about 6 months by default.</li>
-        <li><strong>Server logs</strong>: short-term (days to a few weeks) per Cloudflare's standard retention.</li>
+        <li><strong>Server logs</strong>: short-term (days to a few weeks) per Cloudflare's and Render's standard retention.</li>
       </ul>
     </section>
 
@@ -122,7 +129,9 @@
       <h2>Who else sees your data (processors)</h2>
       <p>We use the following service providers ("processors") to run the site:</p>
       <ul class="about-list">
-        <li><strong>Cloudflare, Inc.</strong> (USA, with EU data centres) &mdash; hosting and analytics. Cloudflare is bound by Standard Contractual Clauses for EU data transfers and is certified under the EU-U.S. Data Privacy Framework.</li>
+        <li><strong>Cloudflare, Inc.</strong> (USA, with EU data centres) &mdash; hosting of the frontend pages and anonymous analytics. Cloudflare is bound by Standard Contractual Clauses for EU data transfers and is certified under the EU-U.S. Data Privacy Framework.</li>
+        <li><strong>Render Services, Inc.</strong> (USA) &mdash; hosting of our API server (the part that handles your account, login and saved spots). Render is bound by Standard Contractual Clauses for EU data transfers. Used only if you create an account.</li>
+        <li><strong>MongoDB, Inc. / MongoDB Atlas</strong> (managed cloud database) &mdash; storage for account records and saved-spots. Bound by Standard Contractual Clauses for EU data transfers. Used only if you create an account.</li>
         <li><strong>GitHub</strong> &mdash; we store the site's source code (no visitor data).</li>
       </ul>
     </section>
@@ -134,8 +143,8 @@
 
     <section class="wrap about-section">
       <h2>Changes to this policy</h2>
-      <p>If we update this policy &mdash; for example when accounts launch in Phase 2 or when we add new processors &mdash; we'll bump the "Last updated" date below and explain what changed.</p>
-      <p class="muted">Last updated: <strong>May 2026</strong>.</p>
+      <p>If we update this policy &mdash; for example when we sync more of your data to your account or add new processors &mdash; we'll bump the "Last updated" date below and explain what changed.</p>
+      <p class="muted">Last updated: <strong>May 2026</strong> &mdash; added account-creation flow (email + password) and the related processors (Render, MongoDB Atlas).</p>
     </section>
 
     <section class="wrap about-section about-cta">
@@ -156,9 +165,9 @@
     </div>
   </footer>
 
-  <script src="constants.js?v=329"></script>
-  <script src="account.js?v=329"></script>
-  <script src="app.js?v=329"></script>
-  <script src="api-client.js?v=329"></script>
+  <script src="constants.js?v=330"></script>
+  <script src="account.js?v=330"></script>
+  <script src="app.js?v=330"></script>
+  <script src="api-client.js?v=330"></script>
 </body>
 </html>

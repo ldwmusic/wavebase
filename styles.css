@@ -5619,3 +5619,216 @@ button.rml-key.off .rml-dot {
 .discover-country-sub {
   margin: 4px 0 0; font-size: 14px; color: var(--ink-soft);
 }
+
+
+/* ============================================================
+   Auth modal — login + create-account popup. Injected into <body>
+   by WaveBaseAuthModal in account.js. Single instance per page.
+
+   Visual tone: matches the editorial card-on-cream look of the
+   site. --clay accent for the submit (same CTA colour as ".btn")
+   so the primary action feels native. --sea for the active tab
+   so the toggle reads as navigation, not action.
+   ============================================================ */
+.auth-modal-backdrop {
+  position: fixed; inset: 0;
+  background: rgba(42, 39, 35, 0.55);
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
+  display: flex; align-items: center; justify-content: center;
+  padding: 16px;
+  z-index: 9999;
+  animation: authFade 0.18s ease-out;
+}
+.auth-modal-backdrop[hidden] { display: none; }
+@keyframes authFade { from { opacity: 0; } to { opacity: 1; } }
+
+.auth-modal {
+  position: relative;
+  width: 100%; max-width: 420px;
+  max-height: calc(100vh - 32px);
+  overflow-y: auto;
+  background: var(--paper);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+  padding: 28px 26px 24px;
+  animation: authPop 0.22s cubic-bezier(0.2, 0.7, 0.3, 1.05);
+}
+@keyframes authPop {
+  from { opacity: 0; transform: translateY(12px) scale(0.97); }
+  to   { opacity: 1; transform: translateY(0)    scale(1); }
+}
+
+.auth-modal-close {
+  position: absolute; top: 10px; right: 12px;
+  width: 36px; height: 36px;
+  display: flex; align-items: center; justify-content: center;
+  background: transparent; border: none;
+  font-size: 26px; line-height: 1;
+  color: var(--ink-soft); cursor: pointer;
+  border-radius: 999px;
+  transition: background 0.15s ease, color 0.15s ease;
+}
+.auth-modal-close:hover { background: var(--sand); color: var(--ink); }
+
+.auth-modal-tabs {
+  display: flex;
+  gap: 6px;
+  margin: 4px 0 18px;
+  padding: 4px;
+  background: var(--cream);
+  border-radius: 999px;
+}
+.auth-tab {
+  flex: 1;
+  padding: 9px 12px;
+  font-family: 'DM Sans', sans-serif;
+  font-size: 14px; font-weight: 600;
+  color: var(--ink-soft);
+  background: transparent; border: none;
+  border-radius: 999px;
+  cursor: pointer;
+  transition: background 0.18s ease, color 0.18s ease;
+}
+.auth-tab:hover { color: var(--ink); }
+.auth-tab.is-active {
+  background: var(--paper);
+  color: var(--sea);
+  box-shadow: var(--shadow-sm);
+}
+
+.auth-form { display: flex; flex-direction: column; gap: 14px; }
+
+.auth-title {
+  margin: 0;
+  font-family: 'Fraunces', serif;
+  font-size: 24px; font-weight: 600;
+  color: var(--ink);
+  letter-spacing: -0.01em;
+}
+.auth-subtitle {
+  margin: -4px 0 4px;
+  font-size: 14px; line-height: 1.45;
+  color: var(--ink-soft);
+}
+
+.auth-field { display: flex; flex-direction: column; gap: 6px; }
+.auth-field > span {
+  font-size: 12px; font-weight: 600; letter-spacing: 0.04em;
+  text-transform: uppercase; color: var(--ink-soft);
+}
+.auth-field input {
+  font-family: 'DM Sans', sans-serif;
+  font-size: 16px;       /* 16px = iOS doesn't zoom on focus */
+  color: var(--ink);
+  background: var(--paper);
+  border: 1px solid var(--sand-deep);
+  border-radius: 12px;
+  padding: 12px 14px;
+  outline: none;
+  transition: border-color 0.15s ease, box-shadow 0.15s ease;
+}
+.auth-field input:focus {
+  border-color: var(--sea);
+  box-shadow: 0 0 0 3px var(--sea-soft);
+}
+.auth-field input:disabled {
+  background: var(--cream);
+  color: var(--ink-soft);
+  cursor: not-allowed;
+}
+
+.auth-error {
+  font-size: 14px; line-height: 1.4;
+  color: var(--clay);
+  background: var(--clay-soft);
+  border-radius: 10px;
+  padding: 10px 12px;
+}
+
+.auth-submit {
+  margin-top: 4px;
+  font-family: 'DM Sans', sans-serif;
+  font-size: 16px; font-weight: 600;
+  background: var(--clay); color: #fff;
+  border: none; border-radius: 999px;
+  padding: 13px 24px;
+  cursor: pointer;
+  transition: background 0.18s ease, transform 0.12s ease;
+}
+.auth-submit:hover:not(:disabled) {
+  background: #a8542f;
+  transform: translateY(-1px);
+}
+.auth-submit:disabled {
+  background: var(--sand-deep);
+  color: var(--ink-soft);
+  cursor: not-allowed;
+}
+
+.auth-footer {
+  margin: 4px 0 0;
+  font-size: 14px; color: var(--ink-soft);
+  text-align: center;
+}
+.auth-toggle-btn {
+  font-family: 'DM Sans', sans-serif;
+  font-size: 14px; font-weight: 600;
+  color: var(--sea);
+  background: transparent; border: none;
+  cursor: pointer;
+  padding: 0; margin-left: 4px;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+.auth-toggle-btn:hover { color: var(--ink); }
+
+.auth-fineprint {
+  margin: 6px 0 0;
+  font-size: 12px; line-height: 1.55;
+  color: var(--ink-soft);
+  text-align: center;
+}
+.auth-fineprint a { color: var(--sea); }
+
+/* Tiny screens — let the card breathe to the edges */
+@media (max-width: 380px) {
+  .auth-modal { padding: 22px 18px 18px; }
+  .auth-title { font-size: 21px; }
+}
+
+/* ============================================================
+   Account-page head variants — one row when signed in (h1 + sign-
+   out), a welcome banner during onboarding, the old "fake account"
+   note otherwise.
+   ============================================================ */
+.acc-head-row {
+  display: flex; flex-wrap: wrap; align-items: center;
+  gap: 12px 18px;
+  margin-bottom: 8px;
+}
+.acc-head-row h1 { margin: 0; }
+.acc-head-meta {
+  display: flex; align-items: center; gap: 12px;
+  margin-left: auto;
+  font-size: 14px;
+}
+.acc-head-meta .btn { padding: 8px 16px; font-size: 14px; }
+
+.acc-onboard-head { margin-bottom: 20px; }
+.acc-onboard-head .kicker { margin: 0 0 6px; }
+.acc-onboard-head h1 { margin: 0 0 8px; }
+.acc-onboard-lead {
+  max-width: 560px;
+  font-size: 16px; line-height: 1.55;
+}
+
+/* During onboarding the Continue button is the primary CTA and the
+   Skip is a quiet escape hatch — flip the visual weight so Continue
+   is the obvious right-hand action. */
+.prof-actions {
+  display: flex; flex-wrap: wrap; align-items: center;
+  gap: 10px;
+  margin-top: 18px;
+}
+.prof-actions .btn:last-child { margin-left: auto; }
