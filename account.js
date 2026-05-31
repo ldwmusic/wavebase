@@ -37,6 +37,105 @@ const WaveBaseAccount = (function () {
       });
     } catch (e) { /* swallow — sync is best-effort */ }
   }
+
+  /* Same shape as _syncSpotToServer but for the surfed-log endpoint.
+     Surfed stores slugs directly server-side (no UUID translation
+     needed) so this is even simpler. */
+  function _syncSurfedToServer(slug, action) {
+    try {
+      if (typeof WaveBaseAuth === "undefined") return;
+      if (!WaveBaseAuth.isLoggedIn()) return;
+      const method = (action === "add") ? "POST" : "DELETE";
+      WaveBaseAuth.authFetch(
+        "/users/me/surfed/" + encodeURIComponent(slug),
+        { method: method }
+      ).catch(function (e) {
+        console.warn("[account] surfed " + method + " " + slug + " failed:", e.message || e);
+      });
+    } catch (e) { /* swallow */ }
+  }
+
+  /* Trip server sync — debounced PUT of the whole trip after any
+     mutation. We coalesce rapid edits (typing a day-note, dragging
+     to reorder stops) into one request per trip per 1.5s window.
+     If the trip has no serverId yet (created while signed out, or
+     before this feature shipped), the first sync POSTs to create
+     and records the assigned id on the local trip for future PUTs. */
+  const _tripSyncTimers = new Map();
+
+  function _scheduleTripSync(tripId) {
+    if (typeof WaveBaseAuth === "undefined" || !WaveBaseAuth.isLoggedIn()) return;
+    if (_tripSyncTimers.has(tripId)) {
+      clearTimeout(_tripSyncTimers.get(tripId));
+    }
+    _tripSyncTimers.set(tripId, setTimeout(function () {
+      _tripSyncTimers.delete(tripId);
+      _doTripSync(tripId);
+    }, 1500));
+  }
+
+  async function _doTripSync(tripId) {
+    if (typeof WaveBaseAuth === "undefined" || !WaveBaseAuth.isLoggedIn()) return;
+    const s = state();
+    const trip = s.trips.find(function (t) { return t.id === tripId; });
+    if (!trip) return;  // deleted locally before the timer fired
+
+    const body = {
+      name:      (trip.name || "Trip").trim() || "Trip",
+      spot_ids:  trip.spotIds  || [],
+      dates:     trip.dates    || {},
+      day_notes: trip.dayNotes || {},
+    };
+
+    try {
+      if (trip.serverId) {
+        // PUT existing trip — full replace of mutable fields.
+        const res = await WaveBaseAuth.authFetch(
+          "/users/me/trips/" + encodeURIComponent(trip.serverId),
+          { method: "PUT",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(body) }
+        );
+        if (res.status === 404) {
+          // Server lost it (manual delete, account reset). Recreate
+          // by clearing serverId and re-syncing as POST.
+          const fresh = state();
+          const t2 = fresh.trips.find(function (t) { return t.id === tripId; });
+          if (t2) { delete t2.serverId; write(fresh); }
+          _scheduleTripSync(tripId);
+        }
+      } else {
+        // POST new trip — server assigns a UUID, we record it
+        // locally so subsequent edits hit PUT.
+        const res = await WaveBaseAuth.authFetch(
+          "/users/me/trips/",
+          { method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(body) }
+        );
+        if (!res.ok) throw new Error("HTTP " + res.status);
+        const created = await res.json();
+        // Re-read state — the user might have mutated more in the
+        // few ms while we awaited. Stamp serverId on the same trip.
+        const fresh = state();
+        const t2 = fresh.trips.find(function (t) { return t.id === tripId; });
+        if (t2) { t2.serverId = created.id; write(fresh); }
+      }
+    } catch (e) {
+      console.warn("[account] trip sync " + tripId + " failed:", e.message || e);
+    }
+  }
+
+  function _syncTripDelete(serverId) {
+    if (!serverId) return;
+    if (typeof WaveBaseAuth === "undefined" || !WaveBaseAuth.isLoggedIn()) return;
+    WaveBaseAuth.authFetch(
+      "/users/me/trips/" + encodeURIComponent(serverId),
+      { method: "DELETE" }
+    ).catch(function (e) {
+      console.warn("[account] trip delete " + serverId + " failed:", e.message || e);
+    });
+  }
   function state() {
     const s = read();
     const p = s.profile || {};
@@ -63,6 +162,11 @@ const WaveBaseAccount = (function () {
       surfed: s.surfed || [],
       trips: (s.trips || []).map(t => ({
         id: t.id,
+        // serverId is set after the trip first syncs to /users/me/trips/.
+        // Absent for trips the user created while signed out (they
+        // get backfilled on the next syncTripsFromServer pass) or
+        // before this feature shipped.
+        serverId: t.serverId || undefined,
         name: t.name,
         spotIds: Array.isArray(t.spotIds) ? t.spotIds : [],
         dates: (t.dates && typeof t.dates === "object") ? t.dates : {},
@@ -194,9 +298,40 @@ const WaveBaseAccount = (function () {
     toggleSurfed(id) {
       const s = state();
       const i = s.surfed.indexOf(id);
-      if (i === -1) s.surfed.push(id); else s.surfed.splice(i, 1);
+      const nowSurfed = (i === -1);
+      if (nowSurfed) s.surfed.push(id); else s.surfed.splice(i, 1);
       write(s);
-      return s.surfed.indexOf(id) !== -1;
+      _syncSurfedToServer(id, nowSurfed ? "add" : "remove");
+      return nowSurfed;
+    },
+    async syncSurfedFromServer() {
+      if (typeof WaveBaseAuth === "undefined" || !WaveBaseAuth.isLoggedIn()) return;
+      let serverList;
+      try {
+        const res = await WaveBaseAuth.authFetch("/users/me/surfed/");
+        if (!res.ok) return;
+        serverList = await res.json();
+      } catch (e) {
+        console.warn("[account] syncSurfedFromServer failed:", e.message || e);
+        return;
+      }
+      if (!Array.isArray(serverList)) return;
+      // Server returns [{spot_id: slug}, ...]; surfed stores slugs
+      // directly so no UUID translation needed.
+      const serverSlugs = serverList.map(function (x) { return x.spot_id; }).filter(Boolean);
+      const s = state();
+      const localSet  = new Set(s.surfed);
+      const serverSet = new Set(serverSlugs);
+      let changed = false;
+      // Pull server-only into local.
+      for (const sid of serverSlugs) {
+        if (!localSet.has(sid)) { s.surfed.push(sid); changed = true; }
+      }
+      // Push local-only up (post-signup migration + offline catch-up).
+      for (const lid of Array.from(localSet)) {
+        if (!serverSet.has(lid)) _syncSurfedToServer(lid, "add");
+      }
+      if (changed) write(s);
     },
 
     /* trips */
@@ -206,12 +341,22 @@ const WaveBaseAccount = (function () {
       const trip = { id: "t" + Date.now(), name: (name || "New trip").trim(), spotIds: [], dates: {} };
       s.trips.push(trip);
       write(s);
+      _scheduleTripSync(trip.id);  // POST on first sync, records serverId
       return trip;
     },
     deleteTrip(tripId) {
       const s = state();
+      const trip = s.trips.find(t => t.id === tripId);
+      const serverId = trip && trip.serverId;
       s.trips = s.trips.filter(t => t.id !== tripId);
       write(s);
+      // Cancel any pending sync for this trip — pointless to PUT
+      // something we're about to delete.
+      if (_tripSyncTimers.has(tripId)) {
+        clearTimeout(_tripSyncTimers.get(tripId));
+        _tripSyncTimers.delete(tripId);
+      }
+      if (serverId) _syncTripDelete(serverId);
     },
     /* Rename a trip in place. Empty / whitespace-only names are
        ignored so a trip always keeps a usable name. */
@@ -222,6 +367,7 @@ const WaveBaseAccount = (function () {
       const nm = (name || "").trim();
       if (nm) t.name = nm;
       write(s);
+      _scheduleTripSync(tripId);
     },
     addToTrip(tripId, spotId) {
       const s = state();
@@ -254,6 +400,7 @@ const WaveBaseAccount = (function () {
         }
       }
       write(s);
+      _scheduleTripSync(tripId);
     },
     removeFromTrip(tripId, spotId) {
       const s = state();
@@ -263,6 +410,7 @@ const WaveBaseAccount = (function () {
         if (t.dates) delete t.dates[spotId];
       }
       write(s);
+      _scheduleTripSync(tripId);
     },
     /* Per-stay trip dates — check-in / check-out for one stay inside a
        trip. field is "in" or "out", value a YYYY-MM-DD string. Stored
@@ -278,6 +426,7 @@ const WaveBaseAccount = (function () {
       if (!cur.in && !cur.out) delete t.dates[entryId];
       else t.dates[entryId] = cur;
       write(s);
+      _scheduleTripSync(tripId);
     },
     /* Per-day free-text note for the Day-by-day view, keyed by date
        (YYYY-MM-DD). An empty note is dropped so the map stays tidy. */
@@ -290,6 +439,7 @@ const WaveBaseAccount = (function () {
       if (txt) t.dayNotes[dateStr] = txt;
       else delete t.dayNotes[dateStr];
       write(s);
+      _scheduleTripSync(tripId);
     },
     reorderTrip(tripId, fromIndex, toIndex) {
       const s = state();
@@ -300,6 +450,55 @@ const WaveBaseAccount = (function () {
       const moved = ids.splice(fromIndex, 1)[0];
       ids.splice(toIndex, 0, moved);
       write(s);
+      _scheduleTripSync(tripId);
+    },
+
+    /* Pull server trips into local + push local trips without
+       serverId up. Runs on data-ready and auth-changed, same as the
+       saved-spots/surfed equivalents. */
+    async syncTripsFromServer() {
+      if (typeof WaveBaseAuth === "undefined" || !WaveBaseAuth.isLoggedIn()) return;
+      let serverList;
+      try {
+        const res = await WaveBaseAuth.authFetch("/users/me/trips/");
+        if (!res.ok) return;
+        serverList = await res.json();
+      } catch (e) {
+        console.warn("[account] syncTripsFromServer failed:", e.message || e);
+        return;
+      }
+      if (!Array.isArray(serverList)) return;
+
+      const s = state();
+      const localByServerId = new Map();
+      s.trips.forEach(function (t) {
+        if (t.serverId) localByServerId.set(t.serverId, t);
+      });
+
+      let changed = false;
+      // Pull server-only trips into local. Generate a fresh local id
+      // (so URLs / collapsed-state keys stay unique even if two
+      // server trips share the same name).
+      for (const st of serverList) {
+        if (!localByServerId.has(st.id)) {
+          s.trips.push({
+            id:       "t" + Date.now() + Math.floor(Math.random() * 1000),
+            serverId: st.id,
+            name:     st.name,
+            spotIds:  st.spot_ids  || [],
+            dates:    st.dates     || {},
+            dayNotes: st.day_notes || {},
+          });
+          changed = true;
+        }
+      }
+      // Push local-only trips (no serverId) up. Debounced via the
+      // scheduler — they'll POST 1.5s after this returns.
+      s.trips.forEach(function (t) {
+        if (!t.serverId) _scheduleTripSync(t.id);
+      });
+
+      if (changed) write(s);
     },
 
     /* reviews — local previews of submissions. Persist the full review
@@ -607,8 +806,17 @@ if (typeof window !== "undefined") {
 //   - Logout                                 -> auth-changed sees no
 //                                                token, returns silently
 if (typeof window !== "undefined") {
+  // Saved spots — needs the slug↔UUID id maps (data-ready).
   window.addEventListener("wavebase:data-ready",   function () { WaveBaseAccount.syncSavedFromServer(); });
   window.addEventListener("wavebase:auth-changed", function () { WaveBaseAccount.syncSavedFromServer(); });
+  // Surfed — stores slugs directly, so no id-map dependency. Still
+  // bound to data-ready so we don't fetch before the user is likely
+  // to interact with the result.
+  window.addEventListener("wavebase:data-ready",   function () { WaveBaseAccount.syncSurfedFromServer(); });
+  window.addEventListener("wavebase:auth-changed", function () { WaveBaseAccount.syncSurfedFromServer(); });
+  // Trips — no id-map dependency either; same trigger pattern.
+  window.addEventListener("wavebase:data-ready",   function () { WaveBaseAccount.syncTripsFromServer(); });
+  window.addEventListener("wavebase:auth-changed", function () { WaveBaseAccount.syncTripsFromServer(); });
 }
 
 /* One-shot profile backfill from localStorage to server. Runs after
