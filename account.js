@@ -585,6 +585,79 @@ if (typeof window !== "undefined") {
   window.addEventListener("wavebase:auth-changed", function () { WaveBaseAccount.syncSavedFromServer(); });
 }
 
+/* One-shot profile backfill from localStorage to server. Runs after
+   auth-changed fires (which happens once after bootRefresh's
+   /users/me lands). Compares each tracked field: if the server has
+   nothing (null / "" / []) AND localStorage has something, we push
+   the local value up via PATCH /users/me/profile.
+
+   Designed to catch up users who had their profile saved locally
+   before some fields were tracked server-side — Lode's exact case
+   after we added discipline, travel_styles, trip_priorities and
+   how_did_you_find_us in v=331.
+
+   Never overwrites server data: if the server already has a value
+   for a field, we leave it alone. That makes this safe to run on
+   every page load — at worst it's a no-op. */
+function _backfillProfileFromLocalToServer() {
+  if (typeof WaveBaseAuth === "undefined" || !WaveBaseAuth.isLoggedIn()) return;
+  if (typeof WaveBaseAccount === "undefined") return;
+  const serverUser = WaveBaseAuth.currentUser();
+  if (!serverUser) return;  // bootRefresh hasn't landed yet
+  const local = WaveBaseAccount.getProfile();
+  if (!local) return;
+
+  const SURF_LEVEL_MAP = { beginner: "Beginner", intermediate: "Intermediate", advanced: "Advanced" };
+  const patch = {};
+
+  function pushScalar(serverKey, localKey, transform) {
+    const sv = serverUser[serverKey];
+    if (sv !== null && sv !== undefined && sv !== "") return;  // server has it
+    const lv = local[localKey];
+    if (lv === null || lv === undefined || lv === "") return;  // local empty
+    const out = transform ? transform(lv) : lv;
+    if (out !== null && out !== undefined && out !== "") patch[serverKey] = out;
+  }
+  function pushList(serverKey, localKey) {
+    const sv = serverUser[serverKey];
+    if (Array.isArray(sv) && sv.length > 0) return;
+    const lv = local[localKey];
+    if (!Array.isArray(lv) || lv.length === 0) return;
+    patch[serverKey] = lv;
+  }
+
+  pushScalar("name", "name");
+  pushScalar("birth_year", "birthYear", function (v) {
+    const n = parseInt(v, 10);
+    return Number.isFinite(n) ? n : null;
+  });
+  pushScalar("home_country", "homeCountry");
+  pushList  ("surf_types", "surfType");
+  pushScalar("surf_level", "level", function (v) { return SURF_LEVEL_MAP[v] || null; });
+  pushList  ("discipline", "discipline");
+  pushList  ("travel_styles", "travelStyles");
+  pushList  ("trip_priorities", "tripPriorities");
+  pushScalar("how_did_you_find_us", "howDidYouFindUs");
+
+  if (Object.keys(patch).length === 0) return;  // nothing to do
+
+  WaveBaseAuth.updateProfile(patch)
+    .then(function () {
+      console.log("[account] Backfilled local profile -> server:", Object.keys(patch).join(", "));
+    })
+    .catch(function (e) {
+      console.warn("[account] Profile backfill failed:", e.message || e);
+    });
+}
+
+// Trigger backfill once per auth-changed firing — happens after
+// bootRefresh's /users/me lands (with cached user populated) and
+// after a successful login/signup. Skipped on logout (no user) by
+// the guard inside the function.
+if (typeof window !== "undefined") {
+  window.addEventListener("wavebase:auth-changed", _backfillProfileFromLocalToServer);
+}
+
 
 /* ============================================================
    WaveBaseAuthModal — the login/signup popup.

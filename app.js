@@ -5772,20 +5772,24 @@ function renderAccount() {
     flashSaved();
     updateProgressDisplay();
 
-    // Debounced server sync for signed-in users. We only push the
-    // fields the backend understands (it doesn't yet have columns
-    // for travelStyles / tripPriorities / etc. — those are added in
-    // a later task and stay localStorage-only for now).
+    // Debounced server sync for signed-in users. Sends every
+    // profile field the backend tracks (all of them as of v=331).
+    // PATCH /users/me/profile uses exclude_unset so server-side
+    // we only touch fields whose JSON key is present here.
     if (authed && typeof WaveBaseAuth !== "undefined") {
       if (_serverSyncTimer) clearTimeout(_serverSyncTimer);
       _serverSyncTimer = setTimeout(() => {
         const byr = parseInt(document.getElementById("p-birthyear").value, 10);
         const patch = {
-          name:         (document.getElementById("p-name").value || "").trim() || null,
-          birth_year:   Number.isFinite(byr) ? byr : null,
-          home_country: document.getElementById("p-country").value || null,
-          surf_types:   readChecks("surfType"),
-          surf_level:   SURF_LEVEL_MAP[document.getElementById("p-level").value] || null,
+          name:                (document.getElementById("p-name").value || "").trim() || null,
+          birth_year:          Number.isFinite(byr) ? byr : null,
+          home_country:        document.getElementById("p-country").value || null,
+          surf_types:          readChecks("surfType"),
+          surf_level:          SURF_LEVEL_MAP[document.getElementById("p-level").value] || null,
+          discipline:          readChecks("discipline"),
+          travel_styles:       readChecks("travelStyles"),
+          trip_priorities:     readChecks("tripPriorities"),
+          how_did_you_find_us: document.getElementById("p-found").value || null,
         };
         WaveBaseAuth.updateProfile(patch).catch(e => {
           console.warn("[account] Profile sync to server failed:", e.message || e);
@@ -5906,11 +5910,15 @@ function renderAccount() {
 
     const byr = parseInt(document.getElementById("p-birthyear").value, 10);
     const patch = {
-      name:          document.getElementById("p-name").value.trim()    || null,
-      birth_year:    Number.isFinite(byr)                              ? byr : null,
-      home_country:  document.getElementById("p-country").value        || null,
-      surf_types:    readChecks("surfType"),
-      surf_level:    surfLevelMap[lvl]                                 || null,
+      name:                document.getElementById("p-name").value.trim()    || null,
+      birth_year:          Number.isFinite(byr)                              ? byr : null,
+      home_country:        document.getElementById("p-country").value        || null,
+      surf_types:          readChecks("surfType"),
+      surf_level:          surfLevelMap[lvl]                                 || null,
+      discipline:          readChecks("discipline"),
+      travel_styles:       readChecks("travelStyles"),
+      trip_priorities:     readChecks("tripPriorities"),
+      how_did_you_find_us: document.getElementById("p-found").value          || null,
     };
 
     continueBtn.disabled = true;
