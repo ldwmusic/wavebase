@@ -4,7 +4,10 @@
    Coordinates without a navigable break point (kilometre-long beaches) are
    marked "approximate" via coordsLabel. photo: "" = photo-ready, real photo TBD. */
 
-const WAVEBASE_DATA = [
+// `let` (not `const`) so api-client.js can replace this at boot
+// with API data. Original values remain as the in-file fallback for
+// emergency revert — actual runtime data comes from the WaveBase API.
+let WAVEBASE_DATA = [
 
   /* ===================== STAYS — TAMRAGHT ===================== */
   {
@@ -4999,7 +5002,8 @@ const WAVEBASE_MONTHS = ["", "Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "A
 /* ===================== TOWNS — area-level context ===================== */
 /* Town facts (what-to-do / transport / distances) from public travel &
    transport guides, 2025–26; distances cross-checked across sources. */
-const WAVEBASE_TOWNS = {
+// `let` (not `const`) — same reason as WAVEBASE_DATA above.
+let WAVEBASE_TOWNS = {
   "Tamraght": {
     naam: "Tamraght",
     country: "Morocco",

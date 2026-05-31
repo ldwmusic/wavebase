@@ -7693,13 +7693,29 @@ function initDiscover() {
   render();
 }
 
-/* ---- router ---- */
+/* ---- router ----
+   Page init runs in two phases now that data comes from the API
+   (api-client.js) rather than synchronously from data.js:
+
+   Phase 1 (DOMContentLoaded): chrome that doesn't need spot data —
+     consent banner, nav, destinations menu, mobile tabbar, header
+     search. Renders immediately so the page chrome isn't blank
+     while we wait for the API.
+
+   Phase 2 (wavebase:data-ready): page-specific renderers that read
+     WAVEBASE_DATA / WAVEBASE_TOWNS. api-client.js dispatches this
+     event after it has fetched + remapped the API response into the
+     globals. If the fetch fails the event still fires (so pages can
+     render an empty state) — see api-client.js. */
 document.addEventListener("DOMContentLoaded", () => {
   initConsent();
   updateNav();
-  initDestinations();
+  initDestinations();   // uses WAVEBASE_DESTINATIONS (static, in data.js)
   initMobileTabbar();
   wireHeaderSearch();
+});
+
+window.addEventListener("wavebase:data-ready", () => {
   if (document.getElementById("results")) initIndex();
   if (document.getElementById("detail-root")) initSpot();
   if (document.getElementById("map")) initMap();
