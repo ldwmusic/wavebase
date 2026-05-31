@@ -5738,6 +5738,40 @@ button.rml-key.off .rml-dot {
   cursor: not-allowed;
 }
 
+/* Password show/hide toggle. Sits over the right edge of the
+   password input; toggles input.type between password / text on
+   click. The two inline SVGs (icon-show / icon-hide) swap via the
+   .is-visible class on the button. */
+.auth-password-wrap {
+  position: relative;
+}
+.auth-password-wrap input {
+  /* Reserve room on the right so typed characters don't slide under
+     the toggle button (mobile thumbs especially). */
+  padding-right: 44px;
+}
+.auth-password-toggle {
+  position: absolute;
+  top: 50%;
+  right: 6px;
+  transform: translateY(-50%);
+  width: 34px; height: 34px;
+  display: flex; align-items: center; justify-content: center;
+  background: transparent;
+  border: none;
+  color: var(--ink-soft);
+  cursor: pointer;
+  border-radius: 8px;
+  padding: 0;
+  transition: background 0.15s ease, color 0.15s ease;
+}
+.auth-password-toggle:hover { background: var(--sand); color: var(--ink); }
+.auth-password-toggle:focus { outline: 2px solid var(--sea); outline-offset: 1px; }
+.auth-password-toggle svg   { display: none; width: 20px; height: 20px; }
+.auth-password-toggle .icon-show { display: block; }
+.auth-password-toggle.is-visible .icon-show { display: none; }
+.auth-password-toggle.is-visible .icon-hide { display: block; }
+
 .auth-error {
   font-size: 14px; line-height: 1.4;
   color: var(--clay);

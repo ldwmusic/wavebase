@@ -720,7 +720,21 @@ const WaveBaseAuthModal = (function () {
 
           <label class="auth-field">
             <span>Password</span>
-            <input type="password" name="password" required minlength="6" autocomplete="current-password" />
+            <div class="auth-password-wrap">
+              <input type="password" name="password" required minlength="6" autocomplete="current-password" />
+              <button type="button" class="auth-password-toggle" aria-label="Show password" aria-pressed="false">
+                <!-- Eye (currently hidden — click to show) -->
+                <svg class="icon-show" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                  <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/>
+                  <circle cx="12" cy="12" r="3"/>
+                </svg>
+                <!-- Eye with slash (currently shown — click to hide) -->
+                <svg class="icon-hide" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                  <path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"/>
+                  <line x1="1" y1="1" x2="23" y2="23"/>
+                </svg>
+              </button>
+            </div>
           </label>
 
           <div class="auth-error" hidden></div>
@@ -773,6 +787,23 @@ const WaveBaseAuthModal = (function () {
     });
     footerToggleEl.addEventListener("click", function () {
       setMode(mode === "login" ? "signup" : "login");
+    });
+
+    // Password show/hide toggle. Flips the input type between
+    // "password" and "text" so the user can verify what they typed
+    // (essential when entering a new password they just made up).
+    // The two SVGs in the button (icon-show / icon-hide) swap via
+    // the .is-visible class — CSS handles which one renders.
+    const toggleBtn = rootEl.querySelector(".auth-password-toggle");
+    toggleBtn.addEventListener("click", function () {
+      const showing = passwordEl.type === "text";
+      passwordEl.type = showing ? "password" : "text";
+      toggleBtn.classList.toggle("is-visible", !showing);
+      toggleBtn.setAttribute("aria-pressed", showing ? "false" : "true");
+      toggleBtn.setAttribute("aria-label", showing ? "Show password" : "Hide password");
+      // Keep focus on the input so the user can continue typing
+      // without an extra tab/click.
+      passwordEl.focus();
     });
 
     // Submit handler.
@@ -886,6 +917,16 @@ const WaveBaseAuthModal = (function () {
     onSuccess = opts.onSuccess || null;
     emailEl.value = "";
     passwordEl.value = "";
+    // Always start with the password obscured — leaving it visible
+    // from a previous open would be a small but real shoulder-surfing
+    // hazard the next time someone opens the modal in a public place.
+    passwordEl.type = "password";
+    const toggleBtn = rootEl.querySelector(".auth-password-toggle");
+    if (toggleBtn) {
+      toggleBtn.classList.remove("is-visible");
+      toggleBtn.setAttribute("aria-pressed", "false");
+      toggleBtn.setAttribute("aria-label", "Show password");
+    }
     clearError();
     rootEl.removeAttribute("hidden");
     // Lock background scroll while modal is up
@@ -920,15 +961,22 @@ function _renderAuthNav() {
   const link = document.getElementById("nav-account");
   if (!link) return;
 
-  const user = WaveBaseAuth.currentUser();
+  // Strict check on isLoggedIn() FIRST — never look at the cached user
+  // before confirming there's still a token. Otherwise a stale cached
+  // user can leak the "Hi, …" greeting into the logged-out state
+  // (which makes no sense — we can't greet someone we don't know).
   if (WaveBaseAuth.isLoggedIn()) {
-    // Show the user's name (or just first part of email) so the nav
-    // confirms "yes, you're signed in as ...". Falls back to a
-    // generic label if both are missing for any reason.
-    let label = "My WaveBase";
-    if (user && user.name)  label = user.name.split(/\s+/)[0];
-    else if (user && user.email) label = user.email.split("@")[0];
-    link.textContent = label;
+    const user = WaveBaseAuth.currentUser();
+    let firstName = "";
+    if (user && user.name) {
+      firstName = String(user.name).trim().split(/\s+/)[0];
+      // Capitalise the first letter so "lode" displays as "Lode" even
+      // if the user typed their name lowercase in the profile form.
+      if (firstName) firstName = firstName.charAt(0).toUpperCase() + firstName.slice(1);
+    } else if (user && user.email) {
+      firstName = String(user.email).split("@")[0];
+    }
+    link.textContent = firstName ? ("Hi, " + firstName) : "My WaveBase";
     link.setAttribute("href", "account.html");
     link.removeAttribute("data-anon");
   } else {
