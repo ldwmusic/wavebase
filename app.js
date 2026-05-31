@@ -7997,6 +7997,19 @@ document.addEventListener("DOMContentLoaded", () => {
 });
 
 window.addEventListener("wavebase:data-ready", () => {
+  // Clean stale IDs out of localStorage. Saved + compare + surfed
+  // lists can drift out of sync with WAVEBASE_DATA when an entry
+  // gets renamed, removed or assigned a different ID (e.g. our
+  // post-API-migration slug-vs-UUID shuffle). The Compare page
+  // already byId-filters before render, so the cards display
+  // correctly — but the nav badge reads .length, so a stale ID
+  // sticks as a phantom "Compare (2)" with nothing inside. Same
+  // hazard for the saved-count badge if we add one. Wipe once
+  // here, right after data is loaded, then re-render the nav so
+  // the count matches what the user actually sees.
+  pruneStaleAccountIds();
+  if (typeof updateNav === "function") updateNav();
+
   if (document.getElementById("results")) initIndex();
   if (document.getElementById("detail-root")) initSpot();
   if (document.getElementById("map")) initMap();
@@ -8007,3 +8020,32 @@ window.addEventListener("wavebase:data-ready", () => {
   if (document.getElementById("compare-root")) renderCompare();
   if (document.getElementById("continent-root")) initContinent();
 });
+
+/* Drop saved / compare / surfed entries whose IDs no longer resolve
+   to anything in WAVEBASE_DATA. Self-healing: runs once per page
+   load after data is ready, so a phantom badge ("Compare (2)" with
+   an empty page) gets wiped on the next load. Trips are NOT pruned
+   here — a trip can legitimately contain a single stale stop the
+   user still wants to remember, and the trip card already shows
+   "<unknown>" for any missing entry rather than vanishing it. */
+function pruneStaleAccountIds() {
+  const isLive = id => !!byId(id);
+  const account = WaveBaseAccount;
+  if (!account) return;
+
+  ["saved", "compare", "surfed"].forEach(listName => {
+    const getter = ({ saved: "getSaved", compare: "getCompare", surfed: "getSurfed" })[listName];
+    const ids = account[getter]();
+    const stale = ids.filter(id => !isLive(id));
+    if (!stale.length) return;
+    // Use the existing toggle methods so we don't bypass any side-
+    // effects (the saved-spots one also fires the server-sync delete
+    // for signed-in users, which is exactly what we want — a stale
+    // local ID is also stale on the server).
+    const toggle = ({ saved: "toggleSave", compare: "toggleCompare", surfed: "toggleSurfed" })[listName];
+    stale.forEach(id => {
+      if (account[toggle]) account[toggle](id);  // present = remove
+    });
+    console.log(`[account] pruned ${stale.length} stale ${listName} id(s):`, stale);
+  });
+}
