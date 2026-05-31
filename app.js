@@ -1345,7 +1345,14 @@ function findCountry(name) {
 
 /* Backward-compatible accessors — older Morocco entries lack country/sports fields */
 function entryCountry(e) { return e.country || "Morocco"; }
-function entrySports(e)  { return e.sports  || ["wave"]; }
+// Falls back to ["wave"] when the entry has no sport tags at all
+// (missing field OR empty array). Pre-API-migration the field was
+// undefined for surf-only stays, so `|| ["wave"]` was enough; the
+// API now stores `[]` instead of leaving it absent, and `[] || x`
+// returns `[]` in JS (truthy). The length check below handles both
+// cases. (Bug surfaced on Morocco stays which were invisible to
+// every sport filter — LDW May 2026.)
+function entrySports(e)  { return (e.sports && e.sports.length) ? e.sports : ["wave"]; }
 
 /* ============================================================
    Price tiers + currency
