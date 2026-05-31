@@ -146,14 +146,20 @@ function typeColor(t) {
 function crowdLabel(n) { return { rustig: "Quiet", gemiddeld: "Moderate", druk: "Busy" }[n] || n; }
 function thumbStyle(e) { return e.photo ? ` style="background-image:url('${e.photo}')"` : ""; }
 
-/* ---- nav: profile name + compare count ---- */
+/* ---- nav: account label + compare count ---- */
 function updateNav() {
-  const acc = document.getElementById("nav-account");
-  if (acc) {
-    const p = WaveBaseAccount.getProfile();
-    const firstName = (p.name || "").trim().split(/\s+/)[0];
-    acc.textContent = firstName ? ("Hi, " + firstName) : "My WaveBase";
-  }
+  // The "Hi, ..." / "Login" label is owned by _renderAuthNav (in
+  // account.js) — it reads the AUTH state, not the local profile.
+  // We delegate here so that calling updateNav() from anywhere
+  // (saveProfile, toggle compare, etc.) still keeps the nav in
+  // sync with the server identity. Without this delegation, the
+  // old local-profile path would override _renderAuthNav and leak
+  // "Hi, Lode" into the logged-out view (the local profile still
+  // has the name even after the auth token is wiped).
+  if (typeof _renderAuthNav === "function") _renderAuthNav();
+
+  // Compare count is anon-friendly (works without an account), so
+  // it stays driven by localStorage regardless of auth state.
   const cmp = document.getElementById("nav-compare");
   if (cmp) {
     const n = WaveBaseAccount.getCompare().length;
@@ -5980,18 +5986,15 @@ function renderAccount() {
   });
 
   // Delete account button (very bottom of the page, danger zone).
-  // Double-confirm: a generic confirm() first, then a typed-string
-  // check so it's not a single mis-click. On success we wipe local
-  // auth state inside deleteAccount() and ship the user home; on
-  // failure we surface the server error verbatim so they can retry.
+  // Single confirm — Lode chose the simpler UX over a typed-string
+  // double-check. Button label is explicit enough that a misclick
+  // would still hit the confirm dialog as a stop. On success we
+  // wipe local auth state inside deleteAccount() and ship the user
+  // home; on failure we surface the server error verbatim so they
+  // can retry.
   const deleteBtn = document.getElementById("acc-delete");
   if (deleteBtn) deleteBtn.addEventListener("click", async () => {
-    if (!confirm("Delete your account permanently?\n\nThis wipes your email, profile and saved spots from our server. It cannot be undone.")) return;
-    const typed = window.prompt('To confirm, type the word  DELETE  in capitals:');
-    if (typed !== "DELETE") {
-      alert("Cancelled — nothing was deleted.");
-      return;
-    }
+    if (!confirm("Delete your WaveBase account permanently?\n\nThis wipes your email, profile and saved spots from our server. It cannot be undone.")) return;
     deleteBtn.disabled = true;
     deleteBtn.textContent = "Deleting…";
     try {
