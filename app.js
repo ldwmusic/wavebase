@@ -33,19 +33,24 @@
 function cap(s) { return s.charAt(0).toUpperCase() + s.slice(1); }
 function byId(id) { return WAVEBASE_DATA.find(x => x.id === id); }
 
-/* Gate the "Save this place" / "♡" actions behind being signed in.
-   Returns true if the caller should proceed with the save; returns
-   false (and pops the login modal) if the visitor is anonymous.
-   Other actions stay anon-friendly: Compare is a session tool, and
-   the "Surfed it" log is currently localStorage-only — neither
-   needs the modal yet. */
-function requireAuthForSave() {
+/* Gate any "this is account-bound data" interaction behind being
+   signed in. Returns true → caller proceeds. Returns false → caller
+   aborts (we already opened the login modal). Used by:
+     - Save / ♡ on cards + spot pages
+     - Add to compare on cards + spot pages
+     - Add to trip on cards + spot pages
+   "Surfed it" is still anon-friendly for now (Lode hasn't asked,
+   and the surf log is currently passive UI). */
+function requireAuth() {
   if (typeof WaveBaseAuth !== "undefined" && WaveBaseAuth.isLoggedIn()) return true;
   if (typeof WaveBaseAuthModal !== "undefined") {
     WaveBaseAuthModal.open({ mode: "login" });
   }
   return false;
 }
+// Back-compat alias — keep the old name working so we don't have
+// to chase down every call site in this commit.
+const requireAuthForSave = requireAuth;
 
 // Haversine — straight-line km between [lat, lon] pairs.
 function distanceKm(a, b) {
@@ -1323,6 +1328,7 @@ function wireCards(container) {
   container.querySelectorAll(".trip-btn").forEach(btn => {
     btn.addEventListener("click", ev => {
       ev.stopPropagation();
+      if (!requireAuth()) return;
       openCardTripPopover(btn);
     });
   });
@@ -1339,6 +1345,7 @@ function wireCards(container) {
   container.querySelectorAll(".compare-btn").forEach(btn => {
     btn.addEventListener("click", ev => {
       ev.stopPropagation();
+      if (!requireAuth()) return;
       const on = WaveBaseAccount.toggleCompare(btn.dataset.compare);
       btn.classList.toggle("on", on);
       btn.title = on ? "In your compare list" : "Add to compare";
@@ -4033,6 +4040,7 @@ function initSpot() {
     this.classList.toggle("on", on);
   });
   document.getElementById("compare-toggle").addEventListener("click", function () {
+    if (!requireAuth()) return;
     const on = WaveBaseAccount.toggleCompare(e.id);
     this.textContent = on ? "✓ In compare" : "+ Compare";
     this.classList.toggle("on", on);
@@ -4050,6 +4058,13 @@ function initSpot() {
   document.getElementById("trip-select").addEventListener("change", function () {
     const v = this.value;
     if (!v) return;
+    // Anon visitors can't have trips (no account = nothing to add
+    // them to). Reset the dropdown so it's not stuck on the option
+    // they clicked, then pop the login modal.
+    if (!requireAuth()) {
+      this.value = "";
+      return;
+    }
     let targetId = v;
     if (v === "__new") {
       const name = window.prompt("Name your new trip:");
