@@ -5831,6 +5831,177 @@ button.rml-key.off .rml-dot {
   .auth-title { font-size: 21px; }
 }
 
+/* ============================================================
+   Admin dashboard — /admin.html. Internal page, only visible to
+   editors. Sand/cream/teal palette like the rest of the site,
+   but denser layout (table + KPIs + popularity bars) since
+   admins need information density over editorial breathing room.
+   ============================================================ */
+.admin-chip {
+  display: inline-flex; align-items: center;
+  margin-left: 12px;
+  padding: 3px 10px;
+  background: var(--clay); color: #fff;
+  font-family: 'DM Sans', sans-serif;
+  font-size: 11px; font-weight: 600;
+  letter-spacing: 0.06em; text-transform: uppercase;
+  border-radius: 999px;
+}
+.admin-nav { margin-left: auto; }
+
+.admin-head { margin: 24px 0 16px; }
+.admin-head .kicker { margin: 0 0 4px; }
+.admin-head h1     { margin: 0; }
+
+.admin-denied {
+  text-align: center;
+  max-width: 540px;
+  margin: 60px auto;
+  padding: 0 20px;
+}
+.admin-denied .kicker { color: var(--clay); }
+.admin-denied h1     { margin: 8px 0 16px; }
+.admin-denied-actions { display: flex; gap: 10px; justify-content: center; flex-wrap: wrap; margin-top: 16px; }
+
+/* KPI strip */
+.adm-kpis {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 14px;
+  margin: 0 0 28px;
+}
+@media (max-width: 720px) {
+  .adm-kpis { grid-template-columns: repeat(2, 1fr); }
+}
+.adm-kpi {
+  background: var(--paper);
+  border: 1px solid var(--sand-deep);
+  border-radius: 14px;
+  padding: 16px 18px;
+  box-shadow: var(--shadow-sm);
+}
+.adm-kpi-label { font-size: 11px; font-weight: 600; letter-spacing: 0.06em; text-transform: uppercase; color: var(--ink-soft); }
+.adm-kpi-value { font-family: 'Fraunces', serif; font-size: 36px; font-weight: 600; color: var(--ink); line-height: 1.1; margin: 4px 0 2px; }
+.adm-kpi-sub   { font-size: 12px; color: var(--ink-soft); }
+
+/* Sections */
+.adm-section { margin-bottom: 36px; }
+.adm-section h2 { margin: 0 0 12px; font-size: 18px; }
+
+/* Users table */
+.adm-table-wrap { overflow-x: auto; border-radius: 12px; background: var(--paper); box-shadow: var(--shadow-sm); }
+.adm-table { width: 100%; border-collapse: collapse; font-size: 14px; }
+.adm-table th, .adm-table td {
+  text-align: left;
+  padding: 10px 14px;
+  border-bottom: 1px solid var(--sand);
+}
+.adm-table thead th {
+  background: var(--cream);
+  font-weight: 600;
+  font-size: 12px;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--ink-soft);
+  cursor: pointer;
+  user-select: none;
+}
+.adm-table thead th:hover { color: var(--ink); }
+.adm-sort-arrow { color: var(--sea); font-weight: 700; }
+.adm-num   { text-align: right; font-variant-numeric: tabular-nums; }
+.adm-mono  { font-family: ui-monospace, "SF Mono", Menlo, monospace; font-size: 13px; }
+.adm-user-row { cursor: pointer; transition: background 0.15s ease; }
+.adm-user-row:hover { background: var(--sea-soft); }
+.adm-user-row:last-child td { border-bottom: none; }
+.adm-table-hint { margin: 8px 0 0; font-size: 12px; }
+
+/* Popularity */
+.adm-pop-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; }
+@media (max-width: 720px) { .adm-pop-grid { grid-template-columns: 1fr; } }
+.adm-pop h3 { font-size: 14px; margin: 0 0 10px; color: var(--ink-soft); text-transform: uppercase; letter-spacing: 0.04em; }
+.adm-pop-list { list-style: none; padding: 0; margin: 0; }
+.adm-pop-row {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 100px 40px;
+  align-items: center;
+  gap: 10px;
+  padding: 6px 0;
+  font-size: 14px;
+}
+.adm-pop-name { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.adm-pop-bar  { height: 8px; background: var(--sand); border-radius: 999px; overflow: hidden; }
+.adm-pop-bar-fill { display: block; height: 100%; background: var(--sea); border-radius: 999px; }
+.adm-pop-count { text-align: right; font-variant-numeric: tabular-nums; color: var(--ink-soft); }
+
+/* User-detail modal */
+.adm-detail-backdrop {
+  position: fixed; inset: 0;
+  background: rgba(42, 39, 35, 0.55);
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
+  display: flex; align-items: flex-start; justify-content: center;
+  padding: 30px 16px;
+  z-index: 9999;
+  overflow-y: auto;
+  animation: authFade 0.18s ease-out;
+}
+.adm-detail-backdrop[hidden] { display: none; }
+.adm-detail {
+  position: relative;
+  width: 100%; max-width: 720px;
+  background: var(--paper);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+  padding: 28px 30px 28px;
+  animation: authPop 0.22s cubic-bezier(0.2, 0.7, 0.3, 1.05);
+}
+.adm-detail-close {
+  position: absolute; top: 10px; right: 12px;
+  width: 36px; height: 36px;
+  display: flex; align-items: center; justify-content: center;
+  background: transparent; border: none;
+  font-size: 26px; line-height: 1;
+  color: var(--ink-soft); cursor: pointer; border-radius: 999px;
+}
+.adm-detail-close:hover { background: var(--sand); color: var(--ink); }
+.adm-detail-body h2 { margin: 0 0 14px; }
+.adm-detail-body h3 { margin: 24px 0 8px; font-size: 14px; color: var(--ink-soft); text-transform: uppercase; letter-spacing: 0.04em; }
+.adm-detail-body h4 { margin: 14px 0 4px; }
+.adm-detail-body h5 { margin: 10px 0 4px; font-size: 12px; color: var(--ink-soft); text-transform: uppercase; letter-spacing: 0.04em; }
+
+.adm-profile { display: grid; gap: 6px; margin: 4px 0 10px; font-size: 14px; line-height: 1.5; }
+.adm-prof-k { display: inline-block; width: 22px; text-align: center; opacity: 0.8; }
+
+.adm-chip-sm {
+  display: inline-block; margin-left: 6px;
+  padding: 1px 8px; font-size: 10px; font-weight: 600;
+  background: var(--sea-soft); color: var(--sea);
+  border-radius: 999px; letter-spacing: 0.04em; text-transform: uppercase;
+}
+
+.adm-entry-list { list-style: none; padding: 0; margin: 4px 0 0; }
+.adm-entry { padding: 4px 0; font-size: 14px; }
+.adm-entry a { text-decoration: none; color: var(--sea); }
+.adm-entry a:hover { text-decoration: underline; }
+.adm-entry-unknown { color: var(--ink-soft); }
+
+.adm-trips { display: grid; gap: 14px; margin-top: 6px; }
+.adm-trip {
+  background: var(--cream);
+  border-radius: 12px;
+  padding: 14px 16px;
+}
+.adm-trip h4 { margin: 0 0 8px; }
+.adm-stops { list-style: none; padding: 0; margin: 0; }
+.adm-stop { padding: 6px 0; display: grid; grid-template-columns: 28px 1fr; gap: 4px 8px; font-size: 14px; }
+.adm-stop-num { font-variant-numeric: tabular-nums; color: var(--ink-soft); }
+.adm-stop-name { line-height: 1.4; }
+.adm-trip-date { grid-column: 2; font-size: 12px; color: var(--ink-soft); margin-top: 2px; }
+.adm-trip-notes { margin-top: 10px; padding-top: 10px; border-top: 1px dashed var(--sand-deep); }
+.adm-trip-notes ul { list-style: none; padding: 0; margin: 0; }
+.adm-note { font-size: 13px; padding: 3px 0; }
+.adm-note-date { font-weight: 600; color: var(--ink-soft); margin-right: 6px; }
+
 /* Profile step — the modal's step 2 after signup. Wider card so
    the 4 prof-blocks have room to breathe (the YOU block has 4
    fields in a row on the account page; we let them flow vertically

@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#3f6f7d">
+  <title>Admin — WaveBase</title>
+  <!-- noindex: this page is internal-only; we don't want it crawled
+       or showing up in any search-engine result, ever. -->
+  <meta name="robots" content="noindex, nofollow">
+  <link rel="icon" type="image/svg+xml" href="icon.svg">
+  <link rel="stylesheet" href="styles.css?v=341">
+</head>
+<body>
+
+  <header class="site-header">
+    <div class="wrap">
+      <a href="index.html" class="logo">Wave<span>Base</span></a>
+      <span class="admin-chip">Admin</span>
+      <nav class="site-nav admin-nav">
+        <a href="index.html">Back to site</a>
+        <a href="account.html" id="nav-account">My WaveBase</a>
+      </nav>
+    </div>
+  </header>
+
+  <main>
+    <section class="wrap">
+      <div id="admin-root">
+        <p class="muted" style="padding: 40px 0;">Loading admin dashboard…</p>
+      </div>
+    </section>
+  </main>
+
+  <footer class="site-footer">
+    <div class="wrap">
+      <div class="note">Internal — only Lode + Michiel can see this page.</div>
+    </div>
+  </footer>
+
+  <!-- Same script chain as the rest of the site. api-client.js
+       populates WAVEBASE_DATA which admin.js uses to resolve
+       spot_ids → friendly names in the user-detail modal. -->
+  <script src="constants.js?v=341"></script>
+  <script src="account.js?v=341"></script>
+  <script src="app.js?v=341"></script>
+  <script src="api-client.js?v=341"></script>
+  <script src="admin.js?v=341"></script>
+</body>
+</html>
