@@ -456,6 +456,27 @@ const WaveBaseAccount = (function () {
       _scheduleTripSync(tripId);
     },
 
+    /* Force every pending debounced trip-sync to fire NOW. Called
+       by the explicit "Save trips" button on the account page —
+       user-testing showed people want a button to click for peace
+       of mind even when auto-save is already running. Returns when
+       all syncs have settled, so the caller can show "Saved" without
+       lying. */
+    async flushTripSyncs() {
+      if (typeof WaveBaseAuth === "undefined" || !WaveBaseAuth.isLoggedIn()) return;
+      const s = state();
+      // Cancel pending debounce timers — we'll fire each sync
+      // synchronously below.
+      for (const tid of Array.from(_tripSyncTimers.keys())) {
+        clearTimeout(_tripSyncTimers.get(tid));
+        _tripSyncTimers.delete(tid);
+      }
+      // Fire all in parallel. _doTripSync handles its own errors;
+      // we await Promise.all so the caller knows when the last one
+      // settled. Empty / missing serverId trips get POSTed; others
+      // get PUT.
+      await Promise.all(s.trips.map(t => _doTripSync(t.id)));
+    },
     /* Pull server trips into local + push local trips without
        serverId up. Runs on data-ready and auth-changed, same as the
        saved-spots/surfed equivalents. */

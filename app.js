@@ -33,6 +33,20 @@
 function cap(s) { return s.charAt(0).toUpperCase() + s.slice(1); }
 function byId(id) { return WAVEBASE_DATA.find(x => x.id === id); }
 
+/* Gate the "Save this place" / "♡" actions behind being signed in.
+   Returns true if the caller should proceed with the save; returns
+   false (and pops the login modal) if the visitor is anonymous.
+   Other actions stay anon-friendly: Compare is a session tool, and
+   the "Surfed it" log is currently localStorage-only — neither
+   needs the modal yet. */
+function requireAuthForSave() {
+  if (typeof WaveBaseAuth !== "undefined" && WaveBaseAuth.isLoggedIn()) return true;
+  if (typeof WaveBaseAuthModal !== "undefined") {
+    WaveBaseAuthModal.open({ mode: "login" });
+  }
+  return false;
+}
+
 // Haversine — straight-line km between [lat, lon] pairs.
 function distanceKm(a, b) {
   if (!a || !b) return Infinity;
@@ -1315,6 +1329,7 @@ function wireCards(container) {
   container.querySelectorAll(".save-btn").forEach(btn => {
     btn.addEventListener("click", ev => {
       ev.stopPropagation();
+      if (!requireAuthForSave()) return;
       const on = WaveBaseAccount.toggleSave(btn.dataset.save);
       btn.classList.toggle("on", on);
       btn.textContent = on ? "♥" : "♡";
@@ -4012,6 +4027,7 @@ function initSpot() {
   wireMonthPinning(root, e);
 
   document.getElementById("save-toggle").addEventListener("click", function () {
+    if (!requireAuthForSave()) return;
     const on = WaveBaseAccount.toggleSave(e.id);
     this.textContent = on ? "♥ Saved" : "♡ Save this place";
     this.classList.toggle("on", on);
@@ -5051,6 +5067,58 @@ function isTripCollapsed(id) { return getCollapsedTrips().indexOf(id) !== -1; }
 // "scroll the freshly-rendered card with this trip ID into view."
 let __renderAccountScrollTo = null;
 
+// Profile section toggles between a compact view-mode summary and a
+// full edit-mode form. Default: view (less scrolling, less to look
+// at). Onboarding flow always shows the form. Persists across
+// re-renders of the account page (e.g. after adding a trip we don't
+// kick the user out of an edit they were in the middle of).
+let __profileEditMode = false;
+
+/* One-line label maps for profile multi-selects. Same shape used in
+   admin.js — kept duplicated here to avoid loading admin.js on every
+   page just for these constants. */
+const _PROFILE_SUMMARY_LABELS = {
+  surfType:       { surfer: "Surf", windsurfer: "Windsurf", kitesurfer: "Kitesurf", wingfoiler: "Wing-foil" },
+  discipline:     { freeride: "Freeride", wave: "Wave", freestyle: "Freestyle", slalom: "Slalom" },
+  travelStyles:   { Solo: "Solo / chill", Couple: "With partner", Family: "Family with kids", Friends: "Group of friends" },
+  tripPriorities: { "wave-time": "Wave time", "lessons": "Lessons", "vibe-food": "Vibe + food", "hidden-gems": "Hidden gems", "affordable": "Budget", "comfort": "Comfort" },
+  level:          { beginner: "Beginner", intermediate: "Intermediate", advanced: "Advanced" },
+};
+function _labelList(arr, dictKey) {
+  const dict = _PROFILE_SUMMARY_LABELS[dictKey] || {};
+  return (arr || []).map(k => dict[k] || k).filter(Boolean).join(", ");
+}
+function _profileSummaryRow(label, value, emoji) {
+  // Show "—" for empty so the layout stays predictable + the user
+  // sees the full shape of what's tracked. escHTML on the value
+  // because some fields (name, country) can include user input.
+  const v = (value && String(value).trim()) ? escHTML(value) : `<span class="muted">—</span>`;
+  return `<div class="prof-summary-row">
+    <span class="prof-summary-k">${emoji} ${label}</span>
+    <span class="prof-summary-v">${v}</span>
+  </div>`;
+}
+function _profileSummaryHTML(p, authEmail) {
+  // Show authEmail (server-side identity) as the email rather than
+  // p.email which is the local-form field — local can be stale or
+  // empty for a freshly-skipped onboarding.
+  const surf  = _labelList(p.surfType, "surfType");
+  const disc  = _labelList(p.discipline, "discipline");
+  const surfLine = [surf, _PROFILE_SUMMARY_LABELS.level[p.level] || "", disc].filter(Boolean).join(" · ");
+  const trav  = _labelList(p.travelStyles, "travelStyles");
+  const prio  = _labelList(p.tripPriorities, "tripPriorities");
+  return `
+    ${_profileSummaryRow("Name",      p.name,            "🧑")}
+    ${_profileSummaryRow("Email",     authEmail,         "📧")}
+    ${_profileSummaryRow("Born",      p.birthYear,       "🎂")}
+    ${_profileSummaryRow("Home base", p.homeCountry,     "🌍")}
+    ${_profileSummaryRow("Surfing",   surfLine,          "🏄")}
+    ${_profileSummaryRow("Travel",    trav,              "✈️")}
+    ${_profileSummaryRow("Looking for", prio,            "🎯")}
+    ${_profileSummaryRow("Found us via", p.howDidYouFindUs, "📍")}
+  `;
+}
+
 /* Renders a whole trip card — overview header, the Itinerary <-> Day by
    day views and the map. readonly drops the edit affordances (drag,
    date inputs, remove, share, add) — used for shared-trip pages. */
@@ -5584,6 +5652,7 @@ const WaveBaseProfileForm = (function () {
     opts = opts || {};
     const authed = (typeof WaveBaseAuth !== "undefined") && WaveBaseAuth.isLoggedIn();
     const doServerSync = (opts.serverSync !== false);
+    const autoSave     = (opts.autoSave   !== false);  // default true
     let serverSyncTimer = null;
     const get = id => rootEl.querySelector("#" + id);
 
@@ -5619,7 +5688,15 @@ const WaveBaseProfileForm = (function () {
     }
     function save() { localSave(); scheduleServerSync(); }
 
+    /* Save NOW: always writes local + (if signed in) immediately
+       PATCHes server, cancelling any pending debounce. Idempotent
+       — autoSave=true callers (where local already wrote on blur)
+       pay an extra cheap localStorage write; autoSave=false callers
+       (account-page Edit mode) get full commit on demand. Returns
+       a Promise that settles when the server responds (or right
+       away if anon / serverSync off). */
     function flushPendingSave() {
+      localSave();  // also covers autoSave=false case
       if (!authed || !doServerSync || typeof WaveBaseAuth === "undefined") {
         return Promise.resolve(null);
       }
@@ -5630,28 +5707,40 @@ const WaveBaseProfileForm = (function () {
       return WaveBaseAuth.updateProfile(_buildApiPatch(rootEl));
     }
 
-    // Text inputs: save on blur (avoid spamming localStorage per
-    // keystroke), live progress on input.
-    ["p-name", "p-email", "p-birthyear"].forEach(id => {
-      const el = get(id);
-      if (!el) return;
-      el.addEventListener("blur", save);
-      if (typeof opts.updateProgress === "function") {
-        el.addEventListener("input", opts.updateProgress);
-      }
-    });
-    // Selects: save on change.
-    ["p-country", "p-level", "p-found"].forEach(id => {
-      const el = get(id);
-      if (el) el.addEventListener("change", save);
-    });
-    // Checkboxes: save on change.
-    rootEl.querySelectorAll('input[name="surfType"], input[name="discipline"], input[name="travelStyles"], input[name="tripPriorities"]').forEach(cbEl => {
-      cbEl.addEventListener("change", save);
-    });
+    if (autoSave) {
+      // Text inputs: save on blur (avoid spamming localStorage per
+      // keystroke), live progress on input.
+      ["p-name", "p-email", "p-birthyear"].forEach(id => {
+        const el = get(id);
+        if (!el) return;
+        el.addEventListener("blur", save);
+        if (typeof opts.updateProgress === "function") {
+          el.addEventListener("input", opts.updateProgress);
+        }
+      });
+      // Selects: save on change.
+      ["p-country", "p-level", "p-found"].forEach(id => {
+        const el = get(id);
+        if (el) el.addEventListener("change", save);
+      });
+      // Checkboxes: save on change.
+      rootEl.querySelectorAll('input[name="surfType"], input[name="discipline"], input[name="travelStyles"], input[name="tripPriorities"]').forEach(cbEl => {
+        cbEl.addEventListener("change", save);
+      });
+    } else {
+      // autoSave=false: only the conditional discipline-fieldset
+      // toggle is wired (it's a pure UI affordance, not a save), and
+      // the live progress on input if requested.
+      ["p-name", "p-email", "p-birthyear"].forEach(id => {
+        const el = get(id);
+        if (el && typeof opts.updateProgress === "function") {
+          el.addEventListener("input", opts.updateProgress);
+        }
+      });
+    }
 
-    // Conditional Wind-discipline fieldset show/hide. Clears
-    // disciplines when hiding so stale data doesn't linger.
+    // Conditional Wind-discipline fieldset show/hide. Always wired
+    // regardless of autoSave — it's a UX affordance, not a save.
     rootEl.querySelectorAll('input[name="surfType"]').forEach(cbEl => {
       cbEl.addEventListener("change", () => {
         const picked = _readChecks(rootEl, "surfType");
@@ -5745,14 +5834,72 @@ function renderAccount() {
     <span class="saved-discover-text">Looking for more?</span>
     <a class="exp-launch-btn" href="explorer.html?view=all">Discover new places →</a>
   </div>`;
+  // Group saved entries by country so the list reads like a packing
+  // list ("Belgium: 3, Greece: 2, Morocco: 6") rather than a single
+  // long undifferentiated grid. Countries with no name (orphans that
+  // somehow survived pruning) bucket under "Other".
+  function _savedByCountry(entries) {
+    const buckets = {};
+    entries.forEach(e => {
+      const c = (e.country || "").trim() || "Other";
+      (buckets[c] = buckets[c] || []).push(e);
+    });
+    // Alphabetical country order — predictable, scannable.
+    return Object.keys(buckets).sort().map(c => ({ country: c, entries: buckets[c] }));
+  }
   const savedHTML = (saved.length
-    ? `<div class="grid">${saved.map(e => cardHTML(e)).join("")}</div>`
+    ? _savedByCountry(saved).map(b => `
+        <div class="saved-country-block">
+          <h3 class="saved-country-head">${escHTML(b.country)} <span class="seccount">${b.entries.length}</span></h3>
+          <div class="grid">${b.entries.map(e => cardHTML(e)).join("")}</div>
+        </div>
+      `).join("")
     : `<p class="muted">Nothing saved yet. Tap the heart on a spot, center or stay as you browse.</p>`)
     + discoverCTA;
 
-  const tripsHTML = trips.length
-    ? trips.map(t => tripCardHTML(t, false)).join("")
-    : `<p class="muted">No trips yet.</p>`;
+  // Split trips into Upcoming vs Past based on the latest date in
+  // the trip (max of all check-out dates across stays, falling back
+  // to check-in if no check-out is set). Trips with no dates yet
+  // count as Upcoming — they're still being planned.
+  function _tripLatestDate(t) {
+    const datesObj = t.dates || {};
+    const all = [];
+    Object.keys(datesObj).forEach(k => {
+      const d = datesObj[k] || {};
+      if (d.out) all.push(d.out);
+      else if (d.in) all.push(d.in);
+    });
+    if (!all.length) return null;  // no dates → treat as upcoming
+    return all.sort().slice(-1)[0];  // ISO YYYY-MM-DD lex-sorts correctly
+  }
+  const todayISO = new Date().toISOString().slice(0, 10);
+  const upcomingTrips = [];
+  const pastTrips     = [];
+  trips.forEach(t => {
+    const latest = _tripLatestDate(t);
+    if (latest && latest < todayISO) pastTrips.push(t);
+    else upcomingTrips.push(t);
+  });
+  // Within each bucket, sort by latest date (earliest upcoming on
+  // top, most-recent past on top). No-date trips bubble to the
+  // bottom of upcoming.
+  upcomingTrips.sort((a, b) => {
+    const la = _tripLatestDate(a) || "9999-12-31";
+    const lb = _tripLatestDate(b) || "9999-12-31";
+    return la.localeCompare(lb);
+  });
+  pastTrips.sort((a, b) => {
+    const la = _tripLatestDate(a) || "";
+    const lb = _tripLatestDate(b) || "";
+    return lb.localeCompare(la);
+  });
+
+  const upcomingTripsHTML = upcomingTrips.length
+    ? upcomingTrips.map(t => tripCardHTML(t, false)).join("")
+    : `<p class="muted">No upcoming trips. Click "+ New trip" to start planning.</p>`;
+  const pastTripsHTML = pastTrips.length
+    ? pastTrips.map(t => tripCardHTML(t, false)).join("")
+    : "";  // hide the past section entirely if it's empty
 
   const matchesLabel = { yes: "Matched our write-up", partial: "Partly matched", no: "Differed from our write-up" };
   // Pretty labels for the keys we know about. Anything not listed renders
@@ -5892,20 +6039,28 @@ function renderAccount() {
       </div>
       <p class="muted lead-note">Helps us filter the site for you. Honest, anonymous, never shared.</p>
 
-      <div class="profile-form-v2" id="profile-form-root">
+      ${(isOnboarding || __profileEditMode)
+        ? `<div class="profile-form-v2" id="profile-form-root">
 
-        ${WaveBaseProfileForm.buildBlocksHTML(p)}
+            ${WaveBaseProfileForm.buildBlocksHTML(p)}
 
-        <div class="prof-actions">
-          ${isOnboarding
-            ? `<button type="button" class="btn ghost" id="p-skip">Skip for now</button>
-               <button type="button" class="btn"       id="p-continue">Save and continue &rarr;</button>`
-            : `<span class="muted prof-autosave-hint">Auto-saves as you type${authed ? " &middot; synced to your account" : ""}.</span>
-               <button type="button" class="btn ghost" id="p-reset">Reset profile</button>
-               ${authed ? `<button type="button" class="btn ghost btn-quiet" id="acc-signout">Sign out</button>` : ``}`
-          }
-        </div>
-      </div>
+            <div class="prof-actions">
+              ${isOnboarding
+                ? `<button type="button" class="btn ghost" id="p-skip">Skip for now</button>
+                   <button type="button" class="btn"       id="p-continue">Save and continue &rarr;</button>`
+                : `<button type="button" class="btn ghost" id="p-cancel">Cancel</button>
+                   <button type="button" class="btn"       id="p-save-edit">Save</button>`
+              }
+            </div>
+          </div>`
+        : `<div class="prof-summary">
+            ${_profileSummaryHTML(p, authEmail)}
+            <div class="prof-summary-actions">
+              <button type="button" class="btn" id="prof-edit">Edit profile</button>
+              ${authed ? `<button type="button" class="btn ghost btn-quiet" id="acc-signout">Sign out</button>` : ``}
+            </div>
+          </div>`
+      }
     </section>
 
     ${isOnboarding ? "" : `
@@ -5922,7 +6077,21 @@ function renderAccount() {
         <button class="btn ghost" id="new-trip">+ New trip</button>
       </div>
       <p class="muted form-note">Drag locations to reorder them — the map and route line follow the order. Give each stay check-in / check-out dates for a nights + cost estimate. Use ✕ to remove a stop.</p>
-      ${tripsHTML}
+
+      <h3 class="trips-bucket-head">Upcoming <span class="seccount">${upcomingTrips.length}</span></h3>
+      ${upcomingTripsHTML}
+
+      ${pastTrips.length ? `
+      <h3 class="trips-bucket-head trips-bucket-head-past">Past <span class="seccount">${pastTrips.length}</span></h3>
+      ${pastTripsHTML}
+      ` : ``}
+
+      ${authed && trips.length ? `
+      <div class="trips-save-row">
+        <span class="muted trips-save-hint" id="trips-save-hint">Auto-saved to your account as you edit.</span>
+        <button type="button" class="btn" id="trips-save">Save trips</button>
+      </div>
+      ` : ``}
     </section>
 
     <section class="acc-block" id="my-reviews">
@@ -5984,22 +6153,48 @@ function renderAccount() {
   };
 
   // Wire the profile-form via the shared module so the account page
-  // and the modal stay in sync. The module handles all the field
-  // listeners (auto-save to localStorage on blur/change, debounced
-  // server sync when signed in, conditional Wind-discipline show/
-  // hide). We pass the flash + progress callbacks that are unique
-  // to this page.
+  // and the modal stay in sync. Onboarding flow uses auto-save (any
+  // typed field is preserved even on Skip). The account-page edit
+  // mode uses explicit Save (autoSave: false) — Lode's UX call: a
+  // button to click gives users confidence the change landed.
   const profileFormRoot = document.getElementById("profile-form-root");
   if (profileFormRoot && typeof WaveBaseProfileForm !== "undefined") {
     const wired = WaveBaseProfileForm.wire(profileFormRoot, {
+      autoSave:       isOnboarding,  // auto in onboarding, explicit Save otherwise
       onSavedFlash:   flashSaved,
       updateProgress: updateProgressDisplay,
-      // serverSync defaults to true; gated server-side by authed
     });
-    // Stash the wired controller on the form node so the onboarding
-    // Continue handler can call flushPendingSave() before navigating.
     profileFormRoot.__wbWired = wired;
   }
+
+  // Profile view ↔ edit toggle handlers.
+  const profEditBtn = document.getElementById("prof-edit");
+  if (profEditBtn) profEditBtn.addEventListener("click", () => {
+    __profileEditMode = true;
+    renderAccount();
+  });
+  const profCancelBtn = document.getElementById("p-cancel");
+  if (profCancelBtn) profCancelBtn.addEventListener("click", () => {
+    __profileEditMode = false;
+    renderAccount();  // re-renders from last-saved localStorage state, edits discarded
+  });
+  const profSaveEditBtn = document.getElementById("p-save-edit");
+  if (profSaveEditBtn) profSaveEditBtn.addEventListener("click", async () => {
+    profSaveEditBtn.disabled = true;
+    profSaveEditBtn.textContent = "Saving…";
+    try {
+      if (profileFormRoot && profileFormRoot.__wbWired) {
+        await profileFormRoot.__wbWired.flushPendingSave();
+      }
+    } catch (e) {
+      alert("Couldn't save: " + (e.message || e));
+      profSaveEditBtn.disabled = false;
+      profSaveEditBtn.textContent = "Save";
+      return;
+    }
+    __profileEditMode = false;
+    renderAccount();
+  });
 
   // Reset button — confirm, then clear profile fields (keeps the
   // user's saved spots, trips and reviews untouched). Hidden in
@@ -6097,6 +6292,39 @@ function renderAccount() {
       if (nt && nt.id) __renderAccountScrollTo = nt.id;
       renderAccount();
     }
+  });
+
+  // Explicit "Save trips" button. Trips already auto-sync (debounced
+  // 1.5s after every edit) but user-testing showed people want a
+  // button to click for peace of mind. Behind the scenes we force-
+  // flush any pending debounced syncs by calling the trip-sync
+  // helper for every trip with a serverId OR no serverId — exposed
+  // via the WaveBaseAccount.flushTripSyncs() helper added in
+  // account.js.
+  const tripsSaveBtn = document.getElementById("trips-save");
+  if (tripsSaveBtn) tripsSaveBtn.addEventListener("click", async () => {
+    tripsSaveBtn.disabled = true;
+    tripsSaveBtn.textContent = "Saving…";
+    const hint = document.getElementById("trips-save-hint");
+    try {
+      if (typeof WaveBaseAccount.flushTripSyncs === "function") {
+        await WaveBaseAccount.flushTripSyncs();
+      }
+      if (hint) {
+        hint.textContent = "✓ Saved to your account just now.";
+        hint.classList.add("trips-save-flash");
+      }
+    } catch (e) {
+      alert("Couldn't save: " + (e.message || e));
+    }
+    tripsSaveBtn.disabled = false;
+    tripsSaveBtn.textContent = "Save trips";
+    setTimeout(() => {
+      if (hint) {
+        hint.textContent = "Auto-saved to your account as you edit.";
+        hint.classList.remove("trips-save-flash");
+      }
+    }, 2500);
   });
   root.querySelectorAll("[data-del]").forEach(b => {
     b.addEventListener("click", () => { WaveBaseAccount.deleteTrip(b.dataset.del); renderAccount(); });

@@ -6053,6 +6053,67 @@ button.rml-key.off .rml-dot {
 }
 .acc-head-meta .btn { padding: 8px 16px; font-size: 14px; }
 
+/* Profile summary card (view-mode default). Compact two-column
+   list of profile values + an Edit button. Switches to the full
+   form on Edit click. */
+.prof-summary {
+  background: var(--paper);
+  border: 1px solid var(--sand);
+  border-radius: 14px;
+  padding: 18px 22px;
+}
+.prof-summary-row {
+  display: grid;
+  grid-template-columns: 160px 1fr;
+  gap: 14px;
+  padding: 8px 0;
+  font-size: 14px;
+  border-bottom: 1px solid var(--sand);
+}
+.prof-summary-row:last-of-type { border-bottom: none; }
+.prof-summary-k { color: var(--ink-soft); font-weight: 500; }
+.prof-summary-v { color: var(--ink); }
+.prof-summary-actions {
+  display: flex; gap: 10px; flex-wrap: wrap;
+  margin-top: 16px;
+  padding-top: 16px;
+  border-top: 1px solid var(--sand-deep);
+}
+.prof-summary-actions .btn:last-child { margin-left: auto; }
+@media (max-width: 480px) {
+  .prof-summary-row { grid-template-columns: 1fr; gap: 2px; }
+  .prof-summary-k   { font-size: 11px; text-transform: uppercase; letter-spacing: 0.04em; }
+}
+
+/* Saved-places, grouped per country. Each country gets a header
+   with a count chip and its own card-grid underneath. */
+.saved-country-block + .saved-country-block { margin-top: 22px; }
+.saved-country-head {
+  font-size: 16px;
+  margin: 0 0 10px;
+  color: var(--ink);
+  display: flex; align-items: center; gap: 8px;
+}
+
+/* Trips: Upcoming / Past sub-headers + Save row at the bottom. */
+.trips-bucket-head {
+  font-size: 13px;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--ink-soft);
+  margin: 22px 0 10px;
+}
+.trips-bucket-head-past { color: var(--ink-soft); opacity: 0.8; }
+.trips-save-row {
+  display: flex; align-items: center; gap: 12px;
+  margin-top: 22px;
+  padding-top: 16px;
+  border-top: 1px dashed var(--sand-deep);
+}
+.trips-save-hint { font-size: 13px; }
+.trips-save-hint.trips-save-flash { color: var(--sea); font-weight: 600; }
+.trips-save-row .btn { margin-left: auto; }
+
 .acc-onboard-head { margin-bottom: 20px; }
 .acc-onboard-head .kicker { margin: 0 0 6px; }
 .acc-onboard-head h1 { margin: 0 0 8px; }
