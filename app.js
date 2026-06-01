@@ -132,7 +132,7 @@ async function _refreshSpotReviews(entryId) {
     const yourBadge = isMine
       ? `<span class="my-review-mine-badge">Your review</span>`
       : "";
-    return `<li class="my-review-card${isMine ? " my-review-mine" : ""}">
+    return `<li class="my-review${isMine ? " my-review-mine" : ""}">
       <div class="my-review-head">
         <div class="my-review-where">${stars} <span class="muted">by ${author}</span>${yourBadge}</div>
         ${ownerActions}
