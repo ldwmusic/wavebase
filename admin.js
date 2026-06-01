@@ -114,6 +114,26 @@ async function _loadPopularity() {
   if (!res.ok) throw new Error("Popularity failed: " + res.status);
   return res.json();
 }
+async function _loadEventsAffiliate() {
+  const res = await WaveBaseAuth.authFetch("/admin/events/affiliate");
+  if (!res.ok) throw new Error("Affiliate failed: " + res.status);
+  return res.json();
+}
+async function _loadEventsPageviews() {
+  const res = await WaveBaseAuth.authFetch("/admin/events/pageviews");
+  if (!res.ok) throw new Error("Pageviews failed: " + res.status);
+  return res.json();
+}
+async function _loadEventsFunnel() {
+  const res = await WaveBaseAuth.authFetch("/admin/events/funnel");
+  if (!res.ok) throw new Error("Funnel failed: " + res.status);
+  return res.json();
+}
+async function _loadEventsSearch() {
+  const res = await WaveBaseAuth.authFetch("/admin/events/search");
+  if (!res.ok) throw new Error("Search failed: " + res.status);
+  return res.json();
+}
 async function _loadUserDetail(userId) {
   const res = await WaveBaseAuth.authFetch("/admin/users/" + encodeURIComponent(userId));
   if (!res.ok) throw new Error("User detail failed: " + res.status);
@@ -248,9 +268,16 @@ function _renderPopularity(pop) {
 
 async function _renderDashboard() {
   const root = document.getElementById("admin-root");
-  let overview, popularity;
+  let overview, popularity, evAff, evViews, evFunnel, evSearch;
   try {
-    [overview, popularity] = await Promise.all([_loadOverview(), _loadPopularity()]);
+    [overview, popularity, evAff, evViews, evFunnel, evSearch] = await Promise.all([
+      _loadOverview(),
+      _loadPopularity(),
+      _loadEventsAffiliate(),
+      _loadEventsPageviews(),
+      _loadEventsFunnel(),
+      _loadEventsSearch(),
+    ]);
   } catch (e) {
     root.innerHTML = `<p class="muted" style="color:var(--clay);">Failed to load admin data: ${_esc(e.message || e)}</p>`;
     return;
@@ -267,9 +294,118 @@ async function _renderDashboard() {
     ${_renderKpis(overview.totals, overview.today)}
     ${_renderUsersTable(overview.users)}
     ${_renderPopularity(popularity)}
+    ${_renderActivity(evAff, evViews, evFunnel, evSearch)}
   `;
 
   _wireTableInteractions();
+}
+
+function _renderActivity(evAff, evViews, evFunnel, evSearch) {
+  function _spotRow(item, maxCount) {
+    const entry = _entryById(item.spot_id);
+    const name  = entry ? entry.name : (item.spot_id || "(unknown)");
+    const town  = entry ? entry.town : "";
+    const emoji = entry ? _typeEmoji(entry.type) : "·";
+    const pct   = Math.round((item.count / maxCount) * 100);
+    return `
+      <li class="adm-pop-row">
+        <span class="adm-pop-name">${emoji} ${_esc(name)} <span class="muted">${_esc(town)}</span></span>
+        <span class="adm-pop-bar"><span class="adm-pop-bar-fill" style="width:${pct}%"></span></span>
+        <span class="adm-pop-count">${item.count}</span>
+      </li>`;
+  }
+
+  // Top affiliate clicks
+  const aff = evAff.top || [];
+  const affMax = Math.max(1, ...aff.map(x => x.count));
+  const affHtml = aff.length
+    ? `<ol class="adm-pop-list">${aff.map(x => _spotRow(x, affMax)).join("")}</ol>`
+    : `<p class="muted">No affiliate clicks yet.</p>`;
+
+  // Top viewed pages
+  const views = evViews.top || [];
+  const viewsMax = Math.max(1, ...views.map(x => x.count));
+  const viewsHtml = views.length
+    ? `<ol class="adm-pop-list">${views.map(x => _spotRow(x, viewsMax)).join("")}</ol>`
+    : `<p class="muted">No page views yet (gated by user consent in the cookie banner).</p>`;
+
+  // Signup funnel — relative bars vs. step 1, plus drop-off %.
+  const steps = evFunnel.steps || [];
+  const stepLabel = {
+    signup_modal_open:       "1. Modal opened",
+    signup_email_filled:     "2. Email entered",
+    signup_password_filled:  "3. Password entered",
+    signup_submitted:        "4. Submitted",
+    signup_profile_saved:    "5a. Profile saved",
+    signup_profile_skipped:  "5b. Skipped profile",
+  };
+  const firstCount = (steps[0] && steps[0].count) || 0;
+  const funnelHtml = steps.length
+    ? `<ol class="adm-pop-list">${steps.map(s => {
+        const label = stepLabel[s.step] || s.step;
+        const pct = firstCount ? Math.round((s.count / firstCount) * 100) : 0;
+        return `
+          <li class="adm-pop-row">
+            <span class="adm-pop-name">${_esc(label)}</span>
+            <span class="adm-pop-bar"><span class="adm-pop-bar-fill" style="width:${pct}%"></span></span>
+            <span class="adm-pop-count">${s.count}</span>
+          </li>`;
+      }).join("")}</ol>`
+    : `<p class="muted">No signup activity yet.</p>`;
+
+  // Search — top queries (frequency) + recent (raw, latest first).
+  const topSearch = evSearch.top || [];
+  const topSearchMax = Math.max(1, ...topSearch.map(x => x.count));
+  const topSearchHtml = topSearch.length
+    ? `<ol class="adm-pop-list">${topSearch.map(q => `
+        <li class="adm-pop-row">
+          <span class="adm-pop-name">${_esc(q.query)}</span>
+          <span class="adm-pop-bar"><span class="adm-pop-bar-fill" style="width:${Math.round((q.count / topSearchMax) * 100)}%"></span></span>
+          <span class="adm-pop-count">${q.count}</span>
+        </li>`).join("")}</ol>`
+    : `<p class="muted">No searches yet.</p>`;
+
+  const recentSearch = evSearch.recent || [];
+  const recentSearchHtml = recentSearch.length
+    ? `<ul class="adm-recent-search">${recentSearch.slice(0, 20).map(q => `
+        <li>
+          <span class="adm-mono">${_esc(q.query)}</span>
+          <span class="muted adm-recent-ts">${_fmtDate(q.ts, true)}</span>
+        </li>`).join("")}</ul>`
+    : `<p class="muted">No searches yet.</p>`;
+
+  return `
+    <section class="adm-section adm-pop">
+      <h2>Activity</h2>
+      <p class="muted adm-table-hint">
+        1st-party event tracking. Admin events (Lode, Michiel) are filtered out server-side
+        so the numbers reflect real visitors only. Consent-gated via the cookie banner — visitors
+        who reject analytics don&rsquo;t show up here either.
+      </p>
+      <div class="adm-pop-grid">
+        <div>
+          <h3>Top affiliate clicks</h3>
+          ${affHtml}
+        </div>
+        <div>
+          <h3>Top viewed pages</h3>
+          ${viewsHtml}
+        </div>
+      </div>
+      <div class="adm-pop-grid" style="margin-top: 24px;">
+        <div>
+          <h3>Signup funnel</h3>
+          ${funnelHtml}
+        </div>
+        <div>
+          <h3>Top searches</h3>
+          ${topSearchHtml}
+          <h3 style="margin-top: 18px;">Recent searches</h3>
+          ${recentSearchHtml}
+        </div>
+      </div>
+    </section>
+  `;
 }
 
 let _adminUsersCache = [];

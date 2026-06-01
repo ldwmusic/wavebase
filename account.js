@@ -953,6 +953,184 @@ if (typeof window !== "undefined") {
 
 
 /* ============================================================
+   WaveBaseTracking — 1st-party event tracker.
+
+   POSTs to /events/ for the high-value signals (affiliate clicks,
+   pageviews, signup-funnel steps, search queries). Anon-friendly:
+   no JWT, server records the event without a user_id. Signed-in
+   events carry the JWT; the server attaches user_id automatically.
+
+   Three reasons an event might be silently dropped:
+     1. User rejected analytics in the cookie banner.
+     2. Signed-in user is in the admin allowlist (Lode / Michiel)
+        — keeps our own testing out of the dataset. Server enforces
+        the same rule as defence in depth.
+     3. WaveBaseAuth/Account unavailable (would only happen pre-
+        bootstrap; events get dropped silently rather than racing).
+   ============================================================ */
+const WaveBaseTracking = (function () {
+  const API = (typeof WAVEBASE_API !== "undefined")
+    ? WAVEBASE_API
+    : "https://wavebase-api-qqwt.onrender.com";
+
+  // Mirror of admin.js's allowlist. Kept duplicated rather than
+  // imported because account.js loads before admin.js, and we want
+  // the check to work on pages that don't load admin.js at all.
+  // Add new admin emails to BOTH places if/when needed.
+  const ADMIN_EMAILS_LC = ["lode.b162@gmail.com", "michiel.decooman@gmail.com"];
+
+  const SESSION_KEY = "wavebase_session_id";
+
+  function _sessionId() {
+    try {
+      let id = sessionStorage.getItem(SESSION_KEY);
+      if (!id) {
+        // crypto.randomUUID exists in all modern browsers (2022+);
+        // fallback to a Math.random-based id for ancient ones rather
+        // than blocking tracking entirely.
+        id = (typeof crypto !== "undefined" && crypto.randomUUID)
+          ? crypto.randomUUID()
+          : ("s-" + Math.random().toString(36).slice(2) + Date.now().toString(36));
+        sessionStorage.setItem(SESSION_KEY, id);
+      }
+      return id;
+    } catch (e) {
+      // sessionStorage blocked (rare — private mode in some old browsers).
+      // Use a one-shot in-memory id so events still group within a single
+      // page render at least.
+      if (!_sessionId._fallback) {
+        _sessionId._fallback = "mem-" + Math.random().toString(36).slice(2);
+      }
+      return _sessionId._fallback;
+    }
+  }
+
+  function _consentAllowed() {
+    // Same key the existing Cloudflare consent uses. If the user
+    // hasn't decided yet (banner still up), default to NOT tracking
+    // — opt-in is the GDPR-safer default. Once they Accept, tracking
+    // starts. Once they Reject, it stays off.
+    try {
+      const raw = localStorage.getItem("wavebase_consent_v1");
+      if (!raw) return false;
+      const obj = JSON.parse(raw);
+      return obj && obj.analytics === true;
+    } catch (e) { return false; }
+  }
+
+  function _isAdminEmail(email) {
+    if (!email) return false;
+    return ADMIN_EMAILS_LC.indexOf(String(email).toLowerCase()) !== -1;
+  }
+
+  function _currentUserEmail() {
+    if (typeof WaveBaseAuth === "undefined") return null;
+    if (!WaveBaseAuth.isLoggedIn()) return null;
+    const u = WaveBaseAuth.currentUser();
+    return (u && u.email) || null;
+  }
+
+  function track(eventType, properties) {
+    try {
+      if (!_consentAllowed()) return;
+      if (_isAdminEmail(_currentUserEmail())) return;
+
+      const headers = { "Content-Type": "application/json" };
+      // Attach the JWT if we have one — server uses it to link
+      // events to the user (and to enforce the admin-drop rule on
+      // its side too).
+      if (typeof WaveBaseAuth !== "undefined" && WaveBaseAuth.isLoggedIn()) {
+        // Pull the raw token via the private auth helper — there's
+        // no public getter, but localStorage works.
+        try {
+          const tok = localStorage.getItem("wavebase_auth_token_v1");
+          if (tok) headers["Authorization"] = "Bearer " + tok;
+        } catch (e) {}
+      }
+
+      const body = JSON.stringify({
+        event_type: String(eventType || "").slice(0, 80),
+        properties: properties || {},
+        session_id: _sessionId(),
+      });
+
+      // Fire-and-forget. keepalive=true tells the browser to let the
+      // request complete even if the page unloads (so the pageview
+      // for the OUTGOING page lands even after a navigation).
+      fetch(API + "/events/", {
+        method: "POST",
+        headers: headers,
+        body: body,
+        keepalive: true,
+      }).catch(function () { /* silent */ });
+    } catch (e) { /* never let tracking break the page */ }
+  }
+
+  /* Convenience: pageview for the current page. Auto-detects spot_id
+     from the URL when on spot.html so the admin "top viewed" report
+     can group by spot. Other pages send a pageview with just the
+     path so we can see homepage / explorer / kaart traffic too. */
+  function pageview() {
+    try {
+      const path = (window.location.pathname || "/").split("/").pop() || "/";
+      const params = new URLSearchParams(window.location.search);
+      const props = { path: path };
+      // spot.html?id=XYZ is the detail page for any spot/center/stay
+      // (frontend uses the same page for all three types).
+      if (path === "spot.html") {
+        const id = params.get("id");
+        if (id) props.spot_id = id;
+      }
+      track("pageview", props);
+    } catch (e) {}
+  }
+
+  return {
+    track:    track,
+    pageview: pageview,
+  };
+})();
+
+// Fire one pageview per page load. Wait for DOMContentLoaded so the
+// consent state + auth state are stable; pageview() guards on both
+// anyway, so this is just to avoid an extra wasted attempt.
+if (typeof window !== "undefined") {
+  if (document.readyState === "loading") {
+    document.addEventListener("DOMContentLoaded", function () { WaveBaseTracking.pageview(); });
+  } else {
+    WaveBaseTracking.pageview();
+  }
+
+  /* Affiliate / "Book now" clicks. Delegated listener so every
+     .btn-book on the page is auto-tracked without per-render
+     wiring. spot_id comes from:
+       - data-spot-id on the link (preferred — set at render time
+         when we have the entry in hand), OR
+       - ?id= URL parameter (works on spot.html detail pages),
+       - else omitted (still tracked, just without per-spot
+         grouping in the admin chart).
+     Track happens BEFORE the navigation; keepalive=true on the
+     fetch makes sure the event lands. */
+  document.addEventListener("click", function (ev) {
+    const a = ev.target && ev.target.closest && ev.target.closest("a.btn-book");
+    if (!a) return;
+    let spotId = a.getAttribute("data-spot-id") || null;
+    if (!spotId) {
+      try {
+        const params = new URLSearchParams(window.location.search);
+        const path   = window.location.pathname.split("/").pop();
+        if (path === "spot.html") spotId = params.get("id") || null;
+      } catch (e) {}
+    }
+    WaveBaseTracking.track("affiliate_click", {
+      spot_id: spotId,
+      href:    a.getAttribute("href") || "",
+    });
+  });
+}
+
+
+/* ============================================================
    WaveBaseAuthModal — the login/signup popup.
 
    One DOM node, lazily injected into <body> on the first .open()
@@ -1110,9 +1288,38 @@ const WaveBaseAuthModal = (function () {
       const btn = ev.target.closest(".auth-tab");
       if (!btn) return;
       setMode(btn.dataset.mode);
+      // Switching to signup mid-session counts as a "modal open" for
+      // the funnel — the user reached the signup form, regardless of
+      // which mode the modal opened in originally.
+      if (btn.dataset.mode === "signup" && typeof WaveBaseTracking !== "undefined") {
+        WaveBaseTracking.track("signup_modal_open", { via: "tab_switch" });
+      }
     });
     footerToggleEl.addEventListener("click", function () {
-      setMode(mode === "login" ? "signup" : "login");
+      const next = mode === "login" ? "signup" : "login";
+      setMode(next);
+      if (next === "signup" && typeof WaveBaseTracking !== "undefined") {
+        WaveBaseTracking.track("signup_modal_open", { via: "footer_link" });
+      }
+    });
+
+    // Funnel: email / password field touched (non-empty on blur).
+    // No client-side dedup — the server's funnel aggregation counts
+    // distinct session_ids per step, so repeated blurs from the same
+    // session collapse to one count automatically.
+    emailEl.addEventListener("blur", function () {
+      if (mode !== "signup") return;
+      if (!emailEl.value || emailEl.value.indexOf("@") === -1) return;
+      if (typeof WaveBaseTracking !== "undefined") {
+        WaveBaseTracking.track("signup_email_filled", {});
+      }
+    });
+    passwordEl.addEventListener("blur", function () {
+      if (mode !== "signup") return;
+      if (!passwordEl.value || passwordEl.value.length < 6) return;
+      if (typeof WaveBaseTracking !== "undefined") {
+        WaveBaseTracking.track("signup_password_filled", {});
+      }
     });
 
     // Password show/hide toggle. Flips the input type between
@@ -1140,6 +1347,9 @@ const WaveBaseAuthModal = (function () {
     // Continue first flushes any pending debounced server-sync so
     // we don't navigate with unsaved field edits in flight.
     profileSkipBtn.addEventListener("click", function () {
+      if (typeof WaveBaseTracking !== "undefined") {
+        WaveBaseTracking.track("signup_profile_skipped", {});
+      }
       close();
       window.location.href = "account.html";
     });
@@ -1157,6 +1367,9 @@ const WaveBaseAuthModal = (function () {
         profileContBtn.disabled = false;
         profileContBtn.textContent = "Save and continue →";
         return;
+      }
+      if (typeof WaveBaseTracking !== "undefined") {
+        WaveBaseTracking.track("signup_profile_saved", {});
       }
       close();
       window.location.href = "account.html";
@@ -1259,6 +1472,9 @@ const WaveBaseAuthModal = (function () {
     setBusy(true);
     try {
       const wasSignup = (mode === "signup");
+      if (wasSignup && typeof WaveBaseTracking !== "undefined") {
+        WaveBaseTracking.track("signup_submitted", {});
+      }
       const user = wasSignup
         ? await WaveBaseAuth.signup({ email: email, password: password })
         : await WaveBaseAuth.login({ email: email, password: password });
@@ -1301,6 +1517,12 @@ const WaveBaseAuthModal = (function () {
     opts = opts || {};
     build();
     setMode(opts.mode || "login");
+    // Track the modal-open event ONLY for signup-mode opens — login
+    // is a different funnel and we'd swamp the signup signal otherwise.
+    if ((opts.mode || "login") === "signup"
+        && typeof WaveBaseTracking !== "undefined") {
+      WaveBaseTracking.track("signup_modal_open", {});
+    }
     onSuccess = opts.onSuccess || null;
     emailEl.value = "";
     passwordEl.value = "";

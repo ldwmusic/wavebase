@@ -7601,7 +7601,15 @@ function wireHeaderSearch() {
   if (!input) return;
   const go = () => {
     const q = input.value.trim();
-    if (q) window.location.href = `index.html?q=${encodeURIComponent(q)}`;
+    if (q) {
+      // Track the search before we navigate so the admin "what
+      // are people searching for" report sees it. keepalive=true
+      // on the tracking fetch means it survives the navigation.
+      if (typeof WaveBaseTracking !== "undefined") {
+        WaveBaseTracking.track("search_submitted", { query: q });
+      }
+      window.location.href = `index.html?q=${encodeURIComponent(q)}`;
+    }
   };
   input.addEventListener("keydown", ev => {
     if (ev.key === "Enter") { ev.preventDefault(); go(); }

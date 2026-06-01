@@ -5933,6 +5933,18 @@ button.rml-key.off .rml-dot {
 .adm-pop-bar-fill { display: block; height: 100%; background: var(--sea); border-radius: 999px; }
 .adm-pop-count { text-align: right; font-variant-numeric: tabular-nums; color: var(--ink-soft); }
 
+/* Recent-search list — chronological tape of raw queries. */
+.adm-recent-search { list-style: none; padding: 0; margin: 0; max-height: 280px; overflow-y: auto; }
+.adm-recent-search li {
+  display: flex; justify-content: space-between; align-items: baseline;
+  gap: 12px;
+  padding: 4px 0;
+  font-size: 13px;
+  border-bottom: 1px solid var(--sand);
+}
+.adm-recent-search li:last-child { border-bottom: none; }
+.adm-recent-ts { font-size: 11px; white-space: nowrap; }
+
 /* User-detail modal */
 .adm-detail-backdrop {
   position: fixed; inset: 0;
