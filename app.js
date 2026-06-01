@@ -89,8 +89,11 @@ async function _refreshSpotReviews(entryId) {
     el.innerHTML = `<p class="muted">Couldn&rsquo;t load reviews right now.</p>`;
     return;
   }
+  // Update the "Reviews so far (N)" count chip next to the heading.
+  const countEl = document.getElementById("reviews-count-" + entryId);
+  if (countEl) countEl.textContent = Array.isArray(reviews) ? reviews.length : 0;
   if (!Array.isArray(reviews) || !reviews.length) {
-    el.innerHTML = `<p class="muted">No reviews yet. Be the first to leave one below.</p>`;
+    el.innerHTML = `<p class="muted">No reviews yet. Be the first — drop a review using the form above.</p>`;
     return;
   }
   // Figure out which of these reviews is the current user's so we
@@ -120,13 +123,19 @@ async function _refreshSpotReviews(entryId) {
       .filter(([k, v]) => v)
       .map(([k, v]) => `<span class="my-review-pill"><strong>${escHTML(_REVIEW_DETAIL_LABELS[k] || k)}:</strong> ${escHTML(_fmtReviewDetailValue(k, v))}</span>`)
       .join("");
-    const removeLink = (isMine && local)
-      ? `<button class="link-btn" data-del-review="${escHTML(local.id)}" aria-label="Delete review">remove</button>`
+    const ownerActions = (isMine && local)
+      ? `<div class="my-review-owner-actions">
+          <button class="link-btn" data-edit-review="${escHTML(local.id)}">edit</button>
+          <button class="link-btn" data-del-review="${escHTML(local.id)}" aria-label="Delete review">remove</button>
+        </div>`
+      : "";
+    const yourBadge = isMine
+      ? `<span class="my-review-mine-badge">Your review</span>`
       : "";
     return `<li class="my-review-card${isMine ? " my-review-mine" : ""}">
       <div class="my-review-head">
-        <div class="my-review-where">${stars} <span class="muted">by ${author}</span></div>
-        ${removeLink}
+        <div class="my-review-where">${stars} <span class="muted">by ${author}</span>${yourBadge}</div>
+        ${ownerActions}
       </div>
       <div class="my-review-meta">${matchTag}${visited ? ` <span class="muted">visited ${visited}</span>` : ""} <span class="muted">posted ${_fmtReviewDate(r.created_at)}</span></div>
       ${detailPills ? `<div class="my-review-details">${detailPills}</div>` : ""}
@@ -141,6 +150,17 @@ async function _refreshSpotReviews(entryId) {
       if (!confirm("Delete your review?")) return;
       WaveBaseAccount.deleteReview(btn.dataset.delReview);
       _refreshSpotReviews(entryId);
+    });
+  });
+  // Wire the edit links — fill the form with the review's values
+  // and switch it into "Update" mode. typeof window check because
+  // _enterReviewEditMode lives in initSpot's closure but we expose
+  // it on window for this delegated call.
+  el.querySelectorAll("[data-edit-review]").forEach(btn => {
+    btn.addEventListener("click", () => {
+      if (typeof window._enterReviewEditMode === "function") {
+        window._enterReviewEditMode(btn.dataset.editReview);
+      }
     });
   });
 }
@@ -3955,6 +3975,11 @@ function reviewsMockHTML(e) {
         Honest, no marketing-speak — the kind of thing you'd say to a friend who&rsquo;s about to go.</p>
     </header>
 
+    <div class="review-edit-banner" id="review-edit-banner-${e.id}" hidden>
+      <span><strong>Editing your review.</strong> The form below is pre-filled with what you wrote before.</span>
+      <button type="button" class="link-btn" data-cancel-edit="${e.id}">Cancel edit</button>
+    </div>
+
     <form class="review-form" data-entry-id="${e.id}" data-entry-type="${e.type}" autocomplete="off">
       <div class="review-top">${starsRow}${profileLine}</div>
       ${story}
@@ -3980,8 +4005,11 @@ function reviewsMockHTML(e) {
       <p class="review-feedback" hidden></p>
     </form>
 
-    <div class="reviews-list" id="reviews-list-${e.id}" data-entry-id="${e.id}">
-      <p class="muted reviews-loading">Loading reviews&hellip;</p>
+    <div class="reviews-list-block">
+      <h3 class="reviews-list-head">Reviews so far <span class="seccount" id="reviews-count-${e.id}">0</span></h3>
+      <div class="reviews-list" id="reviews-list-${e.id}" data-entry-id="${e.id}">
+        <p class="muted reviews-loading">Loading reviews&hellip;</p>
+      </div>
     </div>
   </section>`;
 }
@@ -4151,6 +4179,20 @@ function initSpot() {
   if (typeof _refreshSpotReviews === "function") {
     _refreshSpotReviews(e.id);
   }
+
+  // If the URL hash is #edit-review-{localId} (set by the My-reviews
+  // edit-link on the account page), enter edit mode for that review
+  // once the form is ready. Tiny delay so the form's listeners are
+  // wired and the user's local reviews are present in localStorage.
+  const hash = window.location.hash || "";
+  if (hash.indexOf("#edit-review-") === 0) {
+    const localId = hash.slice("#edit-review-".length);
+    setTimeout(() => {
+      if (typeof window._enterReviewEditMode === "function") {
+        window._enterReviewEditMode(localId);
+      }
+    }, 100);
+  }
   // Click-to-pin months for comparison across all three charts.
   wireMonthPinning(root, e);
 
@@ -4211,20 +4253,75 @@ function initSpot() {
   const reviewForm = root.querySelector(".review-form");
   if (reviewForm) {
     let chosenStars = 0;
+    const submitBtn   = reviewForm.querySelector('button[type="submit"]');
+    const editBanner  = document.getElementById("review-edit-banner-" + e.id);
+
+    function _setStars(n) {
+      chosenStars = Math.max(0, Math.min(5, parseInt(n, 10) || 0));
+      reviewForm.querySelectorAll(".review-star").forEach(b => {
+        b.classList.toggle("on", parseInt(b.dataset.stars, 10) <= chosenStars);
+      });
+    }
+    function _exitEditMode() {
+      reviewForm.removeAttribute("data-edit-review-id");
+      if (submitBtn)  submitBtn.textContent = "Submit review";
+      if (editBanner) editBanner.hidden = true;
+    }
     reviewForm.querySelectorAll(".review-star").forEach(btn => {
-      btn.addEventListener("click", () => {
-        chosenStars = parseInt(btn.dataset.stars, 10);
-        reviewForm.querySelectorAll(".review-star").forEach(b => {
-          b.classList.toggle("on", parseInt(b.dataset.stars, 10) <= chosenStars);
+      btn.addEventListener("click", () => _setStars(btn.dataset.stars));
+    });
+
+    /* Edit mode: pre-fill every form field from the review the user
+       wants to edit. Stars + radios + text + name + every "details"
+       chip — same name-keys the submit handler reads. Exposed on
+       window so _refreshSpotReviews' inline-rendered "edit" links
+       can call it without crossing the closure boundary. */
+    window._enterReviewEditMode = function (localReviewId) {
+      const r = WaveBaseAccount.getReviews().find(x => x.id === localReviewId);
+      if (!r) return;
+      reviewForm.setAttribute("data-edit-review-id", localReviewId);
+      _setStars(r.stars || 0);
+      // Year + month (numeric inputs).
+      const yEl = reviewForm.querySelector('[name="yearVisited"]');
+      const mEl = reviewForm.querySelector('[name="monthVisited"]');
+      if (yEl) yEl.value = r.yearVisited || "";
+      if (mEl) mEl.value = r.monthVisited || "";
+      // Matches (radio group).
+      reviewForm.querySelectorAll('input[name="matches"]').forEach(rad => {
+        rad.checked = (rad.value === (r.matches || ""));
+      });
+      // Text + name.
+      const tEl = reviewForm.querySelector('[name="text"]');
+      const nEl = reviewForm.querySelector('[name="name"]');
+      if (tEl) tEl.value = r.text || "";
+      if (nEl) nEl.value = r.name || "";
+      // details — each key/value maps to an input/select with the
+      // same name. Set whatever matches; skip what doesn't.
+      Object.entries(r.details || {}).forEach(([k, v]) => {
+        const fields = reviewForm.querySelectorAll('[name="' + k + '"]');
+        fields.forEach(f => {
+          if (f.type === "radio") f.checked = (f.value === v);
+          else f.value = v;
         });
       });
-    });
+      if (submitBtn)  submitBtn.textContent = "Update review";
+      if (editBanner) editBanner.hidden = false;
+      // Smooth-scroll the form into view so the user immediately
+      // sees the prefilled fields.
+      reviewForm.scrollIntoView({ behavior: "smooth", block: "center" });
+    };
+
+    /* Cancel-edit button inside the banner. */
+    if (editBanner) {
+      editBanner.querySelector('[data-cancel-edit]').addEventListener("click", () => {
+        reviewForm.reset();
+        _setStars(0);
+        _exitEditMode();
+      });
+    }
+
     reviewForm.addEventListener("submit", ev => {
       ev.preventDefault();
-      // Reviews are now real (server-side). An anon visitor needs
-      // an account first so we can attribute their review + let
-      // them edit/delete it later. requireAuth pops the login modal
-      // and aborts — they can resubmit after signing in.
       if (!requireAuth()) return;
       const fb = reviewForm.querySelector(".review-feedback");
       if (!fb) return;
@@ -4237,24 +4334,28 @@ function initSpot() {
         if (TOP.has(k) || !v) continue;
         details[k] = v;
       }
-      WaveBaseAccount.addReview({
-        entryId: e.id,
+      const editId = reviewForm.getAttribute("data-edit-review-id");
+      const payload = {
+        entryId:   e.id,
         entryType: e.type,
-        stars: chosenStars,
+        stars:     chosenStars,
         yearVisited:  fd.get("yearVisited"),
         monthVisited: fd.get("monthVisited"),
-        matches: fd.get("matches") || "",
-        text:    fd.get("text") || "",
-        name:    fd.get("name") || "",
-        details
-      });
+        matches:   fd.get("matches") || "",
+        text:      fd.get("text") || "",
+        name:      fd.get("name") || "",
+        details:   details,
+      };
+      if (editId) {
+        WaveBaseAccount.updateReview(editId, payload);
+        fb.innerHTML = `Updated — your edited review is saved.`;
+      } else {
+        WaveBaseAccount.addReview(payload);
+        fb.innerHTML = `Thanks — your review is saved to your account and visible to other surfers on this page.`;
+      }
       fb.hidden = false;
-      fb.innerHTML = `Thanks — your review is saved to your account and visible to other surfers on this page.`;
-      // Re-fetch the public reviews so the form-submitter sees their
-      // own review appear in the list immediately (no full re-render
-      // of the spot page needed).
+      _exitEditMode();
       if (typeof _refreshSpotReviews === "function") _refreshSpotReviews(e.id);
-      // Reset state so the user sees the form go back to blank after a moment.
       setTimeout(() => {
         chosenStars = 0;
         reviewForm.querySelectorAll(".review-star").forEach(b => b.classList.remove("on"));
@@ -6094,10 +6195,21 @@ function renderAccount() {
           ? Object.entries(r.details).filter(([k, v]) => v).map(([k, v]) =>
               `<span class="my-review-detail"><span class="muted">${escHTML(detailLabels[k] || k)}:</span> ${escHTML(detailValueFmt(k, v))}</span>`).join("")
           : "";
+        // Build the edit-link: jumps to the spot page with a hash
+        // fragment so the spot page's initSpot can detect it and
+        // open the form in edit mode pre-filled with this review's
+        // values. Only show edit when the entry still exists in
+        // WAVEBASE_DATA (otherwise there's no spot page to land on).
+        const editLink = (entry)
+          ? `<a class="link-btn" href="spot.html?id=${encodeURIComponent(entry.id)}#edit-review-${escHTML(r.id)}">edit</a>`
+          : "";
         return `<li class="my-review" data-review="${r.id}">
           <div class="my-review-head">
             <div class="my-review-where">${where}</div>
-            <button class="link-btn" data-del-review="${r.id}" aria-label="Delete review">remove</button>
+            <div class="my-review-owner-actions">
+              ${editLink}
+              <button class="link-btn" data-del-review="${r.id}" aria-label="Delete review">remove</button>
+            </div>
           </div>
           <div class="my-review-meta">${stars} ${matchTag} <span class="muted">${date}${author}${visited}</span></div>
           ${detailPills ? `<div class="my-review-details">${detailPills}</div>` : ""}

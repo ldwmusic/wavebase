@@ -613,6 +613,50 @@ const WaveBaseAccount = (function () {
       write(s);
       if (serverId) _syncReviewDelete(serverId);
     },
+    /* Edit an existing review in place. Updates the local copy
+       (used by the My-reviews block) AND PUTs to the server if the
+       review has been synced. Returns the updated local record. */
+    updateReview(reviewId, fields) {
+      const s = state();
+      const r = s.reviews.find(x => x.id === reviewId);
+      if (!r) return null;
+      const updated = Object.assign({}, r, {
+        stars:        Number(fields.stars) || 0,
+        yearVisited:  Number(fields.yearVisited) || null,
+        monthVisited: Number(fields.monthVisited) || null,
+        matches:      fields.matches || "",
+        text:         (fields.text || "").trim(),
+        name:         (fields.name || "").trim(),
+        details:      (fields.details && typeof fields.details === "object") ? fields.details : {},
+        when:         new Date().toISOString(),
+      });
+      Object.assign(r, updated);
+      write(s);
+      // Server PUT if we have a serverId — otherwise the next sync
+      // will pick the new values up via a POST.
+      if (r.serverId && typeof WaveBaseAuth !== "undefined" && WaveBaseAuth.isLoggedIn()) {
+        const body = {
+          entry_id:      r.entryId,
+          entry_type:    r.entryType || "spot",
+          stars:         r.stars,
+          year_visited:  r.yearVisited || null,
+          month_visited: r.monthVisited || null,
+          matches:       r.matches || null,
+          text:          r.text || "",
+          name:          r.name || null,
+          details:       r.details || {},
+        };
+        WaveBaseAuth.authFetch(
+          "/reviews/" + encodeURIComponent(r.serverId),
+          { method: "PUT",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(body) }
+        ).catch(function (e) {
+          console.warn("[account] review PUT failed:", e.message || e);
+        });
+      }
+      return r;
+    },
 
     /* Pull the signed-in user's own reviews from the server and
        merge into local. Server is source-of-truth for reviews that

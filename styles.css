@@ -6126,6 +6126,69 @@ button.rml-key.off .rml-dot {
 .trips-save-hint.trips-save-flash { color: var(--sea); font-weight: 600; }
 .trips-save-row .btn { margin-left: auto; }
 
+/* Reviews — visual separation between the submission form (top of
+   the section) and the list of existing reviews (below), so the two
+   areas read as distinct moments: "leave one" vs. "read what others
+   said". The form sits in a softly-tinted block; the list gets its
+   own header + a thin divider above it. */
+.reviews-list-block {
+  margin-top: 28px;
+  padding-top: 22px;
+  border-top: 1px solid var(--sand-deep);
+}
+.reviews-list-head {
+  margin: 0 0 16px;
+  font-family: 'Fraunces', serif;
+  font-size: 20px;
+  font-weight: 600;
+  display: flex; align-items: baseline; gap: 10px;
+}
+.reviews-list-head .seccount {
+  font-family: 'DM Sans', sans-serif;
+  font-size: 13px; font-weight: 500;
+  color: var(--ink-soft);
+  background: var(--sea-soft); color: var(--sea);
+  padding: 2px 10px;
+  border-radius: 999px;
+}
+
+/* "Editing your review" banner — sits between the form heading and
+   the form itself, only visible when the form is in edit mode. */
+.review-edit-banner {
+  display: flex; align-items: center; justify-content: space-between;
+  gap: 12px; flex-wrap: wrap;
+  margin: 0 0 14px;
+  padding: 10px 14px;
+  background: var(--amber-soft);
+  border: 1px solid var(--amber);
+  border-radius: 10px;
+  font-size: 14px; color: var(--ink);
+}
+.review-edit-banner[hidden] { display: none; }
+.review-edit-banner .link-btn { color: var(--ink); text-decoration: underline; }
+
+/* "Your review" badge that appears on the user's own review in the
+   reviews list. Helps them spot their own contribution at a glance. */
+.my-review-mine-badge {
+  display: inline-block;
+  margin-left: 8px;
+  padding: 1px 8px;
+  background: var(--sea); color: #fff;
+  font-size: 11px; font-weight: 600;
+  letter-spacing: 0.04em; text-transform: uppercase;
+  border-radius: 999px;
+  vertical-align: 1px;
+}
+.my-review-mine {
+  background: var(--sea-soft);
+  border-left: 3px solid var(--sea);
+}
+
+/* Edit / remove cluster on the user's own review card. */
+.my-review-owner-actions {
+  display: flex; gap: 12px; align-items: center;
+}
+
 .acc-onboard-head { margin-bottom: 20px; }
 .acc-onboard-head .kicker { margin: 0 0 6px; }
 .acc-onboard-head h1 { margin: 0 0 8px; }
