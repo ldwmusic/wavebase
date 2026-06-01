@@ -878,6 +878,50 @@ if (typeof window !== "undefined") {
   window.addEventListener("wavebase:auth-changed", function () { WaveBaseAccount.syncTripsFromServer(); });
 }
 
+/* Pull the server profile down into local on every auth-changed.
+   Required because logout's clearLocalData() wipes the local
+   profile too — without this hydration, the next login lands the
+   user on an empty form even though the server still holds their
+   answers. Server is the source of truth when both have data;
+   local-only fields survive (the backfill below pushes them up).
+
+   Translates the server's snake_case + capitalised-enum shape
+   back to local's camelCase + lowercase. */
+function _hydrateLocalProfileFromServer() {
+  if (typeof WaveBaseAuth === "undefined" || !WaveBaseAuth.isLoggedIn()) return;
+  if (typeof WaveBaseAccount === "undefined") return;
+  const serverUser = WaveBaseAuth.currentUser();
+  if (!serverUser) return;
+  const local = WaveBaseAccount.getProfile() || {};
+
+  const SURF_LEVEL_REVERSE = { Beginner: "beginner", Intermediate: "intermediate", Advanced: "advanced" };
+  function _pickScalar(serverVal, localVal) {
+    if (serverVal !== null && serverVal !== undefined && serverVal !== "") return serverVal;
+    return localVal;
+  }
+  function _pickList(serverArr, localArr) {
+    if (Array.isArray(serverArr) && serverArr.length > 0) return serverArr;
+    return Array.isArray(localArr) ? localArr : [];
+  }
+
+  const merged = Object.assign({}, local, {
+    name:            _pickScalar(serverUser.name,           local.name)            || "",
+    email:           _pickScalar(serverUser.email,          local.email)           || "",
+    birthYear:       _pickScalar(serverUser.birth_year,     local.birthYear)       || "",
+    homeCountry:     _pickScalar(serverUser.home_country,   local.homeCountry)     || "",
+    surfType:        _pickList  (serverUser.surf_types,     local.surfType),
+    level:           _pickScalar(
+                       SURF_LEVEL_REVERSE[serverUser.surf_level] || null,
+                       local.level
+                     ) || "",
+    discipline:      _pickList  (serverUser.discipline,     local.discipline),
+    travelStyles:    _pickList  (serverUser.travel_styles,  local.travelStyles),
+    tripPriorities: _pickList  (serverUser.trip_priorities, local.tripPriorities),
+    howDidYouFindUs: _pickScalar(serverUser.how_did_you_find_us, local.howDidYouFindUs) || "",
+  });
+  WaveBaseAccount.setProfile(merged);
+}
+
 /* One-shot profile backfill from localStorage to server. Runs after
    auth-changed fires (which happens once after bootRefresh's
    /users/me lands). Compares each tracked field: if the server has
@@ -948,6 +992,12 @@ function _backfillProfileFromLocalToServer() {
 // after a successful login/signup. Skipped on logout (no user) by
 // the guard inside the function.
 if (typeof window !== "undefined") {
+  // Order matters: hydrate FIRST (pull server profile down into
+  // local), THEN backfill (push remaining local-only fields up).
+  // If we ran backfill first, an empty local profile would do
+  // nothing — and the user would stare at an empty form even
+  // though their data is sitting on the server.
+  window.addEventListener("wavebase:auth-changed", _hydrateLocalProfileFromServer);
   window.addEventListener("wavebase:auth-changed", _backfillProfileFromLocalToServer);
 }
 
