@@ -8290,7 +8290,7 @@ function _reRenderForChange() {
   }
   if (typeof updateNav === "function") updateNav();
 }
-["wavebase:saved-changed", "wavebase:surfed-changed", "wavebase:trips-changed"]
+["wavebase:saved-changed", "wavebase:surfed-changed", "wavebase:trips-changed", "wavebase:profile-changed"]
   .forEach(name => window.addEventListener(name, _reRenderForChange));
 
 /* Drop saved / compare / surfed entries whose IDs no longer resolve

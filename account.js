@@ -920,6 +920,16 @@ function _hydrateLocalProfileFromServer() {
     howDidYouFindUs: _pickScalar(serverUser.how_did_you_find_us, local.howDidYouFindUs) || "",
   });
   WaveBaseAccount.setProfile(merged);
+
+  // Tell whoever's listening that the profile just got refreshed.
+  // Same shape as the saved/surfed/trips change events so the
+  // re-render listener in app.js can treat them uniformly.
+  // Without this dispatch, an account.html page that already
+  // rendered with an empty profile (because hydrate hadn't fired
+  // yet) stays empty until the user manually reloads.
+  try {
+    window.dispatchEvent(new CustomEvent("wavebase:profile-changed"));
+  } catch (e) {}
 }
 
 /* One-shot profile backfill from localStorage to server. Runs after
