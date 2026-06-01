@@ -136,6 +136,51 @@ const WaveBaseAccount = (function () {
       console.warn("[account] trip delete " + serverId + " failed:", e.message || e);
     });
   }
+
+  /* Review sync helpers — same shape as the trip helpers above:
+     local id is "r" + timestamp + random; serverId is stamped on the
+     local record after the first POST succeeds; subsequent edits use
+     it. (Reviews aren't editable in v1 — only delete — but we keep
+     the serverId for the delete-DELETE call.) */
+  function _syncReviewCreate(localReview) {
+    if (typeof WaveBaseAuth === "undefined" || !WaveBaseAuth.isLoggedIn()) return;
+    const body = {
+      entry_id:      localReview.entryId,
+      entry_type:    localReview.entryType || "spot",
+      stars:         localReview.stars,
+      year_visited:  localReview.yearVisited || null,
+      month_visited: localReview.monthVisited || null,
+      matches:       localReview.matches || null,
+      text:          localReview.text || "",
+      name:          localReview.name || null,
+      details:       localReview.details || {},
+    };
+    WaveBaseAuth.authFetch("/reviews/", {
+      method:  "POST",
+      headers: { "Content-Type": "application/json" },
+      body:    JSON.stringify(body),
+    })
+      .then(function (res) { return res.ok ? res.json() : null; })
+      .then(function (created) {
+        if (!created) return;
+        const fresh = state();
+        const r = fresh.reviews.find(function (x) { return x.id === localReview.id; });
+        if (r) { r.serverId = created.id; write(fresh); }
+      })
+      .catch(function (e) {
+        console.warn("[account] review POST failed:", e.message || e);
+      });
+  }
+  function _syncReviewDelete(serverId) {
+    if (!serverId) return;
+    if (typeof WaveBaseAuth === "undefined" || !WaveBaseAuth.isLoggedIn()) return;
+    WaveBaseAuth.authFetch(
+      "/reviews/" + encodeURIComponent(serverId),
+      { method: "DELETE" }
+    ).catch(function (e) {
+      console.warn("[account] review delete " + serverId + " failed:", e.message || e);
+    });
+  }
   function state() {
     const s = read();
     const p = s.profile || {};
@@ -528,9 +573,13 @@ const WaveBaseAccount = (function () {
       }
     },
 
-    /* reviews — local previews of submissions. Persist the full review
-       payload so the My-reviews page can display the rich tagged context
-       a user wrote. Backend (phase 2) turns these into real shared reviews. */
+    /* reviews — submitted via the form on spot/center/stay pages.
+       Stored locally for the My-reviews block on the account page;
+       also POSTed to the server when the user is signed in so other
+       visitors see them on the entry page as social proof.
+
+       Anon submissions stay local-only until the user signs in;
+       on auth-changed, _backfillReviewsToServer pushes them up. */
     getReviews() { return state().reviews; },
     addReview(review) {
       const s = state();
@@ -551,12 +600,76 @@ const WaveBaseAccount = (function () {
       };
       s.reviews.unshift(entry);
       write(s);
+      // Fire-and-forget POST to server. _syncReviewCreate stamps
+      // serverId on the local entry once the round-trip lands.
+      _syncReviewCreate(entry);
       return entry;
     },
     deleteReview(reviewId) {
       const s = state();
+      const review = s.reviews.find(r => r.id === reviewId);
+      const serverId = review && review.serverId;
       s.reviews = s.reviews.filter(r => r.id !== reviewId);
       write(s);
+      if (serverId) _syncReviewDelete(serverId);
+    },
+
+    /* Pull the signed-in user's own reviews from the server and
+       merge into local. Server is source-of-truth for reviews that
+       already have a serverId; local-only reviews (no serverId) get
+       pushed up so anon submissions survive the eventual login. */
+    async syncReviewsFromServer() {
+      if (typeof WaveBaseAuth === "undefined" || !WaveBaseAuth.isLoggedIn()) return;
+      let serverList;
+      try {
+        const res = await WaveBaseAuth.authFetch("/users/me/reviews/");
+        if (!res.ok) return;
+        serverList = await res.json();
+      } catch (e) {
+        console.warn("[account] syncReviewsFromServer failed:", e.message || e);
+        return;
+      }
+      if (!Array.isArray(serverList)) return;
+
+      const s = state();
+      const localByServerId = new Map();
+      s.reviews.forEach(function (r) {
+        if (r.serverId) localByServerId.set(r.serverId, r);
+      });
+
+      let changed = false;
+
+      // Pull server-only reviews into local (covers cross-device: a
+      // review left on phone shows up on laptop).
+      for (const sr of serverList) {
+        if (!localByServerId.has(sr.id)) {
+          s.reviews.unshift({
+            id:           "r" + Date.now() + Math.floor(Math.random() * 1000),
+            serverId:     sr.id,
+            entryId:      sr.entry_id,
+            entryType:    sr.entry_type || "spot",
+            stars:        sr.stars,
+            yearVisited:  sr.year_visited || null,
+            monthVisited: sr.month_visited || null,
+            matches:      sr.matches || "",
+            text:         sr.text || "",
+            name:         sr.name || "",
+            details:      sr.details || {},
+            when:         sr.created_at || new Date().toISOString(),
+          });
+          changed = true;
+        }
+      }
+      // Push local-only reviews up (anon submissions made before
+      // login, or saves that failed to sync due to network).
+      s.reviews.forEach(function (r) {
+        if (!r.serverId) _syncReviewCreate(r);
+      });
+
+      if (changed) {
+        write(s);
+        try { window.dispatchEvent(new CustomEvent("wavebase:reviews-changed")); } catch (e) {}
+      }
     },
 
     /* Wipe every WaveBaseAccount localStorage key. Called from
@@ -876,6 +989,11 @@ if (typeof window !== "undefined") {
   // Trips — no id-map dependency either; same trigger pattern.
   window.addEventListener("wavebase:data-ready",   function () { WaveBaseAccount.syncTripsFromServer(); });
   window.addEventListener("wavebase:auth-changed", function () { WaveBaseAccount.syncTripsFromServer(); });
+  // Reviews — same pattern. Stores entry_id as a slug (no UUID map
+  // needed), but bound to data-ready so the eventual re-render finds
+  // entries in WAVEBASE_DATA when resolving names.
+  window.addEventListener("wavebase:data-ready",   function () { WaveBaseAccount.syncReviewsFromServer(); });
+  window.addEventListener("wavebase:auth-changed", function () { WaveBaseAccount.syncReviewsFromServer(); });
 }
 
 /* Pull the server profile down into local on every auth-changed.

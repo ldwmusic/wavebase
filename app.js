@@ -33,6 +33,118 @@
 function cap(s) { return s.charAt(0).toUpperCase() + s.slice(1); }
 function byId(id) { return WAVEBASE_DATA.find(x => x.id === id); }
 
+/* ---- public reviews for a spot/center/stay page ---- */
+/* Fetches GET /reviews/?entry_id=X (public, no auth needed) and
+   renders the list inside #reviews-list-{entryId}. Called once at
+   spot-page render time AND right after the current user submits a
+   review (so they see their own review appear in the list without
+   a full page reload).
+
+   The user's OWN review (if any) is rendered with a "remove" link.
+   Others' reviews show name + date + stars + matches-our-writeup
+   tag + details + text. Same shape as the My-reviews block on the
+   account page, just with the entry-name omitted (we're already on
+   the entry's page). */
+const _MONTH_NAME = ["", "Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+const _REVIEW_DETAIL_LABELS = {
+  tripLength: "Trip length", daysSailed: "Days sailed",
+  travelGroup: "Travel group", crowd: "Crowd",
+  localism: "Locals",
+  gear: "Gear", gearScore: "Gear",
+  lessons: "Lessons", lessonsScore: "Lessons",
+  team: "Instructor / team", instructorScore: "Instructor",
+  safety: "Safety", safetyScore: "Safety",
+  value: "Value", valueScore: "Value",
+  hosts: "Hosts", hostsScore: "Hosts",
+  food: "Food", foodScore: "Food",
+  comfort: "Comfort", comfortScore: "Comfort",
+  cleanliness: "Cleanliness", cleanlinessScore: "Cleanliness",
+  vibe: "Vibe", distance: "Distance",
+  verdict: "Verdict", level: "Reviewer level",
+  discipline: "Discipline",
+};
+function _fmtReviewDetailValue(k, v) {
+  if (/Score$|crowd|localism|gear$/i.test(k) && /^\d+$/.test(v)) return `${v}/10`;
+  if (k === "verdict") return v === "would-go-again" ? "would go again" : v === "maybe" ? "maybe" : "wouldn't go again";
+  return v;
+}
+function _fmtReviewDate(iso) {
+  if (!iso) return "";
+  try {
+    const d = new Date(iso);
+    if (Number.isNaN(d.getTime())) return "";
+    return d.toLocaleDateString("en-GB", { day: "numeric", month: "short", year: "numeric" });
+  } catch (e) { return ""; }
+}
+async function _refreshSpotReviews(entryId) {
+  const el = document.getElementById("reviews-list-" + entryId);
+  if (!el) return;
+  let reviews;
+  try {
+    const API = (typeof WAVEBASE_API !== "undefined") ? WAVEBASE_API : "";
+    const res = await fetch(API + "/reviews/?entry_id=" + encodeURIComponent(entryId));
+    if (!res.ok) throw new Error("HTTP " + res.status);
+    reviews = await res.json();
+  } catch (e) {
+    el.innerHTML = `<p class="muted">Couldn&rsquo;t load reviews right now.</p>`;
+    return;
+  }
+  if (!Array.isArray(reviews) || !reviews.length) {
+    el.innerHTML = `<p class="muted">No reviews yet. Be the first to leave one below.</p>`;
+    return;
+  }
+  // Figure out which of these reviews is the current user's so we
+  // can offer a "remove" link on theirs only.
+  const myUserId = (typeof WaveBaseAuth !== "undefined" && WaveBaseAuth.isLoggedIn())
+    ? (WaveBaseAuth.currentUser() || {}).id
+    : null;
+  // Find my LOCAL review for this entry too — we delete via the local
+  // toggle so the cached My-reviews block updates as well as the server.
+  const myLocalReviews = (typeof WaveBaseAccount !== "undefined")
+    ? WaveBaseAccount.getReviews().filter(r => r.entryId === entryId)
+    : [];
+
+  const html = reviews.map(r => {
+    const isMine     = myUserId && r.user_id === myUserId;
+    const local      = isMine ? myLocalReviews.find(x => x.serverId === r.id) : null;
+    const stars      = "★".repeat(Math.max(0, Math.min(5, r.stars || 0))) + "☆".repeat(Math.max(0, 5 - (r.stars || 0)));
+    const author     = escHTML(r.name) || "Anonymous";
+    const visited    = (r.year_visited && r.month_visited)
+      ? `${_MONTH_NAME[r.month_visited]} ${r.year_visited}`
+      : (r.year_visited ? `${r.year_visited}` : "");
+    const matchesLabel = { yes: "Matched our write-up", partial: "Partly matched", no: "Differed from our write-up" };
+    const matchTag = r.matches && matchesLabel[r.matches]
+      ? `<span class="my-review-match my-review-match-${r.matches}">${matchesLabel[r.matches]}</span>`
+      : "";
+    const detailPills = Object.entries(r.details || {})
+      .filter(([k, v]) => v)
+      .map(([k, v]) => `<span class="my-review-pill"><strong>${escHTML(_REVIEW_DETAIL_LABELS[k] || k)}:</strong> ${escHTML(_fmtReviewDetailValue(k, v))}</span>`)
+      .join("");
+    const removeLink = (isMine && local)
+      ? `<button class="link-btn" data-del-review="${escHTML(local.id)}" aria-label="Delete review">remove</button>`
+      : "";
+    return `<li class="my-review-card${isMine ? " my-review-mine" : ""}">
+      <div class="my-review-head">
+        <div class="my-review-where">${stars} <span class="muted">by ${author}</span></div>
+        ${removeLink}
+      </div>
+      <div class="my-review-meta">${matchTag}${visited ? ` <span class="muted">visited ${visited}</span>` : ""} <span class="muted">posted ${_fmtReviewDate(r.created_at)}</span></div>
+      ${detailPills ? `<div class="my-review-details">${detailPills}</div>` : ""}
+      ${r.text ? `<p class="my-review-text">${escHTML(r.text)}</p>` : ""}
+    </li>`;
+  }).join("");
+  el.innerHTML = `<ul class="my-reviews">${html}</ul>`;
+  // Wire the remove buttons we just rendered — same pattern the
+  // account-page my-reviews block uses.
+  el.querySelectorAll("[data-del-review]").forEach(btn => {
+    btn.addEventListener("click", () => {
+      if (!confirm("Delete your review?")) return;
+      WaveBaseAccount.deleteReview(btn.dataset.delReview);
+      _refreshSpotReviews(entryId);
+    });
+  });
+}
+
 /* Gate any "this is account-bound data" interaction behind being
    signed in. Returns true → caller proceeds. Returns false → caller
    aborts (we already opened the login modal). Used by:
@@ -3838,11 +3950,15 @@ function reviewsMockHTML(e) {
 
   return `<section class="reviews-mock" id="reviews">
     <header class="reviews-head">
-      <h2>Surfer reviews <span class="reviews-soon-tag">coming soon</span></h2>
+      <h2>Surfer reviews</h2>
       <p class="muted">Have you been to this ${typeWord}? Drop a quick review.
-        The form below works as a preview — saved on this device, will become a
-        real shared review once the backend lands.</p>
+        Honest, no marketing-speak — the kind of thing you'd say to a friend who&rsquo;s about to go.</p>
     </header>
+
+    <div class="reviews-list" id="reviews-list-${e.id}"
+         data-entry-id="${e.id}">
+      <p class="muted reviews-loading">Loading reviews&hellip;</p>
+    </div>
 
     <form class="review-form" data-entry-id="${e.id}" data-entry-type="${e.type}" autocomplete="off">
       <div class="review-top">${starsRow}${profileLine}</div>
@@ -4030,6 +4146,12 @@ function initSpot() {
 
   // Hover popovers on the monthly wind/temperature/wave bar charts.
   wireChartTooltips(root);
+
+  // Public reviews for this entry — fetched from the API, rendered
+  // into #reviews-list-{e.id} above the submission form.
+  if (typeof _refreshSpotReviews === "function") {
+    _refreshSpotReviews(e.id);
+  }
   // Click-to-pin months for comparison across all three charts.
   wireMonthPinning(root, e);
 
@@ -4100,6 +4222,11 @@ function initSpot() {
     });
     reviewForm.addEventListener("submit", ev => {
       ev.preventDefault();
+      // Reviews are now real (server-side). An anon visitor needs
+      // an account first so we can attribute their review + let
+      // them edit/delete it later. requireAuth pops the login modal
+      // and aborts — they can resubmit after signing in.
+      if (!requireAuth()) return;
       const fb = reviewForm.querySelector(".review-feedback");
       if (!fb) return;
       const fd = new FormData(reviewForm);
@@ -4123,7 +4250,11 @@ function initSpot() {
         details
       });
       fb.hidden = false;
-      fb.innerHTML = `Thanks — your preview review is saved on this device. See it on <a href="account.html#my-reviews">My WaveBase → My reviews</a>. Real, shared reviews land when the backend goes live.`;
+      fb.innerHTML = `Thanks — your review is saved to your account and visible to other surfers on this page.`;
+      // Re-fetch the public reviews so the form-submitter sees their
+      // own review appear in the list immediately (no full re-render
+      // of the spot page needed).
+      if (typeof _refreshSpotReviews === "function") _refreshSpotReviews(e.id);
       // Reset state so the user sees the form go back to blank after a moment.
       setTimeout(() => {
         chosenStars = 0;
@@ -8290,7 +8421,7 @@ function _reRenderForChange() {
   }
   if (typeof updateNav === "function") updateNav();
 }
-["wavebase:saved-changed", "wavebase:surfed-changed", "wavebase:trips-changed", "wavebase:profile-changed"]
+["wavebase:saved-changed", "wavebase:surfed-changed", "wavebase:trips-changed", "wavebase:profile-changed", "wavebase:reviews-changed"]
   .forEach(name => window.addEventListener(name, _reRenderForChange));
 
 /* Drop saved / compare / surfed entries whose IDs no longer resolve
