@@ -6079,8 +6079,6 @@ function renderAccount() {
     </section>
 
     ${isOnboarding ? "" : `
-    ${surfLogHTML()}
-
     <section class="acc-block">
       <h2>Saved places <span class="seccount">${saved.length}</span></h2>
       ${savedHTML}
@@ -6108,6 +6106,8 @@ function renderAccount() {
       </div>
       ` : ``}
     </section>
+
+    ${surfLogHTML()}
 
     <section class="acc-block" id="my-reviews">
       <h2>My reviews <span class="seccount">${reviews.length}</span></h2>
