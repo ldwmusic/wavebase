@@ -6043,7 +6043,7 @@ function renderAccount() {
 
     <section class="acc-block">
       <div class="prof-head">
-        <h2>My WaveBase profile</h2>
+        <h2>Profile</h2>
         <div class="prof-status">
           <span class="prof-progress" id="prof-progress">
             <span class="prof-progress-bar" style="--pct:${profPct}%"></span>
