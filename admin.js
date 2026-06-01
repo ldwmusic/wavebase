@@ -506,6 +506,27 @@ function _renderUserDetail(detail) {
     ? `<ul class="adm-entry-list">${detail.surfed.map(s => entryLine(s.spot_id)).join("")}</ul>`
     : `<p class="muted">No surf-log entries yet.</p>`;
 
+  // Reviews block — same layout as the public reviews section on
+  // a spot page, just resolved + listed here for admin context.
+  const MONTHS = ["", "Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+  const reviewsHtml = (detail.reviews || []).length
+    ? `<ul class="adm-entry-list adm-reviews-list">${detail.reviews.map(r => {
+        const e = _entryById(r.entry_id);
+        const where = e
+          ? `${_typeEmoji(e.type)} <a href="spot.html?id=${encodeURIComponent(e.id)}" target="_blank" rel="noopener">${_esc(e.name)}</a> <span class="muted">${_esc(e.town || "")}</span>`
+          : `<span class="muted">${_esc(r.entry_id)}</span>`;
+        const stars = "★".repeat(Math.max(0, Math.min(5, r.stars || 0))) + "☆".repeat(Math.max(0, 5 - (r.stars || 0)));
+        const visited = (r.year_visited && r.month_visited)
+          ? `${MONTHS[r.month_visited]} ${r.year_visited}`
+          : (r.year_visited ? `${r.year_visited}` : "");
+        const date = _fmtDate(r.created_at);
+        return `<li class="adm-entry">
+          <div>${where} · ${stars}${visited ? ' <span class="muted">visited ' + _esc(visited) + '</span>' : ''} <span class="muted">posted ${_esc(date)}</span></div>
+          ${r.text ? `<p class="muted" style="margin: 4px 0 0; font-size: 13px;">${_esc(r.text)}</p>` : ""}
+        </li>`;
+      }).join("")}</ul>`
+    : `<p class="muted">No reviews yet.</p>`;
+
   const tripsHtml = detail.trips.length
     ? detail.trips.map(t => {
         const stopRows = (t.spot_ids || []).map((sid, i) => {
@@ -569,6 +590,9 @@ function _renderUserDetail(detail) {
 
     <h3>Trips (${detail.trips.length})</h3>
     <div class="adm-trips">${tripsHtml}</div>
+
+    <h3>Reviews (${(detail.reviews || []).length})</h3>
+    ${reviewsHtml}
   `;
 }
 

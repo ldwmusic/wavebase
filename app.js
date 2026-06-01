@@ -3955,11 +3955,6 @@ function reviewsMockHTML(e) {
         Honest, no marketing-speak — the kind of thing you'd say to a friend who&rsquo;s about to go.</p>
     </header>
 
-    <div class="reviews-list" id="reviews-list-${e.id}"
-         data-entry-id="${e.id}">
-      <p class="muted reviews-loading">Loading reviews&hellip;</p>
-    </div>
-
     <form class="review-form" data-entry-id="${e.id}" data-entry-type="${e.type}" autocomplete="off">
       <div class="review-top">${starsRow}${profileLine}</div>
       ${story}
@@ -3979,11 +3974,15 @@ function reviewsMockHTML(e) {
           <label class="review-radio"><input type="radio" name="matches" value="partial"> partly</label>
           <label class="review-radio"><input type="radio" name="matches" value="no"> no</label>
         </div>
-        <button type="submit" class="btn">Submit (preview)</button>
+        <button type="submit" class="btn">Submit review</button>
       </div>
 
       <p class="review-feedback" hidden></p>
     </form>
+
+    <div class="reviews-list" id="reviews-list-${e.id}" data-entry-id="${e.id}">
+      <p class="muted reviews-loading">Loading reviews&hellip;</p>
+    </div>
   </section>`;
 }
 
