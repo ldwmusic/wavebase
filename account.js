@@ -557,7 +557,30 @@ const WaveBaseAccount = (function () {
       const s = state();
       s.reviews = s.reviews.filter(r => r.id !== reviewId);
       write(s);
-    }
+    },
+
+    /* Wipe every WaveBaseAccount localStorage key. Called from
+       WaveBaseAuth.logout() + WaveBaseAuth.deleteAccount() so a
+       signed-out session starts clean: no leftover filled hearts
+       on cards (the old saved-list belonged to whoever WAS signed
+       in), no phantom trips, no compare badge from a previous user.
+       Data isn't lost — when the user signs back in, syncSaved-
+       FromServer + syncSurfedFromServer + syncTripsFromServer pull
+       it all back from the server's source-of-truth copy. */
+    clearLocalData() {
+      try {
+        localStorage.removeItem(KEY);
+      } catch (e) {}
+      // Also cancel any in-flight debounced trip syncs — pointless to
+      // PUT a trip whose local body we just deleted (we'd recreate
+      // it server-side).
+      try {
+        if (typeof _tripSyncTimers !== "undefined") {
+          _tripSyncTimers.forEach(function (id) { clearTimeout(id); });
+          _tripSyncTimers.clear();
+        }
+      } catch (e) {}
+    },
   };
 })();
 
@@ -688,6 +711,14 @@ const WaveBaseAuth = (function () {
   }
   function logout() {
     clearAuth();
+    // Wipe local account-data too — the saved/surfed/compare/trips
+    // in localStorage belonged to the user who's now signed out.
+    // Leaving them lets stale "filled hearts" leak into the signed-
+    // out UI, plus a returning user would see another person's
+    // pretend-data on a shared device. Lossless: when the user
+    // signs back in, syncFromServer restores everything from the
+    // server copy.
+    try { WaveBaseAccount.clearLocalData(); } catch (e) {}
     broadcast(null);
   }
   function isLoggedIn() {
@@ -793,13 +824,14 @@ const WaveBaseAuth = (function () {
       err.status = res.status;
       throw err;
     }
-    // Wipe local auth state. We don't go via logout() because that
-    // also dispatches auth-changed with user=null — which is what
-    // we want, but we want the UI to react AFTER the caller has
-    // navigated away (otherwise the account page briefly flashes
-    // its anon-gate). Caller does the redirect first, then this
-    // returns and broadcasts the empty state.
+    // Wipe local auth state + account data. We don't go via
+    // logout() so the timing of the broadcast stays under our
+    // control (the caller may want to redirect first to avoid a
+    // brief flash of the anon-gate). The account record + saved/
+    // surfed/trips were just deleted server-side, so wiping local
+    // is the consistent move.
     clearAuth();
+    try { WaveBaseAccount.clearLocalData(); } catch (e) {}
     broadcast(null);
   }
 
