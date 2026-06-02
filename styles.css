@@ -6186,6 +6186,61 @@ button.rml-key.off .rml-dot {
 }
 .adm-eng-score-num { font-weight: 600; font-variant-numeric: tabular-nums; width: 36px; text-align: right; }
 
+/* ---- Account → "Spots you might also like" recommendations ----
+   Small clickable cards in a wrappable row. Each card is a tile
+   with icon + name + town + a tiny "Nx" badge showing how many
+   other surfers also saved it (hover-tooltip explains). */
+.acc-rec-list {
+  display: flex; flex-wrap: wrap; gap: 10px;
+  margin-top: 4px;
+}
+.acc-rec-card {
+  display: inline-flex; align-items: center; gap: 8px;
+  padding: 10px 14px;
+  background: var(--paper);
+  border: 1px solid var(--sand);
+  border-radius: 12px;
+  text-decoration: none;
+  color: var(--ink);
+  min-width: 200px;
+  transition: border-color 0.12s, background 0.12s;
+}
+.acc-rec-card:hover {
+  border-color: var(--sea);
+  background: var(--sea-soft);
+}
+.acc-rec-icon { font-size: 18px; }
+.acc-rec-body { display: flex; flex-direction: column; gap: 2px; line-height: 1.3; }
+.acc-rec-name { font-weight: 600; font-size: 14px; }
+.acc-rec-town { font-size: 12px; }
+.acc-rec-count {
+  margin-left: auto;
+  background: var(--sea-soft);
+  color: var(--sea);
+  border-radius: 999px;
+  padding: 2px 8px;
+  font-size: 12px;
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+}
+
+/* ---- Spot page: similar-surfers social proof line ----
+   Tucked just under the "Reviews so far" heading. Subtle
+   one-liner, sand-bordered, opens up the trust signal without
+   competing with the reviews themselves. */
+.similar-surfers {
+  display: inline-flex; align-items: center; gap: 8px;
+  margin: 0 0 14px;
+  padding: 6px 14px;
+  background: var(--cream);
+  border: 1px solid var(--sand);
+  border-radius: 999px;
+  font-size: 13.5px;
+  color: var(--ink-soft);
+}
+.similar-surfers strong { color: var(--ink); }
+.similar-surfers-icon { font-size: 14px; }
+
 /* ---- Public-facing "Used in our write-up" badge on a review ----
    Subtle sea-soft tag with a check mark + optional admin note as
    italic context. Lets the reviewer see that their input was folded

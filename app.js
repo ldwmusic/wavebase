@@ -129,6 +129,33 @@ function _renderReviewText(r, st) {
     <button type="button" class="link-btn my-review-toggle" data-toggle-text="${escHTML(r.id)}">show more</button>
   </p>`;
 }
+/* Cohort-based social proof: "Other intermediate windsurfers from
+   Belgium also saved this · 3 of them". Backend returns
+   {count, profile}. count = 0 means anon viewer, no match, or
+   below the min-sample threshold (2) — hide the slot entirely so
+   we never expose an empty placeholder. */
+async function _loadSimilarSurfers(entryId) {
+  const slot = document.getElementById("similar-surfers-" + entryId);
+  if (!slot) return;
+  // No point asking when the visitor is anonymous — the backend
+  // would return {count:0} anyway and we save a roundtrip.
+  if (typeof WaveBaseAuth === "undefined" || !WaveBaseAuth.isLoggedIn()) return;
+  try {
+    const res = await WaveBaseAuth.authFetch(
+      "/surf-spots/" + encodeURIComponent(entryId) + "/similar-surfers",
+    );
+    if (!res.ok) return;
+    const payload = await res.json();
+    if (!payload || !payload.count) return;
+    slot.hidden = false;
+    const noun = payload.profile || "surfers";
+    slot.innerHTML = `<span class="similar-surfers-icon" aria-hidden="true">👥</span>
+      Other <strong>${escHTML(noun)}</strong> also saved this — ${payload.count} of them`;
+  } catch (e) {
+    /* silent — this is purely additive UX */
+  }
+}
+
 /* "Used in our write-up" badge — shown when admin has marked a
    review as analyzed. The author sees their input mattered; other
    readers see this is a review the editors leaned on. Optional
@@ -4375,6 +4402,7 @@ function reviewsMockHTML(e) {
         Reviews so far <span class="seccount" id="reviews-count-${e.id}">0</span>
         <span class="reviews-overall" id="reviews-overall-${e.id}" hidden></span>
       </h3>
+      <p class="similar-surfers" id="similar-surfers-${e.id}" hidden></p>
       <div class="reviews-toolbar" id="reviews-toolbar-${e.id}" hidden>
         <label class="reviews-sort">
           <span class="muted">Sort</span>
@@ -4577,6 +4605,11 @@ function initSpot() {
   }
   // Click-to-pin months for comparison across all three charts.
   wireMonthPinning(root, e);
+
+  // Similar surfers — load async, only render if backend returns a
+  // non-zero cohort (anon callers and small-sample-size spots both
+  // return count = 0 and we hide the slot entirely).
+  _loadSimilarSurfers(e.id);
 
   // "See reviews" pill in the detail-actions row — smooth-scroll
   // to the reviews block lower on the page. Calc the scroll
@@ -7223,6 +7256,14 @@ function renderAccount() {
       ${savedHTML}
     </section>
 
+    <section class="acc-block" id="acc-recommended">
+      <h2>Spots you might also like</h2>
+      <p class="muted form-note">Based on what other surfers with overlapping saves are saving too. Loads when you've saved a few places.</p>
+      <div id="acc-recommended-list">
+        <p class="muted">Loading recommendations&hellip;</p>
+      </div>
+    </section>
+
     <section class="acc-block" id="trips">
       <div class="trip-section-head">
         <h2>My trips <span class="seccount">${trips.length}</span></h2>
@@ -7876,6 +7917,52 @@ function renderAccount() {
   initTripMaps(trips);
   wireSurfLog(null);
   renderSurfLogMap();
+  _loadRecommendedSpots();   // async — populates #acc-recommended-list when it returns
+}
+
+/* Fetch the collaborative-filter recommendations from the API and
+   render small cards into #acc-recommended-list. Cold-start safe:
+   if backend returns no rows (user has 0 saves or no overlap with
+   others yet) we show a friendly "save a few spots" empty state. */
+async function _loadRecommendedSpots() {
+  const slot = document.getElementById("acc-recommended-list");
+  if (!slot) return;
+  if (typeof WaveBaseAuth === "undefined" || !WaveBaseAuth.isLoggedIn()) {
+    slot.innerHTML = `<p class="muted">Sign in to get personalised picks.</p>`;
+    return;
+  }
+  let payload;
+  try {
+    const res = await WaveBaseAuth.authFetch("/users/me/recommended-spots?limit=6");
+    if (!res.ok) throw new Error("HTTP " + res.status);
+    payload = await res.json();
+  } catch (e) {
+    slot.innerHTML = `<p class="muted">Couldn&rsquo;t load recommendations right now.</p>`;
+    return;
+  }
+  const rows = (payload && payload.rows) || [];
+  if (!rows.length) {
+    slot.innerHTML = `<p class="muted">Save a few spots and recommendations will appear here once other surfers&rsquo; saves overlap with yours.</p>`;
+    return;
+  }
+  // Build small card rows using WAVEBASE_DATA to resolve names +
+  // metadata. Spots whose id isn't in the catalog (rare; could
+  // happen if the API has a stale id) are skipped silently.
+  const cards = rows.map(r => {
+    const entry = byId(r.spot_id);
+    if (!entry) return "";
+    const emoji = entry.type === "stay" ? "🏠" : entry.type === "center" ? "🎓" : "🌊";
+    const town = entry.town ? escHTML(entry.town) : "";
+    return `<a class="acc-rec-card" href="spot.html?id=${encodeURIComponent(entry.id)}${entry.type === "stay" ? "&type=stay" : entry.type === "center" ? "&type=center" : ""}">
+      <span class="acc-rec-icon" aria-hidden="true">${emoji}</span>
+      <span class="acc-rec-body">
+        <span class="acc-rec-name">${escHTML(entry.name)}</span>
+        ${town ? `<span class="acc-rec-town muted">${town}</span>` : ""}
+      </span>
+      <span class="acc-rec-count" title="${r.also_saved_by} other surfers also saved this">${r.also_saved_by}×</span>
+    </a>`;
+  }).filter(Boolean).join("");
+  slot.innerHTML = `<div class="acc-rec-list">${cards}</div>`;
 }
 
 // Tag recognised facility words in a free-text facilities string with a
