@@ -5723,8 +5723,16 @@ function tripSavedHTML(t) {
   const summary = tripSummaryHTML(items, t.dates);
   const mapDiv = located.length ? `<div class="trip-map" id="trip-map-${t.id}"></div>` : "";
 
+  // Header actions: same shape as the draft view — share / add-to-
+  // calendar / remove all in the top-right of the trip card. Calendar
+  // export is hidden when no stay has a usable date range (the .ics
+  // would be empty). Lode asked for it up top, not buried in the
+  // bottom action bar.
+  const hasDatedStay = items.some(e => e.type === "stay" && tripNights(((t.dates || {})[e.id] || {}).in, ((t.dates || {})[e.id] || {}).out) > 0);
+  const calBtn = hasDatedStay ? `<button type="button" class="link-btn" data-ics="${t.id}">add to calendar</button>` : "";
   const headActions = `<span class="trip-head-actions">
     ${items.length ? `<button type="button" class="link-btn" data-share="${t.id}">share</button>` : ""}
+    ${calBtn}
     <button type="button" class="link-btn" data-del="${t.id}">remove</button>
   </span>`;
   const nameEl = `<h3 class="trip-name" data-rename="${t.id}" role="button" tabindex="0" title="Rename this trip"><span class="trip-name-text">${escHTML(t.name)}</span><span class="trip-name-pencil" aria-hidden="true">✎</span></h3>`;
@@ -5824,7 +5832,6 @@ function tripSavedHTML(t) {
       </div>`
     : "";
 
-  const calBtn = `<button type="button" class="link-btn" data-ics="${t.id}">add to calendar</button>`;
   return `<div class="trip trip-saved${collapsed ? " is-collapsed" : ""}" id="trip-${t.id}">
     <header class="trip-overview">
       <div class="trip-head">
@@ -5839,7 +5846,6 @@ function tripSavedHTML(t) {
       ${mapDiv}
     </div>
     <div class="trip-saved-actions">
-      ${calBtn}
       <button type="button" class="btn btn-secondary trip-edit-btn" data-edit-trip="${t.id}">Edit trip</button>
     </div>
   </div>`;
