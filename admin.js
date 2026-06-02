@@ -761,6 +761,52 @@ function _renderUserDetail(detail) {
       }).join("")
     : `<p class="muted">No trips yet.</p>`;
 
+  // Danger zone — only render the delete button when the action is
+  // ALLOWED. Backend refuses self-delete + admin-delete; mirror those
+  // rules here so the admin doesn't click a button that just errors.
+  const myEmail = ((WaveBaseAuth.currentUser() || {}).email || "").toLowerCase();
+  const isSelf  = (u.email || "").toLowerCase() === myEmail;
+  const isAdmin = ADMIN_EMAILS.some(a => a.toLowerCase() === (u.email || "").toLowerCase());
+  let dangerZoneHTML = "";
+  if (isSelf) {
+    dangerZoneHTML = `
+      <h3>Danger zone</h3>
+      <p class="muted">This is your own admin account — delete from "My WaveBase &rarr; Delete my account" if you really need to.</p>`;
+  } else if (isAdmin) {
+    dangerZoneHTML = `
+      <h3>Danger zone</h3>
+      <p class="muted">${_esc(u.email)} is an admin. Demote to role=&quot;user&quot; in Mongo first if you really want to delete them.</p>`;
+  } else {
+    // Cascade summary so the admin sees exactly what they're nuking
+    // before they confirm. Two-step UX: first click reveals the
+    // confirmation, second click actually fires the DELETE.
+    const reviewsN = (detail.reviews || []).length;
+    dangerZoneHTML = `
+      <h3>Danger zone</h3>
+      <p class="muted">Permanently delete this user. Hard delete with full cascade — no undo. Routes through the same endpoint the in-app "Delete my account" uses, so all linked rows are cleaned up correctly.</p>
+      <div class="adm-danger-zone">
+        <button type="button" class="btn btn-danger" id="adm-delete-user-btn" data-user-id="${_esc(u.id)}" data-user-email="${_esc(u.email)}">
+          Delete account…
+        </button>
+        <div id="adm-delete-user-confirm" hidden>
+          <p class="adm-danger-summary">
+            About to delete <strong>${_esc(u.email)}</strong>. This will:
+          </p>
+          <ul class="adm-danger-list">
+            <li>permanently remove <strong>${detail.saved.length}</strong> saved spots</li>
+            <li>permanently remove <strong>${detail.surfed.length}</strong> surf-log entries</li>
+            <li>permanently remove <strong>${detail.trips.length}</strong> trips</li>
+            <li>anonymise <strong>${reviewsN}</strong> reviews (left visible without author)</li>
+            <li>delete the user record itself</li>
+          </ul>
+          <div class="adm-danger-confirm-row">
+            <button type="button" class="btn btn-danger" id="adm-delete-user-confirm-btn">Yes, delete permanently</button>
+            <button type="button" class="link-btn" id="adm-delete-user-cancel-btn">Cancel</button>
+          </div>
+        </div>
+      </div>`;
+  }
+
   document.querySelector(".adm-detail-body").innerHTML = `
     <h2>${_esc(u.name || "(no name)")}</h2>
     <div class="adm-profile">
@@ -784,7 +830,54 @@ function _renderUserDetail(detail) {
 
     <h3>Reviews (${(detail.reviews || []).length})</h3>
     ${reviewsHtml}
+
+    ${dangerZoneHTML}
   `;
+
+  // Wire the delete flow (only present when isSelf+isAdmin are both
+  // false). First click reveals the confirmation panel; the confirm
+  // button fires the actual DELETE and closes the modal on success.
+  const deleteBtn   = document.getElementById("adm-delete-user-btn");
+  const confirmPane = document.getElementById("adm-delete-user-confirm");
+  const confirmBtn  = document.getElementById("adm-delete-user-confirm-btn");
+  const cancelBtn   = document.getElementById("adm-delete-user-cancel-btn");
+  if (deleteBtn && confirmPane) {
+    deleteBtn.addEventListener("click", () => {
+      deleteBtn.hidden = true;
+      confirmPane.hidden = false;
+    });
+  }
+  if (cancelBtn && confirmPane && deleteBtn) {
+    cancelBtn.addEventListener("click", () => {
+      confirmPane.hidden = true;
+      deleteBtn.hidden = false;
+    });
+  }
+  if (confirmBtn && deleteBtn) {
+    confirmBtn.addEventListener("click", async () => {
+      if (confirmBtn.disabled) return;
+      confirmBtn.disabled = true;
+      confirmBtn.textContent = "Deleting…";
+      try {
+        const res = await WaveBaseAuth.authFetch(
+          "/admin/users/" + encodeURIComponent(deleteBtn.dataset.userId),
+          { method: "DELETE" },
+        );
+        if (!res.ok) {
+          // Backend refusal (self / admin / 404) lands here.
+          let msg = "HTTP " + res.status;
+          try { const j = await res.json(); msg = j.detail || msg; } catch (e) {}
+          throw new Error(msg);
+        }
+        _closeUserDetail();
+        _renderDashboard();
+      } catch (e) {
+        alert("Couldn't delete user: " + (e && e.message || e));
+        confirmBtn.disabled = false;
+        confirmBtn.textContent = "Yes, delete permanently";
+      }
+    });
+  }
 }
 
 /* ---------- boot ---------- */

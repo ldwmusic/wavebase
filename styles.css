@@ -6680,6 +6680,50 @@ button.rml-key.off .rml-dot {
   cursor: not-allowed;
 }
 
+/* Admin user-detail modal: danger zone at the bottom for the
+   cascade-safe delete-user flow. Same visual language as the
+   account-page danger zone — dashed border, clay-outlined button. */
+.adm-danger-zone {
+  margin-top: 6px;
+  padding: 14px;
+  border: 1px dashed var(--sand-deep);
+  border-radius: 10px;
+  background: transparent;
+}
+.adm-danger-zone .btn-danger {
+  background: transparent;
+  color: var(--clay);
+  border: 1px solid var(--clay);
+  font-weight: 600;
+  padding: 8px 16px;
+  border-radius: 999px;
+  cursor: pointer;
+  font: inherit;
+  font-weight: 600;
+}
+.adm-danger-zone .btn-danger:hover:not(:disabled) {
+  background: var(--clay);
+  color: #fff;
+}
+.adm-danger-zone .btn-danger:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+.adm-danger-summary {
+  margin: 12px 0 6px;
+  font-size: 14px;
+}
+.adm-danger-list {
+  margin: 6px 0 14px;
+  padding-left: 20px;
+  font-size: 13.5px;
+  color: var(--ink);
+  line-height: 1.6;
+}
+.adm-danger-confirm-row {
+  display: flex; gap: 14px; align-items: center; flex-wrap: wrap;
+}
+
 /* During onboarding the Continue button is the primary CTA and the
    Skip is a quiet escape hatch — flip the visual weight so Continue
    is the obvious right-hand action. */
