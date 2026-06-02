@@ -6773,8 +6773,8 @@ const WaveBaseProfileForm = (function () {
     const get = id => rootEl.querySelector("#" + id);
 
     function localSave() {
-      // Spread current first so cut fields (yearsSurfing, currency,
-      // etc.) survive across saves through the new form shape.
+      // Spread current first so any fields the form doesn't render
+      // (currency, etc.) survive across saves through this form shape.
       const current = WaveBaseAccount.getProfile();
       WaveBaseAccount.setProfile({
         ...current,
