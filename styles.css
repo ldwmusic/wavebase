@@ -6483,18 +6483,26 @@ button.rml-key.off .rml-dot {
 .link-btn.admin-danger { color: #c0392b; }
 .link-btn.admin-danger:hover { color: #a02818; }
 
-/* Replies under a review — public-facing (everyone sees them) but
-   only admins can add / remove them. Indented + light fill so they
-   read as a response, not a peer review. */
+/* Replies under a review. Two flavours:
+   - .review-reply-admin (WaveBase team): sea-soft fill, sea-left
+     border, badge in the head row.
+   - .review-reply-user (community): subtle sand fill, sand-left
+     border, just name + date. Reads as a peer reaction. */
 .review-replies {
   margin-top: 10px;
   display: flex; flex-direction: column; gap: 8px;
 }
 .review-reply {
-  background: var(--sea-soft);
-  border-left: 3px solid var(--sea);
   border-radius: 8px;
   padding: 8px 12px;
+}
+.review-reply-admin {
+  background: var(--sea-soft);
+  border-left: 3px solid var(--sea);
+}
+.review-reply-user {
+  background: var(--cream);
+  border-left: 3px solid var(--sand-deep);
 }
 .review-reply-head {
   display: flex; gap: 8px; align-items: center; flex-wrap: wrap;
@@ -6502,6 +6510,43 @@ button.rml-key.off .rml-dot {
 }
 .review-reply-text {
   margin: 4px 0 0; font-size: 14px; color: var(--ink);
+}
+
+/* Reactions row — Helpful vote + Reply link, always visible under
+   the detail pills. Subtle so it doesn't compete with the review text. */
+.my-review-reactions {
+  display: flex; align-items: center; gap: 14px;
+  margin-top: 10px;
+  font-size: 13px;
+}
+.my-review-helpful {
+  display: inline-flex; align-items: center; gap: 6px;
+  background: transparent;
+  border: 1px solid var(--sand-deep);
+  border-radius: 999px;
+  padding: 4px 12px;
+  font: inherit; font-size: 13px;
+  color: var(--ink);
+  cursor: pointer;
+  transition: background 0.12s ease, border-color 0.12s ease;
+}
+.my-review-helpful:hover {
+  background: var(--cream);
+  border-color: var(--sea);
+}
+.my-review-helpful.is-voted {
+  background: var(--sea-soft);
+  border-color: var(--sea);
+  color: var(--sea);
+  font-weight: 600;
+}
+.my-review-helpful-count {
+  font-weight: 600;
+  padding-left: 4px;
+  border-left: 1px solid currentColor;
+  margin-left: 2px;
+  padding-left: 8px;
+  opacity: 0.7;
 }
 
 /* The reply composer — hidden by default, toggled open by the admin

@@ -136,7 +136,13 @@ async function _refreshSpotReviews(entryId) {
   let reviews;
   try {
     const API = (typeof WAVEBASE_API !== "undefined") ? WAVEBASE_API : "";
-    const res = await fetch(API + "/reviews/?entry_id=" + encodeURIComponent(entryId));
+    const url = API + "/reviews/?entry_id=" + encodeURIComponent(entryId);
+    // Use authFetch when signed in so the backend can mark each
+    // review's helpful_by_me for the current user. The endpoint is
+    // soft-auth — an invalid / missing JWT just returns the anon view.
+    const res = (typeof WaveBaseAuth !== "undefined" && WaveBaseAuth.isLoggedIn())
+      ? await WaveBaseAuth.authFetch("/reviews/?entry_id=" + encodeURIComponent(entryId))
+      : await fetch(url);
     if (!res.ok) throw new Error("HTTP " + res.status);
     reviews = await res.json();
     st.reviews = Array.isArray(reviews) ? reviews : [];
@@ -244,48 +250,76 @@ async function _refreshSpotReviews(entryId) {
           <button class="link-btn" data-del-review="${escHTML(local.id)}" aria-label="Delete review">remove</button>
         </div>`
       : "";
-    // Admin tools row — shown to admins on EVERY review (including
-    // their own, separately from the owner-actions block above).
+    // Admin tools row — shown to admins on EVERY review. Reply lives
+    // in the general reactions row below (any signed-in user can
+    // reply); the admin row keeps the heavy-handed "delete review"
+    // action plus the admin chip so it's clear this is moderator UI.
     const adminActions = admin
       ? `<div class="my-review-admin-actions">
           <span class="admin-chip-mini" title="You're seeing this because you're a WaveBase admin">admin</span>
-          <button class="link-btn" data-admin-reply-toggle="${escHTML(r.id)}">reply</button>
           <button class="link-btn admin-danger" data-admin-del-review="${escHTML(r.id)}" aria-label="Admin delete review">delete</button>
         </div>`
       : "";
     const yourBadge = isMine
       ? `<span class="my-review-mine-badge">Your review</span>`
       : "";
-    // Render existing replies (everyone sees these; only admins can
-    // delete them).
+    // Render existing replies — everyone sees these. Admin replies
+    // get the "WaveBase team" badge + clay accent border. Community
+    // replies are plain (just the author name + date). Delete on a
+    // reply shows for: the reply's author OR any admin.
     const repliesHTML = (r.replies && r.replies.length)
-      ? `<div class="review-replies">${r.replies.map(rep => `
-          <div class="review-reply" data-reply-id="${escHTML(rep.id || '')}">
+      ? `<div class="review-replies">${r.replies.map(rep => {
+          const isAdminReply = rep.kind === "admin" || !rep.kind;  // legacy default
+          const isMyReply    = myUserId && rep.user_id === myUserId;
+          const canDelete    = admin || isMyReply;
+          return `<div class="review-reply ${isAdminReply ? "review-reply-admin" : "review-reply-user"}" data-reply-id="${escHTML(rep.id || '')}">
             <div class="review-reply-head">
-              <strong>${escHTML(rep.name || 'WaveBase')}</strong>
-              <span class="muted"> · WaveBase team · ${_fmtReviewDate(rep.created_at)}</span>
-              ${admin ? `<button class="link-btn admin-danger" data-admin-del-reply="${escHTML(r.id)}|${escHTML(rep.id || '')}" aria-label="Admin delete reply">delete</button>` : ""}
+              <strong>${escHTML(rep.name || (isAdminReply ? 'WaveBase' : 'Anonymous'))}</strong>
+              ${isAdminReply ? `<span class="muted"> · WaveBase team</span>` : ""}
+              <span class="muted"> · ${_fmtReviewDate(rep.created_at)}</span>
+              ${canDelete ? `<button class="link-btn ${admin && !isMyReply ? "admin-danger" : ""}" data-del-reply="${escHTML(r.id)}|${escHTML(rep.id || '')}" aria-label="Delete reply">delete</button>` : ""}
             </div>
             <p class="review-reply-text">${escHTML(rep.text || '')}</p>
-          </div>`).join("")}</div>`
+          </div>`;
+        }).join("")}</div>`
       : "";
-    // Hidden reply composer — toggled open by the admin "reply" button.
-    const replyComposer = admin
+    // Community-reply composer — visible to any signed-in user.
+    // Admin composer is the same composer; we keep ONE composer per
+    // review and dispatch the right endpoint at submit time based on
+    // admin status.
+    const isLoggedIn = !!myUserId;
+    const replyComposer = isLoggedIn
       ? `<div class="review-reply-form" id="reply-form-${escHTML(r.id)}" hidden>
-          <textarea class="review-reply-input" placeholder="Reply as WaveBase…" rows="2"></textarea>
+          <textarea class="review-reply-input" placeholder="${admin ? 'Reply as WaveBase…' : 'Write a reply…'}" rows="2"></textarea>
           <div class="review-reply-form-actions">
-            <button class="btn btn-small" data-admin-reply-send="${escHTML(r.id)}">Post reply</button>
-            <button class="link-btn" data-admin-reply-cancel="${escHTML(r.id)}">Cancel</button>
+            <button class="btn btn-small" data-reply-send="${escHTML(r.id)}">Post reply</button>
+            <button class="link-btn" data-reply-cancel="${escHTML(r.id)}">Cancel</button>
           </div>
         </div>`
+      : "";
+    // Helpful vote — visible to everyone, gated to signed-in on click.
+    // Shows the current count + highlights when the caller has voted.
+    const helpfulCount = r.helpful_count || 0;
+    const helpfulMine  = !!r.helpful_by_me;
+    const helpfulBtn = `<button type="button" class="my-review-helpful${helpfulMine ? " is-voted" : ""}" data-helpful="${escHTML(r.id)}" aria-pressed="${helpfulMine}">
+      <span aria-hidden="true">${helpfulMine ? "👍" : "👍🏼"}</span>
+      <span class="my-review-helpful-text">${helpfulMine ? "Helpful" : "Helpful"}</span>
+      ${helpfulCount > 0 ? `<span class="my-review-helpful-count">${helpfulCount}</span>` : ""}
+    </button>`;
+    // Reply button — any signed-in user (not just admin). For admins,
+    // we keep the same composer; the submit handler branches.
+    const replyBtn = isLoggedIn
+      ? `<button type="button" class="link-btn" data-reply-toggle="${escHTML(r.id)}">reply</button>`
       : "";
     // Hierarchy from top to bottom:
     //   1. Stars (big, clay) + author + Your-review badge
     //   2. Meta line — match tag + visited month + posted date (tiny, muted)
-    //   3. The user's free-text review — BIG, the human voice
-    //   4. Detail chips (level/discipline/gear/etc.) — small grey pills
-    //   5. Replies (sea-soft cards)
-    //   6. Admin moderation row (dashed separator above)
+    //   3. The user's free-text review — the human voice
+    //   4. Detail chips (level/discipline/gear/etc.)
+    //   5. Reactions row — Helpful vote + Reply (community)
+    //   6. Replies cluster (admin + community, threaded)
+    //   7. Reply composer (hidden until user clicks Reply)
+    //   8. Admin moderation row — delete review (admin-only)
     return `<li class="my-review${isMine ? " my-review-mine" : ""}">
       <div class="my-review-head">
         <div class="my-review-where">
@@ -298,6 +332,10 @@ async function _refreshSpotReviews(entryId) {
       <div class="my-review-meta">${matchTag}${visited ? ` <span class="muted">visited ${visited}</span>` : ""} <span class="muted">posted ${_fmtReviewDate(r.created_at)}</span></div>
       ${_renderReviewText(r, st)}
       ${detailPills ? `<div class="my-review-details">${detailPills}</div>` : ""}
+      <div class="my-review-reactions">
+        ${helpfulBtn}
+        ${replyBtn}
+      </div>
       ${repliesHTML}
       ${replyComposer}
       ${adminActions}
@@ -351,10 +389,12 @@ async function _refreshSpotReviews(entryId) {
       }
     });
   });
-  // Toggle the reply composer open / closed.
-  el.querySelectorAll("[data-admin-reply-toggle]").forEach(btn => {
+  // Toggle the reply composer open / closed. Same button name for
+  // admin + community — both write into the same composer.
+  el.querySelectorAll("[data-reply-toggle]").forEach(btn => {
     btn.addEventListener("click", () => {
-      const id = btn.dataset.adminReplyToggle;
+      if (!requireAuth()) return;  // signed-out → login modal
+      const id = btn.dataset.replyToggle;
       const form = document.getElementById("reply-form-" + id);
       if (!form) return;
       form.hidden = !form.hidden;
@@ -364,18 +404,21 @@ async function _refreshSpotReviews(entryId) {
       }
     });
   });
-  el.querySelectorAll("[data-admin-reply-cancel]").forEach(btn => {
+  el.querySelectorAll("[data-reply-cancel]").forEach(btn => {
     btn.addEventListener("click", () => {
-      const form = document.getElementById("reply-form-" + btn.dataset.adminReplyCancel);
+      const form = document.getElementById("reply-form-" + btn.dataset.replyCancel);
       if (form) { form.hidden = true; const ta = form.querySelector("textarea"); if (ta) ta.value = ""; }
     });
   });
-  // POST the reply. Same double-submit guard as the review form —
-  // an admin clicking Post twice should not create two replies.
-  el.querySelectorAll("[data-admin-reply-send]").forEach(btn => {
+  // POST the reply. Admin replies hit /admin/reviews/{id}/reply (kind=admin
+  // server-side, "WaveBase team" badge in the UI); community replies hit
+  // /reviews/{id}/reply (kind=user, plain author name). Double-submit
+  // guarded so a fast double-click doesn't post twice.
+  const adminViewer = isWaveBaseAdmin();
+  el.querySelectorAll("[data-reply-send]").forEach(btn => {
     btn.addEventListener("click", async () => {
       if (btn.disabled) return;
-      const id = btn.dataset.adminReplySend;
+      const id = btn.dataset.replySend;
       const form = document.getElementById("reply-form-" + id);
       if (!form) return;
       const ta = form.querySelector("textarea");
@@ -384,15 +427,16 @@ async function _refreshSpotReviews(entryId) {
       btn.disabled = true;
       const originalLabel = btn.textContent;
       btn.textContent = "Posting…";
+      const path = adminViewer
+        ? "/admin/reviews/" + encodeURIComponent(id) + "/reply"
+        : "/reviews/"       + encodeURIComponent(id) + "/reply";
       try {
-        const res = await WaveBaseAuth.authFetch("/admin/reviews/" + encodeURIComponent(id) + "/reply", {
+        const res = await WaveBaseAuth.authFetch(path, {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ text }),
         });
         if (!res.ok) throw new Error("HTTP " + res.status);
-        // Successful reply re-renders the whole review list, which
-        // wipes this button from the DOM. No need to re-enable it.
         _refreshSpotReviews(entryId);
       } catch (e) {
         alert("Couldn't post reply: " + (e && e.message || e));
@@ -401,21 +445,48 @@ async function _refreshSpotReviews(entryId) {
       }
     });
   });
-  // Delete a single reply.
-  el.querySelectorAll("[data-admin-del-reply]").forEach(btn => {
+  // Delete a reply — own reply OR admin-on-anything. The backend
+  // enforces the rule; the frontend only renders the button when
+  // it knows the click will be permitted.
+  el.querySelectorAll("[data-del-reply]").forEach(btn => {
     btn.addEventListener("click", async () => {
-      const [reviewId, replyId] = String(btn.dataset.adminDelReply || "").split("|");
+      const [reviewId, replyId] = String(btn.dataset.delReply || "").split("|");
       if (!reviewId || !replyId) return;
       if (!confirm("Delete this reply?")) return;
+      // Admin endpoint accepts both admin-deletes and own-deletes;
+      // the community endpoint only accepts own-deletes. Route
+      // accordingly to keep the audit trail clean.
+      const path = adminViewer
+        ? "/admin/reviews/" + encodeURIComponent(reviewId) + "/reply/" + encodeURIComponent(replyId)
+        : "/reviews/"       + encodeURIComponent(reviewId) + "/reply/" + encodeURIComponent(replyId);
       try {
-        const res = await WaveBaseAuth.authFetch(
-          "/admin/reviews/" + encodeURIComponent(reviewId) + "/reply/" + encodeURIComponent(replyId),
-          { method: "DELETE" },
-        );
+        const res = await WaveBaseAuth.authFetch(path, { method: "DELETE" });
         if (!res.ok) throw new Error("HTTP " + res.status);
         _refreshSpotReviews(entryId);
       } catch (e) {
         alert("Couldn't delete reply: " + (e && e.message || e));
+      }
+    });
+  });
+  // Helpful vote toggle — anyone can click, anonymous gets the login
+  // modal. Optimistic update would feel snappier but the backend's
+  // response is the source of truth (it computes helpful_by_me for
+  // us), so we just await + re-render.
+  el.querySelectorAll("[data-helpful]").forEach(btn => {
+    btn.addEventListener("click", async () => {
+      if (!requireAuth()) return;
+      if (btn.disabled) return;
+      btn.disabled = true;
+      try {
+        const res = await WaveBaseAuth.authFetch(
+          "/reviews/" + encodeURIComponent(btn.dataset.helpful) + "/helpful",
+          { method: "POST" },
+        );
+        if (!res.ok) throw new Error("HTTP " + res.status);
+        _refreshSpotReviews(entryId);
+      } catch (e) {
+        alert("Couldn't update helpful vote: " + (e && e.message || e));
+        btn.disabled = false;
       }
     });
   });
