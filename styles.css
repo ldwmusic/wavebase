@@ -4374,6 +4374,24 @@ button.rml-key.off .rml-dot {
 }
 .trip-saved-note-text { font-style: italic; }
 
+/* Check-in / check-out anchor rows that always frame the day-notes
+   list. Bolder than the note rows; the date column is the same
+   width as on note rows so everything stays aligned. */
+.trip-saved-note-anchor .trip-saved-note-date { color: var(--ink); }
+.trip-saved-note-label {
+  font-weight: 600;
+  font-size: 12px;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--sea);
+}
+.trip-saved-note-anchor + .trip-saved-note,
+.trip-saved-note + .trip-saved-note-anchor {
+  border-top: 1px dashed var(--sand-deep);
+  padding-top: 4px;
+  margin-top: 2px;
+}
+
 /* "While there" — the spots / centers attached to a stay leg.
    Pill-style chips that link to detail pages. */
 .trip-saved-extras { margin-top: 10px; }

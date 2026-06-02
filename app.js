@@ -5757,16 +5757,37 @@ function tripSavedHTML(t) {
       ? `<div class="trip-saved-leg-dates">${escHTML(period)}${nights ? ` · ${nights} night${nights === 1 ? "" : "s"}` : ""}</div>`
       : `<div class="trip-saved-leg-dates muted">No dates set</div>`;
     const notes = tripDayNotesForLeg(t, leg);
-    const notesHTML = notes.length
-      ? `<div class="trip-saved-leg-notes">${notes.map(n => `
+    // Notes block always shows Check-in + Check-out anchor rows when
+    // dates are set — so the user sees the boundary days even when
+    // they haven't written a day-note for them. The day-notes (if any)
+    // sit between the anchors chronologically. Without dates we fall
+    // back to just the notes (anchor rows would have no value).
+    let notesHTML = "";
+    if (d.in && d.out) {
+      const checkInRow  = `<div class="trip-saved-note trip-saved-note-anchor">
+          <span class="trip-saved-note-date">${escHTML(fmtTripDate(d.in))}</span>
+          <span class="trip-saved-note-label">Check in</span>
+        </div>`;
+      const checkOutRow = `<div class="trip-saved-note trip-saved-note-anchor">
+          <span class="trip-saved-note-date">${escHTML(fmtTripDate(d.out))}</span>
+          <span class="trip-saved-note-label">Check out</span>
+        </div>`;
+      const noteRows = notes.map(n => `
+        <div class="trip-saved-note">
+          <span class="trip-saved-note-date">${escHTML(fmtTripDate(n.date))}</span>
+          <span class="trip-saved-note-text">${escHTML(n.note)}</span>
+        </div>`).join("");
+      notesHTML = `<div class="trip-saved-leg-notes">${checkInRow}${noteRows}${checkOutRow}</div>`;
+    } else if (notes.length) {
+      notesHTML = `<div class="trip-saved-leg-notes">${notes.map(n => `
           <div class="trip-saved-note">
             <span class="trip-saved-note-date">${escHTML(fmtTripDate(n.date))}</span>
             <span class="trip-saved-note-text">${escHTML(n.note)}</span>
-          </div>`).join("")}</div>`
-      : "";
+          </div>`).join("")}</div>`;
+    }
     const extrasHTML = leg.extras.length
       ? `<div class="trip-saved-extras">
-          <div class="trip-saved-extras-label">While there</div>
+          <div class="trip-saved-extras-label">Surfing at</div>
           <div class="trip-saved-extras-list">${leg.extras.map(tripSavedExtraChipHTML).join("")}</div>
         </div>`
       : "";
