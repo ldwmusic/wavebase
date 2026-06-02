@@ -134,6 +134,16 @@ async function _loadEventsSearch() {
   if (!res.ok) throw new Error("Search failed: " + res.status);
   return res.json();
 }
+async function _loadRecentReviews() {
+  const res = await WaveBaseAuth.authFetch("/admin/reviews/recent?limit=20");
+  if (!res.ok) throw new Error("Recent reviews failed: " + res.status);
+  return res.json();
+}
+async function _loadEngagement() {
+  const res = await WaveBaseAuth.authFetch("/admin/engagement?limit=30");
+  if (!res.ok) throw new Error("Engagement failed: " + res.status);
+  return res.json();
+}
 async function _loadUserDetail(userId) {
   const res = await WaveBaseAuth.authFetch("/admin/users/" + encodeURIComponent(userId));
   if (!res.ok) throw new Error("User detail failed: " + res.status);
@@ -179,6 +189,11 @@ function _renderKpis(totals, today) {
         <div class="adm-kpi-label">Surf log entries</div>
         <div class="adm-kpi-value">${totals.surfed}</div>
         <div class="adm-kpi-sub">today: +${today.surfed}</div>
+      </div>
+      <div class="adm-kpi">
+        <div class="adm-kpi-label">Reviews</div>
+        <div class="adm-kpi-value">${totals.reviews != null ? totals.reviews : 0}</div>
+        <div class="adm-kpi-sub">today: +${today.reviews != null ? today.reviews : 0}</div>
       </div>
     </div>
   `;
@@ -268,15 +283,17 @@ function _renderPopularity(pop) {
 
 async function _renderDashboard() {
   const root = document.getElementById("admin-root");
-  let overview, popularity, evAff, evViews, evFunnel, evSearch;
+  let overview, popularity, evAff, evViews, evFunnel, evSearch, recent, engagement;
   try {
-    [overview, popularity, evAff, evViews, evFunnel, evSearch] = await Promise.all([
+    [overview, popularity, evAff, evViews, evFunnel, evSearch, recent, engagement] = await Promise.all([
       _loadOverview(),
       _loadPopularity(),
       _loadEventsAffiliate(),
       _loadEventsPageviews(),
       _loadEventsFunnel(),
       _loadEventsSearch(),
+      _loadRecentReviews(),
+      _loadEngagement(),
     ]);
   } catch (e) {
     root.innerHTML = `<p class="muted" style="color:var(--clay);">Failed to load admin data: ${_esc(e.message || e)}</p>`;
@@ -288,16 +305,20 @@ async function _renderDashboard() {
 
   root.innerHTML = `
     <div class="admin-head">
-      <p class="kicker">WaveBase admin</p>
+      <p class="kicker">SurfGoose admin</p>
       <h1>What&rsquo;s going on.</h1>
     </div>
     ${_renderKpis(overview.totals, overview.today)}
+    ${_renderRecentReviews(recent)}
+    ${_renderEngagement(engagement)}
     ${_renderUsersTable(overview.users)}
     ${_renderPopularity(popularity)}
     ${_renderActivity(evAff, evViews, evFunnel, evSearch)}
   `;
 
   _wireTableInteractions();
+  _wireRecentReviews();
+  _wireSearchActions();
 }
 
 function _renderActivity(evAff, evViews, evFunnel, evSearch) {
@@ -354,15 +375,35 @@ function _renderActivity(evAff, evViews, evFunnel, evSearch) {
     : `<p class="muted">No signup activity yet.</p>`;
 
   // Search — top queries (frequency) + recent (raw, latest first).
+  // Top queries get a status badge + action buttons so the dashboard
+  // panel becomes a content roadmap. Status is one of: open (default),
+  // planned (we're going to add this), dismissed (irrelevant / noise).
   const topSearch = evSearch.top || [];
   const topSearchMax = Math.max(1, ...topSearch.map(x => x.count));
+  const _statusLabel = { open: "open", planned: "planned", dismissed: "dismissed" };
   const topSearchHtml = topSearch.length
-    ? `<ol class="adm-pop-list">${topSearch.map(q => `
-        <li class="adm-pop-row">
-          <span class="adm-pop-name">${_esc(q.query)}</span>
-          <span class="adm-pop-bar"><span class="adm-pop-bar-fill" style="width:${Math.round((q.count / topSearchMax) * 100)}%"></span></span>
-          <span class="adm-pop-count">${q.count}</span>
-        </li>`).join("")}</ol>`
+    ? `<ol class="adm-pop-list adm-search-list">${topSearch.map(q => {
+        const status = q.action_status || "open";
+        const badge = `<span class="adm-search-badge adm-search-badge-${status}">${_statusLabel[status]}</span>`;
+        // Two action buttons: cycle plan / dismiss / reopen depending
+        // on current status. Encoded query goes in data-q for the wire
+        // handler to send back to /admin/search-queries/action.
+        const qEnc = _esc(q.query);
+        const actions = status === "open"
+          ? `<button class="link-btn" data-search-action="planned"   data-q="${qEnc}">plan</button>
+             <button class="link-btn" data-search-action="dismissed" data-q="${qEnc}">dismiss</button>`
+          : status === "planned"
+          ? `<button class="link-btn" data-search-action="open"      data-q="${qEnc}">undo</button>
+             <button class="link-btn" data-search-action="dismissed" data-q="${qEnc}">dismiss</button>`
+          : `<button class="link-btn" data-search-action="open"      data-q="${qEnc}">reopen</button>`;
+        return `
+          <li class="adm-pop-row adm-search-row">
+            <span class="adm-pop-name">${qEnc} ${badge}</span>
+            <span class="adm-pop-bar"><span class="adm-pop-bar-fill" style="width:${Math.round((q.count / topSearchMax) * 100)}%"></span></span>
+            <span class="adm-pop-count">${q.count}</span>
+            <span class="adm-search-actions">${actions}</span>
+          </li>`;
+      }).join("")}</ol>`
     : `<p class="muted">No searches yet.</p>`;
 
   const recentSearch = evSearch.recent || [];
@@ -406,6 +447,156 @@ function _renderActivity(evAff, evViews, evFunnel, evSearch) {
       </div>
     </section>
   `;
+}
+
+/* ---------- recent reviews feed ---------- */
+
+function _renderRecentReviews(payload) {
+  const items = (payload && payload.recent) || [];
+  const weekCount = (payload && payload.week_count) || 0;
+  const hint = weekCount > 0
+    ? `<span class="adm-pill adm-pill-sea">${weekCount} this week</span>`
+    : `<span class="muted">none this week</span>`;
+  if (!items.length) {
+    return `<section class="adm-section">
+      <h2>Recent reviews ${hint}</h2>
+      <p class="muted">No reviews on the platform yet.</p>
+    </section>`;
+  }
+  // Each row: stars + spot + author + truncated text + delete btn.
+  // Clicking the spot link opens the spot page in a new tab so the
+  // admin can read the full review in context.
+  const rows = items.map(r => {
+    const entry = _entryById(r.entry_id);
+    const spotName = entry ? entry.name : (r.entry_id || "(unknown)");
+    const spotType = entry ? _typeEmoji(entry.type) : "·";
+    const stars = "★".repeat(Math.max(0, Math.min(5, r.stars || 0)))
+                + "☆".repeat(Math.max(0, 5 - (r.stars || 0)));
+    const text = (r.text || "").trim();
+    const shortText = text.length > 200 ? text.slice(0, 197) + "…" : text;
+    const author = r.name || "Anonymous";
+    return `
+      <li class="adm-review-row">
+        <div class="adm-review-head">
+          <span class="adm-review-stars">${stars}</span>
+          <a href="spot.html?id=${encodeURIComponent(r.entry_id)}" target="_blank" rel="noopener" class="adm-review-spot">
+            ${spotType} ${_esc(spotName)}
+          </a>
+          <span class="muted"> · by ${_esc(author)}</span>
+          <span class="muted adm-review-ts"> · ${_fmtDate(r.created_at, true)}</span>
+        </div>
+        ${shortText ? `<p class="adm-review-text">${_esc(shortText)}</p>` : ""}
+        <div class="adm-review-actions">
+          <button class="link-btn admin-danger" data-admin-recent-del="${_esc(r.id)}">delete</button>
+        </div>
+      </li>`;
+  }).join("");
+  return `<section class="adm-section">
+    <h2>Recent reviews ${hint}</h2>
+    <p class="muted adm-table-hint">Newest first across every spot, center and stay. Click the spot to read in context.</p>
+    <ul class="adm-review-list">${rows}</ul>
+  </section>`;
+}
+
+function _wireRecentReviews() {
+  document.querySelectorAll("[data-admin-recent-del]").forEach(btn => {
+    btn.addEventListener("click", async () => {
+      if (!confirm("Admin-delete this review? This is permanent.")) return;
+      try {
+        const res = await WaveBaseAuth.authFetch(
+          "/admin/reviews/" + encodeURIComponent(btn.dataset.adminRecentDel),
+          { method: "DELETE" },
+        );
+        if (!res.ok) throw new Error("HTTP " + res.status);
+        _renderDashboard();  // full reload — fast, keeps counts honest
+      } catch (e) {
+        alert("Couldn't delete review: " + (e && e.message || e));
+      }
+    });
+  });
+}
+
+/* ---------- engagement scoreboard ---------- */
+
+function _renderEngagement(payload) {
+  const rows = (payload && payload.rows) || [];
+  if (!rows.length) {
+    return `<section class="adm-section">
+      <h2>Engagement scoreboard</h2>
+      <p class="muted">No engagement signals yet — give it a few users.</p>
+    </section>`;
+  }
+  const maxScore = Math.max(1, ...rows.map(r => r.score));
+  const trs = rows.map((r, i) => {
+    const entry = _entryById(r.spot_id);
+    const name = entry ? entry.name : (r.spot_id || "(unknown)");
+    const town = entry ? entry.town : "";
+    const emoji = entry ? _typeEmoji(entry.type) : "·";
+    const pct = Math.round((r.score / maxScore) * 100);
+    return `
+      <tr>
+        <td class="adm-eng-rank">${i + 1}</td>
+        <td>
+          <a href="spot.html?id=${encodeURIComponent(r.spot_id)}" target="_blank" rel="noopener" class="adm-eng-name">
+            ${emoji} ${_esc(name)}
+          </a>
+          ${town ? `<span class="muted"> · ${_esc(town)}</span>` : ""}
+        </td>
+        <td class="adm-eng-num">${r.saves}</td>
+        <td class="adm-eng-num">${r.surfed}</td>
+        <td class="adm-eng-num">${r.reviews}</td>
+        <td class="adm-eng-num">${r.helpful}</td>
+        <td class="adm-eng-score">
+          <span class="adm-pop-bar"><span class="adm-pop-bar-fill" style="width:${pct}%"></span></span>
+          <span class="adm-eng-score-num">${r.score}</span>
+        </td>
+      </tr>`;
+  }).join("");
+  return `<section class="adm-section">
+    <h2>Engagement scoreboard</h2>
+    <p class="muted adm-table-hint">Combined score per spot = saves×1 + surfed×2 + reviews×5 + helpful×3. Tells you where the action is, not just what gets saved.</p>
+    <div class="adm-table-wrap">
+      <table class="adm-table adm-eng-table">
+        <thead>
+          <tr>
+            <th>#</th>
+            <th>Spot</th>
+            <th class="adm-eng-num">Saves</th>
+            <th class="adm-eng-num">Surfed</th>
+            <th class="adm-eng-num">Reviews</th>
+            <th class="adm-eng-num">Helpful</th>
+            <th>Score</th>
+          </tr>
+        </thead>
+        <tbody>${trs}</tbody>
+      </table>
+    </div>
+  </section>`;
+}
+
+/* ---------- search-miss action wiring ---------- */
+
+function _wireSearchActions() {
+  document.querySelectorAll("[data-search-action]").forEach(btn => {
+    btn.addEventListener("click", async () => {
+      const status = btn.dataset.searchAction;
+      const q = btn.dataset.q;
+      if (!status || !q) return;
+      btn.disabled = true;
+      try {
+        const res = await WaveBaseAuth.authFetch("/admin/search-queries/action", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ query: q, status }),
+        });
+        if (!res.ok) throw new Error("HTTP " + res.status);
+        _renderDashboard();
+      } catch (e) {
+        alert("Couldn't update search action: " + (e && e.message || e));
+        btn.disabled = false;
+      }
+    });
+  });
 }
 
 let _adminUsersCache = [];
