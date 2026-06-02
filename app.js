@@ -252,15 +252,20 @@ async function _refreshSpotReviews(entryId) {
       if (form) { form.hidden = true; const ta = form.querySelector("textarea"); if (ta) ta.value = ""; }
     });
   });
-  // POST the reply.
+  // POST the reply. Same double-submit guard as the review form —
+  // an admin clicking Post twice should not create two replies.
   el.querySelectorAll("[data-admin-reply-send]").forEach(btn => {
     btn.addEventListener("click", async () => {
+      if (btn.disabled) return;
       const id = btn.dataset.adminReplySend;
       const form = document.getElementById("reply-form-" + id);
       if (!form) return;
       const ta = form.querySelector("textarea");
       const text = (ta && ta.value || "").trim();
       if (!text) { if (ta) ta.focus(); return; }
+      btn.disabled = true;
+      const originalLabel = btn.textContent;
+      btn.textContent = "Posting…";
       try {
         const res = await WaveBaseAuth.authFetch("/admin/reviews/" + encodeURIComponent(id) + "/reply", {
           method: "POST",
@@ -268,9 +273,13 @@ async function _refreshSpotReviews(entryId) {
           body: JSON.stringify({ text }),
         });
         if (!res.ok) throw new Error("HTTP " + res.status);
+        // Successful reply re-renders the whole review list, which
+        // wipes this button from the DOM. No need to re-enable it.
         _refreshSpotReviews(entryId);
       } catch (e) {
         alert("Couldn't post reply: " + (e && e.message || e));
+        btn.disabled = false;
+        btn.textContent = originalLabel;
       }
     });
   });
@@ -4469,11 +4478,25 @@ function initSpot() {
       });
     }
 
+    // Guard against double-submit. The handler is async-ish (network
+    // POST under the hood) and the previous version didn't disable
+    // the button, so a double-click or fast double-Enter created TWO
+    // reviews server-side. _submitting flips true on entry and is
+    // cleared only after the 3-second post-feedback timer — same
+    // window in which the form is re-armed for a fresh review.
+    let _submitting = false;
     reviewForm.addEventListener("submit", ev => {
       ev.preventDefault();
+      if (_submitting) return;
       if (!requireAuth()) return;
       const fb = reviewForm.querySelector(".review-feedback");
       if (!fb) return;
+      _submitting = true;
+      if (submitBtn) {
+        submitBtn.disabled = true;
+        submitBtn.dataset.originalLabel = submitBtn.textContent;
+        submitBtn.textContent = reviewForm.getAttribute("data-edit-review-id") ? "Updating…" : "Submitting…";
+      }
       const fd = new FormData(reviewForm);
       // Fields handled at top level: stars, year, month, matches, text, name.
       // Everything else gets bundled into details — that's the per-type chip data.
@@ -4509,6 +4532,15 @@ function initSpot() {
         chosenStars = 0;
         reviewForm.querySelectorAll(".review-star").forEach(b => b.classList.remove("on"));
         reviewForm.reset();
+        // Re-arm: clear the double-submit guard + restore the button
+        // so the user can leave another review on the same page if
+        // they want to.
+        _submitting = false;
+        if (submitBtn) {
+          submitBtn.disabled = false;
+          submitBtn.textContent = submitBtn.dataset.originalLabel || "Submit review";
+          delete submitBtn.dataset.originalLabel;
+        }
       }, 3000);
     });
   }
