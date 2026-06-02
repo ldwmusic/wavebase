@@ -1,4 +1,4 @@
-/* WaveBase admin dashboard.
+/* SurfGoose admin dashboard.
 
    Hits the /admin/* endpoints, renders KPIs + users table + popular
    content, and opens a drill-down modal for any selected user.
@@ -105,7 +105,7 @@ function _renderAccessDenied() {
   root.innerHTML = `
     <section class="admin-denied">
       <p class="kicker">Access denied</p>
-      <h1>This page is for WaveBase editors only.</h1>
+      <h1>This page is for SurfGoose editors only.</h1>
       <p class="lead">
         ${signedIn
           ? "You're signed in, but your account isn't on the editor allowlist."
@@ -1132,7 +1132,7 @@ function _renderUserDetail(detail) {
   if (isSelf) {
     dangerZoneHTML = `
       <h3>Danger zone</h3>
-      <p class="muted">This is your own admin account — delete from "My WaveBase &rarr; Delete my account" if you really need to.</p>`;
+      <p class="muted">This is your own admin account — delete from "My SurfGoose &rarr; Delete my account" if you really need to.</p>`;
   } else if (isAdmin) {
     dangerZoneHTML = `
       <h3>Danger zone</h3>

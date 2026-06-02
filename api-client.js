@@ -1,4 +1,4 @@
-/* WaveBase API client.
+/* SurfGoose API client.
 
    Replaces data.js as the runtime source for WAVEBASE_DATA + WAVEBASE_TOWNS.
    At boot:
@@ -244,7 +244,7 @@ function _apiToFrontendTown(t) {
 
 /* ---------- bootstrap ----------
 
-   Cache-first design. The "feels broken when you click WaveBase" bug
+   Cache-first design. The "feels broken when you click SurfGoose" bug
    is that Render's free tier has cold-starts up to ~30s — every page
    navigation was awaiting four serial API roundtrips before any page
    chrome could render. Now we:

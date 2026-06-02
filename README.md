@@ -1,4 +1,4 @@
-# WaveBase
+# SurfGoose
 
 Honest surf, windsurf and wing-foil guide. No marketing spin — what a spot or
 stay is really like, by season, for your level, based on recent reviews.
@@ -62,7 +62,7 @@ That's it. Anyone who knows HTML/CSS/JS can maintain this.
 | `spot.html` | Detail page used for every spot, stay, and center |
 | `kaart.html` | Map tab (Leaflet) |
 | `compare.html` | Compare tab (scoreboard) |
-| `account.html` | My WaveBase (fake account — localStorage only) |
+| `account.html` | My SurfGoose (fake account — localStorage only) |
 | `continent.html` | Continent overview (reached from the world map) |
 | `about.html` | About page |
 | `data.js` | **All content** — spots, stays, centers, towns, destinations |

@@ -1,5 +1,5 @@
 /* ============================================================
-   WaveBase — app.js
+   SurfGoose — app.js
    ============================================================
    One script for the whole site. The router at the bottom of the
    file picks the right `init*()` to run based on which page DOM
@@ -300,7 +300,7 @@ async function _refreshSpotReviews(entryId) {
     // action plus the admin chip so it's clear this is moderator UI.
     const adminActions = admin
       ? `<div class="my-review-admin-actions">
-          <span class="admin-chip-mini" title="You're seeing this because you're a WaveBase admin">admin</span>
+          <span class="admin-chip-mini" title="You're seeing this because you're a SurfGoose admin">admin</span>
           <button class="link-btn admin-danger" data-admin-del-review="${escHTML(r.id)}" aria-label="Admin delete review">delete</button>
         </div>`
       : "";
@@ -308,7 +308,7 @@ async function _refreshSpotReviews(entryId) {
       ? `<span class="my-review-mine-badge">Your review</span>`
       : "";
     // Render existing replies — everyone sees these. Admin replies
-    // get the "WaveBase team" badge + clay accent border. Community
+    // get the "SurfGoose team" badge + clay accent border. Community
     // replies are plain (just the author name + date). Delete on a
     // reply shows for: the reply's author OR any admin.
     const repliesHTML = (r.replies && r.replies.length)
@@ -318,8 +318,8 @@ async function _refreshSpotReviews(entryId) {
           const canDelete    = admin || isMyReply;
           return `<div class="review-reply ${isAdminReply ? "review-reply-admin" : "review-reply-user"}" data-reply-id="${escHTML(rep.id || '')}">
             <div class="review-reply-head">
-              <strong>${escHTML(rep.name || (isAdminReply ? 'WaveBase' : 'Anonymous'))}</strong>
-              ${isAdminReply ? `<span class="muted"> · WaveBase team</span>` : ""}
+              <strong>${escHTML(rep.name || (isAdminReply ? 'SurfGoose' : 'Anonymous'))}</strong>
+              ${isAdminReply ? `<span class="muted"> · SurfGoose team</span>` : ""}
               <span class="muted"> · ${_fmtReviewDate(rep.created_at)}</span>
               ${canDelete ? `<button class="link-btn ${admin && !isMyReply ? "admin-danger" : ""}" data-del-reply="${escHTML(r.id)}|${escHTML(rep.id || '')}" aria-label="Delete reply">delete</button>` : ""}
             </div>
@@ -334,7 +334,7 @@ async function _refreshSpotReviews(entryId) {
     const isLoggedIn = !!myUserId;
     const replyComposer = isLoggedIn
       ? `<div class="review-reply-form" id="reply-form-${escHTML(r.id)}" hidden>
-          <textarea class="review-reply-input" placeholder="${admin ? 'Reply as WaveBase…' : 'Write a reply…'}" rows="2"></textarea>
+          <textarea class="review-reply-input" placeholder="${admin ? 'Reply as SurfGoose…' : 'Write a reply…'}" rows="2"></textarea>
           <div class="review-reply-form-actions">
             <button class="btn btn-small" data-reply-send="${escHTML(r.id)}">Post reply</button>
             <button class="link-btn" data-reply-cancel="${escHTML(r.id)}">Cancel</button>
@@ -456,7 +456,7 @@ async function _refreshSpotReviews(entryId) {
     });
   });
   // POST the reply. Admin replies hit /admin/reviews/{id}/reply (kind=admin
-  // server-side, "WaveBase team" badge in the UI); community replies hit
+  // server-side, "SurfGoose team" badge in the UI); community replies hit
   // /reviews/{id}/reply (kind=user, plain author name). Double-submit
   // guarded so a fast double-click doesn't post twice.
   const adminViewer = isWaveBaseAdmin();
@@ -574,7 +574,7 @@ function fmtKm(km) {
   if (km < 10) return `${km.toFixed(1)} km`;
   return `${Math.round(km)} km`;
 }
-/* Build a "Open in Google Maps" URL for a WaveBase entry.
+/* Build a "Open in Google Maps" URL for a SurfGoose entry.
 
    Strategy (most reliable first):
    1. Google Place ID → direct place page, deterministic.
@@ -1501,7 +1501,7 @@ function monthlyChartHTML(e) {
 }
 
 /* Connect-the-dots — every detail page shows the other entity types nearby
-   by ACTUAL distance (Haversine). Keeps clicks inside WaveBase rather than
+   by ACTUAL distance (Haversine). Keeps clicks inside SurfGoose rather than
    leaking to Google: see a stay → click the nearby center → click that
    center's website. */
 function nearbyEntriesHTML(currentEntry, targetType, labelPlural, labelSingular, intro, opts) {
@@ -1613,7 +1613,7 @@ function wireDetailViewToggles(container) {
 
 // "More in [country]" — a wider net than the proximity-based "Nearby"
 // section. Shows up to 6 other entries from the same country, mixing
-// types so the user gets a sense of what else WaveBase has there.
+// types so the user gets a sense of what else SurfGoose has there.
 function moreInCountryHTML(currentEntry) {
   const country = entryCountry(currentEntry);
   if (!country) return "";
@@ -1949,7 +1949,7 @@ function tierDegreeHTML(t) {
 
 /* Currency. EUR is the storage baseline; rates updated quarterly.
    Auto-detect from navigator.language on first visit, allow user to
-   override in the My-WaveBase profile. Persisted in localStorage. */
+   override in the My-SurfGoose profile. Persisted in localStorage. */
 const CURRENCY_RATES = {
   EUR: { code: "EUR", symbol: "€",  rate: 1.00,  decimals: 0 },
   USD: { code: "USD", symbol: "$",  rate: 1.08,  decimals: 0 },
@@ -2870,7 +2870,7 @@ function runSearch() {
       hint += `<p>For <strong>${sportHeading}</strong>, live countries: ${otherCountriesForSport.join(" &middot; ")}.</p>`;
     }
     if (!hint) {
-      hint = `<p>WaveBase is rolling out worldwide and across all surf sports — more is on its way.</p>`;
+      hint = `<p>SurfGoose is rolling out worldwide and across all surf sports — more is on its way.</p>`;
     }
 
     results.innerHTML = `<section class="coming-soon">
@@ -3858,7 +3858,7 @@ function setMeta(selector, attr, value) {
 function applySpotSEO(e) {
   const typeLabelStr = typeLabel(e.type);
   const country = entryCountry(e);
-  const title = `${e.name} — ${typeLabelStr} in ${e.town}, ${country} | WaveBase`;
+  const title = `${e.name} — ${typeLabelStr} in ${e.town}, ${country} | SurfGoose`;
   const desc = (e.tagline || `Honest analysis of ${e.name} (${typeLabelStr}) in ${e.town}, ${country}.`).slice(0, 300);
   const url = `${SITE_ORIGIN}/spot.html?id=${e.id}`;
 
@@ -4697,7 +4697,7 @@ function initSpot() {
   });
 
   // Reviews mock — stars highlight on click; submit persists the preview
-  // locally (so it shows on My WaveBase → My reviews) and clears the form.
+  // locally (so it shows on My SurfGoose → My reviews) and clears the form.
   // The story-prose chips and free text all serialise into a `details`
   // object on the saved review so future readers see the full context.
   const reviewForm = root.querySelector(".review-form");
@@ -5440,14 +5440,14 @@ function surfLogSpotsPanel(country) {
   const byTown = {};
   spots.forEach(e => { (byTown[e.town] = byTown[e.town] || []).push(e); });
   const towns = Object.keys(byTown).sort();
-  // Empty country (clicked on the map but not on WaveBase yet) —
+  // Empty country (clicked on the map but not on SurfGoose yet) —
   // give the user a friendly note + a way to nudge us to add it,
   // instead of a silent empty panel.
   if (!towns.length) {
     return `<div class="surflog-empty">
-      <p><strong>${escHTML(country)}</strong> isn&rsquo;t on WaveBase yet.</p>
+      <p><strong>${escHTML(country)}</strong> isn&rsquo;t on SurfGoose yet.</p>
       <p class="muted">We&rsquo;re adding regions one at a time, honestly. If you&rsquo;d like to see ${escHTML(country)} next, drop us a line at
-      <a href="mailto:info@wavebase.com?subject=${encodeURIComponent('Add ' + country + ' to WaveBase')}">info@wavebase.com</a>
+      <a href="mailto:info@surfgoose.com?subject=${encodeURIComponent('Add ' + country + ' to SurfGoose')}">info@surfgoose.com</a>
       and tell us which spots matter to you.</p>
     </div>`;
   }
@@ -5522,7 +5522,7 @@ function surfLogHTML() {
         </div>
         <div class="surflog-map-scroll" id="surflog-map-scroll"></div>
       </div>
-      <p class="surflog-map-cap">Green = surfed · teal = spots to discover. Tap a country to see its spots (or to find out it's not on WaveBase yet). Pinch to zoom on mobile; use the buttons on desktop.</p>
+      <p class="surflog-map-cap">Green = surfed · teal = spots to discover. Tap a country to see its spots (or to find out it's not on SurfGoose yet). Pinch to zoom on mobile; use the buttons on desktop.</p>
     </div>
   </section>`;
 }
@@ -5649,12 +5649,12 @@ function wireSurfLogSearch(sec) {
 }
 
 /* Tints the world map for the surf log — surfed countries lit green,
-   countries with spots-but-not-yet-surfed teal, the rest plain. WaveBase
+   countries with spots-but-not-yet-surfed teal, the rest plain. SurfGoose
    countries are clickable (open their spots panel). If the SVG is already
    loaded, just re-tag it (no re-fetch). */
 /* Surf log world map. Renders the bundled worldmap.svg, tags each
    country with classes (surfed / available / etc.), and wires
-   click-to-open-panel for ALL countries — not just WaveBase ones —
+   click-to-open-panel for ALL countries — not just SurfGoose ones —
    so a click on Indonesia surfaces "no spots yet" rather than
    ignoring the gesture.
    Zoom: a 1x → 4x CSS transform driven by the +/-/reset buttons,
@@ -5739,8 +5739,8 @@ function renderSurfLogMap() {
       tag(svg);
       applyZoom();
       // Click a country → open its spots panel. Works for both
-      // WaveBase countries (shows spots) and empty ones (shows the
-      // "not on WaveBase yet" message). Delegation added once —
+      // SurfGoose countries (shows spots) and empty ones (shows the
+      // "not on SurfGoose yet" message). Delegation added once —
       // the SVG node persists across surf-log refreshes.
       scroll.addEventListener("click", e => {
         const node = e.target.closest("[data-country]");
@@ -6460,7 +6460,7 @@ function tripICS(t) {
     d.setUTCDate(d.getUTCDate() + 1);
     return d.toISOString().slice(0, 10);
   };
-  const lines = ["BEGIN:VCALENDAR", "VERSION:2.0", "PRODID:-//WaveBase//Trip//EN", "CALSCALE:GREGORIAN"];
+  const lines = ["BEGIN:VCALENDAR", "VERSION:2.0", "PRODID:-//SurfGoose//Trip//EN", "CALSCALE:GREGORIAN"];
 
   // Collect all day-notes that fall inside any stay range, keyed by
   // date — we use them both for the multi-day description and to
@@ -6487,7 +6487,7 @@ function tripICS(t) {
       if (notesByDate[key]) notesInside.push(key + ": " + notesByDate[key]);
       cur.setUTCDate(cur.getUTCDate() + 1);
     }
-    const bandDescription = ((t.name || "Trip") + " · planned on WaveBase")
+    const bandDescription = ((t.name || "Trip") + " · planned on SurfGoose")
       + (notesInside.length ? "\n\nDay notes:\n" + notesInside.join("\n") : "");
     lines.push("BEGIN:VEVENT",
       "UID:wavebase-" + t.id + "-" + e.id + "@wavebase",
@@ -6564,7 +6564,7 @@ function downloadTripICS(t) {
 
 /* The shared-trip page (trip.html) — decodes the trip from the ?t= URL
    param and renders it read-only, with a button to copy it into the
-   viewer's own WaveBase. */
+   viewer's own SurfGoose. */
 function renderSharedTrip() {
   const root = document.getElementById("shared-trip-root");
   if (!root) return;
@@ -6575,16 +6575,16 @@ function renderSharedTrip() {
     root.innerHTML = `<div class="shared-trip-empty">
       <h1>Trip link</h1>
       <p class="muted">This shared trip link is empty or broken — ask whoever sent it for a fresh one.</p>
-      <a class="btn" href="index.html">Go to WaveBase</a>
+      <a class="btn" href="index.html">Go to SurfGoose</a>
     </div>`;
     return;
   }
   root.innerHTML = `
-    <p class="shared-trip-intro">📍 A WaveBase trip, shared with you</p>
+    <p class="shared-trip-intro">📍 A SurfGoose trip, shared with you</p>
     ${tripCardHTML(trip, true)}
     <div class="shared-trip-actions">
-      <button type="button" class="btn" id="save-shared-trip">Save to my WaveBase</button>
-      <a class="btn ghost" href="index.html">Explore WaveBase</a>
+      <button type="button" class="btn" id="save-shared-trip">Save to my SurfGoose</button>
+      <a class="btn ghost" href="index.html">Explore SurfGoose</a>
     </div>`;
   wireTripToggles(root);
   wireTripNav(root);
@@ -6806,7 +6806,7 @@ const WaveBaseProfileForm = (function () {
         </div>
         <div class="prof-block-fields">
           <label class="prof-field form-wide">
-            <span>How did you find WaveBase?</span>
+            <span>How did you find SurfGoose?</span>
             <select id="p-found"><option value="">—</option>${foundOpts}</select>
             <span class="prof-field-hint muted">Helps us know which channels are working.</span>
           </label>
@@ -7169,7 +7169,7 @@ function renderAccount() {
   if (!authed && !isOnboarding) {
     root.innerHTML = `
       <section class="acc-anon-gate">
-        <p class="kicker">My WaveBase</p>
+        <p class="kicker">My SurfGoose</p>
         <h1>Sign in to your <span class="ul">account</span>.</h1>
         <p class="lead">Your saved spots, trips, surf log and reviews live here.
           Sign in or create an account to access them.</p>
@@ -7192,11 +7192,11 @@ function renderAccount() {
   // Three head variants:
   //   1. Onboarding   — welcome banner, no signed-in-as line (it'd be
   //                     redundant with the email they just typed)
-  //   2. Logged in    — "My WaveBase" + signed-in-as line + Sign out
+  //   2. Logged in    — "My SurfGoose" + signed-in-as line + Sign out
   //   3. Anonymous    — old "fake account" lead note + Sign in CTA
   const headHTML = isOnboarding
     ? `<div class="acc-onboard-head">
-         <p class="kicker">Welcome to WaveBase</p>
+         <p class="kicker">Welcome to SurfGoose</p>
          <h1>One last step — your <span class="ul">profile</span>.</h1>
          <p class="lead-note acc-onboard-lead">
            Tell us a bit about yourself and the home page starts showing the right
@@ -7204,7 +7204,7 @@ function renderAccount() {
          </p>
        </div>`
     : `<div class="acc-head-row">
-         <h1>My WaveBase</h1>
+         <h1>My SurfGoose</h1>
          <div class="acc-head-meta">
            <span class="muted">Signed in as <strong>${escHTML(authEmail)}</strong></span>
          </div>
@@ -7299,7 +7299,7 @@ function renderAccount() {
     ${authed ? `
     <section class="acc-block acc-danger-zone">
       <h2>Delete account</h2>
-      <p class="muted form-note">Permanently delete your WaveBase account and the data we have on the server (email, profile fields, saved spots). Your trips, surf log and reviews live in your browser and are unaffected — clear your browser data if you want those gone too. This action can&rsquo;t be undone.</p>
+      <p class="muted form-note">Permanently delete your SurfGoose account and the data we have on the server (email, profile fields, saved spots). Your trips, surf log and reviews live in your browser and are unaffected — clear your browser data if you want those gone too. This action can&rsquo;t be undone.</p>
       <button type="button" class="btn btn-danger" id="acc-delete">Delete my account &hellip;</button>
     </section>
     ` : ``}
@@ -7447,7 +7447,7 @@ function renderAccount() {
   // a clean landing that signals the sign-out succeeded.
   const signoutBtn = document.getElementById("acc-signout");
   if (signoutBtn) signoutBtn.addEventListener("click", () => {
-    if (!confirm("Sign out of WaveBase?")) return;
+    if (!confirm("Sign out of SurfGoose?")) return;
     if (typeof WaveBaseAuth !== "undefined") WaveBaseAuth.logout();
     window.location.href = "index.html";
   });
@@ -7461,7 +7461,7 @@ function renderAccount() {
   // can retry.
   const deleteBtn = document.getElementById("acc-delete");
   if (deleteBtn) deleteBtn.addEventListener("click", async () => {
-    if (!confirm("Delete your WaveBase account permanently?\n\nThis wipes your email, profile and saved spots from our server. It cannot be undone.")) return;
+    if (!confirm("Delete your SurfGoose account permanently?\n\nThis wipes your email, profile and saved spots from our server. It cannot be undone.")) return;
     deleteBtn.disabled = true;
     deleteBtn.textContent = "Deleting…";
     try {
@@ -8626,7 +8626,7 @@ function initDestinations() {
   panel.className = "destinations-menu";
   panel.innerHTML = `<div class="wrap">
     <div class="dest-grid">${cols}</div>
-    <p class="dest-note">WaveBase is rolling out worldwide — Morocco is live now, the rest are on the way.</p>
+    <p class="dest-note">SurfGoose is rolling out worldwide — Morocco is live now, the rest are on the way.</p>
   </div>`;
   header.appendChild(panel);
 
@@ -8773,7 +8773,7 @@ function initContinent() {
     window.location.replace("404.html");
     return;
   }
-  document.title = `${continent.continent} — WaveBase`;
+  document.title = `${continent.continent} — SurfGoose`;
 
   const live = continent.countries.filter(c => c.status === "live");
   const soon = continent.countries.filter(c => c.status !== "live");

@@ -1,4 +1,4 @@
-/* WaveBase — fake account.
+/* SurfGoose — fake account.
    Everything is stored locally in the browser (localStorage). No real login, no server.
    The real version (database + auth) is phase 2.
    Key stays v1 so existing local data (profile, trips) is preserved. */
@@ -892,7 +892,7 @@ const WaveBaseAuth = (function () {
     } catch (networkErr) {
       // Render cold-start, no internet, CORS preflight failure, etc.
       // Give the user something actionable rather than a stack trace.
-      throw new Error("Can't reach the WaveBase server. Check your connection and try again.");
+      throw new Error("Can't reach the SurfGoose server. Check your connection and try again.");
     }
     let data = {};
     try { data = await res.json(); } catch (e) {}
@@ -1415,7 +1415,7 @@ if (typeof window !== "undefined") {
    submit button text + auth call change.
 
    Wired up by initAuthNav() below, which:
-     - rewrites the header "My WaveBase" link to "Login" when the
+     - rewrites the header "My SurfGoose" link to "Login" when the
        user isn't signed in;
      - intercepts the click in that state to open the modal instead
        of navigating to account.html (which would look broken when
@@ -1466,7 +1466,7 @@ const WaveBaseAuthModal = (function () {
           </div>
 
           <form class="auth-form" novalidate>
-            <h2 class="auth-title"    id="auth-modal-title">Sign in to WaveBase</h2>
+            <h2 class="auth-title"    id="auth-modal-title">Sign in to SurfGoose</h2>
             <p  class="auth-subtitle">Save spots, plan trips, take your list with you.</p>
 
             <label class="auth-field">
@@ -1691,14 +1691,14 @@ const WaveBaseAuthModal = (function () {
       b.setAttribute("aria-selected", b.dataset.mode === mode ? "true" : "false");
     });
     if (mode === "login") {
-      titleEl.textContent     = "Sign in to WaveBase";
+      titleEl.textContent     = "Sign in to SurfGoose";
       subtitleEl.textContent  = "Save spots, plan trips, take your list with you.";
       passwordEl.setAttribute("autocomplete", "current-password");
       submitEl.textContent    = "Sign in";
       footerPromptEl.textContent = "Don’t have an account?";
       footerToggleEl.textContent = "Create one";
     } else {
-      titleEl.textContent     = "Create your WaveBase account";
+      titleEl.textContent     = "Create your SurfGoose account";
       subtitleEl.textContent  = "Just email and a password — that’s it. You can add your profile in the next step (or skip it).";
       passwordEl.setAttribute("autocomplete", "new-password");
       submitEl.textContent    = "Create account";
