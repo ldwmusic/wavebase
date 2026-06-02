@@ -5757,33 +5757,43 @@ function tripSavedHTML(t) {
       ? `<div class="trip-saved-leg-dates">${escHTML(period)}${nights ? ` · ${nights} night${nights === 1 ? "" : "s"}` : ""}</div>`
       : `<div class="trip-saved-leg-dates muted">No dates set</div>`;
     const notes = tripDayNotesForLeg(t, leg);
-    // Notes block always shows Check-in + Check-out anchor rows when
-    // dates are set — so the user sees the boundary days even when
-    // they haven't written a day-note for them. The day-notes (if any)
-    // sit between the anchors chronologically. Without dates we fall
-    // back to just the notes (anchor rows would have no value).
+    // Notes block: one row per date that has SOMETHING to show — a
+    // day-note, a check-in pill, or a check-out pill. The check-in
+    // and check-out pills attach to their dates inline (right end of
+    // the row) so a note from the same day stays on the same row,
+    // not split across two lines.
     let notesHTML = "";
-    if (d.in && d.out) {
-      const checkInRow  = `<div class="trip-saved-note trip-saved-note-anchor">
-          <span class="trip-saved-note-date">${escHTML(fmtTripDate(d.in))}</span>
-          <span class="trip-saved-note-label">Check in</span>
+    const rowsToShow = new Map();  // dateStr → { note }
+    if (d.in)  rowsToShow.set(d.in,  rowsToShow.get(d.in)  || {});
+    if (d.out) rowsToShow.set(d.out, rowsToShow.get(d.out) || {});
+    notes.forEach(n => {
+      const row = rowsToShow.get(n.date) || {};
+      row.note = n.note;
+      rowsToShow.set(n.date, row);
+    });
+    if (rowsToShow.size) {
+      // Order by date (chronological). Map preserves insertion order,
+      // but we inserted in / out first and then notes — so sort
+      // explicitly to be safe.
+      const orderedDates = Array.from(rowsToShow.keys()).sort();
+      notesHTML = `<div class="trip-saved-leg-notes">${orderedDates.map(date => {
+        const row     = rowsToShow.get(date);
+        const isIn    = date === d.in;
+        const isOut   = date === d.out;
+        const pill    = isIn
+          ? `<span class="trip-saved-pill trip-saved-pill-in">check in</span>`
+          : isOut
+            ? `<span class="trip-saved-pill trip-saved-pill-out">check out</span>`
+            : "";
+        const noteSpan = row.note
+          ? `<span class="trip-saved-note-text">${escHTML(row.note)}</span>`
+          : "";
+        return `<div class="trip-saved-note">
+          <span class="trip-saved-note-date">${escHTML(fmtTripDate(date))}</span>
+          ${noteSpan}
+          ${pill}
         </div>`;
-      const checkOutRow = `<div class="trip-saved-note trip-saved-note-anchor">
-          <span class="trip-saved-note-date">${escHTML(fmtTripDate(d.out))}</span>
-          <span class="trip-saved-note-label">Check out</span>
-        </div>`;
-      const noteRows = notes.map(n => `
-        <div class="trip-saved-note">
-          <span class="trip-saved-note-date">${escHTML(fmtTripDate(n.date))}</span>
-          <span class="trip-saved-note-text">${escHTML(n.note)}</span>
-        </div>`).join("");
-      notesHTML = `<div class="trip-saved-leg-notes">${checkInRow}${noteRows}${checkOutRow}</div>`;
-    } else if (notes.length) {
-      notesHTML = `<div class="trip-saved-leg-notes">${notes.map(n => `
-          <div class="trip-saved-note">
-            <span class="trip-saved-note-date">${escHTML(fmtTripDate(n.date))}</span>
-            <span class="trip-saved-note-text">${escHTML(n.note)}</span>
-          </div>`).join("")}</div>`;
+      }).join("")}</div>`;
     }
     const extrasHTML = leg.extras.length
       ? `<div class="trip-saved-extras">

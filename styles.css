@@ -4372,25 +4372,25 @@ button.rml-key.off .rml-dot {
   color: var(--ink-soft);
   min-width: 52px;
 }
-.trip-saved-note-text { font-style: italic; }
+.trip-saved-note-text { font-style: italic; flex: 1; }
 
-/* Check-in / check-out anchor rows that always frame the day-notes
-   list. Bolder than the note rows; the date column is the same
-   width as on note rows so everything stays aligned. */
-.trip-saved-note-anchor .trip-saved-note-date { color: var(--ink); }
-.trip-saved-note-label {
-  font-weight: 600;
+/* Check-in / check-out pills — attached to the right end of the row
+   for that date, so any day-note on the same day stays on the same
+   line. Sea-soft for check in (arrival = friendly blue); clay-soft
+   for check out (departure = warm terracotta). Visually matches the
+   colour language used elsewhere on the site. */
+.trip-saved-pill {
+  flex-shrink: 0;
+  display: inline-block;
   font-size: 12px;
-  letter-spacing: 0.04em;
-  text-transform: uppercase;
-  color: var(--sea);
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  padding: 3px 12px;
+  border-radius: 999px;
+  margin-left: auto;
 }
-.trip-saved-note-anchor + .trip-saved-note,
-.trip-saved-note + .trip-saved-note-anchor {
-  border-top: 1px dashed var(--sand-deep);
-  padding-top: 4px;
-  margin-top: 2px;
-}
+.trip-saved-pill-in  { background: var(--sea-soft);  color: var(--sea); }
+.trip-saved-pill-out { background: var(--clay-soft); color: var(--clay); }
 
 /* "While there" — the spots / centers attached to a stay leg.
    Pill-style chips that link to detail pages. */
