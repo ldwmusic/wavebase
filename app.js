@@ -164,9 +164,13 @@ async function _refreshSpotReviews(entryId) {
     const matchTag = r.matches && matchesLabel[r.matches]
       ? `<span class="my-review-match my-review-match-${r.matches}">${matchesLabel[r.matches]}</span>`
       : "";
+    // Detail chips — small secondary tags (level, gear, vibe, etc.).
+    // Class is `my-review-detail` so the existing pill styles in
+    // styles.css apply. The previous class `my-review-pill` had no
+    // matching CSS rule, so the chips rendered as bold inline text.
     const detailPills = Object.entries(r.details || {})
       .filter(([k, v]) => v)
-      .map(([k, v]) => `<span class="my-review-pill"><strong>${escHTML(_REVIEW_DETAIL_LABELS[k] || k)}:</strong> ${escHTML(_fmtReviewDetailValue(k, v))}</span>`)
+      .map(([k, v]) => `<span class="my-review-detail"><span class="muted">${escHTML(_REVIEW_DETAIL_LABELS[k] || k)}:</span> ${escHTML(_fmtReviewDetailValue(k, v))}</span>`)
       .join("");
     const ownerActions = (isMine && local)
       ? `<div class="my-review-owner-actions">
@@ -209,14 +213,25 @@ async function _refreshSpotReviews(entryId) {
           </div>
         </div>`
       : "";
+    // Hierarchy from top to bottom:
+    //   1. Stars (big, clay) + author + Your-review badge
+    //   2. Meta line — match tag + visited month + posted date (tiny, muted)
+    //   3. The user's free-text review — BIG, the human voice
+    //   4. Detail chips (level/discipline/gear/etc.) — small grey pills
+    //   5. Replies (sea-soft cards)
+    //   6. Admin moderation row (dashed separator above)
     return `<li class="my-review${isMine ? " my-review-mine" : ""}">
       <div class="my-review-head">
-        <div class="my-review-where">${stars} <span class="muted">by ${author}</span>${yourBadge}</div>
+        <div class="my-review-where">
+          <span class="my-review-stars">${stars}</span>
+          <span class="my-review-author">by ${author}</span>
+          ${yourBadge}
+        </div>
         ${ownerActions}
       </div>
       <div class="my-review-meta">${matchTag}${visited ? ` <span class="muted">visited ${visited}</span>` : ""} <span class="muted">posted ${_fmtReviewDate(r.created_at)}</span></div>
-      ${detailPills ? `<div class="my-review-details">${detailPills}</div>` : ""}
       ${r.text ? `<p class="my-review-text">${escHTML(r.text)}</p>` : ""}
+      ${detailPills ? `<div class="my-review-details">${detailPills}</div>` : ""}
       ${repliesHTML}
       ${replyComposer}
       ${adminActions}

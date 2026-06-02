@@ -2610,19 +2610,27 @@ body:not(.is-home) .searchbar-wrap { display: none; }
   font-size: 13.5px; color: var(--sea); margin: 0;
 }
 
-/* Account → My reviews: detail pills shown below the meta line. */
+/* Detail pills shown below the user's review text — secondary
+   reference info, NOT the headline. Small, grey, no bold labels;
+   the muted span inside is the label, the rest is the value. */
 .my-review-details {
-  display: flex; flex-wrap: wrap; gap: 6px;
-  margin: 8px 0 0;
+  display: flex; flex-wrap: wrap; gap: 5px 6px;
+  margin: 10px 0 0;
 }
 .my-review-detail {
   font-size: 12px;
   background: var(--sand); color: var(--ink);
   border-radius: 999px; padding: 3px 10px;
+  line-height: 1.4;
 }
-.my-review-detail .muted { font-weight: 600; }
+.my-review-detail .muted { color: var(--ink-soft); }
 
-/* My reviews (account page) — list of locally-saved review previews. */
+/* Review card. Visual hierarchy (top → bottom):
+   1. Stars (big, clay) + author + your-review badge
+   2. Meta line (tiny, muted) — match tag, visited, posted
+   3. The user's text — PROMINENT, this is the human voice
+   4. Detail pills — small reference tags
+   5. Replies + admin moderation row */
 .my-reviews {
   list-style: none; margin: 0; padding: 0;
   display: flex; flex-direction: column; gap: 14px;
@@ -2631,26 +2639,46 @@ body:not(.is-home) .searchbar-wrap { display: none; }
   background: var(--paper);
   border: 1px solid var(--sand);
   border-radius: 12px;
-  padding: 14px 16px;
+  padding: 16px 18px;
 }
 .my-review-head {
-  display: flex; align-items: flex-start; justify-content: space-between; gap: 12px;
-  margin-bottom: 6px;
+  display: flex; align-items: center; justify-content: space-between; gap: 12px;
+  margin-bottom: 4px;
 }
-.my-review-where { font-size: 14px; font-weight: 600; color: var(--ink); }
+.my-review-where {
+  display: inline-flex; align-items: center; gap: 10px; flex-wrap: wrap;
+}
+/* Big clay-colored stars — the rating IS the headline. */
+.my-review-stars {
+  color: var(--clay);
+  font-size: 20px;
+  letter-spacing: 2px;
+  line-height: 1;
+}
+.my-review-author {
+  font-size: 14px;
+  color: var(--ink-soft);
+}
 .my-review-meta {
   display: flex; align-items: center; gap: 10px; flex-wrap: wrap;
-  font-size: 12.5px; color: var(--ink-soft);
+  font-size: 12px; color: var(--ink-soft);
+  margin-bottom: 8px;
 }
-.my-review-stars { color: var(--clay); font-size: 15px; letter-spacing: 1px; }
 .my-review-match {
-  font-size: 11.5px; font-weight: 600; letter-spacing: 0.04em; text-transform: uppercase;
+  font-size: 11px; font-weight: 600; letter-spacing: 0.04em; text-transform: uppercase;
   border-radius: 999px; padding: 3px 9px;
 }
 .my-review-match.match-yes     { background: var(--sea-soft); color: var(--sea); }
 .my-review-match.match-partial { background: var(--amber-soft); color: #8a5a14; }
 .my-review-match.match-no      { background: var(--clay-soft); color: var(--clay); }
-.my-review-text { font-size: 14px; margin: 8px 0 0; color: var(--ink); }
+/* The reviewer's actual prose — promoted to the visual anchor.
+   Slightly larger, serif for the editorial voice. */
+.my-review-text {
+  font-family: 'Fraunces', Georgia, serif;
+  font-size: 17px; line-height: 1.5;
+  margin: 4px 0 0;
+  color: var(--ink);
+}
 
 /* Auto-linked entry mentions in prose — keep them visible enough to invite
    a click but not so loud they break the editorial reading flow. */
