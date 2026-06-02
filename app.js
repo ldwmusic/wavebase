@@ -5467,6 +5467,54 @@ function renderSurfLogMap() {
         _surflogZoom = Math.max(1, Math.min(4, _surflogZoom + delta));
         applyZoom();
       }, { passive: false });
+
+      /* iOS / Android pinch-zoom. Without these handlers Safari
+         intercepts the 2-finger gesture and zooms the WHOLE PAGE
+         (browser-native pinch), not just our SVG. We capture the
+         gesture, preventDefault to suppress Safari's behaviour, and
+         drive our own scale instead.
+         The same handler doubles as a way to keep the pinch centred
+         on the spot the user is squeezing — midpoint of the two
+         touches becomes the transform-origin. */
+      let _pinch = null;  // {startDist, startZoom}
+      const distance = (a, b) => {
+        const dx = a.clientX - b.clientX, dy = a.clientY - b.clientY;
+        return Math.hypot(dx, dy);
+      };
+      scroll.addEventListener("touchstart", e => {
+        if (e.touches.length !== 2) { _pinch = null; return; }
+        // Pinch confirmed. Snapshot the starting distance + the
+        // current zoom so touchmove computes a ratio, not an absolute.
+        _pinch = {
+          startDist: distance(e.touches[0], e.touches[1]),
+          startZoom: _surflogZoom,
+        };
+        // Anchor the zoom to the midpoint of the two fingers, in
+        // percentage-of-svg coords — that way the country between
+        // the user's fingers stays put as they pinch.
+        const svg = scroll.querySelector("svg");
+        if (svg) {
+          const r = svg.getBoundingClientRect();
+          const mx = (e.touches[0].clientX + e.touches[1].clientX) / 2;
+          const my = (e.touches[0].clientY + e.touches[1].clientY) / 2;
+          const px = Math.max(0, Math.min(100, ((mx - r.left) / r.width)  * 100));
+          const py = Math.max(0, Math.min(100, ((my - r.top)  / r.height) * 100));
+          _surflogZoomOrigin = px + "% " + py + "%";
+        }
+      }, { passive: true });
+      scroll.addEventListener("touchmove", e => {
+        if (!_pinch || e.touches.length !== 2) return;
+        // We're handling this gesture — preventDefault stops Safari
+        // from doing its own page-level pinch-zoom on top of ours.
+        e.preventDefault();
+        const d = distance(e.touches[0], e.touches[1]);
+        const ratio = d / _pinch.startDist;
+        _surflogZoom = Math.max(1, Math.min(4, _pinch.startZoom * ratio));
+        applyZoom();
+      }, { passive: false });
+      const endPinch = () => { _pinch = null; };
+      scroll.addEventListener("touchend",    endPinch, { passive: true });
+      scroll.addEventListener("touchcancel", endPinch, { passive: true });
     })
     .catch(() => { scroll.innerHTML = `<p class="muted" style="padding:14px;">Map unavailable.</p>`; });
 }

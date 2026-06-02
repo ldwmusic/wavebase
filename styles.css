@@ -5512,6 +5512,11 @@ button.rml-key.off .rml-dot {
   width: 100%; max-height: 480px;
   overflow: auto;
   -webkit-overflow-scrolling: touch;
+  /* Tell the browser we'll handle pinch ourselves — without this,
+     iOS Safari (and Android Chrome) intercept the 2-finger gesture
+     and zoom the WHOLE PAGE. pan-x + pan-y preserves single-finger
+     scrolling so the user can still pan around the zoomed map. */
+  touch-action: pan-x pan-y;
 }
 .surflog-map-zoom {
   position: absolute; top: 10px; right: 10px;
