@@ -71,7 +71,16 @@ body {
   font-size: 17px;
   line-height: 1.65;
   -webkit-font-smoothing: antialiased;
+  /* Sticky footer: flex column so the footer drops to the bottom
+     of the viewport when the page content is short (Compare empty
+     state was leaving a big gap under the footer). main grows to
+     fill the available space; footer keeps its natural height. */
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
 }
+body > main { flex: 1 0 auto; }
+body > .site-footer { flex-shrink: 0; }
 
 h1, h2, h3, h4 {
   font-family: 'Fraunces', Georgia, 'Times New Roman', serif;
@@ -1192,15 +1201,23 @@ table.cal td.host { color: var(--clay); }
 .fit .box.yes h3 { color: var(--sea); }
 .fit .box.no h3  { color: var(--clay); }
 
-/* ---- footer ---- */
+/* ---- footer ----
+   Two-column compact layout: left has the brand line + legal links
+   stacked together; right has the italic intro/note. No internal
+   borders — the top border of .site-footer is plenty. */
 .site-footer {
   border-top: 1px solid var(--sand);
   margin-top: 40px;
-  padding: 34px 0;
+  padding: 22px 0;
   color: var(--ink-soft);
   font-size: 14px;
 }
-.site-footer .wrap { display: flex; justify-content: space-between; flex-wrap: wrap; gap: 10px; }
+.site-footer .wrap {
+  display: flex; justify-content: space-between; align-items: flex-start;
+  flex-wrap: wrap; gap: 16px 32px;
+}
+/* Left column wraps the brand line + the legal links under it. */
+.site-footer .foot-left { display: flex; flex-direction: column; gap: 6px; }
 .site-footer .note { font-style: italic; max-width: 52ch; }
 .site-footer .disclosure {
   flex-basis: 100%;
@@ -1209,13 +1226,11 @@ table.cal td.host { color: var(--clay); }
   padding-top: 8px; margin-top: 4px;
 }
 
-/* Footer legal links — Privacy, Legal, Contact, Cookie preferences */
+/* Footer legal links — Privacy, Legal, Contact, Cookie preferences.
+   Sits inside .foot-left now, directly under the brand line. */
 .site-footer .legal-links {
-  flex-basis: 100%;
-  display: flex; flex-wrap: wrap; gap: 6px 18px;
-  font-size: 13px; color: var(--ink-soft);
-  border-top: 1px solid var(--sand);
-  padding-top: 10px; margin-top: 4px;
+  display: flex; flex-wrap: wrap; gap: 4px 14px;
+  font-size: 12.5px; color: var(--ink-soft);
 }
 .site-footer .legal-links a,
 .site-footer .legal-links button {
