@@ -106,6 +106,32 @@ async function _refreshSpotReviews(entryId) {
   // Update the "Reviews so far (N)" count chip next to the heading.
   const countEl = document.getElementById("reviews-count-" + entryId);
   if (countEl) countEl.textContent = Array.isArray(reviews) ? reviews.length : 0;
+
+  // Overall rating — average of star ratings, scaled 0–10 with one
+  // decimal. Reviews with 0 stars are skipped (the form lets users
+  // submit text-only feedback without a rating). Shown next to the
+  // count, AND folded into the "See reviews" pill at the top of
+  // the spot page so visitors see the rating without scrolling.
+  const overallEl = document.getElementById("reviews-overall-" + entryId);
+  const seeBtn    = document.getElementById("see-reviews-btn-" + entryId);
+  const rated = Array.isArray(reviews) ? reviews.filter(r => (r.stars || 0) > 0) : [];
+  if (rated.length) {
+    const avg = rated.reduce((s, r) => s + r.stars, 0) / rated.length;
+    const score10 = (avg * 2).toFixed(1);
+    if (overallEl) {
+      overallEl.hidden = false;
+      overallEl.textContent = "Overall rating " + score10 + "/10";
+    }
+    if (seeBtn) seeBtn.textContent = "See reviews · " + score10 + "/10";
+  } else {
+    if (overallEl) overallEl.hidden = true;
+    if (seeBtn) {
+      seeBtn.textContent = reviews.length
+        ? "See reviews · " + reviews.length        // reviews exist but none with stars
+        : "Be first to review";
+    }
+  }
+
   if (!Array.isArray(reviews) || !reviews.length) {
     el.innerHTML = `<p class="muted">No reviews yet. Be the first — drop a review using the form above.</p>`;
     return;
@@ -4163,8 +4189,11 @@ function reviewsMockHTML(e) {
       <p class="review-feedback" hidden></p>
     </form>
 
-    <div class="reviews-list-block">
-      <h3 class="reviews-list-head">Reviews so far <span class="seccount" id="reviews-count-${e.id}">0</span></h3>
+    <div class="reviews-list-block" id="reviews-anchor-${e.id}">
+      <h3 class="reviews-list-head">
+        Reviews so far <span class="seccount" id="reviews-count-${e.id}">0</span>
+        <span class="reviews-overall" id="reviews-overall-${e.id}" hidden></span>
+      </h3>
       <div class="reviews-list" id="reviews-list-${e.id}" data-entry-id="${e.id}">
         <p class="muted reviews-loading">Loading reviews&hellip;</p>
       </div>
@@ -4266,6 +4295,7 @@ function initSpot() {
         ${e.type === "spot" ? `<button class="btn ghost surfed-btn ${surfed ? "on" : ""}" id="surfed-toggle">${surfed ? "✓ Surfed it" : "Surfed it"}</button>` : ""}
         ${e.type === "stay" ? `<a class="btn ghost" href="explorer.html?base=${e.id}">Explore spots from here →</a>` : ""}
         ${(e.type === "spot" || e.type === "center") && e.coords ? `<a class="btn ghost" href="${windyHref(e)}" target="_blank" rel="noopener">See forecast ↗</a>` : ""}
+        <button type="button" class="btn ghost" id="see-reviews-btn-${e.id}" data-see-reviews="${e.id}">See reviews</button>
         <span class="trip-picker">
           <select id="trip-select">${tripOptionsHTML(e.id)}</select>
           <span id="trip-view-link-slot">${tripViewLinkHTML(e.id)}</span>
@@ -4353,6 +4383,19 @@ function initSpot() {
   }
   // Click-to-pin months for comparison across all three charts.
   wireMonthPinning(root, e);
+
+  // "See reviews" pill in the detail-actions row — smooth-scroll
+  // to the reviews block lower on the page. Calc the scroll
+  // target dynamically so a sticky site header doesn't cover the
+  // heading after the jump.
+  const seeBtn = root.querySelector("[data-see-reviews]");
+  if (seeBtn) {
+    seeBtn.addEventListener("click", () => {
+      const anchor = document.getElementById("reviews-anchor-" + e.id)
+                  || document.getElementById("reviews-list-" + e.id);
+      if (anchor) anchor.scrollIntoView({ behavior: "smooth", block: "start" });
+    });
+  }
 
   document.getElementById("save-toggle").addEventListener("click", function () {
     if (!requireAuthForSave()) return;

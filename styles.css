@@ -6349,6 +6349,16 @@ button.rml-key.off .rml-dot {
   padding: 2px 10px;
   border-radius: 999px;
 }
+/* Average-score pill, e.g. "Overall rating 8.4/10". Sits next to
+   the count chip and is hidden until at least one star-rated review
+   exists. Clay tint to differentiate from the sea-blue count. */
+.reviews-overall {
+  font-family: 'DM Sans', sans-serif;
+  font-size: 13px; font-weight: 600;
+  background: var(--clay-soft); color: var(--clay);
+  padding: 2px 12px;
+  border-radius: 999px;
+}
 
 /* "Editing your review" banner — sits between the form heading and
    the form itself, only visible when the form is in edit mode. */
