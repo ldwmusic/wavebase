@@ -6389,6 +6389,43 @@ button.rml-key.off .rml-dot {
   border-radius: 999px;
 }
 
+/* Toolbar above the reviews list — sort dropdown + matched-only
+   filter. Hidden when there's only 0 or 1 review (no point sorting).
+   Sand background so it reads as a control surface, not a card. */
+.reviews-toolbar {
+  display: flex; align-items: center; gap: 18px; flex-wrap: wrap;
+  margin: 0 0 14px;
+  padding: 8px 12px;
+  background: var(--cream);
+  border: 1px solid var(--sand);
+  border-radius: 8px;
+  font-size: 13px;
+}
+.reviews-sort, .reviews-filter {
+  display: inline-flex; align-items: center; gap: 8px;
+  cursor: pointer;
+}
+.reviews-sort select {
+  background: var(--paper);
+  border: 1px solid var(--sand-deep);
+  border-radius: 6px;
+  padding: 4px 8px;
+  font: inherit;
+  color: var(--ink);
+  cursor: pointer;
+}
+.reviews-filter input[type="checkbox"] {
+  margin: 0;
+  cursor: pointer;
+}
+
+/* Show-more / show-less link inside a long review's text. Inline
+   so it sits at the end of the truncated paragraph naturally. */
+.my-review-toggle {
+  margin-left: 4px;
+  font-size: 13px;
+}
+
 /* "Editing your review" banner — sits between the form heading and
    the form itself, only visible when the form is in edit mode. */
 .review-edit-banner {

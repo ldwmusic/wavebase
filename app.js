@@ -90,15 +90,56 @@ function _fmtReviewDate(iso) {
     return d.toLocaleDateString("en-GB", { day: "numeric", month: "short", year: "numeric" });
   } catch (e) { return ""; }
 }
+/* Per-entry UI state for the reviews block. Lets sort / filter /
+   expand toggles re-render without re-fetching the list each time.
+   Keyed by entryId so multiple spot pages in the same tab session
+   don't collide. */
+const _REVIEW_UI_STATE = {};
+function _ensureReviewState(entryId) {
+  if (!_REVIEW_UI_STATE[entryId]) {
+    _REVIEW_UI_STATE[entryId] = {
+      sort: "newest",        // "newest" | "highest"
+      matchedOnly: false,    // checkbox: only show "matched our write-up"
+      expanded: new Set(),   // review ids whose text the user expanded
+      reviews: [],           // fetched payload (cached for sort/filter cycles)
+    };
+  }
+  return _REVIEW_UI_STATE[entryId];
+}
+/* Truncate long review prose with a Show-more toggle. Keeps the
+   reviews list scannable when one user wrote 5 paragraphs. */
+const _REVIEW_TRUNC_CHARS = 280;
+function _renderReviewText(r, st) {
+  const text = r.text || "";
+  if (!text) return "";
+  const isLong = text.length > _REVIEW_TRUNC_CHARS;
+  const expanded = st.expanded.has(r.id);
+  if (!isLong) return `<p class="my-review-text">${escHTML(text)}</p>`;
+  if (expanded) {
+    return `<p class="my-review-text">${escHTML(text)}
+      <button type="button" class="link-btn my-review-toggle" data-toggle-text="${escHTML(r.id)}">show less</button>
+    </p>`;
+  }
+  // Cut at a word boundary close to the limit so we don't slice
+  // mid-word and produce ugly fragments.
+  let cut = text.slice(0, _REVIEW_TRUNC_CHARS);
+  const lastSpace = cut.lastIndexOf(" ");
+  if (lastSpace > _REVIEW_TRUNC_CHARS - 60) cut = cut.slice(0, lastSpace);
+  return `<p class="my-review-text">${escHTML(cut)}…
+    <button type="button" class="link-btn my-review-toggle" data-toggle-text="${escHTML(r.id)}">show more</button>
+  </p>`;
+}
 async function _refreshSpotReviews(entryId) {
   const el = document.getElementById("reviews-list-" + entryId);
   if (!el) return;
+  const st = _ensureReviewState(entryId);
   let reviews;
   try {
     const API = (typeof WAVEBASE_API !== "undefined") ? WAVEBASE_API : "";
     const res = await fetch(API + "/reviews/?entry_id=" + encodeURIComponent(entryId));
     if (!res.ok) throw new Error("HTTP " + res.status);
     reviews = await res.json();
+    st.reviews = Array.isArray(reviews) ? reviews : [];
   } catch (e) {
     el.innerHTML = `<p class="muted">Couldn&rsquo;t load reviews right now.</p>`;
     return;
@@ -132,10 +173,35 @@ async function _refreshSpotReviews(entryId) {
     }
   }
 
+  // Hide / show the toolbar (sort + filter) based on count. Pointless
+  // to offer sort when there's 0 or 1 review.
+  const toolbar = document.getElementById("reviews-toolbar-" + entryId);
+  if (toolbar) toolbar.hidden = !reviews.length || reviews.length < 2;
+
   if (!Array.isArray(reviews) || !reviews.length) {
     el.innerHTML = `<p class="muted">No reviews yet. Be the first — drop a review using the form above.</p>`;
     return;
   }
+
+  // Apply sort + matched-only filter from per-entry UI state. We mutate
+  // a local copy so the cached array in st.reviews stays in the order
+  // the server returned (newest-first) for accurate "newest" sort.
+  let view = st.reviews.slice();
+  if (st.matchedOnly) view = view.filter(r => r.matches === "yes");
+  if (st.sort === "highest") {
+    view.sort((a, b) => (b.stars || 0) - (a.stars || 0)
+                     || (String(b.created_at || "").localeCompare(String(a.created_at || ""))));
+  } else {
+    view.sort((a, b) => String(b.created_at || "").localeCompare(String(a.created_at || "")));
+  }
+
+  // Filtered-out the whole list — friendly empty state instead of
+  // an awkward blank under the toolbar.
+  if (!view.length) {
+    el.innerHTML = `<p class="muted">No reviews match the current filter.</p>`;
+    return;
+  }
+
   // Figure out which of these reviews is the current user's so we
   // can offer a "remove" link on theirs only.
   const myUserId = (typeof WaveBaseAuth !== "undefined" && WaveBaseAuth.isLoggedIn())
@@ -152,7 +218,7 @@ async function _refreshSpotReviews(entryId) {
   // the authoritative gate.
   const admin = isWaveBaseAdmin();
 
-  const html = reviews.map(r => {
+  const html = view.map(r => {
     const isMine     = myUserId && r.user_id === myUserId;
     const local      = isMine ? myLocalReviews.find(x => x.serverId === r.id) : null;
     const stars      = "★".repeat(Math.max(0, Math.min(5, r.stars || 0))) + "☆".repeat(Math.max(0, 5 - (r.stars || 0)));
@@ -230,7 +296,7 @@ async function _refreshSpotReviews(entryId) {
         ${ownerActions}
       </div>
       <div class="my-review-meta">${matchTag}${visited ? ` <span class="muted">visited ${visited}</span>` : ""} <span class="muted">posted ${_fmtReviewDate(r.created_at)}</span></div>
-      ${r.text ? `<p class="my-review-text">${escHTML(r.text)}</p>` : ""}
+      ${_renderReviewText(r, st)}
       ${detailPills ? `<div class="my-review-details">${detailPills}</div>` : ""}
       ${repliesHTML}
       ${replyComposer}
@@ -256,6 +322,17 @@ async function _refreshSpotReviews(entryId) {
       if (typeof window._enterReviewEditMode === "function") {
         window._enterReviewEditMode(btn.dataset.editReview);
       }
+    });
+  });
+  // Show-more / show-less toggle on long review text. We persist the
+  // expansion in per-entry UI state (st.expanded) so a re-render from
+  // a sort change doesn't collapse a paragraph the user just opened.
+  el.querySelectorAll("[data-toggle-text]").forEach(btn => {
+    btn.addEventListener("click", () => {
+      const id = btn.dataset.toggleText;
+      if (st.expanded.has(id)) st.expanded.delete(id);
+      else st.expanded.add(id);
+      _refreshSpotReviews(entryId);
     });
   });
   // --- admin moderation wiring (no-ops for non-admin DOMs since
@@ -4209,6 +4286,19 @@ function reviewsMockHTML(e) {
         Reviews so far <span class="seccount" id="reviews-count-${e.id}">0</span>
         <span class="reviews-overall" id="reviews-overall-${e.id}" hidden></span>
       </h3>
+      <div class="reviews-toolbar" id="reviews-toolbar-${e.id}" hidden>
+        <label class="reviews-sort">
+          <span class="muted">Sort</span>
+          <select data-review-sort="${e.id}">
+            <option value="newest">Newest first</option>
+            <option value="highest">Highest rated</option>
+          </select>
+        </label>
+        <label class="reviews-filter">
+          <input type="checkbox" data-review-matched="${e.id}">
+          <span>Matches our write-up only</span>
+        </label>
+      </div>
       <div class="reviews-list" id="reviews-list-${e.id}" data-entry-id="${e.id}">
         <p class="muted reviews-loading">Loading reviews&hellip;</p>
       </div>
@@ -4409,6 +4499,28 @@ function initSpot() {
       const anchor = document.getElementById("reviews-anchor-" + e.id)
                   || document.getElementById("reviews-list-" + e.id);
       if (anchor) anchor.scrollIntoView({ behavior: "smooth", block: "start" });
+    });
+  }
+
+  // Reviews toolbar — sort + matched-only filter. Wired once here
+  // (not in _refreshSpotReviews) because the toolbar markup lives in
+  // the spot template itself and survives every list re-render. The
+  // controls mutate _REVIEW_UI_STATE then trigger a re-render via
+  // _refreshSpotReviews, which re-applies sort/filter from state.
+  const sortSel = root.querySelector("[data-review-sort]");
+  if (sortSel) {
+    sortSel.addEventListener("change", () => {
+      const st = _ensureReviewState(e.id);
+      st.sort = sortSel.value === "highest" ? "highest" : "newest";
+      _refreshSpotReviews(e.id);
+    });
+  }
+  const matchedCb = root.querySelector("[data-review-matched]");
+  if (matchedCb) {
+    matchedCb.addEventListener("change", () => {
+      const st = _ensureReviewState(e.id);
+      st.matchedOnly = matchedCb.checked;
+      _refreshSpotReviews(e.id);
     });
   }
 
