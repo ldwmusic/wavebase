@@ -5356,18 +5356,28 @@ function renderSurfLogMap() {
   });
   const isoToName = {};
   Object.keys(COUNTRY_TO_ISO).forEach(name => { isoToName[COUNTRY_TO_ISO[name]] = name; });
+  /* Intl.DisplayNames knows every ISO 3166-1 alpha-2 code natively
+     ("BG" → "Bulgaria", "DE" → "Germany"). One global instance,
+     reused per node. Lazily-built + cached so we don't pay the
+     constructor cost on every tag() call.
+     Fallback chain: our friendly map (best — preserves curated
+     names like "United Kingdom" not "United Kingdom of Great
+     Britain and Northern Ireland") → Intl.DisplayNames → the
+     SVG node's title attribute → uppercase ISO as last resort. */
+  if (!tag._isoFmt) {
+    try { tag._isoFmt = new Intl.DisplayNames(["en"], { type: "region" }); }
+    catch (e) { tag._isoFmt = null; }
+  }
   function tag(svg) {
     svg.querySelectorAll("[id]").forEach(node => {
       const iso = node.getAttribute("id");
       if (!iso || typeof ISO_TO_CONTINENT === "undefined" || !ISO_TO_CONTINENT[iso]) return;
       node.classList.add("country");
-      // Prefer the friendly name (e.g. "Indonesia") if we have it
-      // in our COUNTRY_TO_ISO map; otherwise fall back to the ISO
-      // attr value so the click still lands on a real country —
-      // refreshSurfLog will then show the generic "not on WaveBase
-      // yet" panel. This was the silent bug: only ~30 countries in
-      // COUNTRY_TO_ISO meant only those 30 were clickable.
-      const name = isoToName[iso] || (node.getAttribute("title") || iso.toUpperCase());
+      let friendly = isoToName[iso];
+      if (!friendly && tag._isoFmt) {
+        try { friendly = tag._isoFmt.of(iso.toUpperCase()); } catch (e) {}
+      }
+      const name = friendly || node.getAttribute("title") || iso.toUpperCase();
       const isWaveBase = !!(isoToName[iso] && spotCountries.has(isoToName[iso]));
       node.classList.toggle("country-surfed", !!(isoToName[iso] && surfedCountries.has(isoToName[iso])));
       node.classList.toggle("country-available", isWaveBase && !surfedCountries.has(name));
