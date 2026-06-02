@@ -6096,33 +6096,125 @@ function decodeTrip(param) {
   }
 }
 
-/* Build an iCalendar (.ics) for a trip — one all-day event per dated
-   stay, check-in to check-out. Returns null if no stay has dates. */
+/* Build an iCalendar (.ics) for a trip.
+
+   Three event types per dated stay, for clarity in any calendar
+   app (Apple, Google, Outlook all parse this the same way):
+
+     1. Multi-day all-day event — the stay band. Spans check-in to
+        check-out. Title = stay name + town. Description includes
+        all day-notes for that range, so opening the event detail
+        shows the full plan in one place.
+     2. Single-day all-day "Check in: <stay>" event on the in-date.
+     3. Single-day all-day "Check out: <stay>" event on the out-date.
+
+   Plus, for EACH day-note (regardless of stay), one single-day
+   event whose title IS the user's note (prefixed 📝). That way the
+   note shows up where it belongs in the agenda view, not buried in
+   a description field.
+
+   Returns null if there's nothing to export (no stay with dates AND
+   no notes — the user hasn't filled anything bookable in yet). */
 function tripICS(t) {
   const items = (t.spotIds || []).map(byId).filter(Boolean);
   const dates = t.dates || {};
+  const dayNotes = t.dayNotes || {};
   const compact = s => s.replace(/-/g, "");
   const esc = s => String(s || "").replace(/\\/g, "\\\\").replace(/;/g, "\\;").replace(/,/g, "\\,").replace(/\n/g, "\\n");
+  // DTSTAMP is a "modified at" hint for sync; we just use boot time.
   const stamp = new Date().toISOString().replace(/[-:]/g, "").replace(/\.\d+/, "");
+  // Next-day helper — for single-day all-day VEVENTs (DTEND is
+  // exclusive in iCal, so an event "on Sep 10" needs DTEND Sep 11).
+  const nextDay = ymd => {
+    const d = new Date(ymd + "T00:00:00Z");
+    d.setUTCDate(d.getUTCDate() + 1);
+    return d.toISOString().slice(0, 10);
+  };
   const lines = ["BEGIN:VCALENDAR", "VERSION:2.0", "PRODID:-//WaveBase//Trip//EN", "CALSCALE:GREGORIAN"];
-  let n = 0;
+
+  // Collect all day-notes that fall inside any stay range, keyed by
+  // date — we use them both for the multi-day description and to
+  // mark them as "handled" so we don't emit duplicate note events
+  // for notes that are already attached to a stay.
+  const notesByDate = {};
+  Object.keys(dayNotes).forEach(date => { if (dayNotes[date]) notesByDate[date] = dayNotes[date]; });
+
+  let eventCount = 0;
   items.forEach(e => {
     if (e.type !== "stay") return;
     const d = dates[e.id] || {};
     if (!d.in || !d.out) return;
-    n++;
+    const stayLabel = e.name + (e.town ? " — " + e.town : "");
+
+    // ---- (1) multi-day band: the stay itself ----
+    // Description lists the day-notes that fall inside the range,
+    // chronologically. Reading the event detail shows the full plan.
+    const notesInside = [];
+    let cur = new Date(d.in + "T00:00:00Z");
+    const end = new Date(d.out + "T00:00:00Z");
+    while (cur < end) {
+      const key = cur.toISOString().slice(0, 10);
+      if (notesByDate[key]) notesInside.push(key + ": " + notesByDate[key]);
+      cur.setUTCDate(cur.getUTCDate() + 1);
+    }
+    const bandDescription = ((t.name || "Trip") + " · planned on WaveBase")
+      + (notesInside.length ? "\n\nDay notes:\n" + notesInside.join("\n") : "");
     lines.push("BEGIN:VEVENT",
       "UID:wavebase-" + t.id + "-" + e.id + "@wavebase",
       "DTSTAMP:" + stamp,
       "DTSTART;VALUE=DATE:" + compact(d.in),
-      "DTEND;VALUE=DATE:" + compact(d.out),
-      "SUMMARY:" + esc(e.name + (e.town ? " — " + e.town : "")),
-      "DESCRIPTION:" + esc((t.name || "Trip") + " · planned on WaveBase"));
+      "DTEND;VALUE=DATE:"   + compact(d.out),
+      "SUMMARY:"     + esc(stayLabel),
+      "DESCRIPTION:" + esc(bandDescription));
     if (e.town) lines.push("LOCATION:" + esc(e.town));
     lines.push("END:VEVENT");
+    eventCount++;
+
+    // ---- (2) check-in event ----
+    lines.push("BEGIN:VEVENT",
+      "UID:wavebase-" + t.id + "-" + e.id + "-checkin@wavebase",
+      "DTSTAMP:" + stamp,
+      "DTSTART;VALUE=DATE:" + compact(d.in),
+      "DTEND;VALUE=DATE:"   + compact(nextDay(d.in)),
+      "SUMMARY:"     + esc("Check in: " + stayLabel),
+      "DESCRIPTION:" + esc((t.name || "Trip") + " · check-in day"));
+    if (e.town) lines.push("LOCATION:" + esc(e.town));
+    lines.push("END:VEVENT");
+    eventCount++;
+
+    // ---- (3) check-out event ----
+    lines.push("BEGIN:VEVENT",
+      "UID:wavebase-" + t.id + "-" + e.id + "-checkout@wavebase",
+      "DTSTAMP:" + stamp,
+      "DTSTART;VALUE=DATE:" + compact(d.out),
+      "DTEND;VALUE=DATE:"   + compact(nextDay(d.out)),
+      "SUMMARY:"     + esc("Check out: " + stayLabel),
+      "DESCRIPTION:" + esc((t.name || "Trip") + " · check-out day"));
+    if (e.town) lines.push("LOCATION:" + esc(e.town));
+    lines.push("END:VEVENT");
+    eventCount++;
   });
+
+  // ---- (4) one event per day-note ----
+  // We emit these regardless of whether the note's date falls inside
+  // a stay — the user wants the note visible in the agenda view at
+  // a glance, not buried in the stay's description (which is just a
+  // fallback for calendar UIs that only show the title).
+  Object.keys(notesByDate).sort().forEach(date => {
+    const text = notesByDate[date];
+    lines.push("BEGIN:VEVENT",
+      "UID:wavebase-" + t.id + "-note-" + date + "@wavebase",
+      "DTSTAMP:" + stamp,
+      "DTSTART;VALUE=DATE:" + compact(date),
+      "DTEND;VALUE=DATE:"   + compact(nextDay(date)),
+      "SUMMARY:"     + esc("📝 " + text),
+      "DESCRIPTION:" + esc((t.name || "Trip") + " · day note"));
+    lines.push("END:VEVENT");
+    eventCount++;
+  });
+
   lines.push("END:VCALENDAR");
-  return n ? lines.join("\r\n") : null;
+  return eventCount ? lines.join("\r\n") : null;
 }
 
 /* Download a trip as an .ics file the user can import into any calendar. */
