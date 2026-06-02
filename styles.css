@@ -4302,7 +4302,10 @@ button.rml-key.off .rml-dot {
 .trip.is-collapsed .trip-collapse-btn svg { transform: rotate(-90deg); }
 .trip.is-collapsed > header > .trip-summary,
 .trip.is-collapsed > .trip-view-toggle,
-.trip.is-collapsed > .trip-view { display: none; }
+.trip.is-collapsed > .trip-view,
+.trip.is-collapsed > .trip-draft-actions,
+.trip.is-collapsed > .trip-saved-body,
+.trip.is-collapsed > .trip-saved-actions { display: none; }
 /* Leave room for the sticky site header when a freshly-added trip
    scrolls itself into view — otherwise the trip's top edge hides
    under the header. */
@@ -4317,6 +4320,126 @@ button.rml-key.off .rml-dot {
   color: var(--ink-soft);
   padding: 6px 4px 2px;
 }
+
+/* ============================================================
+   Saved-trip view — the compact read-only overview a user gets
+   after clicking "Save trip". Same data, restructured to
+   prioritise overview over editing: legs grouped under their stay,
+   day-notes nested chronologically, no inline controls.
+   ============================================================ */
+.trip-saved-body { padding-top: 4px; }
+.trip-saved-leg {
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  background: var(--paper);
+  padding: 14px 16px;
+  margin-bottom: 12px;
+}
+.trip-saved-leg-head {
+  display: flex; flex-wrap: wrap; align-items: baseline; gap: 6px 8px;
+  font-size: 16px;
+}
+.trip-saved-leg-icon { font-size: 18px; }
+.trip-saved-leg-name {
+  font-weight: 600;
+  color: var(--ink);
+  text-decoration: none;
+}
+.trip-saved-leg-name:hover { color: var(--sea); text-decoration: underline; }
+.trip-saved-leg-dates {
+  margin-top: 2px;
+  font-size: 13.5px;
+  color: var(--ink-soft);
+}
+
+/* Day-notes chronological list, nested under a leg. Small italic
+   block with the date as a dim leading chip. */
+.trip-saved-leg-notes {
+  margin-top: 10px;
+  padding: 8px 10px;
+  background: var(--cream);
+  border-left: 3px solid var(--sand-deep);
+  border-radius: 6px;
+  display: flex; flex-direction: column; gap: 4px;
+}
+.trip-saved-note {
+  display: flex; gap: 8px; align-items: baseline;
+  font-size: 13.5px; line-height: 1.45;
+}
+.trip-saved-note-date {
+  flex-shrink: 0;
+  font-weight: 600; font-size: 12px;
+  color: var(--ink-soft);
+  min-width: 52px;
+}
+.trip-saved-note-text { font-style: italic; }
+
+/* "While there" — the spots / centers attached to a stay leg.
+   Pill-style chips that link to detail pages. */
+.trip-saved-extras { margin-top: 10px; }
+.trip-saved-extras-label {
+  font-size: 11px; font-weight: 700;
+  letter-spacing: 0.05em; text-transform: uppercase;
+  color: var(--ink-soft);
+  margin-bottom: 6px;
+}
+.trip-saved-extras-list {
+  display: flex; flex-wrap: wrap; gap: 6px 8px;
+}
+.trip-saved-extra {
+  display: inline-flex; align-items: center; gap: 6px;
+  padding: 6px 12px;
+  background: var(--cream);
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  font-size: 13px;
+  color: var(--ink);
+  text-decoration: none;
+  transition: background 0.12s ease, border-color 0.12s ease;
+}
+.trip-saved-extra:hover {
+  background: var(--sea-soft);
+  border-color: var(--sea);
+}
+.trip-saved-extra-icon { font-size: 14px; }
+.trip-saved-extra-town { font-size: 12px; }
+
+/* Unattached spots/centers ("not yet tied to a stay") — same chips
+   as the in-leg ones but with a slightly distinct header so the
+   user can spot the gap. Dashed border to echo trip-leg-loose. */
+.trip-saved-loose {
+  border: 1px dashed var(--sand-deep);
+  border-radius: 12px;
+  padding: 12px 14px;
+  margin-bottom: 12px;
+  background: rgba(255, 255, 255, 0.4);
+}
+
+/* Bottom action row — Edit-trip CTA + add-to-calendar link. */
+.trip-saved-actions {
+  margin-top: 10px;
+  padding-top: 14px;
+  border-top: 1px solid var(--line);
+  display: flex; gap: 14px; align-items: center; flex-wrap: wrap;
+}
+.trip-edit-btn { min-width: 140px; }
+
+/* ============================================================
+   Save-trip CTA — bottom of the draft view. Anchors the editing
+   session with a clear "I'm done" exit. The hint line reassures
+   that this isn't destructive — they can always edit again.
+   ============================================================ */
+.trip-draft-actions {
+  margin-top: 18px;
+  padding-top: 16px;
+  border-top: 1px solid var(--line);
+  display: flex; gap: 14px; align-items: center; flex-wrap: wrap;
+}
+.trip-save-btn {
+  min-width: 160px;
+  font-weight: 600;
+}
+.trip-draft-hint { font-size: 12.5px; }
 
 /* "+ Add a place" — search-and-add a spot/stay/center from the trip card. */
 .trip-add { margin-top: 10px; }

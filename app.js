@@ -5678,7 +5678,152 @@ function _profileSummaryHTML(p, authEmail) {
 /* Renders a whole trip card — overview header, the Itinerary <-> Day by
    day views and the map. readonly drops the edit affordances (drag,
    date inputs, remove, share, add) — used for shared-trip pages. */
+/* Walk the in→out range of a stay and return any day-notes the user
+   left for those dates, in chronological order. Used by the compact
+   saved-view to surface notes UNDER the relevant stay leg instead of
+   mixed into a global day-by-day list. */
+function tripDayNotesForLeg(t, leg) {
+  const d = ((t.dates || {})[leg.stay.id]) || {};
+  if (!d.in || !d.out) return [];
+  const notes = t.dayNotes || {};
+  const out = [];
+  let cur = new Date(d.in + "T00:00:00");
+  const end = new Date(d.out + "T00:00:00");
+  while (cur < end) {
+    const key = cur.toISOString().slice(0, 10);
+    if (notes[key]) out.push({ date: key, note: notes[key] });
+    cur = new Date(cur.getTime() + 86400000);
+  }
+  return out;
+}
+
+/* Render a single non-stay item (spot or center) as a small chip-card
+   inside a leg's "while there" cluster. Links to its detail page. */
+function tripSavedExtraChipHTML(e) {
+  const icon = e.type === "center" ? "🏄" : "🌊";
+  const href = e.type === "center" ? "spot.html?id=" + encodeURIComponent(e.id) + "&type=center"
+             : e.type === "spot"   ? "spot.html?id=" + encodeURIComponent(e.id)
+             :                       "spot.html?id=" + encodeURIComponent(e.id) + "&type=stay";
+  return `<a class="trip-saved-extra" href="${href}">
+    <span class="trip-saved-extra-icon" aria-hidden="true">${icon}</span>
+    <span class="trip-saved-extra-name">${escHTML(e.name)}</span>
+    ${e.town ? `<span class="trip-saved-extra-town muted"> · ${escHTML(e.town)}</span>` : ""}
+  </a>`;
+}
+
+/* Compact read-only overview for a SAVED trip (own trip, t.state ===
+   "saved"). Groups extras under the stay they belong to via tripLegs,
+   shows day-notes chronologically inside each leg, and gives the user
+   a clear Edit-trip button to flip back to draft.
+   Returns an HTML string. wireSavedTrip handles event delegation
+   (Edit click, share, calendar, remove). */
+function tripSavedHTML(t) {
+  const items = t.spotIds.map(byId).filter(Boolean);
+  const located = items.filter(e => e.coords);
+  const summary = tripSummaryHTML(items, t.dates);
+  const mapDiv = located.length ? `<div class="trip-map" id="trip-map-${t.id}"></div>` : "";
+
+  const headActions = `<span class="trip-head-actions">
+    ${items.length ? `<button type="button" class="link-btn" data-share="${t.id}">share</button>` : ""}
+    <button type="button" class="link-btn" data-del="${t.id}">remove</button>
+  </span>`;
+  const nameEl = `<h3 class="trip-name" data-rename="${t.id}" role="button" tabindex="0" title="Rename this trip"><span class="trip-name-text">${escHTML(t.name)}</span><span class="trip-name-pencil" aria-hidden="true">✎</span></h3>`;
+  const collapsed = isTripCollapsed(t.id);
+  const collapseBtn = `<button type="button" class="trip-collapse-btn" data-collapse="${t.id}" aria-label="Show / hide trip" title="Show / hide trip"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="6 9 12 15 18 9"/></svg></button>`;
+
+  // Empty trip — user saved a trip with nothing in it. Probably a
+  // mistake; nudge them straight back to edit.
+  if (!items.length) {
+    return `<div class="trip trip-saved${collapsed ? " is-collapsed" : ""}" id="trip-${t.id}">
+      <header class="trip-overview">
+        <div class="trip-head"><span class="trip-name-wrap">${collapseBtn}${nameEl}</span>${headActions}</div>
+      </header>
+      <p class="muted" style="padding: 0 0 12px;">This trip is empty.</p>
+      <div class="trip-saved-actions">
+        <button type="button" class="btn btn-secondary trip-edit-btn" data-edit-trip="${t.id}">Edit trip</button>
+      </div>
+    </div>`;
+  }
+
+  const { legs, unscheduled } = tripLegs(items);
+
+  const legsHTML = legs.map(leg => {
+    const stay = leg.stay;
+    const d = ((t.dates || {})[stay.id]) || {};
+    const nights = tripNights(d.in, d.out);
+    const period = (d.in && d.out) ? fmtTripPeriod(d.in, d.out) : "";
+    const town = stay.town ? escHTML(stay.town) : "";
+    const dateLine = period
+      ? `<div class="trip-saved-leg-dates">${escHTML(period)}${nights ? ` · ${nights} night${nights === 1 ? "" : "s"}` : ""}</div>`
+      : `<div class="trip-saved-leg-dates muted">No dates set</div>`;
+    const notes = tripDayNotesForLeg(t, leg);
+    const notesHTML = notes.length
+      ? `<div class="trip-saved-leg-notes">${notes.map(n => `
+          <div class="trip-saved-note">
+            <span class="trip-saved-note-date">${escHTML(fmtTripDate(n.date))}</span>
+            <span class="trip-saved-note-text">${escHTML(n.note)}</span>
+          </div>`).join("")}</div>`
+      : "";
+    const extrasHTML = leg.extras.length
+      ? `<div class="trip-saved-extras">
+          <div class="trip-saved-extras-label">While there</div>
+          <div class="trip-saved-extras-list">${leg.extras.map(tripSavedExtraChipHTML).join("")}</div>
+        </div>`
+      : "";
+    const stayHref = "spot.html?id=" + encodeURIComponent(stay.id) + "&type=stay";
+    return `<div class="trip-saved-leg">
+      <div class="trip-saved-leg-head">
+        <span class="trip-saved-leg-icon" aria-hidden="true">🏠</span>
+        <a class="trip-saved-leg-name" href="${stayHref}">${escHTML(stay.name)}</a>
+        ${town ? `<span class="muted"> · ${town}</span>` : ""}
+      </div>
+      ${dateLine}
+      ${notesHTML}
+      ${extrasHTML}
+    </div>`;
+  }).join("");
+
+  // Spots/centers not yet attached to a stay (i.e. before the first
+  // stay in the list, or no stays at all). Surfaced as their own section
+  // so the user can spot the gap and either add a stay or move them.
+  const looseHTML = unscheduled.length
+    ? `<div class="trip-saved-loose">
+        <div class="trip-saved-extras-label">Not yet tied to a stay</div>
+        <div class="trip-saved-extras-list">${unscheduled.map(tripSavedExtraChipHTML).join("")}</div>
+      </div>`
+    : "";
+
+  const calBtn = `<button type="button" class="link-btn" data-ics="${t.id}">add to calendar</button>`;
+  return `<div class="trip trip-saved${collapsed ? " is-collapsed" : ""}" id="trip-${t.id}">
+    <header class="trip-overview">
+      <div class="trip-head">
+        <span class="trip-name-wrap">${collapseBtn}${nameEl}</span>
+        ${headActions}
+      </div>
+      ${summary}
+    </header>
+    <div class="trip-saved-body">
+      ${looseHTML}
+      ${legsHTML}
+      ${mapDiv}
+    </div>
+    <div class="trip-saved-actions">
+      ${calBtn}
+      <button type="button" class="btn btn-secondary trip-edit-btn" data-edit-trip="${t.id}">Edit trip</button>
+    </div>
+  </div>`;
+}
+
 function tripCardHTML(t, readonly) {
+  // Branch on the trip's lifecycle state:
+  //   - Shared / read-only viewers always see the full itinerary
+  //     (no save concept applies to a trip you're just viewing).
+  //   - Owner + state === "saved" → compact overview with Edit-trip
+  //     button. Render delegated to tripSavedHTML.
+  //   - Owner + state === "draft" (or missing) → existing full edit
+  //     UI, with a Save-trip button at the bottom.
+  if (!readonly && t.state === "saved") return tripSavedHTML(t);
+
   const items = t.spotIds.map(byId).filter(Boolean);
   const located = items.filter(e => e.coords);
   const list = items.length ? (() => {
@@ -5734,6 +5879,18 @@ function tripCardHTML(t, readonly) {
   // element + persists — no full re-render needed.
   const collapsed = !readonly && isTripCollapsed(t.id);
   const collapseBtn = readonly ? "" : `<button type="button" class="trip-collapse-btn" data-collapse="${t.id}" aria-label="Show / hide trip" title="Show / hide trip"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="6 9 12 15 18 9"/></svg></button>`;
+  // Save-trip button at the bottom of the draft view (owner only).
+  // Only shows up once the trip has at least one item — saving an
+  // empty trip would flip to a "trip is empty" saved card, which is
+  // confusing. The button doesn't trigger persistence (that auto-saves
+  // on every edit) — it transitions the trip from draft → saved so
+  // the user sees the compact overview.
+  const saveBar = (!readonly && items.length)
+    ? `<div class="trip-draft-actions">
+        <button type="button" class="btn trip-save-btn" data-save-trip="${t.id}">Save trip</button>
+        <span class="muted trip-draft-hint">Locks in the compact view — you can edit again any time.</span>
+      </div>`
+    : "";
   return `<div class="trip${collapsed ? " is-collapsed" : ""}" id="trip-${t.id}">
     <header class="trip-overview">
       <div class="trip-head"><span class="trip-name-wrap">${collapseBtn}${nameEl}</span>${headActions}</div>
@@ -5742,6 +5899,7 @@ function tripCardHTML(t, readonly) {
     ${viewToggle}
     <div class="trip-view trip-view-itinerary">${list}${addBox}${mapDiv}</div>
     ${items.length ? `<div class="trip-view trip-view-day" hidden>${dayByDayHTML(items, t.dates, t.dayNotes, t.id, readonly)}</div>` : ""}
+    ${saveBar}
   </div>`;
 }
 
@@ -6895,6 +7053,26 @@ function renderAccount() {
   });
   root.querySelectorAll("[data-del]").forEach(b => {
     b.addEventListener("click", () => { WaveBaseAccount.deleteTrip(b.dataset.del); renderAccount(); });
+  });
+  // Save-trip / Edit-trip — toggle the trip between "draft" (full
+  // edit UI) and "saved" (compact overview). renderAccount picks up
+  // the new state on re-render. Smooth scroll back to the card so
+  // the user sees the new look without hunting for it.
+  root.querySelectorAll("[data-save-trip]").forEach(b => {
+    b.addEventListener("click", () => {
+      WaveBaseAccount.setTripState(b.dataset.saveTrip, "saved");
+      renderAccount();
+      const card = document.getElementById("trip-" + b.dataset.saveTrip);
+      if (card) card.scrollIntoView({ behavior: "smooth", block: "nearest" });
+    });
+  });
+  root.querySelectorAll("[data-edit-trip]").forEach(b => {
+    b.addEventListener("click", () => {
+      WaveBaseAccount.setTripState(b.dataset.editTrip, "draft");
+      renderAccount();
+      const card = document.getElementById("trip-" + b.dataset.editTrip);
+      if (card) card.scrollIntoView({ behavior: "smooth", block: "nearest" });
+    });
   });
   // Collapse toggle on each trip card — pure class toggle, persists
   // to localStorage so the state survives re-renders. No full re-render.

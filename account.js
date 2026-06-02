@@ -85,6 +85,11 @@ const WaveBaseAccount = (function () {
       spot_ids:  trip.spotIds  || [],
       dates:     trip.dates    || {},
       day_notes: trip.dayNotes || {},
+      // Pass state through on every sync. On routine debounced auto-
+      // saves this just reaffirms the current state — no flip. The
+      // backend's PUT ignores invalid values, so this is safe even
+      // if a future trip somehow has an unrecognised state.
+      state:     trip.state === "saved" ? "saved" : "draft",
     };
 
     try {
@@ -215,7 +220,12 @@ const WaveBaseAccount = (function () {
         name: t.name,
         spotIds: Array.isArray(t.spotIds) ? t.spotIds : [],
         dates: (t.dates && typeof t.dates === "object") ? t.dates : {},
-        dayNotes: (t.dayNotes && typeof t.dayNotes === "object") ? t.dayNotes : {}
+        dayNotes: (t.dayNotes && typeof t.dayNotes === "object") ? t.dayNotes : {},
+        // "draft" while editing; "saved" after the user clicks Save
+        // trip — flips the renderer into the compact overview.
+        // Legacy trips with no state default to "draft" so the user
+        // gets one Save-trip tap to opt in to the new layout.
+        state: t.state === "saved" ? "saved" : "draft",
       })),
       reviews: Array.isArray(s.reviews) ? s.reviews : []
     };
@@ -386,7 +396,9 @@ const WaveBaseAccount = (function () {
     getTrips() { return state().trips; },
     addTrip(name) {
       const s = state();
-      const trip = { id: "t" + Date.now(), name: (name || "New trip").trim(), spotIds: [], dates: {} };
+      // New trips start in "draft" — the renderer shows the full
+      // edit UI until the user clicks Save trip.
+      const trip = { id: "t" + Date.now(), name: (name || "New trip").trim(), spotIds: [], dates: {}, state: "draft" };
       s.trips.push(trip);
       write(s);
       _scheduleTripSync(trip.id);  // POST on first sync, records serverId
@@ -416,6 +428,20 @@ const WaveBaseAccount = (function () {
       if (nm) t.name = nm;
       write(s);
       _scheduleTripSync(tripId);
+    },
+    /* Flip a trip between "draft" (full edit UI) and "saved" (compact
+       overview). Renderer reads .state to choose the layout. Fires
+       wavebase:trips-changed so the account page re-renders without
+       a full route reload. */
+    setTripState(tripId, nextState) {
+      if (nextState !== "draft" && nextState !== "saved") return;
+      const s = state();
+      const t = s.trips.find(x => x.id === tripId);
+      if (!t || t.state === nextState) return;
+      t.state = nextState;
+      write(s);
+      _scheduleTripSync(tripId);
+      try { window.dispatchEvent(new CustomEvent("wavebase:trips-changed")); } catch (e) {}
     },
     addToTrip(tripId, spotId) {
       const s = state();
@@ -557,8 +583,18 @@ const WaveBaseAccount = (function () {
             spotIds:  st.spot_ids  || [],
             dates:    st.dates     || {},
             dayNotes: st.day_notes || {},
+            state:    st.state === "saved" ? "saved" : "draft",
           });
           changed = true;
+        } else {
+          // Already have this trip locally — pull through any server-
+          // side state change (e.g. user clicked Save on another device).
+          const local = localByServerId.get(st.id);
+          const serverState = st.state === "saved" ? "saved" : "draft";
+          if (local.state !== serverState) {
+            local.state = serverState;
+            changed = true;
+          }
         }
       }
       // Push local-only trips (no serverId) up. Debounced via the
