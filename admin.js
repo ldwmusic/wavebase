@@ -63,6 +63,27 @@ function _typeEmoji(type) {
   return type === "stay" ? "🏠" : (type === "center" ? "🎓" : "🌊");
 }
 
+/* Human "time ago" — for last-activity columns. Renders relative
+   strings like "2u geleden", "3 dagen", "45 dagen", "no activity".
+   Past 90 days drops to muted styling (caller wraps with a class).
+   `iso` may be null → returns the no-activity marker. */
+function _fmtAgo(iso) {
+  if (!iso) return { text: "no activity", days: Infinity, stale: true };
+  const d = new Date(iso);
+  if (Number.isNaN(d.getTime())) return { text: "no activity", days: Infinity, stale: true };
+  const diffMs = Date.now() - d.getTime();
+  const mins  = Math.floor(diffMs / 60000);
+  const hours = Math.floor(diffMs / 3600000);
+  const days  = Math.floor(diffMs / 86400000);
+  let text;
+  if (mins < 60)        text = mins <= 1 ? "just now" : `${mins} min ago`;
+  else if (hours < 24)  text = `${hours}h ago`;
+  else if (days < 30)   text = `${days} day${days === 1 ? "" : "s"} ago`;
+  else if (days < 365)  text = `${Math.floor(days/30)} month${Math.floor(days/30) === 1 ? "" : "s"} ago`;
+  else                  text = `${Math.floor(days/365)}y ago`;
+  return { text, days, stale: days >= 90 };
+}
+
 function _entryById(id) {
   if (typeof WAVEBASE_DATA === "undefined") return null;
   return WAVEBASE_DATA.find(e => e.id === id) || null;
@@ -144,6 +165,11 @@ async function _loadEngagement() {
   if (!res.ok) throw new Error("Engagement failed: " + res.status);
   return res.json();
 }
+async function _loadEngagementByCountry() {
+  const res = await WaveBaseAuth.authFetch("/admin/engagement/by-country");
+  if (!res.ok) throw new Error("By-country engagement failed: " + res.status);
+  return res.json();
+}
 async function _loadUserDetail(userId) {
   const res = await WaveBaseAuth.authFetch("/admin/users/" + encodeURIComponent(userId));
   if (!res.ok) throw new Error("User detail failed: " + res.status);
@@ -199,26 +225,57 @@ function _renderKpis(totals, today) {
   `;
 }
 
+/* Dormant filter state — persisted in-module so flipping the
+   toggle re-renders without losing the sort. */
+let _dormantFilter = "all";   // "all" | "dormant30" | "never"
+
 function _renderUsersTable(users) {
-  const rows = _sortUsers(users).map(u => `
-    <tr data-user-id="${_esc(u.id)}" class="adm-user-row">
-      <td>${_esc(u.name || "—")}</td>
-      <td><span class="adm-mono">${_esc(u.email)}</span></td>
-      <td>${_fmtDate(u.signed_up_at)}</td>
-      <td class="adm-num">${u.saved_count}</td>
-      <td class="adm-num">${u.surfed_count}</td>
-      <td class="adm-num">${u.trips_count}</td>
-    </tr>
-  `).join("");
+  // Apply the dormant filter. "dormant30" = no activity in the
+  // last 30 days; "never" = no activity ever (signed up but no
+  // saves/surfed/trips/reviews). Filtering happens client-side on
+  // the already-loaded users array — no backend roundtrip needed.
+  const now = Date.now();
+  const isDormant30 = u => {
+    if (!u.last_activity) return true;
+    const ageMs = now - new Date(u.last_activity).getTime();
+    return ageMs >= 30 * 86400000;
+  };
+  const isNever = u => !u.last_activity;
+  let view = users;
+  if (_dormantFilter === "dormant30") view = users.filter(isDormant30);
+  if (_dormantFilter === "never")     view = users.filter(isNever);
+
+  const rows = _sortUsers(view).map(u => {
+    const ago = _fmtAgo(u.last_activity);
+    return `
+      <tr data-user-id="${_esc(u.id)}" class="adm-user-row">
+        <td>${_esc(u.name || "—")}</td>
+        <td><span class="adm-mono">${_esc(u.email)}</span></td>
+        <td>${_fmtDate(u.signed_up_at)}</td>
+        <td class="adm-num">${u.saved_count}</td>
+        <td class="adm-num">${u.surfed_count}</td>
+        <td class="adm-num">${u.trips_count}</td>
+        <td class="adm-eng-ago${ago.stale ? " is-stale" : ""}">${_esc(ago.text)}</td>
+      </tr>
+    `;
+  }).join("");
 
   const headCell = (key, label, numeric) => {
     const arrow = (_sortKey === key) ? (_sortDesc ? "↓" : "↑") : "";
     return `<th class="adm-sort ${numeric ? "adm-num" : ""}" data-sort="${key}">${label} <span class="adm-sort-arrow">${arrow}</span></th>`;
   };
 
+  const pillBtn = (val, label) =>
+    `<button type="button" class="adm-filter-pill${_dormantFilter === val ? " is-active" : ""}" data-dormant-filter="${val}">${label}</button>`;
+
   return `
     <section class="adm-section">
-      <h2>Users</h2>
+      <h2>Users <span class="muted" style="font-size:14px;">(${view.length}${_dormantFilter !== "all" ? " of " + users.length : ""})</span></h2>
+      <div class="adm-filter-row">
+        ${pillBtn("all",       "All")}
+        ${pillBtn("dormant30", "Dormant 30d+")}
+        ${pillBtn("never",     "Never active")}
+      </div>
       <div class="adm-table-wrap">
         <table class="adm-table">
           <thead>
@@ -229,9 +286,10 @@ function _renderUsersTable(users) {
               ${headCell("saved_count", "Sav", true)}
               ${headCell("surfed_count", "Surf", true)}
               ${headCell("trips_count", "Trp", true)}
+              ${headCell("last_activity", "Last active", false)}
             </tr>
           </thead>
-          <tbody>${rows || `<tr><td colspan="6" class="muted">No users yet.</td></tr>`}</tbody>
+          <tbody>${rows || `<tr><td colspan="7" class="muted">No users match this filter.</td></tr>`}</tbody>
         </table>
       </div>
       <p class="muted adm-table-hint">Click a row to see that user's saved spots, trips and surf log.</p>
@@ -283,9 +341,9 @@ function _renderPopularity(pop) {
 
 async function _renderDashboard() {
   const root = document.getElementById("admin-root");
-  let overview, popularity, evAff, evViews, evFunnel, evSearch, recent, engagement;
+  let overview, popularity, evAff, evViews, evFunnel, evSearch, recent, engagement, byCountry;
   try {
-    [overview, popularity, evAff, evViews, evFunnel, evSearch, recent, engagement] = await Promise.all([
+    [overview, popularity, evAff, evViews, evFunnel, evSearch, recent, engagement, byCountry] = await Promise.all([
       _loadOverview(),
       _loadPopularity(),
       _loadEventsAffiliate(),
@@ -294,6 +352,7 @@ async function _renderDashboard() {
       _loadEventsSearch(),
       _loadRecentReviews(),
       _loadEngagement(),
+      _loadEngagementByCountry(),
     ]);
   } catch (e) {
     root.innerHTML = `<p class="muted" style="color:var(--clay);">Failed to load admin data: ${_esc(e.message || e)}</p>`;
@@ -307,10 +366,17 @@ async function _renderDashboard() {
     <div class="admin-head">
       <p class="kicker">SurfGoose admin</p>
       <h1>What&rsquo;s going on.</h1>
+      <div class="adm-export-row">
+        <span class="muted">Export to CSV:</span>
+        <button type="button" class="link-btn" data-export="users">users</button>
+        <button type="button" class="link-btn" data-export="reviews">reviews</button>
+        <button type="button" class="link-btn" data-export="trips">trips</button>
+      </div>
     </div>
     ${_renderKpis(overview.totals, overview.today)}
     ${_renderRecentReviews(recent)}
     ${_renderEngagement(engagement)}
+    ${_renderByCountry(byCountry)}
     ${_renderUsersTable(overview.users)}
     ${_renderPopularity(popularity)}
     ${_renderActivity(evAff, evViews, evFunnel, evSearch)}
@@ -319,6 +385,7 @@ async function _renderDashboard() {
   _wireTableInteractions();
   _wireRecentReviews();
   _wireSearchActions();
+  _wireCsvExports();
 }
 
 function _renderActivity(evAff, evViews, evFunnel, evSearch) {
@@ -533,6 +600,7 @@ function _renderEngagement(payload) {
     const town = entry ? entry.town : "";
     const emoji = entry ? _typeEmoji(entry.type) : "·";
     const pct = Math.round((r.score / maxScore) * 100);
+    const ago = _fmtAgo(r.last_activity);
     return `
       <tr>
         <td class="adm-eng-rank">${i + 1}</td>
@@ -550,11 +618,12 @@ function _renderEngagement(payload) {
           <span class="adm-pop-bar"><span class="adm-pop-bar-fill" style="width:${pct}%"></span></span>
           <span class="adm-eng-score-num">${r.score}</span>
         </td>
+        <td class="adm-eng-ago${ago.stale ? " is-stale" : ""}">${_esc(ago.text)}</td>
       </tr>`;
   }).join("");
   return `<section class="adm-section">
     <h2>Engagement scoreboard</h2>
-    <p class="muted adm-table-hint">Combined score per spot = saves×1 + surfed×2 + reviews×5 + helpful×3. Tells you where the action is, not just what gets saved.</p>
+    <p class="muted adm-table-hint">Combined score per spot = saves×1 + surfed×2 + reviews×5 + helpful×3. Last activity column shows whether the buzz is recent or ancient — stale ≥ 90 days dims to muted.</p>
     <div class="adm-table-wrap">
       <table class="adm-table adm-eng-table">
         <thead>
@@ -565,6 +634,61 @@ function _renderEngagement(payload) {
             <th class="adm-eng-num">Surfed</th>
             <th class="adm-eng-num">Reviews</th>
             <th class="adm-eng-num">Helpful</th>
+            <th>Score</th>
+            <th>Last activity</th>
+          </tr>
+        </thead>
+        <tbody>${trs}</tbody>
+      </table>
+    </div>
+  </section>`;
+}
+
+/* ---------- engagement by country ---------- */
+
+function _renderByCountry(payload) {
+  const rows = (payload && payload.rows) || [];
+  if (!rows.length) {
+    return `<section class="adm-section">
+      <h2>Engagement by country</h2>
+      <p class="muted">No country-level signals yet.</p>
+    </section>`;
+  }
+  const maxScore = Math.max(1, ...rows.map(r => r.score));
+  const trs = rows.map((r, i) => {
+    const pct = Math.round((r.score / maxScore) * 100);
+    const rating = r.avg_rating_10 != null ? `${r.avg_rating_10}/10` : "—";
+    return `
+      <tr>
+        <td class="adm-eng-rank">${i + 1}</td>
+        <td><a href="index.html?country=${encodeURIComponent(r.country)}" target="_blank" rel="noopener" class="adm-eng-name">${_esc(r.country)}</a></td>
+        <td class="adm-eng-num">${r.spots}</td>
+        <td class="adm-eng-num">${r.saves}</td>
+        <td class="adm-eng-num">${r.surfed}</td>
+        <td class="adm-eng-num">${r.reviews}</td>
+        <td class="adm-eng-num">${r.helpful}</td>
+        <td class="adm-eng-num">${rating}</td>
+        <td class="adm-eng-score">
+          <span class="adm-pop-bar"><span class="adm-pop-bar-fill" style="width:${pct}%"></span></span>
+          <span class="adm-eng-score-num">${r.score}</span>
+        </td>
+      </tr>`;
+  }).join("");
+  return `<section class="adm-section">
+    <h2>Engagement by country</h2>
+    <p class="muted adm-table-hint">Same score formula as the per-spot scoreboard, rolled up per country. Strategy view: where to deepen versus where to start.</p>
+    <div class="adm-table-wrap">
+      <table class="adm-table adm-eng-table">
+        <thead>
+          <tr>
+            <th>#</th>
+            <th>Country</th>
+            <th class="adm-eng-num">Spots</th>
+            <th class="adm-eng-num">Saves</th>
+            <th class="adm-eng-num">Surfed</th>
+            <th class="adm-eng-num">Reviews</th>
+            <th class="adm-eng-num">Helpful</th>
+            <th class="adm-eng-num">Avg rating</th>
             <th>Score</th>
           </tr>
         </thead>
@@ -614,10 +738,57 @@ function _wireTableInteractions() {
         _sortDesc = !_sortDesc;
       } else {
         _sortKey = key;
-        // Default: numeric counts sort desc, strings + dates sort asc.
-        _sortDesc = ["saved_count", "surfed_count", "trips_count", "signed_up_at"].indexOf(key) !== -1;
+        // Default: numeric counts + recent-first dates sort desc, names asc.
+        _sortDesc = ["saved_count", "surfed_count", "trips_count", "signed_up_at", "last_activity"].indexOf(key) !== -1;
       }
       _renderDashboard();
+    });
+  });
+  // Dormant-filter pills above the users table.
+  document.querySelectorAll("[data-dormant-filter]").forEach(btn => {
+    btn.addEventListener("click", () => {
+      _dormantFilter = btn.dataset.dormantFilter;
+      _renderDashboard();
+    });
+  });
+}
+
+/* ---------- CSV export wiring ----------
+   Each "users / reviews / trips" link in the admin head triggers a
+   JWT-authed download. authFetch returns a Blob via response.blob(),
+   which we wrap in an object URL and click programmatically. The
+   browser saves it under the Content-Disposition filename the API
+   sends ("surfgoose-users.csv" etc.). */
+function _wireCsvExports() {
+  document.querySelectorAll("[data-export]").forEach(btn => {
+    btn.addEventListener("click", async () => {
+      const kind = btn.dataset.export;  // "users" | "reviews" | "trips"
+      btn.disabled = true;
+      const originalLabel = btn.textContent;
+      btn.textContent = originalLabel + "…";
+      try {
+        const res = await WaveBaseAuth.authFetch("/admin/export/" + kind + ".csv");
+        if (!res.ok) throw new Error("HTTP " + res.status);
+        const blob = await res.blob();
+        // Extract filename from the Content-Disposition header if present;
+        // fall back to a sane default.
+        const cd = res.headers.get("Content-Disposition") || "";
+        const m = cd.match(/filename="([^"]+)"/);
+        const filename = m ? m[1] : `surfgoose-${kind}.csv`;
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement("a");
+        a.href = url;
+        a.download = filename;
+        document.body.appendChild(a);
+        a.click();
+        a.remove();
+        setTimeout(() => URL.revokeObjectURL(url), 2000);
+      } catch (e) {
+        alert("Couldn't export " + kind + ": " + (e && e.message || e));
+      } finally {
+        btn.disabled = false;
+        btn.textContent = originalLabel;
+      }
     });
   });
 }

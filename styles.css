@@ -6186,6 +6186,53 @@ button.rml-key.off .rml-dot {
 }
 .adm-eng-score-num { font-weight: 600; font-variant-numeric: tabular-nums; width: 36px; text-align: right; }
 
+/* ---- Admin head: CSV export shortcut row ---- */
+.adm-export-row {
+  display: flex; align-items: center; gap: 14px;
+  margin-top: 6px;
+  font-size: 13px;
+}
+.adm-export-row .link-btn { font-weight: 500; }
+
+/* ---- Admin: filter pill row (above users table) ---- */
+.adm-filter-row {
+  display: flex; align-items: center; gap: 8px; flex-wrap: wrap;
+  margin: 0 0 10px;
+}
+.adm-filter-pill {
+  background: transparent;
+  border: 1px solid var(--sand-deep);
+  border-radius: 999px;
+  padding: 4px 14px;
+  font: inherit; font-size: 13px;
+  color: var(--ink-soft);
+  cursor: pointer;
+  transition: background 0.12s, color 0.12s, border-color 0.12s;
+}
+.adm-filter-pill:hover {
+  background: var(--cream);
+  color: var(--ink);
+  border-color: var(--sea);
+}
+.adm-filter-pill.is-active {
+  background: var(--sea);
+  color: #fff;
+  border-color: var(--sea);
+  font-weight: 600;
+}
+
+/* ---- Last-activity / freshness column ---- */
+.adm-eng-ago {
+  font-variant-numeric: tabular-nums;
+  font-size: 13px;
+  color: var(--ink);
+  white-space: nowrap;
+}
+.adm-eng-ago.is-stale {
+  color: var(--ink-soft);
+  font-style: italic;
+}
+
 /* ---- Search-action badges + buttons ---- */
 .adm-search-row { grid-template-columns: minmax(0, 1fr) 100px 40px auto; }
 .adm-search-badge {
