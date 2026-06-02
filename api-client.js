@@ -242,73 +242,165 @@ function _apiToFrontendTown(t) {
 }
 
 
-/* ---------- bootstrap ---------- */
+/* ---------- bootstrap ----------
+
+   Cache-first design. The "feels broken when you click WaveBase" bug
+   is that Render's free tier has cold-starts up to ~30s — every page
+   navigation was awaiting four serial API roundtrips before any page
+   chrome could render. Now we:
+
+     1. Read the previous response out of localStorage. If present and
+        not insanely old, hydrate WAVEBASE_DATA + maps from it and fire
+        `wavebase:data-ready` IMMEDIATELY — pages render with the stale
+        data in <50ms, no API wait at all.
+     2. Fire off the same four fetches in the background.
+     3. When fresh data arrives, re-apply + re-dispatch the event so
+        listeners refresh. Stale-while-revalidate.
+     4. Write the fresh response back to localStorage for next time.
+
+   Trade-off: a user who loads after a content push sees the OLD spot
+   list for one render cycle. Acceptable while we don't push content
+   hourly. Cache version (CACHE_KEY suffix) lets us hard-invalidate on
+   schema changes by bumping the suffix in this file. */
+
+const CACHE_KEY = "wavebase_api_cache_v1";
+const CACHE_MAX_AGE_MS = 14 * 24 * 60 * 60 * 1000;  // 14 days — after that we'd rather wait for fresh data than show stale
+
+/* Snapshot the slug-IDs from data.js BEFORE we wipe it. Computed
+   once at module load; reused on every apply (cache hydrate AND
+   fresh fetch). Slugs are how URLs / localStorage / linkedSpotId
+   refer to entries — we MUST keep them stable across the API
+   migration. */
+const _slugByName = {};
+if (Array.isArray(WAVEBASE_DATA)) {
+  WAVEBASE_DATA.forEach(e => { _slugByName[e.name] = e.id; });
+}
+// Wipe data.js fallback values immediately so nothing leaks through.
+WAVEBASE_DATA  = [];
+WAVEBASE_TOWNS = {};
+
+/* Take raw API responses (spots, centers, stays, towns), build the
+   cross-boundary id maps, assemble WAVEBASE_DATA + WAVEBASE_TOWNS,
+   and dispatch `wavebase:data-ready` so app.js / account.js render.
+   Pure function of its inputs — works equally for cache hydrate and
+   fresh fetch. */
+function _applyAPIResponse({ spots, centers, stays, towns }, source) {
+  spots   = Array.isArray(spots)   ? spots   : [];
+  centers = Array.isArray(centers) ? centers : [];
+  stays   = Array.isArray(stays)   ? stays   : [];
+  towns   = Array.isArray(towns)   ? towns   : [];
+
+  // Build the two cross-boundary id maps. account.js uses these
+  // when syncing saved-spots: it stores slugs in localStorage but
+  // needs the API UUID when POSTing to /users/me/saved-spots/{id}.
+  const slugByApiId = {};
+  const apiIdBySlug = {};
+  function _registerIdPair(apiId, name) {
+    const slug = _slugByName[name] || apiId;
+    slugByApiId[apiId] = slug;
+    apiIdBySlug[slug]  = apiId;
+  }
+  spots  .forEach(s => _registerIdPair(s.id, s.name));
+  centers.forEach(c => _registerIdPair(c.id, c.name));
+  stays  .forEach(s => _registerIdPair(s.id, s.name));
+  window.WAVEBASE_SLUG_BY_API_ID = slugByApiId;
+  window.WAVEBASE_API_ID_BY_SLUG = apiIdBySlug;
+
+  WAVEBASE_DATA = [
+    ...spots  .map(s => _apiToFrontendSpot  (s, _slugByName)),
+    ...centers.map(c => _apiToFrontendCenter(c, _slugByName, slugByApiId)),
+    ...stays  .map(s => _apiToFrontendStay  (s, _slugByName, slugByApiId)),
+  ];
+  WAVEBASE_TOWNS = Object.fromEntries(towns.map(t => [t.name, _apiToFrontendTown(t)]));
+
+  console.log(`[api-client] ${source}: ${WAVEBASE_DATA.length} entries + ${Object.keys(WAVEBASE_TOWNS).length} towns`);
+  window.dispatchEvent(new CustomEvent("wavebase:data-ready"));
+}
+
+/* Try to hydrate from localStorage. Returns true on a successful
+   hydrate — boot uses that to decide whether the user is seeing
+   anything yet. */
+function _hydrateFromCache() {
+  try {
+    const raw = localStorage.getItem(CACHE_KEY);
+    if (!raw) return false;
+    const cached = JSON.parse(raw);
+    if (!cached || !cached.payload || !cached.savedAt) return false;
+    if (Date.now() - cached.savedAt > CACHE_MAX_AGE_MS) {
+      // Old enough that we'd rather wait for fresh data than risk
+      // showing a wildly out-of-date catalog.
+      localStorage.removeItem(CACHE_KEY);
+      return false;
+    }
+    _applyAPIResponse(cached.payload, "cache hit");
+    return true;
+  } catch (e) {
+    // Corrupted cache — drop it. Fresh fetch will populate it again.
+    try { localStorage.removeItem(CACHE_KEY); } catch (e2) {}
+    return false;
+  }
+}
+
+function _saveToCache(payload) {
+  try {
+    localStorage.setItem(CACHE_KEY, JSON.stringify({
+      payload,
+      savedAt: Date.now(),
+    }));
+  } catch (e) {
+    // Quota exceeded or storage disabled — silently skip. Next page
+    // load just does a fresh fetch like before.
+  }
+}
 
 (async function bootstrapFromAPI() {
-  // Step 1: snapshot the slug-IDs from data.js BEFORE we wipe it. We re-use
-  // these slugs after the API replace so URLs (spot.html?id=devils-rock),
-  // localStorage saved-spots and linkedSpotId references stay stable.
-  const slugByName = {};
-  if (Array.isArray(WAVEBASE_DATA)) {
-    WAVEBASE_DATA.forEach(e => { slugByName[e.name] = e.id; });
+  const hadCache = _hydrateFromCache();
+  // Read the cached payload back from storage so we can compare it
+  // bit-for-bit with the fresh response. If they match, no point
+  // re-rendering — saves a full page-init flicker for the common
+  // case where the catalog hasn't changed since last visit.
+  let cachedRaw = null;
+  if (hadCache) {
+    try { cachedRaw = localStorage.getItem(CACHE_KEY); } catch (e) {}
   }
 
-  // Step 2: wipe data.js fallback values so nothing leaks through.
-  // After this point, only API data populates these globals.
-  WAVEBASE_DATA  = [];
-  WAVEBASE_TOWNS = {};
-
-  // Step 3: parallel fetch all four collections.
-  let spots, centers, stays, towns;
+  // Always fetch fresh in parallel. If cache hydrated, this runs in
+  // the background and re-applies when done (stale-while-revalidate).
+  // If no cache, this IS the first render path.
+  let payload;
   try {
-    const results = await Promise.all([
+    const [spots, centers, stays, towns] = await Promise.all([
       fetch(`${WAVEBASE_API}/surf-spots/`).then(r => r.json()),
       fetch(`${WAVEBASE_API}/centers/`   ).then(r => r.json()),
       fetch(`${WAVEBASE_API}/stays/`     ).then(r => r.json()),
       fetch(`${WAVEBASE_API}/towns/`     ).then(r => r.json()),
     ]);
-    [spots, centers, stays, towns] = results;
+    payload = { spots, centers, stays, towns };
   } catch (e) {
-    console.error("[api-client] Failed to load data from API:", e);
-    // Pages will render empty. Acceptable while we have no real users.
-    window.dispatchEvent(new CustomEvent("wavebase:data-ready"));
+    console.error("[api-client] Fresh fetch failed:", e);
+    // If we never hydrated from cache, app.js is still waiting on
+    // the ready event — fire it (with empty data) so the page at
+    // least exits its loading state instead of staring at nothing.
+    if (!hadCache) window.dispatchEvent(new CustomEvent("wavebase:data-ready"));
     return;
   }
 
-  // Step 4: build the two cross-boundary id maps and expose them on
-  // window so other modules can translate IDs across the slug/UUID
-  // boundary. account.js uses these when syncing saved-spots: it
-  // stores slugs in localStorage but needs the API UUID when POSTing
-  // to /users/me/saved-spots/{spot_id}. Same problem in reverse on
-  // the way back (GET returns UUIDs; we need slugs to render).
-  const slugByApiId = {};
-  const apiIdBySlug = {};
-  function _registerIdPair(apiId, name) {
-    const slug = slugByName[name] || apiId;
-    slugByApiId[apiId] = slug;
-    apiIdBySlug[slug]  = apiId;
+  // Cheap deep-equality via JSON. If the response is identical to
+  // what we just hydrated from cache, skip the re-render and the
+  // re-dispatch — the page already shows the right data.
+  if (hadCache && cachedRaw) {
+    try {
+      const prev = JSON.parse(cachedRaw);
+      if (prev && JSON.stringify(prev.payload) === JSON.stringify(payload)) {
+        console.log("[api-client] cache still fresh — skipping re-render");
+        // Still bump the savedAt so the TTL clock resets — we just
+        // confirmed the cache is good.
+        _saveToCache(payload);
+        return;
+      }
+    } catch (e) { /* fall through to re-apply */ }
   }
-  (spots   || []).forEach(s => _registerIdPair(s.id, s.name));
-  // Centers + stays go in the same maps — the saved-spots endpoint
-  // accepts any entry-id and Lode will likely save those too in v2.
-  // Doing it now means we don't have to revisit this mapper later.
-  (centers || []).forEach(c => _registerIdPair(c.id, c.name));
-  (stays   || []).forEach(s => _registerIdPair(s.id, s.name));
-  window.WAVEBASE_SLUG_BY_API_ID = slugByApiId;
-  window.WAVEBASE_API_ID_BY_SLUG = apiIdBySlug;
 
-  // Step 5: assemble the global data the rest of app.js consumes.
-  WAVEBASE_DATA = [
-    ...(spots   || []).map(s => _apiToFrontendSpot(s, slugByName)),
-    ...(centers || []).map(c => _apiToFrontendCenter(c, slugByName, slugByApiId)),
-    ...(stays   || []).map(s => _apiToFrontendStay(s, slugByName, slugByApiId)),
-  ];
-  WAVEBASE_TOWNS = Object.fromEntries(
-    (towns || []).map(t => [t.name, _apiToFrontendTown(t)])
-  );
-
-  console.log(`[api-client] Loaded ${WAVEBASE_DATA.length} entries + ${Object.keys(WAVEBASE_TOWNS).length} towns from API`);
-
-  // Step 6: tell app.js the data is ready — page init runs now.
-  window.dispatchEvent(new CustomEvent("wavebase:data-ready"));
+  _applyAPIResponse(payload, hadCache ? "cache refresh" : "fresh fetch");
+  _saveToCache(payload);
 })();
