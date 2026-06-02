@@ -6186,6 +6186,75 @@ button.rml-key.off .rml-dot {
 }
 .adm-eng-score-num { font-weight: 600; font-variant-numeric: tabular-nums; width: 36px; text-align: right; }
 
+/* ---- Public-facing "Used in our write-up" badge on a review ----
+   Subtle sea-soft tag with a check mark + optional admin note as
+   italic context. Lets the reviewer see that their input was folded
+   into our area data — strong "you matter" signal. */
+.my-review-analyzed {
+  display: inline-flex; flex-wrap: wrap; align-items: center; gap: 6px;
+  margin-top: 10px;
+  padding: 5px 12px;
+  background: var(--sea-soft);
+  color: var(--sea);
+  border-radius: 999px;
+  font-size: 12.5px;
+}
+.my-review-analyzed-icon { font-weight: 700; }
+.my-review-analyzed-label { font-weight: 600; }
+.my-review-analyzed-note { color: var(--ink-soft); }
+
+/* ---- Admin: "✓ analyzed" chip on a review row + dimmed row ---- */
+.adm-analyzed-chip {
+  display: inline-block;
+  padding: 1px 8px;
+  margin-left: 8px;
+  background: var(--sea-soft);
+  color: var(--sea);
+  border-radius: 999px;
+  font-size: 11.5px;
+  font-weight: 600;
+  vertical-align: middle;
+}
+.adm-review-row.is-analyzed {
+  border-color: var(--sea-soft);
+  background: rgba(221, 232, 234, 0.35);
+}
+
+/* ---- Admin: stay-affinity pairs ---- */
+.adm-aff-pair {
+  display: inline-block;
+  margin: 2px 6px 2px 0;
+  font-size: 13px;
+}
+
+/* ---- Admin: conditions-mismatch labels + clay pill ---- */
+.adm-pill-clay {
+  background: var(--clay-soft);
+  color: var(--clay);
+}
+.adm-mismatch h2 .adm-pill {
+  vertical-align: middle;
+  font-size: 12px;
+}
+.adm-mm-label {
+  display: inline-block;
+  padding: 2px 10px;
+  border-radius: 999px;
+  font-size: 12.5px;
+  font-weight: 600;
+  background: var(--sand);
+  color: var(--ink);
+}
+.adm-mm-label-alert {
+  background: var(--clay-soft);
+  color: var(--clay);
+}
+.adm-mm-sig {
+  font-variant-numeric: tabular-nums;
+  font-size: 12.5px;
+  color: var(--ink-soft);
+}
+
 /* ---- Admin head: CSV export shortcut row ---- */
 .adm-export-row {
   display: flex; align-items: center; gap: 14px;

@@ -170,6 +170,16 @@ async function _loadEngagementByCountry() {
   if (!res.ok) throw new Error("By-country engagement failed: " + res.status);
   return res.json();
 }
+async function _loadStayAffinity() {
+  const res = await WaveBaseAuth.authFetch("/admin/affinity/stays");
+  if (!res.ok) throw new Error("Stay affinity failed: " + res.status);
+  return res.json();
+}
+async function _loadConditionsMismatch() {
+  const res = await WaveBaseAuth.authFetch("/admin/conditions-mismatch");
+  if (!res.ok) throw new Error("Conditions mismatch failed: " + res.status);
+  return res.json();
+}
 async function _loadUserDetail(userId) {
   const res = await WaveBaseAuth.authFetch("/admin/users/" + encodeURIComponent(userId));
   if (!res.ok) throw new Error("User detail failed: " + res.status);
@@ -341,9 +351,9 @@ function _renderPopularity(pop) {
 
 async function _renderDashboard() {
   const root = document.getElementById("admin-root");
-  let overview, popularity, evAff, evViews, evFunnel, evSearch, recent, engagement, byCountry;
+  let overview, popularity, evAff, evViews, evFunnel, evSearch, recent, engagement, byCountry, affinity, mismatch;
   try {
-    [overview, popularity, evAff, evViews, evFunnel, evSearch, recent, engagement, byCountry] = await Promise.all([
+    [overview, popularity, evAff, evViews, evFunnel, evSearch, recent, engagement, byCountry, affinity, mismatch] = await Promise.all([
       _loadOverview(),
       _loadPopularity(),
       _loadEventsAffiliate(),
@@ -353,6 +363,8 @@ async function _renderDashboard() {
       _loadRecentReviews(),
       _loadEngagement(),
       _loadEngagementByCountry(),
+      _loadStayAffinity(),
+      _loadConditionsMismatch(),
     ]);
   } catch (e) {
     root.innerHTML = `<p class="muted" style="color:var(--clay);">Failed to load admin data: ${_esc(e.message || e)}</p>`;
@@ -374,8 +386,10 @@ async function _renderDashboard() {
       </div>
     </div>
     ${_renderKpis(overview.totals, overview.today)}
+    ${_renderConditionsMismatch(mismatch)}
     ${_renderRecentReviews(recent)}
     ${_renderEngagement(engagement)}
+    ${_renderStayAffinity(affinity)}
     ${_renderByCountry(byCountry)}
     ${_renderUsersTable(overview.users)}
     ${_renderPopularity(popularity)}
@@ -386,6 +400,7 @@ async function _renderDashboard() {
   _wireRecentReviews();
   _wireSearchActions();
   _wireCsvExports();
+  _wireReviewProcessed();
 }
 
 function _renderActivity(evAff, evViews, evFunnel, evSearch) {
@@ -542,8 +557,21 @@ function _renderRecentReviews(payload) {
     const text = (r.text || "").trim();
     const shortText = text.length > 200 ? text.slice(0, 197) + "…" : text;
     const author = r.name || "Anonymous";
+    // Processed-flag UI. If analyzed_at is set, show a sea-soft
+    // "✓ Analyzed" chip with the note + an "undo" link. If not, an
+    // "Mark as analyzed" link that flips us into the note prompt.
+    const isAnalyzed = !!r.analyzed_at;
+    const noteText   = (r.analyzed_note || "").trim();
+    const analyzedChip = isAnalyzed
+      ? `<span class="adm-analyzed-chip" title="Marked ${_fmtDate(r.analyzed_at, true)}${noteText ? ' — ' + noteText.replace(/"/g, "&quot;") : ""}">
+           ✓ analyzed${noteText ? ` — <i>${_esc(noteText.length > 60 ? noteText.slice(0,57) + "…" : noteText)}</i>` : ""}
+         </span>`
+      : "";
+    const analyzedAction = isAnalyzed
+      ? `<button class="link-btn" data-review-unprocess="${_esc(r.id)}">undo analyzed</button>`
+      : `<button class="link-btn" data-review-process="${_esc(r.id)}">mark as analyzed</button>`;
     return `
-      <li class="adm-review-row">
+      <li class="adm-review-row${isAnalyzed ? " is-analyzed" : ""}">
         <div class="adm-review-head">
           <span class="adm-review-stars">${stars}</span>
           <a href="spot.html?id=${encodeURIComponent(r.entry_id)}" target="_blank" rel="noopener" class="adm-review-spot">
@@ -551,16 +579,18 @@ function _renderRecentReviews(payload) {
           </a>
           <span class="muted"> · by ${_esc(author)}</span>
           <span class="muted adm-review-ts"> · ${_fmtDate(r.created_at, true)}</span>
+          ${analyzedChip}
         </div>
         ${shortText ? `<p class="adm-review-text">${_esc(shortText)}</p>` : ""}
         <div class="adm-review-actions">
+          ${analyzedAction}
           <button class="link-btn admin-danger" data-admin-recent-del="${_esc(r.id)}">delete</button>
         </div>
       </li>`;
   }).join("");
   return `<section class="adm-section">
     <h2>Recent reviews ${hint}</h2>
-    <p class="muted adm-table-hint">Newest first across every spot, center and stay. Click the spot to read in context.</p>
+    <p class="muted adm-table-hint">Newest first across every spot, center and stay. Click the spot to read in context. "Mark as analyzed" tags a review as already woven into the write-up — also surfaces a "Used in our write-up" badge to the author on the public page.</p>
     <ul class="adm-review-list">${rows}</ul>
   </section>`;
 }
@@ -581,6 +611,166 @@ function _wireRecentReviews() {
       }
     });
   });
+}
+
+/* ---------- review "mark as analyzed" wiring ----------
+   Both buttons (mark / undo) sit on every review-row in the recent
+   feed. Mark prompts for an optional note via window.prompt — quick
+   and good enough for now; a fancier modal could come later if
+   we want richer formatting. Undo is one-click since it just clears
+   the flag. */
+function _wireReviewProcessed() {
+  document.querySelectorAll("[data-review-process]").forEach(btn => {
+    btn.addEventListener("click", async () => {
+      const id = btn.dataset.reviewProcess;
+      // Optional admin note — empty input is fine, just no badge note.
+      // Null (Cancel) bails out entirely.
+      const note = window.prompt(
+        "Mark this review as analyzed.\n\nOptional note (shown publicly to the author under the 'Used in our write-up' badge):",
+        "",
+      );
+      if (note === null) return;
+      btn.disabled = true;
+      try {
+        const res = await WaveBaseAuth.authFetch(
+          "/admin/reviews/" + encodeURIComponent(id) + "/processed",
+          {
+            method:  "POST",
+            headers: { "Content-Type": "application/json" },
+            body:    JSON.stringify({ note: (note || "").trim() }),
+          },
+        );
+        if (!res.ok) throw new Error("HTTP " + res.status);
+        _renderDashboard();
+      } catch (e) {
+        alert("Couldn't mark as analyzed: " + (e && e.message || e));
+        btn.disabled = false;
+      }
+    });
+  });
+  document.querySelectorAll("[data-review-unprocess]").forEach(btn => {
+    btn.addEventListener("click", async () => {
+      if (!confirm("Clear the analyzed flag? The 'Used in our write-up' badge will disappear from the public page.")) return;
+      const id = btn.dataset.reviewUnprocess;
+      btn.disabled = true;
+      try {
+        const res = await WaveBaseAuth.authFetch(
+          "/admin/reviews/" + encodeURIComponent(id) + "/processed",
+          { method: "DELETE" },
+        );
+        if (!res.ok) throw new Error("HTTP " + res.status);
+        _renderDashboard();
+      } catch (e) {
+        alert("Couldn't undo: " + (e && e.message || e));
+        btn.disabled = false;
+      }
+    });
+  });
+}
+
+/* ---------- stay ↔ spot affinity (admin only) ---------- */
+
+function _renderStayAffinity(payload) {
+  const rows = (payload && payload.rows) || [];
+  if (!rows.length) {
+    return `<section class="adm-section">
+      <h2>Stay ↔ Spot affinity</h2>
+      <p class="muted">No trips with stays yet — nothing to pair up.</p>
+    </section>`;
+  }
+  const trs = rows.map((r, i) => {
+    const stay = _entryById(r.stay_id);
+    const stayName = stay ? stay.name : r.stay_id;
+    const stayTown = stay ? stay.town : "";
+    const pairings = r.pairings.length
+      ? r.pairings.map(p => {
+          const e = _entryById(p.spot_id);
+          const n = e ? e.name : p.spot_id;
+          const t = e ? _typeEmoji(e.type) : "·";
+          return `<span class="adm-aff-pair">${t} <a href="spot.html?id=${encodeURIComponent(p.spot_id)}" target="_blank" rel="noopener">${_esc(n)}</a> <span class="muted">·${p.count}</span></span>`;
+        }).join("")
+      : `<span class="muted">no spots paired yet</span>`;
+    return `
+      <tr>
+        <td class="adm-eng-rank">${i + 1}</td>
+        <td>
+          🏠 <a href="spot.html?id=${encodeURIComponent(r.stay_id)}&type=stay" target="_blank" rel="noopener" class="adm-eng-name">${_esc(stayName)}</a>
+          ${stayTown ? `<span class="muted"> · ${_esc(stayTown)}</span>` : ""}
+        </td>
+        <td class="adm-eng-num">${r.trips}</td>
+        <td>${pairings}</td>
+      </tr>`;
+  }).join("");
+  return `<section class="adm-section">
+    <h2>Stay ↔ Spot affinity</h2>
+    <p class="muted adm-table-hint">For each stay: how many trips include it, plus the top 3 spots/centers that show up in the same trip. Hint at natural routes — "popular pairings" copy could come from here.</p>
+    <div class="adm-table-wrap">
+      <table class="adm-table">
+        <thead>
+          <tr>
+            <th>#</th>
+            <th>Stay</th>
+            <th class="adm-eng-num">Trips</th>
+            <th>Top pairings (spot · times paired)</th>
+          </tr>
+        </thead>
+        <tbody>${trs}</tbody>
+      </table>
+    </div>
+  </section>`;
+}
+
+/* ---------- conditions vs reviews mismatch (admin only) ----------
+   Renders the flagged spots first (where reviewer majority disagrees
+   with our labelled crowd), then the rest as informational rows.
+   "Sample" links jump to each contributing review on the spot page
+   via the existing #review-{id} anchor so the admin can read the
+   original text. */
+
+function _renderConditionsMismatch(payload) {
+  const rows = (payload && payload.rows) || [];
+  const flagged = rows.filter(r => r.flagged);
+  if (!flagged.length) {
+    return `<section class="adm-section adm-mismatch">
+      <h2>Conditions vs reviews</h2>
+      <p class="muted">No conflicts detected — our crowd labels match what reviewers report. (Or there aren't enough reviews yet to disagree.)</p>
+    </section>`;
+  }
+  const labelTxt = lvl => ({low: "Quiet", moderate: "Moderate", high: "Busy"})[lvl] || lvl;
+  const trs = flagged.map(r => {
+    const e = _entryById(r.spot_id);
+    const name = e ? e.name : r.spot_id;
+    const town = e ? e.town : "";
+    const s = r.signals;
+    const breakdown = `<span class="adm-mm-sig">L ${s.low} · M ${s.moderate} · H ${s.high}</span>`;
+    return `
+      <tr>
+        <td>
+          🌊 <a href="spot.html?id=${encodeURIComponent(r.spot_id)}" target="_blank" rel="noopener" class="adm-eng-name">${_esc(name)}</a>
+          ${town ? `<span class="muted"> · ${_esc(town)}</span>` : ""}
+        </td>
+        <td><span class="adm-mm-label">${labelTxt(r.labelled)}</span></td>
+        <td><span class="adm-mm-label adm-mm-label-alert">${labelTxt(r.majority)}</span></td>
+        <td>${breakdown}</td>
+      </tr>`;
+  }).join("");
+  return `<section class="adm-section adm-mismatch">
+    <h2>Conditions vs reviews <span class="adm-pill adm-pill-clay">${flagged.length} flagged</span></h2>
+    <p class="muted adm-table-hint">Reviewers are saying something different from our labelled crowd level. Mark a review as analyzed once you've updated the write-up — it drops out of this list automatically.</p>
+    <div class="adm-table-wrap">
+      <table class="adm-table">
+        <thead>
+          <tr>
+            <th>Spot</th>
+            <th>Our label</th>
+            <th>Reviewer majority</th>
+            <th>Signals (L · M · H)</th>
+          </tr>
+        </thead>
+        <tbody>${trs}</tbody>
+      </table>
+    </div>
+  </section>`;
 }
 
 /* ---------- engagement scoreboard ---------- */

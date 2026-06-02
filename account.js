@@ -722,20 +722,40 @@ const WaveBaseAccount = (function () {
       for (const sr of serverList) {
         if (!localByServerId.has(sr.id)) {
           s.reviews.unshift({
-            id:           "r" + Date.now() + Math.floor(Math.random() * 1000),
-            serverId:     sr.id,
-            entryId:      sr.entry_id,
-            entryType:    sr.entry_type || "spot",
-            stars:        sr.stars,
-            yearVisited:  sr.year_visited || null,
-            monthVisited: sr.month_visited || null,
-            matches:      sr.matches || "",
-            text:         sr.text || "",
-            name:         sr.name || "",
-            details:      sr.details || {},
-            when:         sr.created_at || new Date().toISOString(),
+            id:             "r" + Date.now() + Math.floor(Math.random() * 1000),
+            serverId:       sr.id,
+            entryId:        sr.entry_id,
+            entryType:      sr.entry_type || "spot",
+            stars:          sr.stars,
+            yearVisited:    sr.year_visited || null,
+            monthVisited:   sr.month_visited || null,
+            matches:        sr.matches || "",
+            text:           sr.text || "",
+            name:           sr.name || "",
+            details:        sr.details || {},
+            when:           sr.created_at || new Date().toISOString(),
+            // Analyzed-by-admin marker — used by My-reviews block on
+            // the account page to render a "Used in our write-up"
+            // badge so the author can see their input was folded into
+            // our write-up.
+            analyzedAt:     sr.analyzed_at  || null,
+            analyzedNote:   sr.analyzed_note || null,
+            analyzedByName: sr.analyzed_by_name || null,
           });
           changed = true;
+        } else {
+          // Already have this review locally — keep analyzed_* in
+          // sync so the badge appears/disappears across devices when
+          // we mark/unmark on admin.
+          const local = localByServerId.get(sr.id);
+          if (local.analyzedAt   !== (sr.analyzed_at      || null) ||
+              local.analyzedNote !== (sr.analyzed_note    || null) ||
+              local.analyzedByName !== (sr.analyzed_by_name || null)) {
+            local.analyzedAt     = sr.analyzed_at      || null;
+            local.analyzedNote   = sr.analyzed_note    || null;
+            local.analyzedByName = sr.analyzed_by_name || null;
+            changed = true;
+          }
         }
       }
       // Push local-only reviews up (anon submissions made before

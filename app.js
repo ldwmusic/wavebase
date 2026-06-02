@@ -129,6 +129,23 @@ function _renderReviewText(r, st) {
     <button type="button" class="link-btn my-review-toggle" data-toggle-text="${escHTML(r.id)}">show more</button>
   </p>`;
 }
+/* "Used in our write-up" badge — shown when admin has marked a
+   review as analyzed. The author sees their input mattered; other
+   readers see this is a review the editors leaned on. Optional
+   admin note appears as italic context after the badge label.
+   Returns an empty string if the review isn't flagged so callers
+   can drop it into any template unconditionally. */
+function _renderAnalyzedBadge(r) {
+  if (!r || !r.analyzed_at) return "";
+  const note = (r.analyzed_note || "").trim();
+  const by   = (r.analyzed_by_name || "").trim();
+  const meta = `Marked ${_fmtReviewDate(r.analyzed_at)}${by ? " by " + by : ""}`;
+  return `<div class="my-review-analyzed" title="${escHTML(meta)}">
+    <span class="my-review-analyzed-icon" aria-hidden="true">✓</span>
+    <span class="my-review-analyzed-label">Used in our write-up</span>
+    ${note ? `<span class="my-review-analyzed-note">— <i>${escHTML(note)}</i></span>` : ""}
+  </div>`;
+}
 async function _refreshSpotReviews(entryId) {
   const el = document.getElementById("reviews-list-" + entryId);
   if (!el) return;
@@ -332,6 +349,7 @@ async function _refreshSpotReviews(entryId) {
       <div class="my-review-meta">${matchTag}${visited ? ` <span class="muted">visited ${visited}</span>` : ""} <span class="muted">posted ${_fmtReviewDate(r.created_at)}</span></div>
       ${_renderReviewText(r, st)}
       ${detailPills ? `<div class="my-review-details">${detailPills}</div>` : ""}
+      ${_renderAnalyzedBadge(r)}
       <div class="my-review-reactions">
         ${helpfulBtn}
         ${replyBtn}
@@ -7073,6 +7091,14 @@ function renderAccount() {
         const editLink = (entry)
           ? `<a class="link-btn" href="spot.html?id=${encodeURIComponent(entry.id)}#edit-review-${escHTML(r.id)}">edit</a>`
           : "";
+        // Map local schema → the shape _renderAnalyzedBadge expects
+        // (camelCase here, snake_case on the wire). Cheap one-shot
+        // alias so we don't fork the helper.
+        const analyzedShim = {
+          analyzed_at:      r.analyzedAt,
+          analyzed_note:    r.analyzedNote,
+          analyzed_by_name: r.analyzedByName,
+        };
         return `<li class="my-review" data-review="${r.id}">
           <div class="my-review-head">
             <div class="my-review-where">${where}</div>
@@ -7084,6 +7110,7 @@ function renderAccount() {
           <div class="my-review-meta">${stars} ${matchTag} <span class="muted">${date}${author}${visited}</span></div>
           ${detailPills ? `<div class="my-review-details">${detailPills}</div>` : ""}
           ${r.text ? `<p class="my-review-text">${escHTML(r.text)}</p>` : ""}
+          ${_renderAnalyzedBadge(analyzedShim)}
         </li>`;
       }).join("")}</ul>`
     : `<p class="muted">No reviews yet. Use any spot, center or stay page — the review form at the bottom saves a preview here.</p>`;
