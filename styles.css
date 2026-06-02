@@ -2671,11 +2671,12 @@ body:not(.is-home) .searchbar-wrap { display: none; }
 .my-review-match.match-yes     { background: var(--sea-soft); color: var(--sea); }
 .my-review-match.match-partial { background: var(--amber-soft); color: #8a5a14; }
 .my-review-match.match-no      { background: var(--clay-soft); color: var(--clay); }
-/* The reviewer's actual prose — promoted to the visual anchor.
-   Slightly larger, serif for the editorial voice. */
+/* The reviewer's actual prose. Same font + weight as a reply (it
+   IS body text, not a heading) — Fraunces serif made it read like
+   a title. DM Sans inherits from body. */
 .my-review-text {
-  font-family: 'Fraunces', Georgia, serif;
-  font-size: 17px; line-height: 1.5;
+  font-size: 15px; line-height: 1.5;
+  font-weight: 400;
   margin: 4px 0 0;
   color: var(--ink);
 }
