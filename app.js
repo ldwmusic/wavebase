@@ -294,7 +294,19 @@ function typeColor(t) {
   if (t === "center") return "#e0a447";  // amber — surf centers
   return "#bd6242";                       // orange — stays
 }
-function crowdLabel(n) { return { rustig: "Quiet", gemiddeld: "Moderate", druk: "Busy" }[n] || n; }
+// Crowd values arrive from the API as "low" / "moderate" / "high".
+// We translate to friendly capitalised words for display. The
+// trailing fallback covers a stray legacy Dutch key (rustig / druk /
+// laag / hoog) lingering anywhere — they all map to their English
+// equivalent so nothing leaks through as Dutch on screen.
+function crowdLabel(n) {
+  return ({
+    low: "Quiet", moderate: "Moderate", high: "Busy",
+    rustig: "Quiet", laag: "Quiet",
+    gemiddeld: "Moderate",
+    druk: "Busy", hoog: "Busy",
+  })[n] || n;
+}
 function thumbStyle(e) { return e.photo ? ` style="background-image:url('${e.photo}')"` : ""; }
 
 /* ---- nav: account label + compare count ---- */
@@ -364,9 +376,12 @@ function fmtRange(arr, unit) {
 }
 
 function crowdLabelText(c) {
-  if (c === "low" || c === "laag")        return "low";
-  if (c === "moderate" || c === "gemiddeld") return "moderate";
-  if (c === "high" || c === "hoog")       return "high";
+  // Lowercase-English variant used as the secondary "(quiet)" note
+  // next to the crowd dots. Catches every legacy key just like
+  // crowdLabel does.
+  if (c === "low"      || c === "laag"      || c === "rustig")    return "quiet";
+  if (c === "moderate" || c === "gemiddeld")                       return "moderate";
+  if (c === "high"     || c === "hoog"      || c === "druk")       return "busy";
   return c || "—";
 }
 
@@ -3595,8 +3610,13 @@ function educationalHTML(items) {
 }
 
 function druktelIndicator(niveau) {
-  const order = ["rustig", "gemiddeld", "druk"];
-  const idx = order.indexOf(niveau);
+  // Accept both the English API values and the legacy Dutch keys
+  // — same trailing-fallback approach as crowdLabel so a stray
+  // Dutch token never produces a blank bar.
+  const order = ["low", "moderate", "high"];
+  const dutchToEn = { rustig: "low", laag: "low", gemiddeld: "moderate", druk: "high", hoog: "high" };
+  const norm = dutchToEn[niveau] || niveau;
+  const idx = order.indexOf(norm);
   const segs = [0, 1, 2].map(i =>
     `<span class="drukte-seg${i <= idx ? " on " + niveau : ""}"></span>`).join("");
   return `<span class="drukte-bar" title="${crowdLabel(niveau)}">${segs}</span>`;
@@ -4967,6 +4987,17 @@ function surfLogSpotsPanel(country) {
   const byTown = {};
   spots.forEach(e => { (byTown[e.town] = byTown[e.town] || []).push(e); });
   const towns = Object.keys(byTown).sort();
+  // Empty country (clicked on the map but not on WaveBase yet) —
+  // give the user a friendly note + a way to nudge us to add it,
+  // instead of a silent empty panel.
+  if (!towns.length) {
+    return `<div class="surflog-empty">
+      <p><strong>${escHTML(country)}</strong> isn&rsquo;t on WaveBase yet.</p>
+      <p class="muted">We&rsquo;re adding regions one at a time, honestly. If you&rsquo;d like to see ${escHTML(country)} next, drop us a line at
+      <a href="mailto:info@wavebase.com?subject=${encodeURIComponent('Add ' + country + ' to WaveBase')}">info@wavebase.com</a>
+      and tell us which spots matter to you.</p>
+    </div>`;
+  }
   return `<div class="surflog-spots">` + towns.map(town => `
     <div class="surflog-town">
       <div class="surflog-town-name">${escHTML(town)}</div>
@@ -5030,8 +5061,15 @@ function surfLogHTML() {
     <div class="surflog-regions" id="surflog-regions">${surfLogRegionsHTML(d, null)}</div>
     <div id="surflog-panel"></div>
     <div class="surflog-map-wrap">
-      <div class="surflog-map" id="surflog-map" aria-label="Map — tap a country to tick off its spots"></div>
-      <p class="surflog-map-cap">Green = surfed · teal = spots to discover. Tap a highlighted country to tick off its spots.</p>
+      <div class="surflog-map" id="surflog-map" aria-label="Map — tap a country to tick off its spots">
+        <div class="surflog-map-zoom" role="group" aria-label="Map zoom">
+          <button type="button" class="surflog-map-zoom-btn" data-zoom="in"  aria-label="Zoom in">+</button>
+          <button type="button" class="surflog-map-zoom-btn" data-zoom="out" aria-label="Zoom out">&minus;</button>
+          <button type="button" class="surflog-map-zoom-btn" data-zoom="reset" aria-label="Reset zoom" title="Reset">&#x21BB;</button>
+        </div>
+        <div class="surflog-map-scroll" id="surflog-map-scroll"></div>
+      </div>
+      <p class="surflog-map-cap">Green = surfed · teal = spots to discover. Tap a country to see its spots (or to find out it's not on WaveBase yet). Pinch to zoom on mobile; use the buttons on desktop.</p>
     </div>
   </section>`;
 }
@@ -5161,9 +5199,20 @@ function wireSurfLogSearch(sec) {
    countries with spots-but-not-yet-surfed teal, the rest plain. WaveBase
    countries are clickable (open their spots panel). If the SVG is already
    loaded, just re-tag it (no re-fetch). */
+/* Surf log world map. Renders the bundled worldmap.svg, tags each
+   country with classes (surfed / available / etc.), and wires
+   click-to-open-panel for ALL countries — not just WaveBase ones —
+   so a click on Indonesia surfaces "no spots yet" rather than
+   ignoring the gesture.
+   Zoom: a 1x → 4x CSS transform driven by the +/-/reset buttons,
+   with overflow:auto on the scroll container so the user can pan
+   when zoomed in. Pinch on touch devices works for free via the
+   browser's native pinch-zoom on the transformed element. */
+let _surflogZoom = 1;
 function renderSurfLogMap() {
   const host = document.getElementById("surflog-map");
-  if (!host || typeof COUNTRY_TO_ISO === "undefined") return;
+  const scroll = document.getElementById("surflog-map-scroll");
+  if (!host || !scroll || typeof COUNTRY_TO_ISO === "undefined") return;
   const surfedIds = new Set(WaveBaseAccount.getSurfed());
   const surfedCountries = new Set(), spotCountries = new Set();
   WAVEBASE_DATA.forEach(e => {
@@ -5183,30 +5232,66 @@ function renderSurfLogMap() {
       const isWaveBase = !!(name && spotCountries.has(name));
       node.classList.toggle("country-surfed", !!(name && surfedCountries.has(name)));
       node.classList.toggle("country-available", isWaveBase && !surfedCountries.has(name));
-      if (isWaveBase) node.setAttribute("data-country", name);
+      // Every named country is now clickable, not just WaveBase ones.
+      // Non-WaveBase countries fall through to a "no spots yet"
+      // panel in refreshSurfLog → surfLogPanelHTML.
+      if (name) node.setAttribute("data-country", name);
     });
   }
-  const existing = host.querySelector("svg");
-  if (existing) { tag(existing); return; }
+  function applyZoom() {
+    const svg = scroll.querySelector("svg");
+    if (!svg) return;
+    svg.style.transform = "scale(" + _surflogZoom + ")";
+    svg.style.transformOrigin = "0 0";
+    // When zoomed-in the SVG is wider/taller than the scroll
+    // container — overflow:auto on .surflog-map-scroll gives the
+    // user pan via touch / scroll-wheel-shift.
+  }
+  const existing = scroll.querySelector("svg");
+  if (existing) { tag(existing); applyZoom(); return; }
   fetch("worldmap.svg")
     .then(r => r.ok ? r.text() : Promise.reject(r.status))
     .then(svgText => {
-      host.innerHTML = svgText;
-      const svg = host.querySelector("svg");
+      scroll.innerHTML = svgText;
+      const svg = scroll.querySelector("svg");
       if (!svg) return;
       svg.removeAttribute("width");
       svg.removeAttribute("height");
       svg.setAttribute("preserveAspectRatio", "xMidYMid meet");
       svg.classList.add("surflog-svg");
       tag(svg);
-      // Click a highlighted country → open its spots panel. Delegation,
-      // added once — the SVG node persists across surf-log refreshes.
-      host.addEventListener("click", e => {
+      applyZoom();
+      // Click a country → open its spots panel. Works for both
+      // WaveBase countries (shows spots) and empty ones (shows the
+      // "not on WaveBase yet" message). Delegation added once —
+      // the SVG node persists across surf-log refreshes.
+      scroll.addEventListener("click", e => {
         const node = e.target.closest("[data-country]");
         if (node) refreshSurfLog(node.getAttribute("data-country"), true);
       });
+      // Zoom buttons. Clamped to 1..4. Reset returns to 1 + scrolls
+      // back to top-left so the user isn't stranded in the middle
+      // of the Pacific after a deep zoom.
+      host.querySelectorAll(".surflog-map-zoom-btn").forEach(btn => {
+        btn.addEventListener("click", () => {
+          const action = btn.dataset.zoom;
+          if (action === "in")    _surflogZoom = Math.min(4, _surflogZoom + 0.5);
+          if (action === "out")   _surflogZoom = Math.max(1, _surflogZoom - 0.5);
+          if (action === "reset") { _surflogZoom = 1; scroll.scrollTo(0, 0); }
+          applyZoom();
+        });
+      });
+      // Mouse-wheel zoom (with Ctrl/Cmd held — matches Google Maps).
+      // Plain wheel still scrolls the page; Ctrl-wheel zooms the map.
+      scroll.addEventListener("wheel", e => {
+        if (!(e.ctrlKey || e.metaKey)) return;
+        e.preventDefault();
+        const delta = e.deltaY > 0 ? -0.25 : 0.25;
+        _surflogZoom = Math.max(1, Math.min(4, _surflogZoom + delta));
+        applyZoom();
+      }, { passive: false });
     })
-    .catch(() => { host.innerHTML = `<p class="muted" style="padding:14px;">Map unavailable.</p>`; });
+    .catch(() => { scroll.innerHTML = `<p class="muted" style="padding:14px;">Map unavailable.</p>`; });
 }
 
 /* "+ Add a place" — add spots/stays/centers to a trip from its own

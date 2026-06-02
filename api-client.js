@@ -22,8 +22,13 @@
 
 const WAVEBASE_API = "https://wavebase-api-qqwt.onrender.com";
 
-// English → Dutch crowd level (reverse of the seed mapping)
-const _API_CROWD_TO_NL = { low: "rustig", moderate: "gemiddeld", high: "druk" };
+// Crowd values pass through as-is from the API: "low" | "moderate"
+// | "high". The frontend's crowdLabel() turns them into the
+// human-facing "Quiet / Moderate / Busy" at render time. We used to
+// translate to Dutch keys here (rustig/gemiddeld/druk) and then re-
+// translate to English at display — round-trip noise that bit us
+// when crowdLabelText didn't recognise the Dutch keys (LDW: "ik zie
+// nog steeds druk/rustig").
 
 
 /* ---------- nested reverse-mappers ---------- */
@@ -49,7 +54,7 @@ function _apiToFrontendConditions(c) {
   };
   if (c.crowd) {
     out.drukte = {
-      niveau: _API_CROWD_TO_NL[c.crowd.level] || c.crowd.level,
+      niveau: c.crowd.level,
       tekst:  c.crowd.note || "",
     };
   }
@@ -62,7 +67,7 @@ function _apiToFrontendStats(s) {
     windDir:            s.wind_direction || undefined,
     waveType:           s.wave_type      || undefined,
     bottom:             s.bottom         || undefined,
-    crowd:              _API_CROWD_TO_NL[s.crowd] || s.crowd,
+    crowd:              s.crowd,
     localism:           s.localism       || undefined,
     source:             s.source         || undefined,
     periods: (s.periods || []).map(p => ({
