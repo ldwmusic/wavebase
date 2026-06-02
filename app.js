@@ -33,6 +33,20 @@
 function cap(s) { return s.charAt(0).toUpperCase() + s.slice(1); }
 function byId(id) { return WAVEBASE_DATA.find(x => x.id === id); }
 
+/* Admin detection — mirrored from admin.js + account.js. Used on
+   spot pages to surface moderation controls (delete review / reply
+   to review) only when the signed-in user is one of us. Server is
+   still the authoritative gate (every /admin/* endpoint enforces
+   the same allowlist) — this is purely UX. */
+const _WAVEBASE_ADMIN_EMAILS = ["lode.b162@gmail.com", "michiel.decooman@gmail.com"];
+function _currentAdminEmail() {
+  if (typeof WaveBaseAuth === "undefined" || !WaveBaseAuth.isLoggedIn()) return null;
+  const u = WaveBaseAuth.currentUser();
+  const e = (u && u.email || "").toLowerCase();
+  return _WAVEBASE_ADMIN_EMAILS.indexOf(e) === -1 ? null : e;
+}
+function isWaveBaseAdmin() { return !!_currentAdminEmail(); }
+
 /* ---- public reviews for a spot/center/stay page ---- */
 /* Fetches GET /reviews/?entry_id=X (public, no auth needed) and
    renders the list inside #reviews-list-{entryId}. Called once at
@@ -106,6 +120,11 @@ async function _refreshSpotReviews(entryId) {
   const myLocalReviews = (typeof WaveBaseAccount !== "undefined")
     ? WaveBaseAccount.getReviews().filter(r => r.entryId === entryId)
     : [];
+  // Admin moderation. When signed in as Lode/Michiel, every review
+  // gets an admin Delete + Reply button (in addition to the owner's
+  // own controls if they're authoring this review). Server is still
+  // the authoritative gate.
+  const admin = isWaveBaseAdmin();
 
   const html = reviews.map(r => {
     const isMine     = myUserId && r.user_id === myUserId;
@@ -129,8 +148,40 @@ async function _refreshSpotReviews(entryId) {
           <button class="link-btn" data-del-review="${escHTML(local.id)}" aria-label="Delete review">remove</button>
         </div>`
       : "";
+    // Admin tools row — shown to admins on EVERY review (including
+    // their own, separately from the owner-actions block above).
+    const adminActions = admin
+      ? `<div class="my-review-admin-actions">
+          <span class="admin-chip-mini" title="You're seeing this because you're a WaveBase admin">admin</span>
+          <button class="link-btn" data-admin-reply-toggle="${escHTML(r.id)}">reply</button>
+          <button class="link-btn admin-danger" data-admin-del-review="${escHTML(r.id)}" aria-label="Admin delete review">delete</button>
+        </div>`
+      : "";
     const yourBadge = isMine
       ? `<span class="my-review-mine-badge">Your review</span>`
+      : "";
+    // Render existing replies (everyone sees these; only admins can
+    // delete them).
+    const repliesHTML = (r.replies && r.replies.length)
+      ? `<div class="review-replies">${r.replies.map(rep => `
+          <div class="review-reply" data-reply-id="${escHTML(rep.id || '')}">
+            <div class="review-reply-head">
+              <strong>${escHTML(rep.name || 'WaveBase')}</strong>
+              <span class="muted"> · WaveBase team · ${_fmtReviewDate(rep.created_at)}</span>
+              ${admin ? `<button class="link-btn admin-danger" data-admin-del-reply="${escHTML(r.id)}|${escHTML(rep.id || '')}" aria-label="Admin delete reply">delete</button>` : ""}
+            </div>
+            <p class="review-reply-text">${escHTML(rep.text || '')}</p>
+          </div>`).join("")}</div>`
+      : "";
+    // Hidden reply composer — toggled open by the admin "reply" button.
+    const replyComposer = admin
+      ? `<div class="review-reply-form" id="reply-form-${escHTML(r.id)}" hidden>
+          <textarea class="review-reply-input" placeholder="Reply as WaveBase…" rows="2"></textarea>
+          <div class="review-reply-form-actions">
+            <button class="btn btn-small" data-admin-reply-send="${escHTML(r.id)}">Post reply</button>
+            <button class="link-btn" data-admin-reply-cancel="${escHTML(r.id)}">Cancel</button>
+          </div>
+        </div>`
       : "";
     return `<li class="my-review${isMine ? " my-review-mine" : ""}">
       <div class="my-review-head">
@@ -140,6 +191,9 @@ async function _refreshSpotReviews(entryId) {
       <div class="my-review-meta">${matchTag}${visited ? ` <span class="muted">visited ${visited}</span>` : ""} <span class="muted">posted ${_fmtReviewDate(r.created_at)}</span></div>
       ${detailPills ? `<div class="my-review-details">${detailPills}</div>` : ""}
       ${r.text ? `<p class="my-review-text">${escHTML(r.text)}</p>` : ""}
+      ${repliesHTML}
+      ${replyComposer}
+      ${adminActions}
     </li>`;
   }).join("");
   el.innerHTML = `<ul class="my-reviews">${html}</ul>`;
@@ -160,6 +214,81 @@ async function _refreshSpotReviews(entryId) {
     btn.addEventListener("click", () => {
       if (typeof window._enterReviewEditMode === "function") {
         window._enterReviewEditMode(btn.dataset.editReview);
+      }
+    });
+  });
+  // --- admin moderation wiring (no-ops for non-admin DOMs since
+  // the buttons aren't rendered in that case) ---
+  // Admin delete: blow away ANY review (including someone else's).
+  el.querySelectorAll("[data-admin-del-review]").forEach(btn => {
+    btn.addEventListener("click", async () => {
+      if (!confirm("Admin-delete this review? This is permanent.")) return;
+      try {
+        const API = (typeof WAVEBASE_API !== "undefined") ? WAVEBASE_API : "";
+        const res = await WaveBaseAuth.authFetch("/admin/reviews/" + encodeURIComponent(btn.dataset.adminDelReview), { method: "DELETE" });
+        if (!res.ok) throw new Error("HTTP " + res.status);
+        _refreshSpotReviews(entryId);
+      } catch (e) {
+        alert("Couldn't delete review: " + (e && e.message || e));
+      }
+    });
+  });
+  // Toggle the reply composer open / closed.
+  el.querySelectorAll("[data-admin-reply-toggle]").forEach(btn => {
+    btn.addEventListener("click", () => {
+      const id = btn.dataset.adminReplyToggle;
+      const form = document.getElementById("reply-form-" + id);
+      if (!form) return;
+      form.hidden = !form.hidden;
+      if (!form.hidden) {
+        const ta = form.querySelector("textarea");
+        if (ta) ta.focus();
+      }
+    });
+  });
+  el.querySelectorAll("[data-admin-reply-cancel]").forEach(btn => {
+    btn.addEventListener("click", () => {
+      const form = document.getElementById("reply-form-" + btn.dataset.adminReplyCancel);
+      if (form) { form.hidden = true; const ta = form.querySelector("textarea"); if (ta) ta.value = ""; }
+    });
+  });
+  // POST the reply.
+  el.querySelectorAll("[data-admin-reply-send]").forEach(btn => {
+    btn.addEventListener("click", async () => {
+      const id = btn.dataset.adminReplySend;
+      const form = document.getElementById("reply-form-" + id);
+      if (!form) return;
+      const ta = form.querySelector("textarea");
+      const text = (ta && ta.value || "").trim();
+      if (!text) { if (ta) ta.focus(); return; }
+      try {
+        const res = await WaveBaseAuth.authFetch("/admin/reviews/" + encodeURIComponent(id) + "/reply", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ text }),
+        });
+        if (!res.ok) throw new Error("HTTP " + res.status);
+        _refreshSpotReviews(entryId);
+      } catch (e) {
+        alert("Couldn't post reply: " + (e && e.message || e));
+      }
+    });
+  });
+  // Delete a single reply.
+  el.querySelectorAll("[data-admin-del-reply]").forEach(btn => {
+    btn.addEventListener("click", async () => {
+      const [reviewId, replyId] = String(btn.dataset.adminDelReply || "").split("|");
+      if (!reviewId || !replyId) return;
+      if (!confirm("Delete this reply?")) return;
+      try {
+        const res = await WaveBaseAuth.authFetch(
+          "/admin/reviews/" + encodeURIComponent(reviewId) + "/reply/" + encodeURIComponent(replyId),
+          { method: "DELETE" },
+        );
+        if (!res.ok) throw new Error("HTTP " + res.status);
+        _refreshSpotReviews(entryId);
+      } catch (e) {
+        alert("Couldn't delete reply: " + (e && e.message || e));
       }
     });
   });
@@ -5209,6 +5338,10 @@ function wireSurfLogSearch(sec) {
    when zoomed in. Pinch on touch devices works for free via the
    browser's native pinch-zoom on the transformed element. */
 let _surflogZoom = 1;
+/* Transform-origin for the zoom. Defaults to centre so the +/- buttons
+   zoom from the visual middle. The wheel handler overrides it per-event
+   to the cursor position (Google-Maps style). */
+let _surflogZoomOrigin = "50% 50%";
 function renderSurfLogMap() {
   const host = document.getElementById("surflog-map");
   const scroll = document.getElementById("surflog-map-scroll");
@@ -5228,24 +5361,34 @@ function renderSurfLogMap() {
       const iso = node.getAttribute("id");
       if (!iso || typeof ISO_TO_CONTINENT === "undefined" || !ISO_TO_CONTINENT[iso]) return;
       node.classList.add("country");
-      const name = isoToName[iso];
-      const isWaveBase = !!(name && spotCountries.has(name));
-      node.classList.toggle("country-surfed", !!(name && surfedCountries.has(name)));
+      // Prefer the friendly name (e.g. "Indonesia") if we have it
+      // in our COUNTRY_TO_ISO map; otherwise fall back to the ISO
+      // attr value so the click still lands on a real country —
+      // refreshSurfLog will then show the generic "not on WaveBase
+      // yet" panel. This was the silent bug: only ~30 countries in
+      // COUNTRY_TO_ISO meant only those 30 were clickable.
+      const name = isoToName[iso] || (node.getAttribute("title") || iso.toUpperCase());
+      const isWaveBase = !!(isoToName[iso] && spotCountries.has(isoToName[iso]));
+      node.classList.toggle("country-surfed", !!(isoToName[iso] && surfedCountries.has(isoToName[iso])));
       node.classList.toggle("country-available", isWaveBase && !surfedCountries.has(name));
-      // Every named country is now clickable, not just WaveBase ones.
-      // Non-WaveBase countries fall through to a "no spots yet"
-      // panel in refreshSurfLog → surfLogPanelHTML.
-      if (name) node.setAttribute("data-country", name);
+      node.setAttribute("data-country", name);
     });
   }
+  /* Zoom. transform-origin needs care:
+     - For the +/-/reset buttons we want the SVG to grow OUT FROM
+       the centre of the visible viewport, so the country the user
+       is looking at stays roughly in frame.
+     - For wheel-zoom we want it to grow around the cursor
+       (Google-Maps-style), so we let the wheel handler set
+       transformOrigin per-event before calling applyZoom.
+     `_surflogZoomOrigin` defaults back to "50% 50%" after every
+     button-driven zoom so subsequent button presses zoom from the
+     visual centre, not from wherever the last wheel-zoom left it. */
   function applyZoom() {
     const svg = scroll.querySelector("svg");
     if (!svg) return;
     svg.style.transform = "scale(" + _surflogZoom + ")";
-    svg.style.transformOrigin = "0 0";
-    // When zoomed-in the SVG is wider/taller than the scroll
-    // container — overflow:auto on .surflog-map-scroll gives the
-    // user pan via touch / scroll-wheel-shift.
+    svg.style.transformOrigin = _surflogZoomOrigin || "50% 50%";
   }
   const existing = scroll.querySelector("svg");
   if (existing) { tag(existing); applyZoom(); return; }
@@ -5269,23 +5412,47 @@ function renderSurfLogMap() {
         const node = e.target.closest("[data-country]");
         if (node) refreshSurfLog(node.getAttribute("data-country"), true);
       });
-      // Zoom buttons. Clamped to 1..4. Reset returns to 1 + scrolls
-      // back to top-left so the user isn't stranded in the middle
-      // of the Pacific after a deep zoom.
+      // Zoom buttons. Clamped to 1..4. Always grow from the centre
+      // of the visible viewport so the user stays oriented — reset
+      // also re-centers via scrollTo. Reset clears the wheel origin
+      // so subsequent button-zooms behave predictably.
       host.querySelectorAll(".surflog-map-zoom-btn").forEach(btn => {
         btn.addEventListener("click", () => {
           const action = btn.dataset.zoom;
+          _surflogZoomOrigin = "50% 50%";
           if (action === "in")    _surflogZoom = Math.min(4, _surflogZoom + 0.5);
           if (action === "out")   _surflogZoom = Math.max(1, _surflogZoom - 0.5);
-          if (action === "reset") { _surflogZoom = 1; scroll.scrollTo(0, 0); }
+          if (action === "reset") {
+            _surflogZoom = 1;
+            // Re-center scrollbars too — otherwise after a wheel-zoom
+            // the scroll position can be miles off and reset would
+            // leave the user looking at empty space.
+            const sw = scroll.scrollWidth, sh = scroll.scrollHeight;
+            scroll.scrollTo({
+              left: Math.max(0, (sw - scroll.clientWidth) / 2),
+              top:  Math.max(0, (sh - scroll.clientHeight) / 2),
+            });
+          }
           applyZoom();
         });
       });
-      // Mouse-wheel zoom (with Ctrl/Cmd held — matches Google Maps).
-      // Plain wheel still scrolls the page; Ctrl-wheel zooms the map.
+      // Mouse-wheel zoom (Ctrl/Cmd held — matches Google Maps).
+      // Plain wheel still scrolls the page; Ctrl-wheel zooms toward
+      // the cursor so the country under the mouse stays put.
       scroll.addEventListener("wheel", e => {
         if (!(e.ctrlKey || e.metaKey)) return;
         e.preventDefault();
+        // Compute cursor position relative to the SVG and feed that
+        // as the transform-origin percentage. getBoundingClientRect
+        // already accounts for the current scale, so the math holds
+        // at any zoom level.
+        const svg = scroll.querySelector("svg");
+        if (svg) {
+          const r = svg.getBoundingClientRect();
+          const px = Math.max(0, Math.min(100, ((e.clientX - r.left) / r.width)  * 100));
+          const py = Math.max(0, Math.min(100, ((e.clientY - r.top)  / r.height) * 100));
+          _surflogZoomOrigin = px + "% " + py + "%";
+        }
         const delta = e.deltaY > 0 ? -0.25 : 0.25;
         _surflogZoom = Math.max(1, Math.min(4, _surflogZoom + delta));
         applyZoom();

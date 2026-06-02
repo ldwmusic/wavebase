@@ -6226,6 +6226,64 @@ button.rml-key.off .rml-dot {
   display: flex; gap: 12px; align-items: center;
 }
 
+/* ---- Admin moderation row on reviews (Lode + Michiel only). ----
+   Sits at the bottom of every review card, separated from the
+   user-facing content by a thin top border so it's clearly an
+   internal control surface — not something the public sees. */
+.my-review-admin-actions {
+  display: flex; gap: 10px; align-items: center;
+  margin-top: 10px; padding-top: 10px;
+  border-top: 1px dashed var(--line);
+  font-size: 13px;
+}
+.admin-chip-mini {
+  display: inline-block;
+  font-size: 11px; font-weight: 700;
+  background: var(--sea); color: #fff;
+  padding: 2px 7px; border-radius: 10px;
+  letter-spacing: 0.04em;
+}
+.link-btn.admin-danger { color: #c0392b; }
+.link-btn.admin-danger:hover { color: #a02818; }
+
+/* Replies under a review — public-facing (everyone sees them) but
+   only admins can add / remove them. Indented + light fill so they
+   read as a response, not a peer review. */
+.review-replies {
+  margin-top: 10px;
+  display: flex; flex-direction: column; gap: 8px;
+}
+.review-reply {
+  background: var(--sea-soft);
+  border-left: 3px solid var(--sea);
+  border-radius: 8px;
+  padding: 8px 12px;
+}
+.review-reply-head {
+  display: flex; gap: 8px; align-items: center; flex-wrap: wrap;
+  font-size: 13px;
+}
+.review-reply-text {
+  margin: 4px 0 0; font-size: 14px; color: var(--ink);
+}
+
+/* The reply composer — hidden by default, toggled open by the admin
+   "reply" button. */
+.review-reply-form {
+  margin-top: 10px;
+  display: flex; flex-direction: column; gap: 8px;
+}
+.review-reply-input {
+  width: 100%; box-sizing: border-box;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  padding: 8px 10px;
+  font: inherit; resize: vertical;
+}
+.review-reply-form-actions {
+  display: flex; gap: 12px; align-items: center;
+}
+
 .acc-onboard-head { margin-bottom: 20px; }
 .acc-onboard-head .kicker { margin: 0 0 6px; }
 .acc-onboard-head h1 { margin: 0 0 8px; }
