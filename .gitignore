@@ -5,7 +5,12 @@ desktop.ini
 Thumbs.db
 *.pyc
 __pycache__/
-.claude/
+# Ignore everything Claude Code writes locally (cache, transcripts,
+# settings) EXCEPT project-scoped skills — those describe shared
+# workflows that we want versioned alongside the codebase.
+.claude/*
+!.claude/skills/
+!.claude/skills/**
 
 # Design references / project docs — not part of the deployed site
 *.pdf
