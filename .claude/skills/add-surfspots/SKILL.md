@@ -40,10 +40,29 @@ land before back-filling `linked_spot_id`.
 
 ## The reference shape — match Belgium / Greece / Morocco
 
-The bar is set by spots like **Oostduinkerke-Bad** (Belgium),
-**Kouremenos Beach** (Greece) and **Imsouane** (Morocco). Every new spot
-must carry the same rich shape. Anything thinner reads as half-finished and
-breaks the consistency that makes the site feel trustworthy.
+The bar is set by spots that are already live. Always sanity-check your
+draft against ONE of these three reference spots before previewing:
+
+- **Oostduinkerke-Bad** (Belgium) — beach-break shape, editorial layers
+  ("Why surfers come here vs. other Belgian beaches" + "What the data
+  actually says"), Marine API + KMI climatology fallback for water_c.
+- **Kouremenos Beach** (Greece) — wind-driven spot, topic-block layers
+  ("The wind & water" + "The region & getting there"), East Crete
+  climatology fallback for water_c.
+- **Anchor Point** (Morocco) — point-break shape, single layer ("The
+  surf"), uses **Windguru GFS-Wave 16km archive** for waves because
+  Open-Meteo Marine returned nulls for that coord. Wave-source fallback
+  is real and pre-approved.
+
+Every new spot must carry the same rich shape. Anything thinner reads as
+half-finished and breaks the consistency that makes the site feel
+trustworthy.
+
+Pull the reference live with:
+```
+curl -s "https://wavebase-api-qqwt.onrender.com/surf-spots/" \
+  | python3 -c "import json,sys; print(json.dumps([x for x in json.load(sys.stdin) if x['name']=='Oostduinkerke-Bad'][0], indent=2))"
+```
 
 Per spot you fill:
 
@@ -60,7 +79,7 @@ Per spot you fill:
 | `photo` | URL | Optional — leave null if no clean rights-cleared photo |
 | `summary[]` | 3-6 short prose bullets, honest | Distilled from research |
 | `story[]` | 1-3 paragraph narrative block | Editorial voice, source-backed |
-| `layers[]` | Layered detail panels with proper source attribution | Recent reviews + spot guides |
+| `layers[]` | Layered detail panels — title set is **free per spot**, not a fixed vocabulary. Pick titles that fit the spot's character (editorial-comparative like Oostduinkerke, topic-block like Kouremenos, or a single panel like Anchor Point). 1-3 layers is typical. | Recent reviews + spot guides; cite each one in `layer.source` |
 | `educational[]` | Q&A accordion ("Why this spot is like this") | Surf-guide reasoning + reviews |
 | `conditions` | At-a-glance prose: wave_type, wave_height, wind, water, crowd | Combined sources |
 | `stats` | Structured data: 9 monthly arrays + periods[] + narrative fields | Open-Meteo + reviews |
@@ -162,9 +181,14 @@ GET https://archive-api.open-meteo.com/v1/archive
   &timezone=auto
 ```
 
-From the hourly response, **filter to daytime only (10:00 — 18:00 local)** —
-this matches when people actually surf. From the daytime subset, compute per
-calendar month (Jan..Dec, 12 values each):
+From the hourly response, **filter to daytime only: hours 10–18 local time,
+both endpoints inclusive — so 9 hours per day** (10, 11, 12, 13, 14, 15,
+16, 17, 18). Over a 5-year archive this is ~16,400 sampled hours per spot,
+which matches Oostduinkerke-Bad's published "16,407 hours sampled". This
+matches when people actually surf.
+
+From the daytime subset, compute per calendar month (Jan..Dec, 12 values
+each):
 
 - `monthly_wind_kn[12]` — mean daytime wind speed
 - `monthly_gust_kn[12]` — mean daytime gust
@@ -172,8 +196,11 @@ calendar month (Jan..Dec, 12 values each):
   wind speed, then average those per-day peaks per month
 - `monthly_gust_peak_kn[12]` — same logic for gusts
 - `monthly_wind_prob[12]` — share of days where mean daytime wind ≥ workable
-  threshold (12 kn for windsurf/kite, 15 kn for wing — pick based on the spot's
-  primary sport)
+  threshold. **Default baseline**: 12 kn for windsurf/kite, 15 kn for wing.
+  **Override per spot** when local norm clearly differs — e.g. a light-wind
+  beachie where everything ≥ 8 kn is rideable, or a heavy-wind point where
+  the regulars only paddle out above 18 kn. When you override, mention the
+  threshold in the spot's `stats.source` line so it's transparent.
 - `monthly_air_c[12]` — mean daytime air temperature
 
 Round all values to one decimal place.
@@ -197,9 +224,22 @@ Compute:
   workable threshold (0.6 m for beach breaks, 1.0 m for points/reefs)
 - `monthly_water_c[12]` — mean sea-surface temperature
 
-If the Marine API returns nulls (sometimes happens for spots tucked inside
-bays or estuaries), fall back to climatology from the spot guide and **note
-this in `stats.source`** — never silently invent.
+If the Marine API returns nulls (happens for spots tucked inside bays or
+estuaries — and notably for the Moroccan Atlantic cluster), the approved
+fallback chain is:
+
+1. **Windguru GFS-Wave 16km archive** for the nearest forecast point — this
+   is what Anchor Point uses (`Windguru GFS-Wave 16km archive (Taghazout
+   id 549853, Apr 2025–May 2026)`). Requires a public Windguru spot id +
+   manually compiled monthly means.
+2. **Regional climatology** from a reputable source (KMI for Belgium,
+   regional pilot charts) — only for `monthly_water_c[12]` when the SST
+   reading is the bit that's missing.
+3. **Skip the array entirely** + write an honest gap line in the layers.
+   Better than invented numbers.
+
+**Always note which path you took in `stats.source`** — never silently
+invent.
 
 #### Compose `stats.periods[]`
 
@@ -231,14 +271,27 @@ The footer attribution must include:
 - The number of hours sampled
 - Any climatology fallback you used and why
 
-Reference shape (from Oostduinkerke-Bad):
+Reference shapes from the three live anchor spots — copy this voice:
 
+> **Oostduinkerke-Bad** (Marine API path):
 > "Wind / air / gust: Open-Meteo historical GFS @ 51.142, 2.697 (daytime
 > 10–18h, 2021-05-20 → 2026-05-16, 5y archive, 16,407 hours sampled). Wave
 > height: Open-Meteo Marine API @ same coords (2024–2025, 2y). Water temp:
 > KMI Belgian coast climatology."
 
-This goes in `stats.source` verbatim. Users see it in the at-a-glance footer.
+> **Kouremenos Beach** (no wave array, climatology water temp):
+> "Wind/gust/air: Open-Meteo historical GFS at 35.2058,26.2706 (daytime
+> 10–18h, 2021-05-16–2026-05-16, 5-year avg). Water temp: East Crete
+> Mediterranean climatology."
+
+> **Anchor Point** (Windguru wave fallback):
+> "Wave: Windguru GFS-Wave 16km archive (Taghazout id 549853, Apr 2025–
+> May 2026). Wind/gust/air: Open-Meteo historical GFS at 30.5469,-9.7256
+> (daytime 10–18h, 2021-05-16–2026-05-16, 5-year avg, shared across the
+> cluster). Water temp: Morocco Atlantic coast climatology."
+
+This goes in `stats.source` verbatim, adapted to the spot's coords + actual
+sources used. Users see it in the at-a-glance footer.
 
 #### Pick `stats.chart_type`
 
