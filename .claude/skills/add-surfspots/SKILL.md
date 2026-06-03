@@ -192,9 +192,13 @@ each):
 
 - `monthly_wind_kn[12]` — mean daytime wind speed
 - `monthly_gust_kn[12]` — mean daytime gust
-- `monthly_daily_peak_kn[12]` — for each day's daytime window, take the max
-  wind speed, then average those per-day peaks per month
-- `monthly_gust_peak_kn[12]` — same logic for gusts
+- `monthly_daily_peak_kn[12]` — **avg of per-day max GUST in daytime**
+  (NOT peak wind — the chart label and panel both expect peak gust here,
+  matches the Kouremenos reference convention). For each day's daytime
+  window: take max gust, then average those per-day max-gusts per month.
+- `monthly_gust_peak_kn[12]` — **absolute single-hour max GUST across the
+  whole 5-year archive**, per month. This is the "max ever recorded" in
+  the daytime window — useful as the upper-bound storm-day reference.
 - `monthly_wind_prob[12]` — share of days where mean daytime wind ≥ workable
   threshold. **Default baseline**: 12 kn for windsurf/kite, 15 kn for wing.
   **Override per spot** when local norm clearly differs — e.g. a light-wind
@@ -202,6 +206,16 @@ each):
   the regulars only paddle out above 18 kn. When you override, mention the
   threshold in the spot's `stats.source` line so it's transparent.
 - `monthly_air_c[12]` — mean daytime air temperature
+
+**Critical semantics warning — Crete-batch lesson:** the first attempt at
+the Crete batch stored `monthly_daily_peak_kn` as peak WIND (not gust),
+which made the front-end chart's "Gust" bars show ~10 kn for known
+windy spots instead of the real ~25-30 kn gust peaks. The frontend
+chart reads `monthly_daily_peak_kn` AS-IF it's peak gust (see
+`app.js` line 1429 comment). Always store peak GUST here, never peak
+wind. Sanity-check by comparing your `monthly_daily_peak_kn[6]` to a
+known windy reference (Kouremenos = 36 kn for July). If your value is
+under 20 kn for a meltemi-fed spot, you used the wrong array.
 
 Round all values to one decimal place.
 
