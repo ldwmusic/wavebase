@@ -420,8 +420,10 @@ A common pattern across the live reference spots:
 
 #### Answer style (also mandatory)
 
-- **100–250 words per answer.** Not a sentence. Not three sentences.
-  An actual explanation that names mechanisms.
+- **50–100 words per answer — snappy insight, not a mini-lecture.**
+  Name the mechanism, give one or two specifics, stop. The reader is
+  scanning, not studying. If you wrote a paragraph break, you went too
+  long.
 - **Markdown bold for key terms** (e.g., `**Atlantic storm season**`,
   `**thermal wind**`, `**flat reef**`). This is how the reference spots
   do it and the site renders it.
@@ -430,6 +432,13 @@ A common pattern across the live reference spots:
 - **No questions that restate metadata.** ❌ "What sport works best
   here?" with answer "Wave + SUP, beginner-friendly" — that's already
   in `sports[]` and `levels[]`. Hard-banned.
+- **No competitive / comparative questions.** ❌ "Why pick X over Y?",
+  ❌ "Why is X better than [other spot]?", ❌ "Why is X less crowded
+  than Y?" Every spot page stands alone — readers shouldn't see one spot
+  trash-talk another, and we shouldn't be building an internal ranking
+  through the back door. The spot-specific Q3 must explain a feature of
+  THIS spot in its own right (geology, history, micro-quirk, local
+  culture, hidden trait) without naming another spot as a reference.
 
 #### Concrete reference examples (live spots — copy this voice)
 
@@ -451,7 +460,10 @@ pull one of these via `GET /surf-spots/` and study its `educational[]`:
 - ❌ Same Q-set across multiple spots (Q1+Q3 in same region is OK; all
   3 the same is lazy)
 - ❌ One-sentence answers
+- ❌ Mini-lecture answers (>100 words) — readers scan, they don't study
 - ❌ Q's that don't start with "Why"
+- ❌ **Competitive Qs** ("Why pick X over Y?", "Why is X better/less
+  crowded than Y?") — every spot stands alone
 - ❌ Skipping the wind Q on a wave spot ("it's not the main thing here") —
   wind always matters, always Q
 - ❌ Skipping the wave Q on a wave spot
