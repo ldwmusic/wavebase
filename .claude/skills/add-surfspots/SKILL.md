@@ -145,9 +145,10 @@ for this break") — don't silently skip.
 - **Operator listings** — IKO (kite), ISA / ASI (surf), BookSurfCamps, Sunbonoo
 - **Local school websites** — they describe their home break in detail
 - **Reddit** — `/r/surfing`, `/r/kitesurfing`, country-specific subreddits
-- **YouTube** — recent (≤4y) clips give visual + crowd info
-- **Instagram tagged posts** — recent visitor reports with photos
-- **Facebook groups** — local rider chat, sometimes off-platform but cite-able
+
+**Don't scan**: YouTube, Instagram, Facebook. Social-media reaction
+content isn't text-review signal — it's noise plus copyright + privacy
+landmines. Stick to the platforms above.
 
 If a source surfaces information that contradicts the others (e.g.,
 locals say "always crowded" but TripAdvisor says "quiet"), capture
