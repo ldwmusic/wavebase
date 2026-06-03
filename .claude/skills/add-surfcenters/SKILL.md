@@ -101,18 +101,71 @@ correctly link to their underlying spot.
 This is non-negotiable and overrides Lode's "just do all the centers" override
 from any earlier in the session — quality > velocity.
 
-### Gate 3 · Research each candidate (3-source rule)
+### Gate 3 · Research each candidate (exhaustive review scan)
 
-For every candidate center, gather information from at least 3 independent
-sources. Don't trust any single one. Acceptable sources:
+For every candidate center, scan **every review platform you can find** —
+not just enough to hit a "3-source minimum". For centers, **reviews matter
+more than for spots**: a center is a commercial operation that customers
+have actually paid, taken lessons at, and rated. Their reviews are the
+single highest-signal source about whether the center is honest,
+well-run, safe, and worth recommending. A shallow research pass on a
+center directly shortchanges the visitor — they pay €60-150 per session
+based on what we say. The 3-source minimum is a safety floor; the
+discipline is exhaustive.
 
-- The center's own official website (always #1 if it exists)
-- Booking.com / Airbnb (for accommodation pages that link to a center)
-- TripAdvisor reviews
-- Google Maps listing + reviews
-- Windguru / Magicseaweed reviews of the spot the center teaches at
-- Surfertoday or other surf-press features
-- Recent (≤ 4 years) Booking / TripAdvisor / Google reviews from real customers
+#### Mandatory scan list — check each per center, document why if skipped
+
+Visit each of these platforms for every center. If a platform has no
+listing / no reviews, note that ("Booking.com: no listing for this
+school") — don't silently skip. Pull review counts + star ratings +
+recent verbatim quotes (≤4 years).
+
+- **The center's own official website** — primary source for sports
+  taught, prices, opening months, equipment brands, team
+- **Google Maps** — review count + average rating + recent verbatim
+  ("watch out for the rocks", "Marios is a brilliant teacher", etc.).
+  Often the highest-volume review pool for non-Anglo schools.
+- **TripAdvisor** — frequently the largest individual review pool for
+  watersport schools. Pull recent + look for repeated themes (safety,
+  instructor quality, equipment freshness)
+- **Booking.com** — if center is school+stay, the property page has
+  reviews from paying customers. Even if not a stay, sometimes linked
+  via adventure-package operators
+- **IKO / ISA / ASI / IRSC / WSL** — international federation directories
+  (IKO for kite, ISA/ASI for surf). Confirms certification, which is a
+  signal of safety + insurance + teaching standards
+- **Operator aggregators** — BookSurfCamps, Sunbonoo, Surf-Camp.com,
+  Adventure-Travel. Often have their own filtered review streams
+- **Wannasurf school listings** — surf-specific, often dated but
+  occasionally surfaces niche centers
+- **Surf-related blogs** — Surfertoday, Sessions Travel, regional
+  surf-press, country-specific blogs
+- **Reddit** — `/r/surfing`, `/r/kitesurfing`, country-specific
+  subreddits. Search for the center name + town
+
+**Don't scan**: YouTube, Instagram, Facebook. Social-media reaction
+content isn't text-review signal — it's noise plus copyright + privacy
+landmines.
+
+**Capture this per center**, in addition to the standard fields:
+- Total review count across platforms (e.g., "324 reviews aggregated:
+  Google 156, TripAdvisor 89, Booking 79")
+- Average star rating per platform
+- 3-5 verbatim quotes from recent (≤4y) reviews — these go into the
+  `layers[]` block as evidence
+- Recurring themes (positive + negative) — the negative themes are
+  especially important for `not_ideal_if`
+
+If a source surfaces information that contradicts the others (e.g.,
+official site says "all levels" but reviews say "beginners only — got
+overwhelmed as intermediate"), capture both perspectives with soft
+language rather than picking a winner.
+
+#### Acceptable additional sources (cite but don't substitute for the above)
+
+- Center's own description of the home spot
+- Windguru / Magicseaweed reviews of the linked spot (climate baseline)
+- Wikipedia for geographic context only
 
 What to extract per center:
 
