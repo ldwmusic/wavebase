@@ -300,14 +300,24 @@ sources used. Users see it in the at-a-glance footer.
 - `wind` for breaks where wind drives it (windsurf/kite spots like
   Kouremenos, Tarifa, Boa Vista)
 
-### Gate 5 · Coord verification via Chrome MCP
+### Gate 5 · Coord verification — HARD GATE, no POST without this
 
 SurfGoose uses Chrome MCP to pull exact Google Maps coordinates without
-needing a Google API key. Workflow:
+needing a Google API key. **This gate is non-negotiable: no spot ships
+without per-spot coord verification.** Research-derived coords are
+unreliable — beach names like "Chrissi Akti" (Golden Beach), "El Palmar",
+"Stalida" exist in dozens of places, and Greek transliteration variants
+('Komos' vs 'Kommos' vs 'Κόμμος') silently land on the wrong pin. The
+Crete batch of June 2026 burned this lesson: 5 of 11 batch-POSTed spots
+had coords ≥2 km off the actual beach — one was 7 km off, one was so
+unverifiable it had to be deleted.
 
-1. Use `mcp__claude-in-chrome__navigate` to open `https://www.google.com/maps`
-2. Search the spot's name + town + "beach" or "surf spot"
-3. Once the place card loads, the URL contains `@lat,lng,zoom` — extract those
+#### Per-spot verification workflow (mandatory)
+
+1. Use `mcp__claude-in-chrome__navigate` to open
+   `https://www.google.com/maps/search/?api=1&query=<name+town+Crete>`
+2. Wait ~5 seconds for Google to redirect to a specific `place/.../@lat,lng,zoom` URL
+3. Read the URL via `tabs_context_mcp` — extract the `@lat,lng` block
 4. For spots without a discrete Maps place (a stretch of coast, an unnamed
    reef), drop a pin at the break centroid and read the coords from the URL
 5. Open the place's "About" panel where one exists, copy the canonical name +
@@ -316,13 +326,50 @@ needing a Google API key. Workflow:
    lands on the same spot. **Test it.** If it doesn't, fall back to passing
    the raw `lat,lng` as the query.
 
-Anti-pattern from the Belgium audit: "Akti Villas" matched a wholly different
-hotel because we searched by name only. For spots: a break called "El Palmar"
-might match a town hundreds of kilometres away. Always match by
-**name + location + visible coastline shape**.
+#### Delta-check (mandatory before POST)
 
-If the place can't be uniquely identified, stop and ask Lode rather than
-guess.
+Compute the haversine distance between your verified coord and any
+research-derived starting coord. If the delta is:
+
+- **≤ 1 km** → OK, proceed to POST
+- **1 – 2 km** → CHECK: re-read the Maps page; pick the coord that's
+  clearly on the beach (not in a village inland). Note the delta in
+  `stats.source`.
+- **≥ 2 km** → **STOP AND RE-RESEARCH**. Your starting coord was wrong,
+  which means either (a) you searched the wrong name variant, (b) there
+  are multiple places with this name, or (c) the source you trusted is
+  unreliable. Pick the verified coord, then **re-pull Open-Meteo at the
+  new coord** if the move crossed an Open-Meteo grid cell (~10 km
+  resolution at this latitude; a 7 km move in latitude almost always
+  changes the cell).
+- **Cannot find a unique place** → DELETE the candidate from your queue
+  and surface it to Lode as "Skipped: unverifiable identity, source
+  named this spot but Google Maps + OSM disagree".
+
+#### OSM Nominatim as a sanity-check sidecar
+
+For a fast independent second opinion, query OSM Nominatim:
+```
+curl "https://nominatim.openstreetmap.org/search?q=<name>&format=json&limit=3" \
+  -H "User-Agent: SurfGoose/1.0 (lode.b162@gmail.com)"
+```
+Compare OSM's top hit against your Google Maps coord. If they're ≥2 km
+apart, BOTH need a closer look — usually one of them is hitting a
+similarly-named place elsewhere.
+
+Anti-pattern from the Belgium audit: "Akti Villas" matched a wholly different
+hotel because we searched by name only. Anti-pattern from the Crete batch:
+"Golden Bay" matched a JUMBO supermarket 20 km from where the spot
+description said it was. Always match by **name + location + visible
+coastline shape**, and run the delta-check before POST.
+
+#### No batched POSTs without per-spot Chrome MCP verification
+
+The Crete batch tried to shortcut this gate by trusting research-derived
+coords for 11 spots after Chrome-MCP-verifying the first 3. Five spots
+landed wrong. Lesson: even when Lode says "GO ALL", the verification
+loop runs per-spot — what's batched is the GO/SKIP/EDIT decision, not
+the Chrome MCP step.
 
 ### Gate 6 · Preview per spot, one at a time
 
