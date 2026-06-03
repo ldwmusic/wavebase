@@ -53,19 +53,53 @@ The region might be ambiguous. Before any web fetches, ask Lode:
 Ask 1-3 of these questions, not all four — pick the ones that materially change
 the work. If Lode has already specified some in the invocation, skip those.
 
-### Gate 2 · Survey existing centers
+### Gate 2 · Survey existing centers AND existing spots
 
-Before researching anything new, check what's already in the database for that
-region. Use the public API:
+Before researching anything new, check BOTH collections for that region:
 
 ```
 GET https://wavebase-api-qqwt.onrender.com/centers/
+GET https://wavebase-api-qqwt.onrender.com/surf-spots/
 ```
 
-Filter client-side by `country.name` matching the region's country. List the
-existing centers back to Lode so we don't duplicate. If a candidate later in
-your research matches an existing entry by name + town + coords, **propose an
-update** (PUT) rather than a duplicate insert.
+Filter client-side by `country.name` matching the region's country. List both
+back to Lode. Two things matter:
+
+1. **Existing centers** — don't duplicate. If a candidate later in your
+   research matches an existing entry by name + town + coords, **propose an
+   update** (PUT) rather than a duplicate insert.
+2. **Existing spots** — the centers will need to link to one of these via
+   `linked_spot_id`. If the spots for this region aren't in the DB yet, you
+   have to add them FIRST (see Gate 3.5 below) — otherwise the center page
+   won't render its "At a glance" block (wave / bottom / wind dir / crowd /
+   locals + monthly charts), which is the single most important section a
+   surfer reads.
+
+### Gate 3.5 · Hard gate — no linked spot, no center POST
+
+**Before researching or POSTing any center, you MUST verify there's a matching
+surf spot in the DB for the beach/spot the center teaches at.** Look it up by
+name OR by coords-proximity (within ~500 m of the center).
+
+If the matching spot is **missing**:
+
+1. **STOP.** Do not POST the center.
+2. Report to Lode with the candidate centers + the missing spots.
+3. Ask: (a) add the missing spots first via the `add-surfspots` skill (or
+   inline if that skill isn't built yet) and link the centers after, OR
+   (b) skip these centers entirely for this run, OR (c) POST without
+   linked_spot_id (rendering an incomplete page — only do this if Lode
+   explicitly accepts).
+
+Why this gate matters: the "At a glance" panel on a center page is rendered
+from `statsPanelHTML(e)` which only fires when `e.type === "center" &&
+e.linkedSpotId`. Without that link, the wave / bottom / wind / crowd / locals
+block + monthly charts simply don't render. The center page looks half-empty
+compared to existing centers like Gone Surfing Crete or Freak Surf which
+correctly link to their underlying spot.
+
+This is non-negotiable and overrides Lode's "just do all the centers" override
+from any earlier in the session — quality > velocity.
 
 ### Gate 3 · Research each candidate (3-source rule)
 
