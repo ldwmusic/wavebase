@@ -123,6 +123,30 @@ duplicate insert.
 
 ### Gate 3 · Research each candidate (exhaustive review scan)
 
+#### Pre-step — cross-reference center directories
+
+**Before** finalising the candidate spot list, scan the region's
+school/center directories for beach names. Schools teach at beaches
+that don't always appear in pure surf-spot guides — tourism stretches
+like Agia Marina, Kalamaki, Platanias, Damnoni were missed in the
+first Crete spots batch because cretanbeaches/thesurfatlas focus on
+"famous breaks" while school operations sit at the more
+accessible-from-resort beaches. Sources to scan for beach names:
+
+- SurfIsland, KretaSurf, Surfincrete, Kalo Surf, Chania Surf Club style
+  multi-station operations — they list every beach where they teach
+- TripAdvisor "Best [Region] Surfing/Windsurfing/Kitesurfing" listings —
+  each school's profile carries its beach name
+- IKO / ISA / ASI / BookSurfCamps / Sunbonoo operator listings
+- Local school websites — most list "spots we teach at" alongside
+  their primary base
+
+Capture EVERY beach name a school mentions, then dedupe against your
+existing candidate list and the live spots DB. Any beach with an
+operating school is a candidate spot, even if no surf-guide lists it.
+
+#### The main scan — every review platform you can find
+
 For every candidate spot, scan **every review platform you can find** —
 not just enough to hit a "3-source minimum". The minimum is enforced as
 a safety floor, but the discipline is exhaustive: every spot deserves
