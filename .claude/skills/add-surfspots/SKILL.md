@@ -121,21 +121,42 @@ duplicate. If a candidate later in your research matches an existing entry by
 name + coords (≤ 200 m apart), **propose an update** (PUT) rather than a
 duplicate insert.
 
-### Gate 3 · Research each candidate (3-source rule)
+### Gate 3 · Research each candidate (exhaustive review scan)
 
-For every candidate spot, gather information from at least 3 independent
-sources. Don't trust any single one. Acceptable sources:
+For every candidate spot, scan **every review platform you can find** —
+not just enough to hit a "3-source minimum". The minimum is enforced as
+a safety floor, but the discipline is exhaustive: every spot deserves
+the broadest research net we can practically cast. Reviews are the
+heart of the site (this is a memory rule), and a shallow scan
+shortchanges the visitor relying on us.
 
-- Wannasurf / Magicseaweed / Surfline spot pages
-- Windguru / Windfinder forecast pages (for the climate baseline they imply)
-- Surfertoday or other surf-press features
-- Recent (≤ 4 years) reviews on Google Maps, TripAdvisor, surf blogs
-- Reports / videos from local centers (who know their break)
-- The center's own description of the spot, if one teaches there
-- Wikipedia for geographic context (bay, river mouth, reef vs beach) — never
-  for character or sport-fit
+#### Mandatory scan list — check each per spot, document why if skipped
 
-What to extract per spot, beyond the standard fields above:
+Visit each of these platforms for every spot. If a platform has no
+reviews / no entry for the spot, note that ("Google Maps: no reviews
+for this break") — don't silently skip.
+
+- **Google Maps reviews** — the broadest pool, search the spot name + town
+- **TripAdvisor** — for the beach + for any school operating there
+- **Wannasurf** — surf-specific spot atlas (often dated but still useful)
+- **Magicseaweed / Surfline / Surf-forecast** — spot forecast + community ratings
+- **Windguru / Windfinder** — forecast page comment streams + spot ratings
+- **Surf-related blogs** — Surfertoday, Sessions Travel, regional surf magazines
+- **Operator listings** — IKO (kite), ISA / ASI (surf), BookSurfCamps, Sunbonoo
+- **Local school websites** — they describe their home break in detail
+- **Reddit** — `/r/surfing`, `/r/kitesurfing`, country-specific subreddits
+- **YouTube** — recent (≤4y) clips give visual + crowd info
+- **Instagram tagged posts** — recent visitor reports with photos
+- **Facebook groups** — local rider chat, sometimes off-platform but cite-able
+
+If a source surfaces information that contradicts the others (e.g.,
+locals say "always crowded" but TripAdvisor says "quiet"), capture
+both perspectives in the spot's prose with soft language rather than
+picking a winner.
+
+#### What to extract per spot
+
+Beyond the standard fields above, extract:
 
 - **Bottom**: sand / sand+rocks / reef / cobblestone. Critical for safety
   framing. Goes in `stats.bottom` and influences the story.
@@ -207,15 +228,51 @@ each):
   threshold in the spot's `stats.source` line so it's transparent.
 - `monthly_air_c[12]` — mean daytime air temperature
 
-**Critical semantics warning — Crete-batch lesson:** the first attempt at
-the Crete batch stored `monthly_daily_peak_kn` as peak WIND (not gust),
-which made the front-end chart's "Gust" bars show ~10 kn for known
-windy spots instead of the real ~25-30 kn gust peaks. The frontend
-chart reads `monthly_daily_peak_kn` AS-IF it's peak gust (see
-`app.js` line 1429 comment). Always store peak GUST here, never peak
-wind. Sanity-check by comparing your `monthly_daily_peak_kn[6]` to a
-known windy reference (Kouremenos = 36 kn for July). If your value is
-under 20 kn for a meltemi-fed spot, you used the wrong array.
+**CRITICAL — wind-array semantics convention (Crete-batch lesson):**
+
+The frontend chart reads `monthly_daily_peak_kn` AS-IF it's peak GUST
+(see `app.js` line 1429 comment). Both Kouremenos and the live
+reference spots store peak GUST there, not peak wind. If you store
+peak wind instead, the "Gust" bars on the spot page show ~10 kn for
+known windy spots — visibly broken on first inspection.
+
+Correct field semantics — copy this convention exactly:
+
+| Field | What goes in |
+|---|---|
+| `monthly_wind_kn` | mean daytime wind speed |
+| `monthly_gust_kn` | mean daytime gust |
+| `monthly_daily_peak_kn` | **avg of per-day MAX GUST** in daytime |
+| `monthly_gust_peak_kn` | **absolute single-hour MAX GUST** across 5y archive |
+
+**Mandatory sanity-check before PATCH** — compare your computed values
+to live reference spots, fix before pushing:
+
+```python
+# Run this on every spot before PATCH
+print(f"  wind_jul = {monthly_wind_kn[6]}      (Kouremenos: 16.0)")
+print(f"  gust_jul = {monthly_gust_kn[6]}      (Kouremenos: 34.0)")
+print(f"  daily_peak_jul = {monthly_daily_peak_kn[6]}  (Kouremenos: 36.0 — must be > gust_jul)")
+print(f"  gust_peak_jul = {monthly_gust_peak_kn[6]}   (Kouremenos: 52.0 — must be > daily_peak_jul)")
+```
+
+**Three red flags** (any of these = wrong array, stop and fix):
+
+1. `monthly_daily_peak_kn[6]` < `monthly_gust_kn[6]` → you stored peak
+   wind, not peak gust. Peak gust must be ≥ mean gust by definition.
+2. `monthly_daily_peak_kn[6]` < 20 kn for a meltemi-fed Greek spot →
+   same problem.
+3. `monthly_gust_peak_kn[6]` < `monthly_daily_peak_kn[6]` → you stored
+   avg-of-peaks for both. Absolute max must be the bigger number.
+
+Pull the live Kouremenos values for comparison:
+```
+curl -s "https://wavebase-api-qqwt.onrender.com/surf-spots/" \
+  | python3 -c "import json,sys; s=[x for x in json.load(sys.stdin) if x['name']=='Kouremenos Beach'][0]['stats']; \
+print('Kouremenos:'); \
+print(f'  wind={s[\"monthly_wind_kn\"][6]} gust={s[\"monthly_gust_kn\"][6]} '\
+      f'daily_peak={s[\"monthly_daily_peak_kn\"][6]} gust_peak={s[\"monthly_gust_peak_kn\"][6]}')"
+```
 
 Round all values to one decimal place.
 
