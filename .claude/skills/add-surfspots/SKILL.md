@@ -80,13 +80,13 @@ Per spot you fill:
 | `summary[]` | 3-6 short prose bullets, honest | Distilled from research |
 | `story[]` | 1-3 paragraph narrative block | Editorial voice, source-backed |
 | `layers[]` | Layered detail panels — title set is **free per spot**, not a fixed vocabulary. Pick titles that fit the spot's character (editorial-comparative like Oostduinkerke, topic-block like Kouremenos, or a single panel like Anchor Point). 1-3 layers is typical. | Recent reviews + spot guides; cite each one in `layer.source` |
-| `educational[]` | Q&A accordion ("Why this spot is like this") | Surf-guide reasoning + reviews |
+| `educational[]` | Q&A accordion ("Why this spot is like this") — **mandatory template, see Hard Gate 6**: Q about wind always, Q about waves if it's a wave spot, Q spot-specific always. Min 3 questions. | Surf-guide reasoning + reviews + meteorology / geology / local history |
 | `conditions` | At-a-glance prose: wave_type, wave_height, wind, water, crowd | Combined sources |
 | `stats` | Structured data: 9 monthly arrays + periods[] + narrative fields | Open-Meteo + reviews |
 | `nearby` | Food / parking / rental | Reviews + Maps |
 | `ideal_for`, `not_ideal_if` | One line each | Who should pick this, who shouldn't |
 
-## Process — six gates, in order
+## Process — nine gates, in order
 
 ### Gate 1 · Scope confirmation (always ask before you start research)
 
@@ -363,15 +363,102 @@ hotel because we searched by name only. Anti-pattern from the Crete batch:
 description said it was. Always match by **name + location + visible
 coastline shape**, and run the delta-check before POST.
 
-#### No batched POSTs without per-spot Chrome MCP verification
+#### No batched WORK on any per-spot step
 
 The Crete batch tried to shortcut this gate by trusting research-derived
 coords for 11 spots after Chrome-MCP-verifying the first 3. Five spots
-landed wrong. Lesson: even when Lode says "GO ALL", the verification
-loop runs per-spot — what's batched is the GO/SKIP/EDIT decision, not
-the Chrome MCP step.
+landed wrong. The same batch also templated educational[] and layers[]
+across all 11 spots — producing 1 generic Q&A per spot ("What sport
+works best here?" → restated metadata) instead of the mandated 3
+mechanism-based Qs.
 
-### Gate 6 · Preview per spot, one at a time
+**Per-spot discipline applies to EVERY step except the optional Monday
+update**: research, Open-Meteo aggregation, coord verification, prose,
+layers, educational, conditions, periods. None of these get batched
+across spots. What's batched is the GO/SKIP/EDIT decision in Gate 7,
+and the actual POST loop in Gate 8 — never the content authoring.
+
+When Lode says "GO ALL", that means "approve all the previews I've
+shown you" — not "skip the per-spot work that comes before the
+previews".
+
+### Gate 6 · Educational[] template — HARD GATE, mandatory shape per spot
+
+The `educational[]` block is the "Why this spot is like this" accordion.
+It is where the site earns trust — answers explain MECHANISMS (wind
+physics, swell geography, local geology, history) not just facts. A
+visitor who already read the summary should still learn something here.
+
+#### Mandatory shape (non-negotiable)
+
+Every spot has **minimum 3 Q&As**, each starting with "Why":
+
+1. **Q1 — Why is the wind the way it is?** Always present, even for
+   pure wave spots. Explains the meteorology behind the spot's wind
+   pattern: thermal lows, Atlantic depressions, meltemi onset, land/sea
+   breeze cycle, etc.
+
+2. **Q2 — Why are the waves the way they are?** Mandatory if the spot
+   is a wave spot (`sports` includes `"wave"`). Explains swell origin,
+   refraction, bottom geology, why the wave breaks the way it does.
+   For pure wind/kite spots: skip this Q and move Q3 up.
+
+3. **Q3 — Why is THIS spot specifically [some local feature]?** Always
+   present. The thing that makes this spot different from its neighbours
+   — geology, history, micro-climate quirk, unusual access, bottom
+   change, regional anomaly. This Q can't be reused across spots.
+
+4. **Q4 (optional, for flagship spots)** — extra distinctive
+   characteristic: crowd dynamics, cultural significance, hazard worth
+   calling out.
+
+A common pattern across the live reference spots:
+- Q1 + season Q ("Why is high season X-Y?") shared across spots in the
+  same region (same meteorology, same answer — write it once, copy it
+  to the regional siblings).
+- Q2 + Q3 fully unique per spot.
+
+#### Answer style (also mandatory)
+
+- **100–250 words per answer.** Not a sentence. Not three sentences.
+  An actual explanation that names mechanisms.
+- **Markdown bold for key terms** (e.g., `**Atlantic storm season**`,
+  `**thermal wind**`, `**flat reef**`). This is how the reference spots
+  do it and the site renders it.
+- **One concrete `source` per Q** (the reasoning source — surf-guide,
+  meteorology textbook, local center quote, observation).
+- **No questions that restate metadata.** ❌ "What sport works best
+  here?" with answer "Wave + SUP, beginner-friendly" — that's already
+  in `sports[]` and `levels[]`. Hard-banned.
+
+#### Concrete reference examples (live spots — copy this voice)
+
+The 6 anchor reference spots all follow this template. When unsure,
+pull one of these via `GET /surf-spots/` and study its `educational[]`:
+
+| Spot | Q1 (wind) | Q2 (wave or spot) | Q3 (spot) | Q4 if any |
+|---|---|---|---|---|
+| Oostduinkerke-Bad (BE) | "Why is the wind here so reliable?" | "Why are there no groynes here — and why does it matter?" | "Why is high season September–March (despite being cold)?" | — |
+| De Haan Beach (BE) | "Why is the wind here so reliable?" | "Why are the sandbanks cleaner here — and why does that occasionally produce real waves?" | "Why is high season September–March?" | — |
+| Florizoone Surfput (BE) | "Why is the wind lighter and gustier here than at the coast?" | "Why is there a flat-water put in the middle of Flemish farmland?" | "Why is high season May–September?" | — |
+| Kouremenos Beach (GR) | "Why is the wind here so reliable?" | "Why does the bay work for both beginners AND advanced?" | "Why is high season June–September?" | — |
+| Faneromeni (GR, wave) | (Q2 = wind) "Why is the wind side-shore here?" | (Q1) "Why are the waves like they are — mast-high on meltemi?" | "Why is high season both summer AND winter?" | "Why is it expert-only — what makes it heavy?" |
+| Anchor Point (MA, wave) | "Why is the wind like it is — offshore mornings, side-shore afternoons?" | "Why is the right so long — peeling over a kilometre?" | "Why does it only really work October–April?" | "Why is it Morocco's flagship — and why does that make it busy?" |
+
+#### Anti-patterns (DO NOT REPEAT — Crete-batch lesson)
+
+- ❌ One templated Q per spot that restates metadata
+- ❌ Same Q-set across multiple spots (Q1+Q3 in same region is OK; all
+  3 the same is lazy)
+- ❌ One-sentence answers
+- ❌ Q's that don't start with "Why"
+- ❌ Skipping the wind Q on a wave spot ("it's not the main thing here") —
+  wind always matters, always Q
+- ❌ Skipping the wave Q on a wave spot
+- ❌ Generic answers without named mechanisms (no "Atlantic depressions",
+  no "thermal low", no "flat reef" → not enough)
+
+### Gate 7 · Preview per spot, one at a time
 
 For each spot you've researched + climate-fetched, build a preview block and
 STOP. Output looks like:
@@ -414,7 +501,7 @@ per his instruction and re-preview the same spot.
 
 This is non-negotiable — batch-commits are forbidden.
 
-### Gate 7 · Commit via API
+### Gate 8 · Commit via API
 
 Only after a `GO` for that specific spot, POST it:
 
@@ -434,7 +521,7 @@ After each successful POST, briefly confirm the new spot's ID + a link to
 its detail page (`spot.html?id=<the-slug>&type=spot`) so Lode can visually
 verify it appears correctly on the live site.
 
-### Gate 8 · Back-fill linked centers (if applicable)
+### Gate 9 · Back-fill linked centers (if applicable)
 
 If this spot was needed by an existing center (Gate 1 told you so), after
 POSTing the spot:
