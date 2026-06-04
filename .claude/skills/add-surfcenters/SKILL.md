@@ -122,13 +122,37 @@ recent verbatim quotes (≤4 years).
 
 - **The center's own official website — scan ALL sub-pages, not just
   the landing or location-specific page**. The mandatory sub-pages:
-  `/rental/`, `/lessons/`, `/prices/`, `/courses/`, `/equipment/`,
-  `/about/`, `/team/`, `/contact/`. Most schools publish their rates
-  on a dedicated `/rental/` or `/lessons/` page rather than burying
-  them inside each station/location page. The Crete SurfIsland
-  lesson — I said "prices not published" because I only checked
-  `/falasarna-station/`, but the full euro tables sit at `/rental/`
-  and `/lessons/`. Always check both.
+  - **Service pages:** `/rental/`, `/lessons/`, `/prices/`,
+    `/courses/`, `/equipment/`, `/programs/`, `/camps/`
+  - **Booking pages** (where solo-instructor operators often hide
+    their only price table): `/booking/`, `/book-now/`, `/booking-surf-class/`,
+    `/reservations/`, `/reserve/`, `/classes/`, `/book-a-lesson/`
+  - **Organization pages:** `/about/`, `/team/`, `/contact/`,
+    `/instructors/`
+  - **Photo/media pages** sometimes used for promotional pricing:
+    `/photos/`, `/gallery/`, `/news/`, `/blog/`
+
+  **Two specific failure modes the Crete + Ericeira batches taught:**
+  
+  *SurfIsland (Crete, June 2026):* I wrote "prices not published"
+  after only checking `/falasarna-station/`. The full euro tables
+  sat at `/rental/` and `/lessons/` — flagship pages that ALL
+  multi-station chains use. Always check the org-wide pricing
+  pages, not just the per-station landing page.
+  
+  *Surf with Pepe (Ericeira, June 2026):* I wrote "prices not
+  publicly listed; book direct" after only checking the homepage.
+  The €40/2hr group rate was clearly listed at
+  `/booking-surf-class` — a booking-specific URL that I'd missed.
+  Always check `/booking*` and `/book*` patterns specifically for
+  small / owner-operator schools where the booking page IS the
+  pricing page.
+
+  **The discipline rule:** if you couldn't find prices on the
+  obvious pages, run a `site:officialsite.com price` Google search
+  before declaring "not published". If the operator publicly
+  accepts bookings online, the price almost certainly exists
+  somewhere on their site.
 - **Google Maps** — review count + average rating + recent verbatim
   ("watch out for the rocks", "Marios is a brilliant teacher", etc.).
   Often the highest-volume review pool for non-Anglo schools.
