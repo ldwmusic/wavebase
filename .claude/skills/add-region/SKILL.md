@@ -1,23 +1,41 @@
 ---
 name: add-region
-description: Add a whole region (Kreta, Tarifa, north Portugal, ...) to SurfGoose using the pair-workflow — for each surf center, do its spot first if missing, then the center, one pair at a time. Defers remote spots without centers. The default workflow for any new region. Trigger explicitly with a region argument, e.g. "/add-region Tarifa" or "voeg de regio noord-Marokko toe".
+description: Add a region or sub-region (Kreta heel, alleen noordkust Frankrijk, Tarifa-lagoon, Tamraght-cluster, ...) to SurfGoose using the pair-workflow — for each surf center, do its spot first if missing, then the center, one pair at a time. Defers remote spots without centers. The default workflow for any new geographic area. Trigger explicitly with the region or sub-region as the argument, e.g. "/add-region Tarifa", "/add-region noordkust Frankrijk", "voeg de regio noord-Marokko toe".
 ---
 
 # add-region
 
-The default workflow for adding a whole region to SurfGoose. Where the
-individual `/add-surfspots` and `/add-surfcenters` skills are specialist
-tools, this skill is the **coordinator**: it walks one pair at a time
-(spot + the center that teaches there), so every spot in the DB has a
-clear use case and every center has its linked_spot_id populated
-in the same pass.
+The default workflow for adding a region or sub-region to SurfGoose.
+Where the individual `/add-surfspots` and `/add-surfcenters` skills are
+specialist tools, this skill is the **coordinator**: it walks one pair
+at a time (spot + the center that teaches there), so every spot in the
+DB has a clear use case and every center has its linked_spot_id
+populated in the same pass.
+
+**Sub-region scoping is first-class.** The "region" argument can be as
+narrow as needed — full country, single coast, single bay, single
+operator cluster. Gate 1 confirms the exact bounds before research
+starts.
 
 ## When this skill fires
 
-Lode invokes explicitly with a region argument. Recognised phrasings:
+Lode invokes explicitly with the region or sub-region as the argument.
+Recognised phrasings — note the range from country-wide to bay-narrow:
 
-- "/add-region Tarifa"
+**Country / full island:**
+- "/add-region Tarifa" (covers the wider area)
+- "/add-region Kreta"
 - "Voeg de regio noord-Marokko toe"
+
+**Coast or sub-area:**
+- "/add-region noordkust Frankrijk"
+- "/add-region oost-Kreta only"
+- "/add-region Algarve west coast"
+
+**Cluster or bay:**
+- "/add-region Tarifa lagoon side"
+- "/add-region Plakias-Damnoni cluster"
+- "/add-region Tamraght-Taghazout area"
 - "Add the spots and centers for north Portugal"
 
 Use this when the goal is **systematic coverage of a region**. Use the
