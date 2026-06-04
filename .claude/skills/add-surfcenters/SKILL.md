@@ -241,11 +241,24 @@ to Lode as "Skipped: only stale reviews available, last from 2019".
 Memory: SurfGoose uses Chrome MCP to pull exact Google Maps coordinates without
 needing a Google API key. Workflow:
 
-1. Use `mcp__claude-in-chrome__navigate` to open `https://www.google.com/maps`
-2. Search the center's name + town
-3. Once the place card loads, the URL contains `@lat,lng,zoom` — extract those
-4. Open the place's "About" section, copy the canonical name + address back to
-   confirm the entry is correct
+1. Use `mcp__Claude_in_Chrome__navigate` to open `https://www.google.com/maps?q=<name>+<town>`
+2. Wait for Maps to redirect from `?q=` to `/maps/place/...` — this can take
+   6-10 seconds. Use a JS poll loop that checks `window.location.href` every 1s
+   for up to 15s until the `!3d/!4d` pattern appears.
+3. Extract the place pin coord from the URL's **`!3d<lat>!4d<lng>`** pattern
+   (NOT the `@<lat>,<lng>` which is the map's viewport center — they can
+   differ by 200m+).
+4. Confirm the page title shows the right business name. If Maps redirected
+   to a generic search results page (no `/place/` in URL), the search was
+   ambiguous — fall through to the search-results DOM scrape with a
+   **name-substring filter** to ignore competitor results:
+   ```js
+   const cards = Array.from(document.querySelectorAll('a[href*="/maps/place/"][aria-label]'));
+   const matches = cards.map(a => {
+     const m = a.href.match(/!3d(-?\d+\.\d+)!4d(-?\d+\.\d+)/);
+     return {name: a.getAttribute('aria-label'), coords: m ? [+m[1], +m[2]] : null};
+   }).filter(m => m.coords && /<center-name-substring>/i.test(m.name));
+   ```
 5. Build a `google_maps_query` that, when appended to `https://www.google.com/maps?q=`,
    reliably lands on the exact same place. Test it.
 
@@ -254,6 +267,40 @@ hotel because we searched by name only. Always match by **name + location**.
 
 If the place can't be uniquely identified (multiple matches, vague name), stop
 and ask Lode rather than guess.
+
+#### Hard Gate 4.5 · No-shared-coords check (mandatory before POST)
+
+**Before POSTing any batch of centers, scan the candidate list for shared
+coords.** Two centers sharing exactly the same `[lat, lng]` is almost always
+a sign that you fell back to a placeholder ("village center", "old town")
+instead of looking each one up individually.
+
+The Ericeira batch of June 2026 violated this and 8 centers ended up with
+identical coord `(38.965, -9.418)` — Ericeira village centroid. LDW's
+screenshot showed those 8 pins clustered at the shoreline, several IN THE
+OCEAN. Fix took a full re-verification round of 22 centers.
+
+**The rule:**
+- Every center MUST have its OWN verified `!3d/!4d` coord from Chrome MCP.
+- If your candidate list shows two centers with identical first-4-decimal
+  coords (~10m precision), STOP and re-verify both before POSTing.
+- Acceptable exception: the same physical building has two named entities
+  in it (e.g., a shop + the school running from the same address). Log
+  this explicitly in `coords_label` for both.
+
+**Why the shoreline anti-pattern is dangerous:** at most surf-village
+coastlines, the village centroid sits within ~50m of the water on at
+least one cardinal direction. A placeholder coord at "village center"
+almost always lands at or past the shoreline for some pin orientations
+— and a pin in the water is the kind of visible error that destroys
+trust in the whole site.
+
+**Operational discipline:** when adding 5+ centers in one region, the
+verification time per center is ~10s via Chrome MCP. There's no excuse
+for falling back to placeholders. If you can't get Chrome MCP coords
+for a specific center (rare — no Maps listing exists), surface that
+to Lode as a candidate-for-deletion rather than POSTing with a
+placeholder.
 
 #### Brand-vs-Maps cross-check — mandatory red-flag detection
 
