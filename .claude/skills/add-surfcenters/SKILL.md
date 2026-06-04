@@ -120,8 +120,15 @@ listing / no reviews, note that ("Booking.com: no listing for this
 school") — don't silently skip. Pull review counts + star ratings +
 recent verbatim quotes (≤4 years).
 
-- **The center's own official website** — primary source for sports
-  taught, prices, opening months, equipment brands, team
+- **The center's own official website — scan ALL sub-pages, not just
+  the landing or location-specific page**. The mandatory sub-pages:
+  `/rental/`, `/lessons/`, `/prices/`, `/courses/`, `/equipment/`,
+  `/about/`, `/team/`, `/contact/`. Most schools publish their rates
+  on a dedicated `/rental/` or `/lessons/` page rather than burying
+  them inside each station/location page. The Crete SurfIsland
+  lesson — I said "prices not published" because I only checked
+  `/falasarna-station/`, but the full euro tables sit at `/rental/`
+  and `/lessons/`. Always check both.
 - **Google Maps** — review count + average rating + recent verbatim
   ("watch out for the rocks", "Marios is a brilliant teacher", etc.).
   Often the highest-volume review pool for non-Anglo schools.
@@ -223,6 +230,46 @@ hotel because we searched by name only. Always match by **name + location**.
 
 If the place can't be uniquely identified (multiple matches, vague name), stop
 and ask Lode rather than guess.
+
+#### Brand-vs-Maps cross-check — mandatory red-flag detection
+
+**When you search the center's name in Google Maps and the results return
+different brand names**, that's a red flag for brand fragmentation.
+Investigate before POSTing. Common patterns:
+
+- **Multi-station chain with local brand:** the parent operates under one
+  name (e.g. "SurfIsland") but each station markets to its local customer
+  base under a different brand (e.g. SurfIsland Elafonisi → "The Wind
+  Tribe Crete"). Maps surfaces the local brand because that's what
+  customers Google for. The Crete batch hit this: my "SurfIsland Elafonisi"
+  entry had no Maps pin, while "The Wind Tribe Crete" had 79 reviews
+  and its own dedicated brand identity at the same beach.
+
+- **Rebrand or recent name change:** the official site still uses an
+  older name but Maps + Google Search have shifted to the new brand.
+
+- **Same operation, multiple Maps listings:** two pins for what's one
+  business — usually a duplicate someone forgot to merge.
+
+**How to verify the link is the same operation:**
+
+1. Same phone number on both sites?  → strong evidence same op
+2. Same equipment brand partnerships? → moderate evidence
+3. Same on-beach team named in both review streams? → moderate evidence
+4. Same coords (within ~200 m)? → moderate evidence
+5. Cross-mentions on either site? → strong evidence
+
+**What to do when you confirm same operation, two brands:**
+
+Don't POST both as separate entries (duplicate listings confuse visitors).
+Instead: POST the customer-facing brand (the one with the Maps pin +
+review history) and add a layer that discloses the parent-brand
+relationship. The Crete lesson: "The Wind Tribe Crete is SurfIsland's
+Elafonisi-station customer-facing brand; same operation, two URLs,
+shared booking phone +30 6976990850."
+
+When you're unsure whether it's one operation or two, surface to Lode
+with the evidence and ask.
 
 ### Gate 5 · Preview per center, one at a time
 
