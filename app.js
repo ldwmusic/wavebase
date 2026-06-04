@@ -1411,11 +1411,25 @@ function monthlyChartHTML(e) {
     let waveChart = null;
 
     if (chartType === "wave" && Array.isArray(stats.monthlyWaveM)) {
+      // Dynamic max so the bars actually communicate scale. A spot
+      // capped at 3 m looks identical to a 5 m spot if both use the
+      // same axis — but their character is totally different. So
+      // round the spot's own monthly max up to the next clean
+      // integer, with a floor of 3 m for visual readability on
+      // small-wave spots.
+      const waveVals = stats.monthlyWaveM.filter(v => v != null && !isNaN(v));
+      const waveActualMax = waveVals.length ? Math.max(...waveVals) : 3;
+      const waveMaxValue = Math.max(3, Math.ceil(waveActualMax));
+      const waveAxisTicks = [
+        `${waveMaxValue} m`,
+        `${waveMaxValue / 2} m`,
+        "0"
+      ];
       waveChart = buildSingleMetricChart(stats.monthlyWaveM, {
         stats, userMonth, monthLabels,
         label: "Wave height",
         sublabel: "daytime avg, metres",
-        unit: " m", maxValue: 3, axisTicks: ["3 m", "1.5 m", "0"],
+        unit: " m", maxValue: waveMaxValue, axisTicks: waveAxisTicks,
         colorClass: "color-wind",
         tooltipFor: (mn, v) => {
           const i = mn - 1;
