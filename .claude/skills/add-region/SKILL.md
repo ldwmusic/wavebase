@@ -210,6 +210,45 @@ SKIPPED for now:
 Surface this list to Lode at the end so he sees the negative space + can
 flag any "actually let's add that anyway".
 
+### Gate 7 · Country promotion — SOON → live (mandatory if first content for the country)
+
+**When this gate fires:** the region you just added is the FIRST content
+SurfGoose has for that country. Before this batch, the country was a
+placeholder showing "SOON" in the picker. Now that it has real spots +
+centers, it needs to be promoted to "live" so visitors can find it.
+
+The Portugal/Ericeira batch of June 2026 missed this — Portugal stayed
+"SOON" in the country picker for 30 minutes after going live with 10
+spots + 23 centers, until Lode caught the gap. The skill now mandates
+the promotion as a final step.
+
+**Three places to update — all required:**
+
+1. **Frontend `constants.js`** — change the country's `status: "soon"`
+   to `status: "live"` in the `WAVEBASE_DESTINATIONS` array.
+2. **Legacy `data.js`** — same change in the duplicated
+   `WAVEBASE_DESTINATIONS` block (kept in sync).
+3. **Backend API `/countries/{id}`** — PATCH the country's status to
+   "live". The API has its own status field that's currently unused at
+   runtime but should stay in sync for future use:
+   ```
+   curl -X PATCH https://wavebase-api-qqwt.onrender.com/countries/<country-id> \
+     -H "Authorization: Bearer <JWT>" \
+     -H "Content-Type: application/json" \
+     -d '{"status": "live"}'
+   ```
+
+**Verify after the changes:**
+- Country picker shows the new country WITHOUT the "SOON" badge
+- "Pick a country to begin" section shows the new country as a card
+  alongside existing live countries
+- The worldwide map shows a pin in the new country (auto-renders from
+  the live-status filter)
+
+**Do NOT skip this gate.** A country with content but still flagged
+"SOON" is invisible to visitors using the picker — the entire batch
+work is wasted from a discoverability angle until the promotion lands.
+
 ## After the region is done
 
 Summary table to Lode:
