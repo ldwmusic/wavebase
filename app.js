@@ -3206,10 +3206,20 @@ function renderMiniWorldMap() {
       const addPin = (countryName, kind) => {
         const iso = COUNTRY_TO_ISO[countryName];
         if (!iso) return;
-        const path = svg.getElementById(iso);
-        if (!path || !path.getBBox) return;
+        const element = svg.getElementById(iso);
+        if (!element || !element.getBBox) return;
+        // For countries with island territories (Portugal/Azores,
+        // Spain/Canary, France/overseas, etc.) the SVG wraps them as
+        // <g id="xx"><path class="mainland"/><path/>...</g>. Taking
+        // the group's bbox puts the pin in the ocean between mainland
+        // and islands — use the .mainland sub-path's bbox instead so
+        // the pin lands where surfers actually go.
+        const mainland = element.querySelector
+          ? element.querySelector("path.mainland")
+          : null;
+        const target = (mainland && mainland.getBBox) ? mainland : element;
         let bbox;
-        try { bbox = path.getBBox(); } catch (e) { return; }
+        try { bbox = target.getBBox(); } catch (e) { return; }
         const cx = bbox.x + bbox.width  / 2;
         const cy = bbox.y + bbox.height / 2;
         const g = document.createElementNS(svgNS, "g");
