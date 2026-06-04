@@ -667,6 +667,46 @@ populated at-a-glance.
 - ❌ Forgetting to back-fill `linked_spot_id` on the center that needed this
   spot. The whole reason you might be running is to fix that center.
 
+## Pre-POST schema cheat-sheet (Pydantic SpotCreate)
+
+The Peniche/Baleal batch of June 2026 burned 4 retries figuring out the exact
+shape of the POST body. Capture for future regions:
+
+**Required top-level fields (Pydantic raises 422 if missing):**
+- `name`, `town`, `country_id` — strings/UUID
+- `coords` — `[lat, lng]` floats
+- `sports` — list of SportType enum (`wave|wind|kite|wing|sup|sail`)
+- `levels` — list of SurfLevel enum (`beginner|intermediate|advanced`)
+- `tagline` — string (1 line)
+- `good_months` — list of int 1-12 (**NOT** `best_months` — common mistake)
+- `ideal_for` — string (1 line, who should go)
+- `not_ideal_if` — string (1 line, who should skip)
+
+**Nested object shapes (Pydantic strict — string ≠ object):**
+- `conditions` — dict with `wave_type`, `wave_height`, `wind`, `water`, `crowd` keys
+  - `conditions.crowd` is `{"level": "low|moderate|high|very high", "note": "..."}` — **NOT a string**
+- `stats` — dict with monthly arrays + meta:
+  - `wind_direction`, `wave_type`, `bottom`, `localism`, `source` — strings
+  - `crowd` — enum string (`low|moderate|high|very high`) — **NOT prose**
+  - `monthly_wind_prob`, `monthly_wind_kn`, `monthly_gust_kn`, `monthly_daily_peak_kn`, `monthly_gust_peak_kn`, `monthly_wave_m`, `monthly_swell_prob`, `monthly_air_c`, `monthly_water_c` — arrays of length 12 (null OK per month)
+  - `periods` — list of `{name, months[], tier, wind_kn[min,max], water_c[min,max], wave_m[min,max]}`
+  - `chart_type` — `"wave"` or `"wind"`
+- `educational[]` — each item needs `source` + `q` + `a` (source NOT optional on POST, even though the GET response often shows it absent)
+- `layers[]` — each item has `title` + `source` + `content[]`; **`content[]` items are `{heading, text}` dicts**, NOT bare strings
+- `nearby` — `{food, parking, rental}` object, NOT a string
+
+**Center extras (CenterCreate):**
+- `good_months` required (same as spot)
+- `nearby` same `{food, parking, rental}` object shape
+- `services` = `{lessons, rental, brands, facilities, team}` — all strings
+- `prices` matches the established tier dict shape
+- `linked_spot_id` is the spot UUID — POST spots FIRST, capture IDs, then POST centers with linkage
+
+**Smoke test before a batch:** POST one minimal payload first with only the
+required-at-the-top fields. Read the 422 response to enumerate any new fields
+you missed. Iterate the script until you get a 200 on one entry — THEN batch
+the rest. This saves the per-entry retry cycle.
+
 ## Spelling + label conventions (memory)
 
 - "Palekastro", not "Palaikastro" (the village in east Crete).
