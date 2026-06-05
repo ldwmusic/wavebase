@@ -73,7 +73,10 @@ function _apiToFrontendStats(s) {
     periods: (s.periods || []).map(p => ({
       name:     p.name,
       months:   p.months,
-      // SeasonTier enum → inSeason boolean (everything except "off" is in season)
+      // SeasonTier enum: "peak" / "high" / "shoulder" / "low" / "off"
+      // Preserve verbatim so pickPeakPeriod can rank by tier (peak > high > ...).
+      // Also derive inSeason boolean (everything except "off") for legacy callers.
+      tier:     p.tier || undefined,
       inSeason: p.tier !== "off",
       windKn:   p.wind_kn || null,
       waterC:   p.water_c || null,

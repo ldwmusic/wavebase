@@ -820,7 +820,9 @@ function pickPeakPeriod(periods, monthlyWindProb, stats, levels) {
   const inSeason = periods.filter(p => p.inSeason !== false);
   const pool = inSeason.length ? inSeason : periods;
 
-  const chartType = stats && stats.chart_type;
+  // Frontend uses camelCase after api-client normalization (chartType, not chart_type).
+  // Fall back to snake_case for any legacy/non-normalized paths.
+  const chartType = stats && (stats.chartType || stats.chart_type);
   const monthlyWaveM = stats && stats.monthlyWaveM;
   const lvls = Array.isArray(levels) ? levels : [];
   const isBeginnerOnly = lvls.length === 1 && lvls[0] === "beginner";
