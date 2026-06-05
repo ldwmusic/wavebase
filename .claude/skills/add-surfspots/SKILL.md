@@ -664,6 +664,16 @@ populated at-a-glance.
   ("some surfers report") until you have multi-review consensus.
 - ❌ Skipping the educational[] block "because the rest is already long".
   Other regions all have it; consistency matters.
+- ❌ Writing educational[] questions as flat descriptive labels ("What does
+  the wind do here?" / "What does the wave do here?"). The Peniche/Baleal
+  batch of June 2026 did this for all 6 spots — LDW caught it because the
+  answers were structurally correct but the QUESTIONS told the reader
+  nothing about what made the spot worth understanding. The mandatory shape
+  is **"Why ___?"** — every question explains a MECHANISM or makes a
+  spot-specific CLAIM that the answer then proves. E.g. NOT "What does
+  the wave do here?" but "Why does this wave break so much smaller than
+  the open coast 300m away?" The "Why" + specific framing is what makes
+  the section educational rather than reference-y.
 - ❌ Forgetting to back-fill `linked_spot_id` on the center that needed this
   spot. The whole reason you might be running is to fix that center.
 
