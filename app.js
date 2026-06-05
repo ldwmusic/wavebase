@@ -6804,6 +6804,12 @@ const WaveBaseProfileForm = (function () {
     intermediate: "Intermediate — pop up, paddle out, ride the face",
     advanced:     "Advanced — overhead, tubes, no-paddle takeoffs"
   };
+  // Special value: "any" means the user does ALL levels (multi-level surfer,
+  // mixed group, or just wants to see every spot regardless of level). Stored
+  // as null in the backend (= no level filter) — but visible + selectable
+  // in the dropdown so users explicitly opt in. Replaces the silent empty
+  // "—" placeholder that left users wondering what it meant.
+  const LEVEL_ANY_LABEL = "Any / mixed — show me all levels";
   // Backend wants title-cased SurfLevel enum values.
   const SURF_LEVEL_MAP = { beginner: "Beginner", intermediate: "Intermediate", advanced: "Advanced" };
 
@@ -6876,7 +6882,7 @@ const WaveBaseProfileForm = (function () {
             <span class="form-checkset-label">What do you do? <span class="muted">(tick all that apply)</span></span>
             <div class="form-checkset-options">${_cb("surfType", SURF_TYPES, p.surfType || [])}</div>
           </div>
-          <label class="prof-field form-wide"><span>Level</span><select id="p-level"><option value="">—</option>${levelOpts}</select></label>
+          <label class="prof-field form-wide"><span>Level</span><select id="p-level"><option value="" ${!p.level ? "selected" : ""}>${LEVEL_ANY_LABEL}</option>${levelOpts}</select></label>
           <div class="form-checkset form-wide ${showDiscipline ? "" : "hidden"}" id="p-discipline-set">
             <span class="form-checkset-label">Wind discipline <span class="muted">(for wind / kite / wing)</span></span>
             <div class="form-checkset-options">${_cb("discipline", DISCIPLINES, p.discipline || [])}</div>
