@@ -2549,26 +2549,25 @@ body:not(.is-home) .searchbar-wrap { display: none; }
 }
 .review-star:hover, .review-star.on { color: var(--clay); }
 
-/* Rating block — sits just above submit so reviewers can't miss it.
-   Visually elevated (subtle border + slight padding) to draw the eye
-   after the text + name fields are done. Stars sized larger here. */
+/* Rating block — single row: label + stars + submit, so reviewers see
+   the stars right next to the action they're about to take. Compact
+   padding keeps vertical footprint minimal. Wraps on narrow screens. */
 .review-rate-block {
-  margin-top: 18px;
-  padding: 18px 20px;
+  margin-top: 14px;
+  padding: 10px 14px;
   background: var(--paper);
   border: 1px solid var(--sand);
   border-radius: 10px;
-  display: flex; flex-direction: column; align-items: flex-start;
-  gap: 10px;
+  display: flex; align-items: center; gap: 14px; flex-wrap: wrap;
   transition: border-color 0.25s ease, box-shadow 0.25s ease;
 }
 .review-rate-block .review-rate-label {
   font-size: 14px; font-weight: 700; color: var(--ink);
+  white-space: nowrap;
 }
-.review-rate-block .review-stars { gap: 8px; }
-.review-rate-block .review-star { font-size: 36px; padding: 4px 6px; }
-.review-rate-block .review-rate-hint { font-size: 12px; }
-.review-rate-block .review-submit-btn { margin-top: 6px; align-self: flex-start; }
+.review-rate-block .review-stars { gap: 2px; }
+.review-rate-block .review-star { font-size: 28px; padding: 2px 3px; }
+.review-rate-block .review-submit-btn { margin-left: auto; }
 
 /* Nudge animation — fired when user tries to submit without a star
    AND cancels the confirm dialog. Pulses the rating block to call

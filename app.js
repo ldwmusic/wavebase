@@ -4470,9 +4470,8 @@ function reviewsMockHTML(e) {
       </div>
 
       <div class="review-rate-block">
-        <div class="review-rate-label">How would you rate this ${typeWord} overall?</div>
+        <span class="review-rate-label">Rate this ${typeWord}</span>
         ${starsRow}
-        <div class="review-rate-hint muted">Helps other surfers compare at a glance.</div>
         <button type="submit" class="btn review-submit-btn">Submit review</button>
       </div>
 
