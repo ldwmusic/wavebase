@@ -449,9 +449,18 @@ those.
 
 ## Output style
 
-- Dutch primary, English fallback for technical terms (matches Lode's native
-  preference).
+**Language — strict bilingual split, no mixing:**
+
+1. **CONVERSATION with Lode** = Dutch primary, English fallback for technical
+   terms.
+
+2. **EVERYTHING WRITTEN TO THE DATABASE = ENGLISH ALWAYS.** No exceptions.
+   SurfGoose is for international visitors. Every field on a public center
+   page must be in English: `tagline`, `coords_label`, `summary[]`, `story[]`,
+   `services.*`, `layers[].title/source/content`, `nearby.*`, `ideal_for`,
+   `not_ideal_if`, `prices.*_note`, `prices.source`.
+
 - Concrete, short, no fluff.
 - Every claim cites its source inline.
-- When uncertain, say "ik weet dit niet" or "kan ik niet verifiëren" rather
-  than confidently filling a gap.
+- In chat, "ik weet dit niet" / "kan ik niet verifiëren" is fine.
+  In site content, write "not published" / "not verified" / "contact direct".

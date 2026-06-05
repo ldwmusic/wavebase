@@ -791,10 +791,28 @@ reporting** — Lode will ask explicitly if he wants those.
 
 ## Output style
 
-- Dutch primary, English fallback for technical terms (matches Lode's native
-  preference).
+**Language — strict bilingual split, no mixing:**
+
+1. **CONVERSATION with Lode** = Dutch primary, English fallback for technical
+   terms. This means everything you say in chat to Lode.
+
+2. **EVERYTHING WRITTEN TO THE DATABASE = ENGLISH ALWAYS.** No exceptions.
+   SurfGoose is for international visitors who don't read Dutch. Every field
+   that ends up on a public spot/center page must be in English:
+   - `tagline`, `coords_label`, `summary[]`, `story[]`, `conditions.*`,
+     `stats.*` (prose fields), `educational[].q`, `educational[].a`,
+     `layers[].title`, `layers[].source`, `layers[].content[].heading`,
+     `layers[].content[].text`, `nearby.*`, `ideal_for`, `not_ideal_if`,
+     `services.*`, `prices.*_note`, `prices.source`.
+
+**The June 2026 Peniche/Baleal mistake:** I wrote the educational[] Q&A's
+in Dutch for 6 new spots because the skill said "Dutch primary". LDW caught
+it visually on the spot page. Fix took a translate-all-6 pass. The skill now
+makes the language split unambiguous: chat=Dutch, site=English.
+
 - Concrete, short, no fluff.
 - Every climate value cites Open-Meteo with its coord + sample size.
 - Every experience claim cites a recent (≤ 4y) review source.
-- When uncertain, say "ik weet dit niet" or "kan ik niet verifiëren" rather
-  than confidently filling a gap.
+- When uncertain in chat, say "ik weet dit niet" or "kan ik niet verifiëren".
+  In site content, say "not verified" or "specifically: not published" — never
+  shift the Dutch hedging-phrase into English content.
