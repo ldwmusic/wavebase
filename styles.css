@@ -2548,6 +2548,40 @@ body:not(.is-home) .searchbar-wrap { display: none; }
   transition: color 0.15s ease;
 }
 .review-star:hover, .review-star.on { color: var(--clay); }
+
+/* Rating block — sits just above submit so reviewers can't miss it.
+   Visually elevated (subtle border + slight padding) to draw the eye
+   after the text + name fields are done. Stars sized larger here. */
+.review-rate-block {
+  margin-top: 18px;
+  padding: 18px 20px;
+  background: var(--paper);
+  border: 1px solid var(--sand);
+  border-radius: 10px;
+  display: flex; flex-direction: column; align-items: flex-start;
+  gap: 10px;
+  transition: border-color 0.25s ease, box-shadow 0.25s ease;
+}
+.review-rate-block .review-rate-label {
+  font-size: 14px; font-weight: 700; color: var(--ink);
+}
+.review-rate-block .review-stars { gap: 8px; }
+.review-rate-block .review-star { font-size: 36px; padding: 4px 6px; }
+.review-rate-block .review-rate-hint { font-size: 12px; }
+.review-rate-block .review-submit-btn { margin-top: 6px; align-self: flex-start; }
+
+/* Nudge animation — fired when user tries to submit without a star
+   AND cancels the confirm dialog. Pulses the rating block to call
+   attention to it. */
+@keyframes review-rate-pulse {
+  0%   { box-shadow: 0 0 0 0 rgba(193, 95, 51, 0.5); border-color: var(--clay); }
+  50%  { box-shadow: 0 0 0 10px rgba(193, 95, 51, 0); border-color: var(--clay); }
+  100% { box-shadow: 0 0 0 0 rgba(193, 95, 51, 0); border-color: var(--sand); }
+}
+.review-rate-block.review-rate-nudge {
+  animation: review-rate-pulse 1.4s ease-out;
+  border-color: var(--clay);
+}
 .review-as {
   margin: 0; font-size: 13px; color: var(--ink-soft);
   display: flex; align-items: center; gap: 6px; flex-wrap: wrap;

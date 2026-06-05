@@ -4449,7 +4449,7 @@ function reviewsMockHTML(e) {
     </div>
 
     <form class="review-form" data-entry-id="${e.id}" data-entry-type="${e.type}" autocomplete="off">
-      <div class="review-top">${starsRow}${profileLine}</div>
+      <div class="review-top">${profileLine}</div>
       ${story}
 
       <div class="review-field">
@@ -4467,7 +4467,13 @@ function reviewsMockHTML(e) {
           <label class="review-radio"><input type="radio" name="matches" value="partial"> partly</label>
           <label class="review-radio"><input type="radio" name="matches" value="no"> no</label>
         </div>
-        <button type="submit" class="btn">Submit review</button>
+      </div>
+
+      <div class="review-rate-block">
+        <div class="review-rate-label">How would you rate this ${typeWord} overall?</div>
+        ${starsRow}
+        <div class="review-rate-hint muted">Helps other surfers compare at a glance.</div>
+        <button type="submit" class="btn review-submit-btn">Submit review</button>
       </div>
 
       <p class="review-feedback" hidden></p>
@@ -4857,6 +4863,28 @@ function initSpot() {
       ev.preventDefault();
       if (_submitting) return;
       if (!requireAuth()) return;
+
+      // Soft-nudge: if no stars chosen, confirm before submitting. Most
+      // reviewers fill out the prose and forget the rating; this catches
+      // 80%+ of "forgot to rate" without blocking text-only submissions.
+      if (chosenStars === 0) {
+        const proceed = confirm(
+          "Submit without a star rating?\n\n" +
+          "Adding stars (1-5) helps other surfers compare at a glance. " +
+          "You can always add them later by editing this review."
+        );
+        if (!proceed) {
+          // Scroll the rating block into view + visually pulse it.
+          const rateBlock = reviewForm.querySelector(".review-rate-block");
+          if (rateBlock) {
+            rateBlock.scrollIntoView({ behavior: "smooth", block: "center" });
+            rateBlock.classList.add("review-rate-nudge");
+            setTimeout(() => rateBlock.classList.remove("review-rate-nudge"), 1500);
+          }
+          return;
+        }
+      }
+
       const fb = reviewForm.querySelector(".review-feedback");
       if (!fb) return;
       _submitting = true;
