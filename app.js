@@ -5550,7 +5550,7 @@ function surfLogSpotsPanel(country) {
     return `<div class="surflog-empty">
       <p><strong>${escHTML(country)}</strong> isn&rsquo;t on SurfGoose yet.</p>
       <p class="muted">We&rsquo;re adding regions one at a time, honestly. If you&rsquo;d like to see ${escHTML(country)} next, drop us a line at
-      <a href="mailto:info@surfgoose.com?subject=${encodeURIComponent('Add ' + country + ' to SurfGoose')}">info@surfgoose.com</a>
+      <a href="mailto:info.surfgoose@gmail.com?subject=${encodeURIComponent('Add ' + country + ' to SurfGoose')}">info.surfgoose@gmail.com</a>
       and tell us which spots matter to you.</p>
     </div>`;
   }

@@ -1241,6 +1241,23 @@ table.cal td.host { color: var(--clay); }
 .site-footer .legal-links a:hover,
 .site-footer .legal-links button:hover { color: var(--sea); text-decoration: underline; }
 
+/* Social icons in footer — slightly larger than text links so they
+   stand out as icons (not as text). Inline SVG uses currentColor so
+   colour follows the link colour transitions. */
+.site-footer .legal-links .social-link {
+  display: inline-flex; align-items: center; justify-content: center;
+  width: 22px; height: 22px;
+  margin-left: 2px;
+  border-radius: 4px;
+  transition: color 0.15s ease, background-color 0.15s ease;
+}
+.site-footer .legal-links .social-link:hover {
+  color: var(--sea);
+  background: rgba(63,111,125,0.08);
+  text-decoration: none;
+}
+.site-footer .legal-links .social-link svg { display: block; }
+
 /* Cookie consent banner — slides up from bottom, on-brand styling. */
 .consent-banner {
   position: fixed;
