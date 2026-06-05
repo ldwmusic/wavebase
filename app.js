@@ -3491,17 +3491,17 @@ function initIndex() {
       });
     });
   }
-  // pre-select all filters from URL params (country + level/type/month + free-text q) — supports deep links and back-navigation.
-  // If no URL param is set for a given filter, fall back to the user's profile
-  // value where it makes sense (currently: level only — country pre-fill would
-  // be wrong since the user is here to *explore* destinations beyond home base).
+  // Pre-select all filters from URL params (country + level/type/month + free-text q) — supports deep links and back-navigation.
+  // NO profile auto-fallback anymore: even when the user's profile says
+  // "beginner" or "advanced", the search defaults to "Any level". The user
+  // typically wants to see *all* spots and filter explicitly when they want
+  // to narrow. Pre-filling from profile was hiding spots without an obvious
+  // signal that filtering was active.
+  // (Profile level still pre-fills review chips + drives "spots like yours"
+  // recommendations — it just doesn't restrict search anymore.)
   const params = new URLSearchParams(window.location.search);
-  const profile = (typeof WaveBaseAccount !== "undefined") ? WaveBaseAccount.getProfile() : {};
-  const profileFallbacks = {
-    level: profile.level || ""
-  };
   [["country","f-country"],["level","f-level"],["type","f-type"],["month","f-month"],["q","f-search"]].forEach(([k, id]) => {
-    const v = params.get(k) || profileFallbacks[k];
+    const v = params.get(k);
     if (v) {
       const el = document.getElementById(id);
       if (el) el.value = v;
