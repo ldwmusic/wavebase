@@ -789,15 +789,65 @@ function periodWindProb(period, monthlyWindProb) {
   return (typeof period.windProb === "number") ? period.windProb : null;
 }
 
-// Pick the "best" period — only in-season periods compete; highest wind first.
-function pickPeakPeriod(periods, monthlyWindProb) {
+// Pick the "best" period for a spot.
+// Priority order:
+//   1. Explicit author intent — tier="peak" wins over "high" wins over "shoulder"/"low".
+//      (Lets the data say "this is the best month for THIS spot" — e.g.
+//      Praia do Norte big-wave = winter peak, even though winter has less wind
+//      than summer.)
+//   2. Same tier — break by the metric that actually matters for the spot type:
+//        - wave spots advanced+: biggest wave_m wins (big-wave spots love big swell)
+//        - wave spots beginner-only: smallest wave_m wins (gentler = better lessons)
+//        - wave spots intermediate: bigger but clean wins (use wave_m too)
+//        - wind/kite/wing spots: highest wind probability wins (more rideable days)
+//   3. Final tiebreaker: more months in the period wins.
+//
+// The "always sort by windProb" pre-2026-06 behaviour mis-ranked big-wave + beginner
+// spots because windProb correlated with summer thermal but the actual "best" period
+// depends on the spot type — fixed June 2026 after Praia do Norte showed Jun/Jul/Aug
+// as "Best months" when its only working season is winter NW swell.
+const PERIOD_TIER_RANK = { peak: 4, high: 3, shoulder: 2, low: 1 };
+
+function avgFromMonths(months, monthlyArr) {
+  if (!Array.isArray(months) || !Array.isArray(monthlyArr)) return null;
+  const vals = months.map(m => monthlyArr[m - 1]).filter(v => typeof v === "number");
+  if (!vals.length) return null;
+  return vals.reduce((a, b) => a + b, 0) / vals.length;
+}
+
+function pickPeakPeriod(periods, monthlyWindProb, stats, levels) {
   if (!periods || !periods.length) return null;
   const inSeason = periods.filter(p => p.inSeason !== false);
   const pool = inSeason.length ? inSeason : periods;
+
+  const chartType = stats && stats.chart_type;
+  const monthlyWaveM = stats && stats.monthlyWaveM;
+  const lvls = Array.isArray(levels) ? levels : [];
+  const isBeginnerOnly = lvls.length === 1 && lvls[0] === "beginner";
+  const isAdvanced = lvls.includes("advanced");
+
   return [...pool].sort((a, b) => {
-    const pa = periodWindProb(a, monthlyWindProb) || 0;
-    const pb = periodWindProb(b, monthlyWindProb) || 0;
-    if (pb !== pa) return pb - pa;
+    // 1. Tier-first — explicit author intent wins
+    const ta = PERIOD_TIER_RANK[a.tier] || 0;
+    const tb = PERIOD_TIER_RANK[b.tier] || 0;
+    if (tb !== ta) return tb - ta;
+
+    // 2. Same tier — type-aware tiebreaker
+    if (chartType === "wave" && Array.isArray(monthlyWaveM)) {
+      const wa = avgFromMonths(a.months, monthlyWaveM) || 0;
+      const wb = avgFromMonths(b.months, monthlyWaveM) || 0;
+      if (wb !== wa) {
+        if (isBeginnerOnly) return wa - wb;       // smaller waves = better for beginners
+        return wb - wa;                            // intermediate + advanced: bigger wins
+      }
+    } else {
+      // wind/kite/wing — most workable wind days wins
+      const pa = periodWindProb(a, monthlyWindProb) || 0;
+      const pb = periodWindProb(b, monthlyWindProb) || 0;
+      if (pb !== pa) return pb - pa;
+    }
+
+    // 3. Final tiebreaker — more months in the period
     return (b.months || []).length - (a.months || []).length;
   })[0];
 }
@@ -1027,7 +1077,7 @@ function statsPanelHTML(e) {
   if (s.periods && s.periods.length) {
     const userMonth = userSelectedMonth();
     const userPeriod = findPeriodForMonth(s.periods, userMonth);
-    const peakPeriod = pickPeakPeriod(s.periods, s.monthlyWindProb);
+    const peakPeriod = pickPeakPeriod(s.periods, s.monthlyWindProb, s, e && e.levels);
     const userIsPeak = userPeriod && peakPeriod && userPeriod.name === peakPeriod.name;
     const userLabel = WAVEBASE_MONTH_LONG[userMonth];
     // For "Best month" pick the single month inside the peak period with the

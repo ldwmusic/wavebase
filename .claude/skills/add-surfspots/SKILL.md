@@ -667,6 +667,48 @@ populated at-a-glance.
 - ❌ Forgetting to back-fill `linked_spot_id` on the center that needed this
   spot. The whole reason you might be running is to fix that center.
 
+## Period-tier discipline — "peak" = when THIS spot is at its best
+
+**The June 2026 Praia do Norte feedback:** I labeled all newly-added Portugal
+spots' winter period as `tier="peak"` regardless of spot type. That was wrong
+for beginner + kite/wing spots. LDW caught it because Praia do Norte's
+"BEST MONTHS" showed Jun/Jul/Aug — but Praia do Norte is a big-wave spot
+that only works on huge winter NW swells. The fix went into the frontend
+(pickPeakPeriod now respects tier rank + chart-type) AND the data layer
+(re-tier periods correctly per spot type).
+
+**Period-tier rule per spot type:**
+
+| Spot type | Levels | Peak season | Why |
+|---|---|---|---|
+| Big-wave specialist | advanced (big-wave) | **Winter** | Only works on big NW swells |
+| Advanced wave | advanced | **Winter** | Cleaner powerful winter swells |
+| Intermediate wave | intermediate | **Winter shoulder** | Clean swells + manageable size |
+| Beginner wave | beginner only | **Summer** | School season + small waves + light wind |
+| Kite/wing/wind | kite/wing | **Summer** | Peak thermal nortada — most riding days |
+| Wave + beginner serves both | beginner+advanced | **Either — depends on emphasis** | Use tier "peak" for the season that matches the spot's PRIMARY user |
+
+**Concrete: for the periods array, pick which one gets tier="peak"**:
+
+- ONE period per spot should have `tier="peak"` (the actual best season)
+- Other periods: `tier="high"` (workable), `"shoulder"` (transitional), `"low"` (off-season)
+- The frontend's `pickPeakPeriod` uses tier rank first — so this label drives
+  the "Best months" display directly. Tier-rank: peak > high > shoulder > low.
+
+**Anti-pattern — DON'T do this:**
+```python
+# WRONG — same template for all spots
+periods = [
+    {"name": "Peak winter", "months": [12,1,2,3], "tier": "peak", ...},
+    {"name": "Shoulder",    "months": [4,5,10,11], "tier": "high", ...},
+    {"name": "Summer",      "months": [6,7,8,9],   "tier": "high", ...}
+]
+```
+Use this only for advanced/big-wave/intermediate wave spots where winter
+genuinely IS the best season. For beginner + kite/wing spots, swap the
+tier assignment so summer (or whichever season is actually best for THAT
+spot type) gets `tier="peak"`.
+
 ## Pre-POST schema cheat-sheet (Pydantic SpotCreate)
 
 The Peniche/Baleal batch of June 2026 burned 4 retries figuring out the exact
