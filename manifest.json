@@ -1,7 +1,7 @@
 {
-  "name": "WaveBase — honest surf guide",
-  "short_name": "WaveBase",
-  "description": "Honest surf info — by season, for your level. Based on recent reviews.",
+  "name": "SurfGoose \u2014 honest surf guide",
+  "short_name": "SurfGoose",
+  "description": "Honest, season-by-season surf info \u2014 based on recent reviews.",
   "start_url": "/",
   "scope": "/",
   "display": "standalone",
@@ -10,10 +10,16 @@
   "theme_color": "#3f6f7d",
   "icons": [
     {
-      "src": "icon.svg",
-      "sizes": "any",
-      "type": "image/svg+xml",
+      "src": "icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
       "purpose": "any"
+    },
+    {
+      "src": "apple-touch-icon.png",
+      "sizes": "180x180",
+      "type": "image/png",
+      "purpose": "maskable"
     }
   ]
 }
