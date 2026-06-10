@@ -6345,11 +6345,13 @@ button.rml-key.off .rml-dot {
 .adm-eng-name:hover { color: var(--sea); }
 .adm-eng-num { text-align: right; font-variant-numeric: tabular-nums;
   color: var(--ink-soft); width: 70px; }
-.adm-eng-score {
-  display: flex; align-items: center; gap: 10px;
-  min-width: 150px;
-}
-.adm-eng-score-num { font-weight: 600; font-variant-numeric: tabular-nums; width: 36px; text-align: right; }
+/* The score cell stays a normal table-cell (a <td> with display:flex
+   breaks out of the table's column model and throws the row borders
+   off). Flex lives on an inner wrapper instead. */
+.adm-eng-score { width: 160px; }
+.adm-eng-score-wrap { display: flex; align-items: center; gap: 10px; }
+.adm-eng-score-wrap .adm-pop-bar { flex: 1 1 auto; min-width: 0; }
+.adm-eng-score-num { font-weight: 600; font-variant-numeric: tabular-nums; width: 32px; text-align: right; flex: none; }
 
 /* ---- Account → "Spots you might also like" recommendations ----
    Small clickable cards in a wrappable row. Each card is a tile

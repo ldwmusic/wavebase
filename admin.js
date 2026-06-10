@@ -916,6 +916,9 @@ function _renderConditionsMismatch(payload) {
 
 // Engagement scoreboard type filter: "all" | "spot" | "center" | "stay".
 let _engTypeFilter = "all";
+// Engagement scoreboard sort — click a column header to re-sort.
+let _engSortKey = "score";   // views|book|saves|surfed|reviews|helpful|score|last_activity
+let _engSortDesc = true;
 function _entryMatchesType(entry, filter) {
   if (filter === "all") return true;
   if (!entry) return false;                 // unknown entries drop out of typed views
@@ -957,7 +960,27 @@ function _renderEngagement(payload, evViews, evAff) {
     if (v && v.spot_id) viewsBySpot[v.spot_id] = v.count || 0;
   });
   const maxScore = Math.max(1, ...rows.map(r => r.score));
-  const trs = rows.map((r, i) => {
+  // Sortable columns — value extractor per key, then sort a copy so the
+  // rank column (#) reflects the chosen order.
+  const engVal = (r, key) => {
+    switch (key) {
+      case "views":         return viewsBySpot[r.spot_id] || 0;
+      case "book":          return clicksBySpot[r.spot_id] || 0;
+      case "saves":         return r.saves || 0;
+      case "surfed":        return r.surfed || 0;
+      case "reviews":       return r.reviews || 0;
+      case "helpful":       return r.helpful || 0;
+      case "last_activity": return r.last_activity ? new Date(r.last_activity).getTime() : -Infinity;
+      default:              return r.score || 0;   // "score"
+    }
+  };
+  const sortedRows = rows.slice().sort((a, b) => {
+    const av = engVal(a, _engSortKey), bv = engVal(b, _engSortKey);
+    if (av < bv) return _engSortDesc ? 1 : -1;
+    if (av > bv) return _engSortDesc ? -1 : 1;
+    return (b.score || 0) - (a.score || 0);   // stable tiebreak by score
+  });
+  const trs = sortedRows.map((r, i) => {
     const entry = _entryById(r.spot_id);
     const name = entry ? entry.name : (r.spot_id || "(unknown)");
     const town = entry ? entry.town : "";
@@ -987,14 +1010,20 @@ function _renderEngagement(payload, evViews, evAff) {
         <td class="adm-eng-num">${r.reviews}</td>
         <td class="adm-eng-num">${r.helpful}</td>
         <td class="adm-eng-score">
-          <span class="adm-pop-bar"><span class="adm-pop-bar-fill" style="width:${pct}%"></span></span>
-          <span class="adm-eng-score-num">${r.score}</span>
+          <div class="adm-eng-score-wrap">
+            <span class="adm-pop-bar"><span class="adm-pop-bar-fill" style="width:${pct}%"></span></span>
+            <span class="adm-eng-score-num">${r.score}</span>
+          </div>
         </td>
         <td class="adm-eng-ago${ago.stale ? " is-stale" : ""}">${_esc(ago.text)}</td>
       </tr>`;
   }).join("");
   const engPill = (val, label) =>
     `<button type="button" class="adm-filter-pill${_engTypeFilter === val ? " is-active" : ""}" data-eng-type="${val}">${label} <span class="muted">${typeCount[val]}</span></button>`;
+  const engHead = (key, label, numeric) => {
+    const arrow = (_engSortKey === key) ? (_engSortDesc ? "↓" : "↑") : "";
+    return `<th class="adm-sort${numeric ? " adm-eng-num" : ""}" data-eng-sort="${key}">${label} <span class="adm-sort-arrow">${arrow}</span></th>`;
+  };
   return `<section class="adm-section">
     <h2>Engagement scoreboard</h2>
     <div class="adm-filter-row">
@@ -1010,14 +1039,14 @@ function _renderEngagement(payload, evViews, evAff) {
           <tr>
             <th>#</th>
             <th>Spot</th>
-            <th class="adm-eng-num">Views</th>
-            <th class="adm-eng-num">Book&nbsp;now</th>
-            <th class="adm-eng-num">Saves</th>
-            <th class="adm-eng-num">Surfed</th>
-            <th class="adm-eng-num">Reviews</th>
-            <th class="adm-eng-num">Helpful</th>
-            <th>Score</th>
-            <th>Last activity</th>
+            ${engHead("views", "Views", true)}
+            ${engHead("book", "Book&nbsp;now", true)}
+            ${engHead("saves", "Saves", true)}
+            ${engHead("surfed", "Surfed", true)}
+            ${engHead("reviews", "Reviews", true)}
+            ${engHead("helpful", "Helpful", true)}
+            ${engHead("score", "Score", false)}
+            ${engHead("last_activity", "Last activity", false)}
           </tr>
         </thead>
         <tbody>${trs || `<tr><td colspan="10" class="muted">No ${_engTypeFilter === "all" ? "entries" : _engTypeFilter + "s"} with engagement signals yet.</td></tr>`}</tbody>
@@ -1051,8 +1080,10 @@ function _renderByCountry(payload) {
         <td class="adm-eng-num">${r.helpful}</td>
         <td class="adm-eng-num">${rating}</td>
         <td class="adm-eng-score">
-          <span class="adm-pop-bar"><span class="adm-pop-bar-fill" style="width:${pct}%"></span></span>
-          <span class="adm-eng-score-num">${r.score}</span>
+          <div class="adm-eng-score-wrap">
+            <span class="adm-pop-bar"><span class="adm-pop-bar-fill" style="width:${pct}%"></span></span>
+            <span class="adm-eng-score-num">${r.score}</span>
+          </div>
         </td>
       </tr>`;
   }).join("");
@@ -1112,8 +1143,10 @@ function _wireTableInteractions() {
   document.querySelectorAll(".adm-user-row").forEach(row => {
     row.addEventListener("click", () => _openUserDetail(row.dataset.userId));
   });
-  // Click a sort header → flip sort.
-  document.querySelectorAll(".adm-sort").forEach(th => {
+  // Click a Users sort header → flip sort. Scope to [data-sort] so it
+  // doesn't also catch the engagement headers (which share .adm-sort
+  // for styling but carry data-eng-sort).
+  document.querySelectorAll("[data-sort]").forEach(th => {
     th.addEventListener("click", () => {
       const key = th.dataset.sort;
       if (_sortKey === key) {
@@ -1123,6 +1156,16 @@ function _wireTableInteractions() {
         // Default: numeric counts + recent-first dates sort desc, names asc.
         _sortDesc = ["saved_count", "surfed_count", "trips_count", "signed_up_at", "last_activity", "total_seconds"].indexOf(key) !== -1;
       }
+      _renderDashboard();
+    });
+  });
+  // Engagement scoreboard sort headers — new column → desc first
+  // (most-first), same column again → flip direction.
+  document.querySelectorAll("[data-eng-sort]").forEach(th => {
+    th.addEventListener("click", () => {
+      const key = th.dataset.engSort;
+      if (_engSortKey === key) _engSortDesc = !_engSortDesc;
+      else { _engSortKey = key; _engSortDesc = true; }
       _renderDashboard();
     });
   });
