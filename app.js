@@ -9239,13 +9239,19 @@ function renderConsentBanner(opts) {
     </div>
   `;
   document.body.appendChild(wrap);
+  // Count the genuine FIRST impression only (not footer "Cookie
+  // preferences" reopens), so it's a clean denominator for the
+  // accept/reject rate: "of everyone who was asked, X% accepted".
+  if (!opts.reopen) recordConsentShown();
   wrap.querySelector('[data-consent="accept"]').addEventListener("click", () => {
     writeConsent({ analytics: true });
+    recordConsentChoice(true);
     loadCloudflareBeacon();
     closeConsentBanner();
   });
   wrap.querySelector('[data-consent="reject"]').addEventListener("click", () => {
     writeConsent({ analytics: false });
+    recordConsentChoice(false);
     closeConsentBanner();
   });
   wrap.querySelector('[data-consent="customize"]').addEventListener("click", () => {
@@ -9260,6 +9266,7 @@ function renderConsentBanner(opts) {
       actions.querySelector('[data-consent="save"]').addEventListener("click", () => {
         const analytics = !!document.getElementById("consent-analytics").checked;
         writeConsent({ analytics });
+        recordConsentChoice(analytics);
         if (analytics) loadCloudflareBeacon();
         closeConsentBanner();
       });
@@ -9270,6 +9277,28 @@ function renderConsentBanner(opts) {
 function closeConsentBanner() {
   const el = document.getElementById("consent-banner");
   if (el) el.remove();
+}
+/* Record the cookie-consent funnel as anonymous, cookieless events so
+   the admin can see the accept-vs-reject rate. These MUST fire
+   regardless of the choice (you can't gate the "reject" event behind
+   consent), so they ride WaveBaseTracking.anonEvent — no session_id,
+   no user_id, just a tally. Legitimate-interest basis (Art. 6(1)(f)):
+   measuring our own consent rate is operational, not visitor tracking.
+   The denominator is consent_shown; consent_choice{accepted} is the
+   numerator. */
+function recordConsentShown() {
+  try {
+    if (window.WaveBaseTracking && WaveBaseTracking.anonEvent) {
+      WaveBaseTracking.anonEvent("consent_shown", {});
+    }
+  } catch (e) {}
+}
+function recordConsentChoice(accepted) {
+  try {
+    if (window.WaveBaseTracking && WaveBaseTracking.anonEvent) {
+      WaveBaseTracking.anonEvent("consent_choice", { accepted: !!accepted });
+    }
+  } catch (e) {}
 }
 function initConsent() {
   const current = readConsent();

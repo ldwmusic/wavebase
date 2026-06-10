@@ -155,6 +155,11 @@ async function _loadEventsSearch() {
   if (!res.ok) throw new Error("Search failed: " + res.status);
   return res.json();
 }
+async function _loadEventsConsent() {
+  const res = await WaveBaseAuth.authFetch("/admin/events/consent");
+  if (!res.ok) throw new Error("Consent failed: " + res.status);
+  return res.json();
+}
 async function _loadRecentReviews() {
   const res = await WaveBaseAuth.authFetch("/admin/reviews/recent?limit=20");
   if (!res.ok) throw new Error("Recent reviews failed: " + res.status);
@@ -363,9 +368,9 @@ function _renderPopularity(pop) {
 
 async function _renderDashboard() {
   const root = document.getElementById("admin-root");
-  let overview, popularity, evAff, evViews, evFunnel, evSearch, recent, engagement, byCountry, affinity, mismatch;
+  let overview, popularity, evAff, evViews, evFunnel, evSearch, recent, engagement, byCountry, affinity, mismatch, evConsent;
   try {
-    [overview, popularity, evAff, evViews, evFunnel, evSearch, recent, engagement, byCountry, affinity, mismatch] = await Promise.all([
+    [overview, popularity, evAff, evViews, evFunnel, evSearch, recent, engagement, byCountry, affinity, mismatch, evConsent] = await Promise.all([
       _loadOverview(),
       _loadPopularity(),
       _loadEventsAffiliate(),
@@ -377,6 +382,7 @@ async function _renderDashboard() {
       _loadEngagementByCountry(),
       _loadStayAffinity(),
       _loadConditionsMismatch(),
+      _loadEventsConsent(),
     ]);
   } catch (e) {
     root.innerHTML = `<p class="muted" style="color:var(--clay);">Failed to load admin data: ${_esc(e.message || e)}</p>`;
@@ -398,6 +404,7 @@ async function _renderDashboard() {
       </div>
     </div>
     ${_renderKpis(overview.totals, overview.today, overview.online_now, overview.online_window_min)}
+    ${_renderConsent(evConsent)}
     ${_renderConditionsMismatch(mismatch)}
     ${_renderRecentReviews(recent)}
     ${_renderEngagement(engagement, evViews)}
@@ -413,6 +420,53 @@ async function _renderDashboard() {
   _wireSearchActions();
   _wireCsvExports();
   _wireReviewProcessed();
+}
+
+function _renderConsent(c) {
+  c = c || {};
+  const shown    = c.shown || 0;
+  const accepted = c.accepted || 0;
+  const rejected = c.rejected || 0;
+  const ignored  = c.ignored || 0;
+  const decided  = c.decided || (accepted + rejected);
+  // Two denominators tell different stories:
+  //  - of those who DECIDED, what split? (accept-vs-reject)
+  //  - of those who were SHOWN, how many even chose? (engagement)
+  const pct = (n, d) => (d > 0 ? Math.round((n / d) * 100) : 0);
+  const accPctDecided = pct(accepted, decided);
+  const rejPctDecided = pct(rejected, decided);
+  if (shown === 0 && decided === 0) {
+    return `
+      <section class="adm-section">
+        <h2>Cookie consent</h2>
+        <p class="muted">No consent decisions recorded yet — this fills in once non-admin visitors see the cookie banner and click Accept or Reject.</p>
+      </section>`;
+  }
+  // Stacked bar across everyone who was shown the banner.
+  const aW = pct(accepted, shown), rW = pct(rejected, shown), iW = pct(ignored, shown);
+  return `
+    <section class="adm-section">
+      <h2>Cookie consent <span class="muted" style="font-weight:400;font-size:.7em;">how much analytics data you actually get</span></h2>
+      <div class="adm-consent">
+        <div class="adm-consent-headline">
+          <strong>${accPctDecided}%</strong> accept
+          &middot; <strong>${rejPctDecided}%</strong> reject
+          <span class="muted">(of ${decided} who chose)</span>
+        </div>
+        <div class="adm-consent-bar" role="img" aria-label="${aW}% accepted, ${rW}% rejected, ${iW}% ignored">
+          <span class="adm-cbar adm-cbar-acc" style="width:${aW}%" title="Accepted: ${accepted}"></span>
+          <span class="adm-cbar adm-cbar-rej" style="width:${rW}%" title="Rejected: ${rejected}"></span>
+          <span class="adm-cbar adm-cbar-ign" style="width:${iW}%" title="Ignored: ${ignored}"></span>
+        </div>
+        <div class="adm-consent-legend">
+          <span><span class="adm-dot adm-dot-acc"></span>Accept ${accepted}</span>
+          <span><span class="adm-dot adm-dot-rej"></span>Reject ${rejected}</span>
+          <span><span class="adm-dot adm-dot-ign"></span>Ignored ${ignored}</span>
+          <span class="muted">${shown} shown the banner</span>
+        </div>
+        <p class="muted adm-table-hint">Visitors who accept get full analytics (rich pageviews, funnel). The rest are still counted anonymously in Views &mdash; this number tells you how much detail you trade away. A high reject rate means lean on the anonymous counters.</p>
+      </div>
+    </section>`;
 }
 
 function _renderActivity(evAff, evViews, evFunnel, evSearch) {

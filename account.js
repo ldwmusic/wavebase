@@ -1369,6 +1369,28 @@ const WaveBaseTracking = (function () {
     } catch (e) { /* never break the page */ }
   }
 
+  /* Anonymous, cookieless event — same legitimate-interest basis as
+     spotView (no session_id, no user_id, no Authorization header), but
+     for arbitrary operational metrics that must be counted for EVERY
+     visitor regardless of analytics-cookie consent. Used for:
+       - consent_choice / consent_shown : the cookie accept-vs-reject
+         rate. The "reject" event obviously can't be gated behind
+         consent, so it rides this anonymous channel.
+     Admin self is dropped client-side (we don't send a token, so the
+     server can't tell, so we filter here). Never throws. */
+  function anonEvent(type, props) {
+    try {
+      if (!type) return;
+      if (_isAdminEmail(_currentUserEmail())) return;
+      fetch(API + "/events/", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ event_type: type, properties: props || {} }),
+        keepalive: true,
+      }).catch(function () { /* silent */ });
+    } catch (e) { /* never break the page */ }
+  }
+
   /* Convenience: pageview for the current page. Auto-detects spot_id
      from the URL when on spot.html so the admin "top viewed" report
      can group by spot.
@@ -1405,9 +1427,10 @@ const WaveBaseTracking = (function () {
   }
 
   return {
-    track:    track,
-    pageview: pageview,
-    spotView: spotView,
+    track:     track,
+    pageview:  pageview,
+    spotView:  spotView,
+    anonEvent: anonEvent,
   };
 })();
 
