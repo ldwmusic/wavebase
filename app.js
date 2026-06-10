@@ -4096,7 +4096,7 @@ function initIndex() {
 }
 
 /* ---- SEO helpers ---- */
-const SITE_ORIGIN = "https://wavebase.lode-b162.workers.dev";
+const SITE_ORIGIN = "https://surfgoose.com";
 
 function setMeta(selector, attr, value) {
   let el = document.querySelector(selector);
