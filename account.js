@@ -1481,15 +1481,82 @@ const WaveBasePresence = (function () {
 // Fire one pageview per page load. Wait for DOMContentLoaded so the
 // consent state + auth state are stable; pageview() guards on both
 // anyway, so this is just to avoid an extra wasted attempt.
+
+/* ============================================================
+   Page-time (dwell) — how long visitors actually spend on a spot,
+   center, stay or country page. Anonymous + cookieless (rides
+   WaveBaseTracking.anonEvent: no session_id, no user_id, admin
+   dropped), legitimate-interest basis like the Views counter.
+
+   Honest measurement, two guards against the classic dwell-time lies:
+     - ACTIVE time only: the timer pauses whenever the tab is hidden
+       (backgrounded / switched away) and resumes on return, so
+       "tab left open over lunch" doesn't inflate the number.
+     - Capped at 30 min + floored at 2s: kills the long tail of
+       walk-away outliers and ignores accidental bounces.
+   Sent once, on pagehide, via keepalive (survives the unload). */
+const WaveBasePageTime = (function () {
+  const CAP_SECONDS = 1800;   // 30-min hard ceiling
+  const FLOOR_SECONDS = 2;    // ignore sub-2s bounces
+  let pageKey = null, activeMs = 0, lastResume = 0, running = false, sent = false;
+
+  /* What are we timing? Detail pages → the entry id (same key the
+     Views counter uses, so the admin resolves the name the same way).
+     Country pages → "country:<Name>". Everything else is skipped. */
+  function detectPageKey() {
+    try {
+      const path = (window.location.pathname || "/").split("/").pop() || "/";
+      const params = new URLSearchParams(window.location.search);
+      if (path === "spot.html" || path === "spot") {
+        return params.get("id") || null;
+      }
+      if (path === "continent.html" || path === "continent") {
+        const c = params.get("country") || params.get("name") || params.get("continent");
+        return c ? ("country:" + c) : null;
+      }
+      return null;
+    } catch (e) { return null; }
+  }
+  function resume() { if (!running) { running = true; lastResume = Date.now(); } }
+  function pause()  { if (running)  { running = false; activeMs += Date.now() - lastResume; } }
+  function flush() {
+    if (sent || !pageKey) return;
+    pause();
+    let s = Math.round(activeMs / 1000);
+    if (s > CAP_SECONDS) s = CAP_SECONDS;
+    if (s < FLOOR_SECONDS) return;          // bounce — not worth recording
+    sent = true;
+    try {
+      if (window.WaveBaseTracking && WaveBaseTracking.anonEvent) {
+        WaveBaseTracking.anonEvent("page_time", { page_key: pageKey, seconds: s });
+      }
+    } catch (e) {}
+  }
+  function start() {
+    pageKey = detectPageKey();
+    if (!pageKey) return;                   // not a measured page
+    resume();
+    document.addEventListener("visibilitychange", function () {
+      if (document.visibilityState === "hidden") pause(); else resume();
+    });
+    // pagehide is the reliable "leaving the page" signal on desktop +
+    // modern mobile; keepalive in anonEvent makes the send survive it.
+    window.addEventListener("pagehide", flush);
+  }
+  return { start: start, flush: flush };
+})();
+
 if (typeof window !== "undefined") {
   if (document.readyState === "loading") {
     document.addEventListener("DOMContentLoaded", function () {
       WaveBaseTracking.pageview();
       WaveBasePresence.start();
+      WaveBasePageTime.start();
     });
   } else {
     WaveBaseTracking.pageview();
     WaveBasePresence.start();
+    WaveBasePageTime.start();
   }
 
   /* Affiliate / "Book now" clicks. Delegated listener so every

@@ -160,6 +160,11 @@ async function _loadEventsConsent() {
   if (!res.ok) throw new Error("Consent failed: " + res.status);
   return res.json();
 }
+async function _loadEventsDwell() {
+  const res = await WaveBaseAuth.authFetch("/admin/events/dwell");
+  if (!res.ok) throw new Error("Dwell failed: " + res.status);
+  return res.json();
+}
 async function _loadRecentReviews() {
   const res = await WaveBaseAuth.authFetch("/admin/reviews/recent?limit=20");
   if (!res.ok) throw new Error("Recent reviews failed: " + res.status);
@@ -368,9 +373,9 @@ function _renderPopularity(pop) {
 
 async function _renderDashboard() {
   const root = document.getElementById("admin-root");
-  let overview, popularity, evAff, evViews, evFunnel, evSearch, recent, engagement, byCountry, affinity, mismatch, evConsent;
+  let overview, popularity, evAff, evViews, evFunnel, evSearch, recent, engagement, byCountry, affinity, mismatch, evConsent, evDwell;
   try {
-    [overview, popularity, evAff, evViews, evFunnel, evSearch, recent, engagement, byCountry, affinity, mismatch, evConsent] = await Promise.all([
+    [overview, popularity, evAff, evViews, evFunnel, evSearch, recent, engagement, byCountry, affinity, mismatch, evConsent, evDwell] = await Promise.all([
       _loadOverview(),
       _loadPopularity(),
       _loadEventsAffiliate(),
@@ -383,6 +388,7 @@ async function _renderDashboard() {
       _loadStayAffinity(),
       _loadConditionsMismatch(),
       _loadEventsConsent(),
+      _loadEventsDwell(),
     ]);
   } catch (e) {
     root.innerHTML = `<p class="muted" style="color:var(--clay);">Failed to load admin data: ${_esc(e.message || e)}</p>`;
@@ -408,6 +414,7 @@ async function _renderDashboard() {
     ${_renderConditionsMismatch(mismatch)}
     ${_renderRecentReviews(recent)}
     ${_renderEngagement(engagement, evViews, evAff)}
+    ${_renderDwell(evDwell)}
     ${_renderStayAffinity(affinity)}
     ${_renderByCountry(byCountry)}
     ${_renderUsersTable(overview.users)}
@@ -466,6 +473,65 @@ function _renderConsent(c) {
         </div>
         <p class="muted adm-table-hint">Visitors who accept get full analytics (rich pageviews, funnel). The rest are still counted anonymously in Views &mdash; this number tells you how much detail you trade away. A high reject rate means lean on the anonymous counters.</p>
       </div>
+    </section>`;
+}
+
+function _fmtDuration(s) {
+  s = Math.round(s || 0);
+  if (s < 60) return s + "s";
+  const m = Math.floor(s / 60), rem = s % 60;
+  return rem ? `${m}m ${rem}s` : `${m}m`;
+}
+
+function _renderDwell(evDwell) {
+  const rows = (evDwell && evDwell.top) || [];
+  if (!rows.length) {
+    return `
+      <section class="adm-section">
+        <h2>Time on page</h2>
+        <p class="muted">No dwell data yet — this fills in once non-admin visitors spend more than 2 seconds on a spot, center, stay or country page.</p>
+      </section>`;
+  }
+  const maxAvg = Math.max(1, ...rows.map(r => r.avg_seconds || 0));
+  const trs = rows.map((r, i) => {
+    const key = r.page_key || "";
+    let name, town = "", emoji;
+    if (key.indexOf("country:") === 0) {
+      name = key.slice(8); emoji = "🌍";
+    } else {
+      const entry = _entryById(key);
+      name = entry ? entry.name : key;
+      town = entry ? entry.town : "";
+      emoji = entry ? _typeEmoji(entry.type) : "·";
+    }
+    const pct = Math.round(((r.avg_seconds || 0) / maxAvg) * 100);
+    const isEntry = key.indexOf("country:") !== 0 && _entryById(key);
+    const label = isEntry
+      ? `<a href="spot.html?id=${encodeURIComponent(key)}" target="_blank" rel="noopener" class="adm-eng-name">${emoji} ${_esc(name)}</a>${town ? `<span class="muted"> · ${_esc(town)}</span>` : ""}`
+      : `${emoji} ${_esc(name)}`;
+    return `
+      <tr>
+        <td class="adm-eng-rank">${i + 1}</td>
+        <td>${label}</td>
+        <td class="adm-eng-num"><strong>${_fmtDuration(r.avg_seconds)}</strong></td>
+        <td>
+          <span class="adm-pop-bar"><span class="adm-pop-bar-fill" style="width:${pct}%"></span></span>
+        </td>
+        <td class="adm-eng-num muted">${r.count}</td>
+      </tr>`;
+  }).join("");
+  return `
+    <section class="adm-section">
+      <h2>Time on page <span class="muted" style="font-weight:400;font-size:.7em;">average active attention</span></h2>
+      <div class="adm-table-wrap">
+        <table class="adm-table adm-eng-table">
+          <thead>
+            <tr><th>#</th><th>Page</th><th class="adm-eng-num">Avg time</th><th>&nbsp;</th><th class="adm-eng-num">Views</th></tr>
+          </thead>
+          <tbody>${trs}</tbody>
+        </table>
+      </div>
+      <p class="muted adm-table-hint">Average <em>active</em> seconds per visit &mdash; the timer pauses when the tab is hidden, so this is real attention, not tab-left-open. Capped at 30 min, bounces under 2s ignored. <strong>Views</strong> here = the dwell sample size (how many timed visits), so a high average on 2 visits means less than a modest one on 200.</p>
     </section>`;
 }
 
