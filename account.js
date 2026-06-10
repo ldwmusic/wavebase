@@ -1367,14 +1367,62 @@ const WaveBaseTracking = (function () {
   };
 })();
 
+/* ============================================================
+   Presence heartbeat — drives the admin "Last active" + "Online now".
+   Distinct from WaveBaseTracking (analytics): this is a service-data
+   signal (when was this account last on the site), legitimate-interest
+   basis, so it is NOT gated by the analytics cookie consent. It only
+   fires for logged-in users (needs a JWT) and only bumps a server-side
+   timestamp — no analytics, no behavioural data.
+   Fires: on page load, every 60s while the tab is visible, and when
+   the tab becomes visible again after being backgrounded.
+   ============================================================ */
+const WaveBasePresence = (function () {
+  const INTERVAL_MS = 60 * 1000;
+  let timer = null;
+  let lastPing = 0;
+
+  function ping(force) {
+    try {
+      if (typeof WaveBaseAuth === "undefined" || !WaveBaseAuth.isLoggedIn()) return;
+      const now = Date.now();
+      // Throttle: don't ping more than once per 50s even if called
+      // from multiple triggers (load + visibilitychange firing together).
+      if (!force && now - lastPing < 50 * 1000) return;
+      lastPing = now;
+      WaveBaseAuth.authFetch("/users/me/heartbeat", { method: "POST", keepalive: true })
+        .catch(function () { /* silent — presence is best-effort */ });
+    } catch (e) { /* never break the page */ }
+  }
+
+  function start() {
+    ping(true);                     // immediate ping on load
+    if (timer) clearInterval(timer);
+    timer = setInterval(function () {
+      // Only ping when the tab is actually visible — a backgrounded
+      // tab isn't "active" presence, and skipping saves needless writes.
+      if (document.visibilityState === "visible") ping(false);
+    }, INTERVAL_MS);
+    document.addEventListener("visibilitychange", function () {
+      if (document.visibilityState === "visible") ping(false);
+    });
+  }
+
+  return { start: start, ping: ping };
+})();
+
 // Fire one pageview per page load. Wait for DOMContentLoaded so the
 // consent state + auth state are stable; pageview() guards on both
 // anyway, so this is just to avoid an extra wasted attempt.
 if (typeof window !== "undefined") {
   if (document.readyState === "loading") {
-    document.addEventListener("DOMContentLoaded", function () { WaveBaseTracking.pageview(); });
+    document.addEventListener("DOMContentLoaded", function () {
+      WaveBaseTracking.pageview();
+      WaveBasePresence.start();
+    });
   } else {
     WaveBaseTracking.pageview();
+    WaveBasePresence.start();
   }
 
   /* Affiliate / "Book now" clicks. Delegated listener so every

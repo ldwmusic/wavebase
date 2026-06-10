@@ -203,13 +203,20 @@ function _sortUsers(users) {
   return sorted;
 }
 
-function _renderKpis(totals, today) {
+function _renderKpis(totals, today, onlineNow, onlineWindowMin) {
+  const online = onlineNow || 0;
+  const windowMin = onlineWindowMin || 5;
   return `
     <div class="adm-kpis">
       <div class="adm-kpi">
         <div class="adm-kpi-label">Users</div>
         <div class="adm-kpi-value">${totals.users}</div>
         <div class="adm-kpi-sub">&nbsp;</div>
+      </div>
+      <div class="adm-kpi adm-kpi-online${online > 0 ? " is-live" : ""}">
+        <div class="adm-kpi-label"><span class="adm-online-dot"></span>Online now</div>
+        <div class="adm-kpi-value">${online}</div>
+        <div class="adm-kpi-sub">seen in last ${windowMin} min</div>
       </div>
       <div class="adm-kpi">
         <div class="adm-kpi-label">Saved spots</div>
@@ -257,9 +264,14 @@ function _renderUsersTable(users) {
 
   const rows = _sortUsers(view).map(u => {
     const ago = _fmtAgo(u.last_activity);
+    // Green dot prefix on the name when the user is online (seen in
+    // the last 5 min, per the backend's is_online flag).
+    const onlineDot = u.is_online
+      ? `<span class="adm-online-dot" title="Online now"></span>`
+      : "";
     return `
-      <tr data-user-id="${_esc(u.id)}" class="adm-user-row">
-        <td>${_esc(u.name || "—")}</td>
+      <tr data-user-id="${_esc(u.id)}" class="adm-user-row${u.is_online ? " is-online" : ""}">
+        <td>${onlineDot}${_esc(u.name || "—")}</td>
         <td><span class="adm-mono">${_esc(u.email)}</span></td>
         <td>${_fmtDate(u.signed_up_at)}</td>
         <td class="adm-num">${u.saved_count}</td>
@@ -385,7 +397,7 @@ async function _renderDashboard() {
         <button type="button" class="link-btn" data-export="trips">trips</button>
       </div>
     </div>
-    ${_renderKpis(overview.totals, overview.today)}
+    ${_renderKpis(overview.totals, overview.today, overview.online_now, overview.online_window_min)}
     ${_renderConditionsMismatch(mismatch)}
     ${_renderRecentReviews(recent)}
     ${_renderEngagement(engagement, evViews)}

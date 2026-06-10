@@ -6224,6 +6224,26 @@ button.rml-key.off .rml-dot {
 .adm-kpi-value { font-family: 'Fraunces', serif; font-size: 36px; font-weight: 600; color: var(--ink); line-height: 1.1; margin: 4px 0 2px; }
 .adm-kpi-sub   { font-size: 12px; color: var(--ink-soft); }
 
+/* Online-now KPI + presence dot (June 2026 LDW feature) */
+.adm-kpi-online.is-live { border-color: #3fa34d; box-shadow: 0 0 0 2px rgba(63,163,77,0.12); }
+.adm-kpi-online.is-live .adm-kpi-value { color: #2f8c3c; }
+.adm-online-dot {
+  display: inline-block; width: 9px; height: 9px;
+  border-radius: 50%; background: #cfcabb;       /* grey = nobody online */
+  margin-right: 6px; vertical-align: middle;
+}
+.adm-kpi-online.is-live .adm-online-dot {
+  background: #3fa34d;                            /* green = live */
+  box-shadow: 0 0 0 0 rgba(63,163,77,0.6);
+  animation: adm-online-pulse 2s ease-out infinite;
+}
+.adm-user-row.is-online .adm-online-dot { background: #3fa34d; }
+@keyframes adm-online-pulse {
+  0%   { box-shadow: 0 0 0 0 rgba(63,163,77,0.5); }
+  70%  { box-shadow: 0 0 0 6px rgba(63,163,77,0); }
+  100% { box-shadow: 0 0 0 0 rgba(63,163,77,0); }
+}
+
 /* Sections */
 .adm-section { margin-bottom: 36px; }
 .adm-section h2 { margin: 0 0 12px; font-size: 18px; }
