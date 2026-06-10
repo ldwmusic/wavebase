@@ -312,6 +312,7 @@ function _renderUsersTable(users) {
         ${pillBtn("all",       "All")}
         ${pillBtn("dormant30", "Dormant 30d+")}
         ${pillBtn("never",     "Never active")}
+        <button type="button" class="adm-filter-pill${(_sortKey === "total_seconds" && _sortDesc) ? " is-active" : ""}" data-sort-preset="active">⏱️ Most active</button>
       </div>
       <div class="adm-table-wrap">
         <table class="adm-table">
@@ -913,14 +914,32 @@ function _renderConditionsMismatch(payload) {
 
 /* ---------- engagement scoreboard ---------- */
 
+// Engagement scoreboard type filter: "all" | "spot" | "center" | "stay".
+let _engTypeFilter = "all";
+function _entryMatchesType(entry, filter) {
+  if (filter === "all") return true;
+  if (!entry) return false;                 // unknown entries drop out of typed views
+  if (filter === "spot") return entry.type !== "center" && entry.type !== "stay";
+  return entry.type === filter;
+}
+
 function _renderEngagement(payload, evViews, evAff) {
-  const rows = (payload && payload.rows) || [];
-  if (!rows.length) {
+  const allRows = (payload && payload.rows) || [];
+  if (!allRows.length) {
     return `<section class="adm-section">
       <h2>Engagement scoreboard</h2>
       <p class="muted">No engagement signals yet — give it a few users.</p>
     </section>`;
   }
+  // Counts per type for the filter pills (computed on the full set).
+  const typeCount = { all: allRows.length, spot: 0, center: 0, stay: 0 };
+  allRows.forEach(r => {
+    const e = _entryById(r.spot_id);
+    if (e && e.type === "center") typeCount.center++;
+    else if (e && e.type === "stay") typeCount.stay++;
+    else typeCount.spot++;
+  });
+  const rows = allRows.filter(r => _entryMatchesType(_entryById(r.spot_id), _engTypeFilter));
   // Merge in "Book now" / affiliate-click counts so we can show a
   // view→book conversion rate per entry — the closest thing to a
   // revenue signal in an affiliate model. clicks ÷ views = CTR.
@@ -974,8 +993,16 @@ function _renderEngagement(payload, evViews, evAff) {
         <td class="adm-eng-ago${ago.stale ? " is-stale" : ""}">${_esc(ago.text)}</td>
       </tr>`;
   }).join("");
+  const engPill = (val, label) =>
+    `<button type="button" class="adm-filter-pill${_engTypeFilter === val ? " is-active" : ""}" data-eng-type="${val}">${label} <span class="muted">${typeCount[val]}</span></button>`;
   return `<section class="adm-section">
     <h2>Engagement scoreboard</h2>
+    <div class="adm-filter-row">
+      ${engPill("all", "All")}
+      ${engPill("spot", "🌊 Spots")}
+      ${engPill("center", "🎓 Centers")}
+      ${engPill("stay", "🏠 Stays")}
+    </div>
     <p class="muted adm-table-hint">Combined score per spot = saves×1 + surfed×2 + reviews×5 + helpful×3. <strong>Views</strong> = how often the detail page got opened (every visitor, consented in full + the rest anonymously; admin dropped). <strong>Book&nbsp;now</strong> = "Book now"/affiliate clicks and the view→book conversion rate (clicks ÷ views) — the closest thing to a revenue signal: a spot with few views but a high % converts harder than a popular one nobody books. Last activity dims to muted when stale ≥ 90 days.</p>
     <div class="adm-table-wrap">
       <table class="adm-table adm-eng-table">
@@ -993,7 +1020,7 @@ function _renderEngagement(payload, evViews, evAff) {
             <th>Last activity</th>
           </tr>
         </thead>
-        <tbody>${trs}</tbody>
+        <tbody>${trs || `<tr><td colspan="10" class="muted">No ${_engTypeFilter === "all" ? "entries" : _engTypeFilter + "s"} with engagement signals yet.</td></tr>`}</tbody>
       </table>
     </div>
   </section>`;
@@ -1094,7 +1121,7 @@ function _wireTableInteractions() {
       } else {
         _sortKey = key;
         // Default: numeric counts + recent-first dates sort desc, names asc.
-        _sortDesc = ["saved_count", "surfed_count", "trips_count", "signed_up_at", "last_activity"].indexOf(key) !== -1;
+        _sortDesc = ["saved_count", "surfed_count", "trips_count", "signed_up_at", "last_activity", "total_seconds"].indexOf(key) !== -1;
       }
       _renderDashboard();
     });
@@ -1103,6 +1130,22 @@ function _wireTableInteractions() {
   document.querySelectorAll("[data-dormant-filter]").forEach(btn => {
     btn.addEventListener("click", () => {
       _dormantFilter = btn.dataset.dormantFilter;
+      _renderDashboard();
+    });
+  });
+  // "Most active" preset — show everyone, sorted by time-on-site desc.
+  document.querySelectorAll("[data-sort-preset='active']").forEach(btn => {
+    btn.addEventListener("click", () => {
+      _dormantFilter = "all";
+      _sortKey = "total_seconds";
+      _sortDesc = true;
+      _renderDashboard();
+    });
+  });
+  // Engagement scoreboard type filter (spot / center / stay).
+  document.querySelectorAll("[data-eng-type]").forEach(btn => {
+    btn.addEventListener("click", () => {
+      _engTypeFilter = btn.dataset.engType;
       _renderDashboard();
     });
   });
@@ -1333,6 +1376,14 @@ function _renderUserDetail(detail) {
       </div>`;
   }
 
+  // Time-on-site comes from the overview payload (cached), not the
+  // user-detail endpoint — look the user up there for the session
+  // totals so we don't need a second round-trip.
+  const ov = (_adminUsersCache || []).find(x => x.id === u.id) || {};
+  const onSiteHtml = (ov.total_seconds || 0) > 0
+    ? `<strong>${_fmtDuration(ov.total_seconds)}</strong> <span class="muted">across ${ov.session_count} session${ov.session_count === 1 ? "" : "s"} &middot; avg ${_fmtDuration(ov.avg_session_seconds)}${ov.is_online ? " &middot; online now" : ""}</span>`
+    : `<span class="muted">no tracked time yet</span>`;
+
   document.querySelector(".adm-detail-body").innerHTML = `
     <h2>${_esc(u.name || "(no name)")}</h2>
     <div class="adm-profile">
@@ -1343,6 +1394,7 @@ function _renderUserDetail(detail) {
       <div><span class="adm-prof-k">🎯</span> ${_esc(tripPrios)}</div>
       <div><span class="adm-prof-k">📍</span> Found us via: ${_esc(u.how_did_you_find_us || "—")}</div>
       <div><span class="adm-prof-k">📅</span> Signed up: ${_fmtDate(u.signed_up_at, true)}</div>
+      <div><span class="adm-prof-k">⏱️</span> Time on site: ${onSiteHtml}</div>
     </div>
 
     <h3>Saved (${detail.saved.length})</h3>
