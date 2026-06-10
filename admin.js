@@ -388,7 +388,7 @@ async function _renderDashboard() {
     ${_renderKpis(overview.totals, overview.today)}
     ${_renderConditionsMismatch(mismatch)}
     ${_renderRecentReviews(recent)}
-    ${_renderEngagement(engagement)}
+    ${_renderEngagement(engagement, evViews)}
     ${_renderStayAffinity(affinity)}
     ${_renderByCountry(byCountry)}
     ${_renderUsersTable(overview.users)}
@@ -775,7 +775,7 @@ function _renderConditionsMismatch(payload) {
 
 /* ---------- engagement scoreboard ---------- */
 
-function _renderEngagement(payload) {
+function _renderEngagement(payload, evViews) {
   const rows = (payload && payload.rows) || [];
   if (!rows.length) {
     return `<section class="adm-section">
@@ -783,6 +783,15 @@ function _renderEngagement(payload) {
       <p class="muted">No engagement signals yet — give it a few users.</p>
     </section>`;
   }
+  // Merge in page-view counts from /admin/events/pageviews.
+  // Pageviews are events fired on every spot.html load (gated by cookie
+  // consent + admin-allowlist drop). The data lives in a separate aggregate;
+  // here we just key it by spot_id so the engagement table can show
+  // views as a leading-indicator column alongside saves/surfed/reviews.
+  const viewsBySpot = {};
+  ((evViews && evViews.top) || []).forEach(v => {
+    if (v && v.spot_id) viewsBySpot[v.spot_id] = v.count || 0;
+  });
   const maxScore = Math.max(1, ...rows.map(r => r.score));
   const trs = rows.map((r, i) => {
     const entry = _entryById(r.spot_id);
@@ -791,6 +800,7 @@ function _renderEngagement(payload) {
     const emoji = entry ? _typeEmoji(entry.type) : "·";
     const pct = Math.round((r.score / maxScore) * 100);
     const ago = _fmtAgo(r.last_activity);
+    const views = viewsBySpot[r.spot_id] || 0;
     return `
       <tr>
         <td class="adm-eng-rank">${i + 1}</td>
@@ -800,6 +810,7 @@ function _renderEngagement(payload) {
           </a>
           ${town ? `<span class="muted"> · ${_esc(town)}</span>` : ""}
         </td>
+        <td class="adm-eng-num adm-eng-views">${views || `<span class="muted">0</span>`}</td>
         <td class="adm-eng-num">${r.saves}</td>
         <td class="adm-eng-num">${r.surfed}</td>
         <td class="adm-eng-num">${r.reviews}</td>
@@ -813,13 +824,14 @@ function _renderEngagement(payload) {
   }).join("");
   return `<section class="adm-section">
     <h2>Engagement scoreboard</h2>
-    <p class="muted adm-table-hint">Combined score per spot = saves×1 + surfed×2 + reviews×5 + helpful×3. Last activity column shows whether the buzz is recent or ancient — stale ≥ 90 days dims to muted.</p>
+    <p class="muted adm-table-hint">Combined score per spot = saves×1 + surfed×2 + reviews×5 + helpful×3. <strong>Views</strong> is the leading-indicator column — how often the detail page got opened (gated by user consent in the cookie banner; admin sessions are dropped). Last activity column shows whether the buzz is recent or ancient — stale ≥ 90 days dims to muted.</p>
     <div class="adm-table-wrap">
       <table class="adm-table adm-eng-table">
         <thead>
           <tr>
             <th>#</th>
             <th>Spot</th>
+            <th class="adm-eng-num">Views</th>
             <th class="adm-eng-num">Saves</th>
             <th class="adm-eng-num">Surfed</th>
             <th class="adm-eng-num">Reviews</th>
