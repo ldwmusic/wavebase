@@ -15,7 +15,7 @@
   <meta name="description" content="What SurfGoose collects, why, how long, and how to opt out. Plain English.">
   <meta name="robots" content="index, follow">
   <link rel="canonical" href="https://wavebase.lode-b162.workers.dev/privacy.html">
-  <link rel="stylesheet" href="styles.css?v=397">
+  <link rel="stylesheet" href="styles.css?v=398">
 </head>
 <body class="is-home">
 
@@ -90,8 +90,10 @@
 
       <h3 class="ab-h3">4. Product analytics (opt-in)</h3>
       <p>If you click <em>Accept all</em> in the cookie banner, we record a handful of anonymous events &mdash; on our own server, never sent to any third party &mdash; to understand what's working: which pages get visited, which "Book now" buttons get clicked, how the signup flow performs, and what people search for. Each event carries a per-browser-session ID (a random string in <code>sessionStorage</code> that resets when you close the tab) and, if you're signed in, your user account ID. Never an IP address, never a fingerprint, never sold or shared.</p>
-      <p>If you reject analytics, no events are sent at all &mdash; same as the Cloudflare aggregate above.</p>
+      <p>If you reject analytics, none of these session-linked events are sent &mdash; same as the Cloudflare aggregate above.</p>
       <p>Legal basis: your consent (Art. 6(1)(a) GDPR), withdrawable at any time via the cookie banner.</p>
+
+      <p><strong>One exception &mdash; an anonymous page-hit count.</strong> Even if you don't accept analytics cookies, when you open a spot, center or stay page we add <em>+1</em> to an anonymous counter for that page (so we can see, for example, that "Tenda Beach was viewed 40 times"). This single counter stores <em>only</em> which page was viewed and when &mdash; no session ID, no account ID, no IP address, nothing that points back to you. It's the equivalent of a tally mark, or a line in a server log. Because it can't identify a person, it runs on our legitimate interest in understanding which content is useful (Art. 6(1)(f) GDPR) rather than on consent. We never combine it with any other data.</p>
 
       <h3 class="ab-h3">5. Affiliate links (no data shared by us)</h3>
       <p>Some "Book now" buttons on the site link to partners like Booking.com or stay-property websites. When you click such a link, the partner's site sets its own cookies and processes data according to its own privacy policy. We earn a small commission if you book through them; we never share your personal data with them beyond what you actively send by clicking the link and continuing on their site.</p>
@@ -178,9 +180,9 @@
     </div>
   </footer>
 
-  <script src="constants.js?v=397"></script>
-  <script src="account.js?v=397"></script>
-  <script src="app.js?v=397"></script>
-  <script src="api-client.js?v=397"></script>
+  <script src="constants.js?v=398"></script>
+  <script src="account.js?v=398"></script>
+  <script src="app.js?v=398"></script>
+  <script src="api-client.js?v=398"></script>
 </body>
 </html>

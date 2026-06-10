@@ -1342,10 +1342,44 @@ const WaveBaseTracking = (function () {
     } catch (e) { /* never let tracking break the page */ }
   }
 
+  /* Anonymous, cookieless spot-view ping. Fired on a spot/center/stay
+     detail page when the visitor has NOT accepted analytics cookies.
+     Carries ONLY the spot_id — no session_id, no user_id, and we
+     deliberately don't send the JWT, so the stored event is fully
+     anonymous (a pure aggregate page-hit, like a server log line).
+     Legitimate-interest basis: counting page loads in aggregate is not
+     "tracking a person", so it doesn't need analytics consent.
+     Admin self-views are still excluded — checked client-side here
+     (since we don't send the token, the server can't tell it's an
+     admin, so we filter before sending). */
+  function spotView(spotId) {
+    try {
+      if (!spotId) return;
+      if (_isAdminEmail(_currentUserEmail())) return;   // keep our own testing out
+      fetch(API + "/events/", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          event_type: "spot_view",
+          properties: { spot_id: spotId },
+          // no session_id, no Authorization header → anonymous
+        }),
+        keepalive: true,
+      }).catch(function () { /* silent */ });
+    } catch (e) { /* never break the page */ }
+  }
+
   /* Convenience: pageview for the current page. Auto-detects spot_id
      from the URL when on spot.html so the admin "top viewed" report
-     can group by spot. Other pages send a pageview with just the
-     path so we can see homepage / explorer / kaart traffic too. */
+     can group by spot.
+
+     Two-layer model (June 2026, per LDW):
+       - Consent given  → full rich "pageview" event (session_id +
+         user_id link), as before. Powers funnel / per-user analysis.
+       - No consent     → on spot/center/stay detail pages, fire the
+         anonymous "spot_view" instead, so the admin Views column
+         still counts every real visitor — just without identifiers.
+     Exactly one of the two fires per page-load, so no double-count. */
   function pageview() {
     try {
       const path = (window.location.pathname || "/").split("/").pop() || "/";
@@ -1353,17 +1387,23 @@ const WaveBaseTracking = (function () {
       const props = { path: path };
       // spot.html?id=XYZ is the detail page for any spot/center/stay
       // (frontend uses the same page for all three types).
+      let spotId = null;
       if (path === "spot.html") {
-        const id = params.get("id");
-        if (id) props.spot_id = id;
+        spotId = params.get("id");
+        if (spotId) props.spot_id = spotId;
       }
-      track("pageview", props);
+      if (_consentAllowed()) {
+        track("pageview", props);          // rich, consented
+      } else if (spotId) {
+        spotView(spotId);                  // anonymous fallback (detail pages only)
+      }
     } catch (e) {}
   }
 
   return {
     track:    track,
     pageview: pageview,
+    spotView: spotView,
   };
 })();
 

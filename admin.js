@@ -442,7 +442,7 @@ function _renderActivity(evAff, evViews, evFunnel, evSearch) {
   const viewsMax = Math.max(1, ...views.map(x => x.count));
   const viewsHtml = views.length
     ? `<ol class="adm-pop-list">${views.map(x => _spotRow(x, viewsMax)).join("")}</ol>`
-    : `<p class="muted">No page views yet (gated by user consent in the cookie banner).</p>`;
+    : `<p class="muted">No page views yet — every real visitor is counted (admin sessions excluded), so this fills in once non-admin visitors open spot pages.</p>`;
 
   // Signup funnel — relative bars vs. step 1, plus drop-off %.
   const steps = evFunnel.steps || [];
@@ -836,7 +836,7 @@ function _renderEngagement(payload, evViews) {
   }).join("");
   return `<section class="adm-section">
     <h2>Engagement scoreboard</h2>
-    <p class="muted adm-table-hint">Combined score per spot = saves×1 + surfed×2 + reviews×5 + helpful×3. <strong>Views</strong> is the leading-indicator column — how often the detail page got opened (gated by user consent in the cookie banner; admin sessions are dropped). Last activity column shows whether the buzz is recent or ancient — stale ≥ 90 days dims to muted.</p>
+    <p class="muted adm-table-hint">Combined score per spot = saves×1 + surfed×2 + reviews×5 + helpful×3. <strong>Views</strong> is the leading-indicator column — how often the detail page got opened, counting <em>every</em> visitor (consented visits are counted in full; visitors who declined analytics cookies are still counted anonymously). Admin sessions are always dropped. Last activity column shows whether the buzz is recent or ancient — stale ≥ 90 days dims to muted.</p>
     <div class="adm-table-wrap">
       <table class="adm-table adm-eng-table">
         <thead>
