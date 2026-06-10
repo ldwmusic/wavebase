@@ -1385,10 +1385,14 @@ const WaveBaseTracking = (function () {
       const path = (window.location.pathname || "/").split("/").pop() || "/";
       const params = new URLSearchParams(window.location.search);
       const props = { path: path };
-      // spot.html?id=XYZ is the detail page for any spot/center/stay
-      // (frontend uses the same page for all three types).
+      // The detail page for any spot/center/stay is spot.html?id=XYZ —
+      // but Cloudflare serves it under the CLEAN URL "/spot" (no .html).
+      // So the live pathname is "spot", not "spot.html". Match both, or
+      // the spot_id never gets attached and views never count. (This
+      // clean-URL mismatch was the real reason the Views column stayed
+      // at 0 — found June 2026.)
       let spotId = null;
-      if (path === "spot.html") {
+      if (path === "spot.html" || path === "spot") {
         spotId = params.get("id");
         if (spotId) props.spot_id = spotId;
       }
@@ -1483,7 +1487,8 @@ if (typeof window !== "undefined") {
       try {
         const params = new URLSearchParams(window.location.search);
         const path   = window.location.pathname.split("/").pop();
-        if (path === "spot.html") spotId = params.get("id") || null;
+        // Clean URL: live path is "spot" (no .html). Match both.
+        if (path === "spot.html" || path === "spot") spotId = params.get("id") || null;
       } catch (e) {}
     }
     WaveBaseTracking.track("affiliate_click", {
