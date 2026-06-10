@@ -15,7 +15,7 @@
   <meta name="description" content="What SurfGoose collects, why, how long, and how to opt out. Plain English.">
   <meta name="robots" content="index, follow">
   <link rel="canonical" href="https://surfgoose.com/privacy.html">
-  <link rel="stylesheet" href="styles.css?v=404">
+  <link rel="stylesheet" href="styles.css?v=405">
 </head>
 <body class="is-home">
 
@@ -82,7 +82,7 @@
         <li><strong>Required:</strong> your email address and a <em>hashed</em> password (we use bcrypt &mdash; we never see your plaintext password and can't recover it).</li>
         <li><strong>Optional, you can skip these:</strong> your name, birth year, home country, sports you do, your surf level. These help us tailor recommendations on the home page but aren't shared with anyone else.</li>
         <li><strong>Synced from your browser:</strong> the spots you save with the heart icon get synced to your account so they follow you across devices. Your trips, your "Surfed it" log, your reviews and your travel-style preferences currently stay on your device only &mdash; we may sync more in future versions and will tell you here when that changes.</li>
-        <li><strong>When your account was last active:</strong> while you're signed in and have the site open, we store a timestamp of when your account was last on SurfGoose. It tells us which accounts are still in use and helps us keep the service secure. It's a single "last seen" time &mdash; not a record of which pages you visited (that's the separate, consent-gated analytics described below). Legal basis: our legitimate interest in running and securing the service (Art. 6(1)(f) GDPR).</li>
+        <li><strong>When your account was last active, and roughly how long:</strong> while you're signed in and have the site open, we store a timestamp of when your account was last on SurfGoose, plus a running total of how long your account has spent actively on the site (the timer only counts while the tab is open and in focus, and treats a gap of more than 5 minutes as a new visit). It tells us which accounts are still in use and how much the service gets used &mdash; it is <em>not</em> a record of which individual pages you visited (that's the separate, consent-gated analytics described below). Legal basis: our legitimate interest in running, sizing and securing the service (Art. 6(1)(f) GDPR).</li>
       </ul>
       <p>Legal basis: contract (Art. 6(1)(b) GDPR) for the data needed to provide the account, and your consent (Art. 6(1)(a) GDPR) for optional profile fields. You can delete your account any time by emailing <a href="mailto:info.surfgoose@gmail.com">info.surfgoose@gmail.com</a> or by using the &ldquo;Delete account&rdquo; button at the bottom of your account page. We wipe the account record, your saved spots, your trips and your surf log immediately on request.</p>
       <p><strong>Reviews stay live.</strong> Reviews you publish (on a spot, center or stay page) are public content other surfers rely on for honest fine print &mdash; we don&rsquo;t want a single account deletion to wipe out social proof for everyone else. When you delete your account, your reviews stay visible with the display name you typed when posting (you knew it was public; we don&rsquo;t change what you wrote). The link to your account is severed, so no-one can edit those reviews any more. If you want a specific review removed too, delete or edit it from the spot page or your account-page &ldquo;My reviews&rdquo; block <em>before</em> you delete your account.</p>
@@ -93,7 +93,13 @@
       <p>If you reject analytics, none of these session-linked events are sent &mdash; same as the Cloudflare aggregate above.</p>
       <p>Legal basis: your consent (Art. 6(1)(a) GDPR), withdrawable at any time via the cookie banner.</p>
 
-      <p><strong>One exception &mdash; an anonymous page-hit count.</strong> Even if you don't accept analytics cookies, when you open a spot, center or stay page we add <em>+1</em> to an anonymous counter for that page (so we can see, for example, that "Tenda Beach was viewed 40 times"). This single counter stores <em>only</em> which page was viewed and when &mdash; no session ID, no account ID, no IP address, nothing that points back to you. It's the equivalent of a tally mark, or a line in a server log. Because it can't identify a person, it runs on our legitimate interest in understanding which content is useful (Art. 6(1)(f) GDPR) rather than on consent. We never combine it with any other data.</p>
+      <p><strong>One exception &mdash; a few anonymous counters.</strong> Even if you don't accept analytics cookies, a small number of anonymous tallies still run. None of them carry a session ID, an account ID, an IP address, or anything that points back to you &mdash; they're the equivalent of tally marks or lines in a server log, and we never combine them with any other data. They are:</p>
+      <ul class="about-list">
+        <li><strong>A page-hit count.</strong> When you open a spot, center or stay page we add <em>+1</em> to an anonymous counter for that page (so we can see, for example, that "Tenda Beach was viewed 40 times"). Stores only <em>which</em> page and when.</li>
+        <li><strong>A time-on-page average.</strong> When you leave such a page we record how many seconds it was actively open (the timer pauses when the tab is hidden, is capped at 30 minutes, and ignores visits under 2 seconds), so we can see roughly how long people read each page. Stores only the page and a number of seconds &mdash; never a trail of where you went.</li>
+        <li><strong>A cookie-choice tally.</strong> When the cookie banner is shown and when you click Accept or Reject, we add <em>+1</em> to the matching counter, so we know what share of visitors accept analytics. We can't gate the "reject" tally behind consent, so it runs here. It records only the choice, not who made it.</li>
+      </ul>
+      <p>Because none of these can identify a person, they run on our legitimate interest in understanding which content is useful and how our consent banner performs (Art. 6(1)(f) GDPR) rather than on consent.</p>
 
       <h3 class="ab-h3">5. Affiliate links (no data shared by us)</h3>
       <p>Some "Book now" buttons on the site link to partners like Booking.com or stay-property websites. When you click such a link, the partner's site sets its own cookies and processes data according to its own privacy policy. We earn a small commission if you book through them; we never share your personal data with them beyond what you actively send by clicking the link and continuing on their site.</p>
@@ -180,9 +186,9 @@
     </div>
   </footer>
 
-  <script src="constants.js?v=404"></script>
-  <script src="account.js?v=404"></script>
-  <script src="app.js?v=404"></script>
-  <script src="api-client.js?v=404"></script>
+  <script src="constants.js?v=405"></script>
+  <script src="account.js?v=405"></script>
+  <script src="app.js?v=405"></script>
+  <script src="api-client.js?v=405"></script>
 </body>
 </html>
