@@ -407,7 +407,7 @@ async function _renderDashboard() {
     ${_renderConsent(evConsent)}
     ${_renderConditionsMismatch(mismatch)}
     ${_renderRecentReviews(recent)}
-    ${_renderEngagement(engagement, evViews)}
+    ${_renderEngagement(engagement, evViews, evAff)}
     ${_renderStayAffinity(affinity)}
     ${_renderByCountry(byCountry)}
     ${_renderUsersTable(overview.users)}
@@ -841,7 +841,7 @@ function _renderConditionsMismatch(payload) {
 
 /* ---------- engagement scoreboard ---------- */
 
-function _renderEngagement(payload, evViews) {
+function _renderEngagement(payload, evViews, evAff) {
   const rows = (payload && payload.rows) || [];
   if (!rows.length) {
     return `<section class="adm-section">
@@ -849,6 +849,13 @@ function _renderEngagement(payload, evViews) {
       <p class="muted">No engagement signals yet — give it a few users.</p>
     </section>`;
   }
+  // Merge in "Book now" / affiliate-click counts so we can show a
+  // view→book conversion rate per entry — the closest thing to a
+  // revenue signal in an affiliate model. clicks ÷ views = CTR.
+  const clicksBySpot = {};
+  ((evAff && evAff.top) || []).forEach(a => {
+    if (a && a.spot_id) clicksBySpot[a.spot_id] = a.count || 0;
+  });
   // Merge in page-view counts from /admin/events/pageviews.
   // Pageviews are events fired on every spot.html load (gated by cookie
   // consent + admin-allowlist drop). The data lives in a separate aggregate;
@@ -867,6 +874,12 @@ function _renderEngagement(payload, evViews) {
     const pct = Math.round((r.score / maxScore) * 100);
     const ago = _fmtAgo(r.last_activity);
     const views = viewsBySpot[r.spot_id] || 0;
+    const clicks = clicksBySpot[r.spot_id] || 0;
+    // CTR only meaningful once there are views to divide by.
+    const ctr = views > 0 ? Math.round((clicks / views) * 100) : null;
+    const ctrCell = clicks === 0
+      ? `<span class="muted">0</span>`
+      : `${clicks}${ctr !== null ? ` <span class="adm-ctr">${ctr}%</span>` : ""}`;
     return `
       <tr>
         <td class="adm-eng-rank">${i + 1}</td>
@@ -877,6 +890,7 @@ function _renderEngagement(payload, evViews) {
           ${town ? `<span class="muted"> · ${_esc(town)}</span>` : ""}
         </td>
         <td class="adm-eng-num adm-eng-views">${views || `<span class="muted">0</span>`}</td>
+        <td class="adm-eng-num adm-eng-book">${ctrCell}</td>
         <td class="adm-eng-num">${r.saves}</td>
         <td class="adm-eng-num">${r.surfed}</td>
         <td class="adm-eng-num">${r.reviews}</td>
@@ -890,7 +904,7 @@ function _renderEngagement(payload, evViews) {
   }).join("");
   return `<section class="adm-section">
     <h2>Engagement scoreboard</h2>
-    <p class="muted adm-table-hint">Combined score per spot = saves×1 + surfed×2 + reviews×5 + helpful×3. <strong>Views</strong> is the leading-indicator column — how often the detail page got opened, counting <em>every</em> visitor (consented visits are counted in full; visitors who declined analytics cookies are still counted anonymously). Admin sessions are always dropped. Last activity column shows whether the buzz is recent or ancient — stale ≥ 90 days dims to muted.</p>
+    <p class="muted adm-table-hint">Combined score per spot = saves×1 + surfed×2 + reviews×5 + helpful×3. <strong>Views</strong> = how often the detail page got opened (every visitor, consented in full + the rest anonymously; admin dropped). <strong>Book&nbsp;now</strong> = "Book now"/affiliate clicks and the view→book conversion rate (clicks ÷ views) — the closest thing to a revenue signal: a spot with few views but a high % converts harder than a popular one nobody books. Last activity dims to muted when stale ≥ 90 days.</p>
     <div class="adm-table-wrap">
       <table class="adm-table adm-eng-table">
         <thead>
@@ -898,6 +912,7 @@ function _renderEngagement(payload, evViews) {
             <th>#</th>
             <th>Spot</th>
             <th class="adm-eng-num">Views</th>
+            <th class="adm-eng-num">Book&nbsp;now</th>
             <th class="adm-eng-num">Saves</th>
             <th class="adm-eng-num">Surfed</th>
             <th class="adm-eng-num">Reviews</th>

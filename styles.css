@@ -6268,6 +6268,14 @@ button.rml-key.off .rml-dot {
 .adm-dot-rej { background: var(--clay); }
 .adm-dot-ign { background: #c9bfa8; }
 
+/* Engagement: view→book conversion badge */
+.adm-eng-book .adm-ctr {
+  display: inline-block; font-size: .72rem; font-weight: 700;
+  color: #2f8c3c; background: rgba(63,163,77,0.12);
+  border-radius: 5px; padding: 0 .28em; margin-left: .15em;
+  vertical-align: baseline;
+}
+
 /* Sections */
 .adm-section { margin-bottom: 36px; }
 .adm-section h2 { margin: 0 0 12px; font-size: 18px; }
