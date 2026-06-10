@@ -287,6 +287,11 @@ function _renderUsersTable(users) {
         <td class="adm-num">${u.saved_count}</td>
         <td class="adm-num">${u.surfed_count}</td>
         <td class="adm-num">${u.trips_count}</td>
+        <td class="adm-num adm-onsite">${
+          (u.total_seconds || 0) > 0
+            ? `${_fmtDuration(u.total_seconds)}<span class="muted adm-onsite-sub" title="${u.session_count} session${u.session_count === 1 ? "" : "s"}, avg ${_fmtDuration(u.avg_session_seconds)}"> · ${u.session_count}×</span>`
+            : `<span class="muted">—</span>`
+        }</td>
         <td class="adm-eng-ago${ago.stale ? " is-stale" : ""}">${_esc(ago.text)}</td>
       </tr>
     `;
@@ -318,10 +323,11 @@ function _renderUsersTable(users) {
               ${headCell("saved_count", "Sav", true)}
               ${headCell("surfed_count", "Surf", true)}
               ${headCell("trips_count", "Trp", true)}
+              ${headCell("total_seconds", "On site", true)}
               ${headCell("last_activity", "Last active", false)}
             </tr>
           </thead>
-          <tbody>${rows || `<tr><td colspan="7" class="muted">No users match this filter.</td></tr>`}</tbody>
+          <tbody>${rows || `<tr><td colspan="8" class="muted">No users match this filter.</td></tr>`}</tbody>
         </table>
       </div>
       <p class="muted adm-table-hint">Click a row to see that user's saved spots, trips and surf log.</p>
