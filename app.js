@@ -2731,6 +2731,52 @@ function initResultsMiniMap(matches) {
    same shared list the Compare tab already reads from.
    Built June 2026 per Michiel's PDF feature request.
    ============================================================ */
+/* Cmd/Ctrl + wheel = zoom on every Leaflet map.
+   Monkey-patches L.map so all current AND future map instances get the
+   behavior without needing per-call wiring. Per-map opt-out: set
+   `opts.cmdScrollZoom = false` on the L.map() call.
+   Why a modifier instead of plain scroll-zoom: embedded mini-maps inside
+   scrollable pages hijack the page-scroll if scroll = zoom. The Cmd/Ctrl
+   modifier is the standard pattern (Google Maps embeds, Mapbox embeds,
+   etc.) + matches Mac trackpad pinch-zoom which emits ctrlKey wheel events.
+   Built June 2026 per LDW feedback "wil cmd+scroll werken zoals op Map tab". */
+(function () {
+  if (typeof L === "undefined" || !L.map || L.map._wbCmdScrollPatched) return;
+  const origMap = L.map;
+  function patched(el, opts) {
+    const m = origMap.call(L, el, opts);
+    if (opts && opts.cmdScrollZoom === false) return m;
+    try {
+      const container = m.getContainer();
+      container.addEventListener("wheel", function (ev) {
+        if (!(ev.ctrlKey || ev.metaKey)) return;     // need modifier OR mac trackpad pinch
+        ev.preventDefault();
+        ev.stopPropagation();
+        const delta = ev.deltaY < 0 ? 1 : -1;
+        // Mac trackpad pinch fires with small deltaY values — clamp to ±1 zoom step
+        const step = Math.sign(delta);
+        const minZ = m.getMinZoom();
+        const maxZ = m.getMaxZoom();
+        const next = Math.max(minZ, Math.min(maxZ, m.getZoom() + step));
+        if (next === m.getZoom()) return;
+        // Zoom toward cursor for a Google-Maps-like feel
+        try {
+          const pt = m.mouseEventToContainerPoint(ev);
+          const ll = m.containerPointToLatLng(pt);
+          m.setZoomAround(ll, next);
+        } catch (e) {
+          m.setZoom(next);
+        }
+      }, { passive: false });
+    } catch (e) {}
+    return m;
+  }
+  // Preserve any static methods Leaflet attaches to L.map
+  Object.keys(origMap).forEach(k => { patched[k] = origMap[k]; });
+  patched._wbCmdScrollPatched = true;
+  L.map = patched;
+})();
+
 const WaveBaseCompareMode = (function () {
   const MAX_SELECTION = 5;
   let active = false;          // mode on/off
