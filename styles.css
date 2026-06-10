@@ -1265,6 +1265,62 @@ table.cal td.host { color: var(--clay); }
 }
 .site-footer .legal-links .social-link svg { display: block; }
 
+/* ===========================================================
+   Compare-mode for maps (June 2026 Michiel feature request)
+   Toggle button in top-right of map, on-state shows the FAB,
+   selected markers get a thicker clay border.
+   =========================================================== */
+.compare-mode-ctrl {
+  background: var(--paper);
+  border: 1px solid var(--sand) !important;
+  border-radius: 6px;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+  overflow: hidden;
+}
+.compare-mode-ctrl .cmc-btn {
+  display: inline-flex; align-items: center; gap: 6px;
+  background: var(--paper); border: none; cursor: pointer;
+  padding: 8px 12px;
+  font-family: 'DM Sans', sans-serif; font-size: 13px; font-weight: 600;
+  color: var(--ink); white-space: nowrap;
+  transition: background-color 0.15s ease, color 0.15s ease;
+}
+.compare-mode-ctrl .cmc-btn:hover { background: var(--sea-soft); color: var(--sea); }
+.compare-mode-ctrl .cmc-icon { font-size: 16px; line-height: 1; }
+.compare-mode-ctrl.on { border-color: var(--clay) !important; }
+.compare-mode-ctrl.on .cmc-btn { background: var(--clay); color: #fff; }
+.compare-mode-ctrl.on .cmc-btn:hover { background: var(--clay); opacity: 0.9; }
+
+/* Map cursor hint when compare-mode is active */
+.leaflet-container.compare-mode-on { cursor: crosshair; }
+.leaflet-container.compare-mode-on .leaflet-interactive { cursor: pointer; }
+
+/* Floating "Compare N selected →" button */
+.compare-mode-fab {
+  position: fixed; right: 24px; bottom: 24px; z-index: 1200;
+  background: var(--clay); color: #fff;
+  font-family: 'DM Sans', sans-serif; font-size: 15px; font-weight: 700;
+  padding: 14px 22px;
+  border-radius: 999px;
+  box-shadow: 0 6px 20px rgba(189,98,66,0.4);
+  text-decoration: none;
+  display: inline-flex; align-items: center; gap: 10px;
+  transition: transform 0.15s ease, box-shadow 0.15s ease;
+  cursor: pointer;
+}
+.compare-mode-fab:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 10px 24px rgba(189,98,66,0.5);
+  text-decoration: none; color: #fff;
+}
+.compare-mode-fab .cmf-n {
+  display: inline-flex; align-items: center; justify-content: center;
+  width: 26px; height: 26px;
+  background: rgba(255,255,255,0.25);
+  border-radius: 50%;
+  font-size: 14px;
+}
+
 /* Cookie consent banner — slides up from bottom, on-brand styling. */
 .consent-banner {
   position: fixed;

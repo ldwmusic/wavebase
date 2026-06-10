@@ -2681,6 +2681,7 @@ function initResultsMiniMap(matches) {
   // One Leaflet layer per type → toggling is a single addLayer/removeLayer call.
   const layers = { spot: L.layerGroup(), center: L.layerGroup(), stay: L.layerGroup() };
   const allCoords = [];
+  const markerEntries = []; // for compare-mode wiring
   withCoords.forEach(e => {
     if (!layers[e.type]) return;
     allCoords.push(e.coords);
@@ -2692,6 +2693,7 @@ function initResultsMiniMap(matches) {
     m.bindTooltip(tipBody, { direction: "top", offset: [0, -6], className: "rml-tooltip" });
     m.on("click", () => { window.location.href = spotHref(e.id); });
     m.addTo(layers[e.type]);
+    markerEntries.push({ marker: m, entry: e });
   });
   layers.spot.addTo(map);
   layers.center.addTo(map);
@@ -2715,7 +2717,137 @@ function initResultsMiniMap(matches) {
       btn.setAttribute("aria-pressed", visible[t] ? "true" : "false");
     });
   });
+
+  // Wire compare-mode (toggle + selection handlers) on this mini-map.
+  WaveBaseCompareMode.init(map, markerEntries);
 }
+
+/* ============================================================
+   Compare-mode for maps — wires both the Home mini-map and the
+   full kaart.html map. Click a pin → toggles selection (instead
+   of navigating). Auto-locks to first-clicked type (no mixing
+   spots + centers). Floating FAB shows "Compare N selected →".
+   Backed by WaveBaseAccount.toggleCompare() so it lives in the
+   same shared list the Compare tab already reads from.
+   Built June 2026 per Michiel's PDF feature request.
+   ============================================================ */
+const WaveBaseCompareMode = (function () {
+  const MAX_SELECTION = 5;
+  let active = false;          // mode on/off
+  let lockedType = null;       // first-clicked type ("spot" / "center" / "stay")
+
+  function selectedCount() {
+    return WaveBaseAccount.getCompare().length;
+  }
+  function selectedTypeFromList() {
+    // Look up the type of the first entry in the compare list, so we
+    // re-derive the lock after a page reload.
+    const list = WaveBaseAccount.getCompare();
+    if (!list.length) return null;
+    const first = list.map(byId).filter(Boolean)[0];
+    return first ? first.type : null;
+  }
+  function syncFAB() {
+    let fab = document.getElementById("compare-mode-fab");
+    const n = selectedCount();
+    if (n === 0) {
+      if (fab) fab.remove();
+      return;
+    }
+    if (!fab) {
+      fab = document.createElement("a");
+      fab.id = "compare-mode-fab";
+      fab.href = "compare.html";
+      fab.className = "compare-mode-fab";
+      document.body.appendChild(fab);
+    }
+    fab.innerHTML = `Compare <span class="cmf-n">${n}</span> selected &rarr;`;
+  }
+
+  // Build a Leaflet control with the "Compare multiple" toggle button.
+  function buildLeafletControl(map, attachAll) {
+    const Ctrl = L.Control.extend({
+      options: { position: "topright" },
+      onAdd: function () {
+        const div = L.DomUtil.create("div", "compare-mode-ctrl leaflet-bar");
+        const btn = L.DomUtil.create("button", "cmc-btn", div);
+        btn.type = "button";
+        btn.innerHTML = `<span class="cmc-icon">⇄</span><span class="cmc-label">Compare multiple</span>`;
+        L.DomEvent.disableClickPropagation(div);
+        L.DomEvent.on(btn, "click", function () {
+          active = !active;
+          div.classList.toggle("on", active);
+          btn.querySelector(".cmc-label").textContent = active ? "Done selecting" : "Compare multiple";
+          attachAll();        // re-wire all markers for the new mode
+          // Update map cursor
+          map.getContainer().classList.toggle("compare-mode-on", active);
+        });
+        return div;
+      }
+    });
+    map.addControl(new Ctrl());
+  }
+
+  // Re-wire every marker for the current mode.
+  // - In normal mode: click → navigate to entry detail page
+  // - In compare mode: click → toggle selection (with type-lock guard)
+  function wireMarkers(markerEntries, map) {
+    lockedType = selectedTypeFromList();
+    markerEntries.forEach(({ marker, entry }) => {
+      marker.off("click");
+      marker.on("click", function (ev) {
+        if (active) {
+          L.DomEvent.stop(ev);
+          // Type-lock check
+          const currentLock = lockedType || selectedTypeFromList();
+          if (currentLock && entry.type !== currentLock) {
+            alert(`You're already comparing ${currentLock}s — only one type at a time. Clear the selection on the Compare tab to switch.`);
+            return;
+          }
+          const list = WaveBaseAccount.getCompare();
+          const isIn = list.indexOf(entry.id) !== -1;
+          // Max selection guard
+          if (!isIn && list.length >= MAX_SELECTION) {
+            alert(`Max ${MAX_SELECTION} selected at once — comparison tables get unreadable beyond that.`);
+            return;
+          }
+          WaveBaseAccount.toggleCompare(entry.id);
+          if (!isIn && list.length === 0) lockedType = entry.type;
+          if (isIn && list.length === 1) lockedType = null;
+          syncSelectedMarker(marker, entry);
+          syncFAB();
+          updateNav();
+        } else {
+          // Normal mode — go to detail page
+          window.location.href = spotHref(entry.id);
+        }
+      });
+      syncSelectedMarker(marker, entry);
+    });
+  }
+  function syncSelectedMarker(marker, entry) {
+    const isIn = WaveBaseAccount.isComparing(entry.id);
+    // CircleMarker styling: thicker white border + larger radius + glow when selected
+    if (marker.setStyle) {
+      marker.setStyle({
+        radius: isIn ? 13 : 9,
+        weight: isIn ? 4 : 2.5,
+        color: isIn ? "#bd6242" : "#fff"
+      });
+    }
+  }
+
+  return {
+    init(map, markerEntries) {
+      if (!L || !map || !markerEntries) return;
+      const attachAll = () => wireMarkers(markerEntries, map);
+      buildLeafletControl(map, attachAll);
+      attachAll();
+      syncFAB();
+    },
+    refreshFAB: syncFAB
+  };
+})();
 
 function renderResultsSections(matches, gridClass, monthIdx, sportFilter) {
   if (!matches.length) return "";
@@ -4972,8 +5104,12 @@ function initMap() {
       radius: 8, color: "#fff", weight: 2, fillColor: typeColor(e.type), fillOpacity: 1
     });
     const note = e.coordsLabel ? "<br><em>Approximate location</em>" : "";
-    m.bindPopup(`<strong>${e.name}</strong><br>${typeLabel(e.type)} &middot; ${e.town}${note}<br>
-      <a href="spot.html?id=${e.id}">See the analysis →</a>`);
+    // Tooltip on hover so compare-mode still has identifying info without
+    // opening a click-popup that would block the selection click.
+    m.bindTooltip(`<strong>${escHTML(e.name)}</strong><br>${typeLabel(e.type)}${e.town ? " &middot; " + escHTML(e.town) : ""}`,
+                  { direction: "top", offset: [0, -6], className: "rml-tooltip" });
+    // Default click handler: open detail page. Compare-mode will replace this.
+    m.on("click", () => { window.location.href = "spot.html?id=" + e.id; });
     markerEntries.push({ marker: m, entry: e, layer: layers[e.type] });
     m.addTo(layers[e.type]);
   });
@@ -5026,6 +5162,9 @@ function initMap() {
       applyFilters();
     });
   });
+
+  // Wire compare-mode on the full kaart.html map too.
+  WaveBaseCompareMode.init(map, markerEntries);
 }
 
 /* ---- trip maps (account) — a roadtrip-style map per trip ---- */
