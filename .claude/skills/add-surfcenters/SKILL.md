@@ -302,6 +302,74 @@ for a specific center (rare — no Maps listing exists), surface that
 to Lode as a candidate-for-deletion rather than POSTing with a
 placeholder.
 
+#### Hard Gate 4.6 · "Pin must be on land" — visual-clarity check
+
+**Even when Google Maps returns a coord, that coord can land in the
+ocean.** Two failure modes the Peniche batch hit:
+- Happy Days Surf's Maps registered place pin was literally at
+  (39.385, -9.437) — 1.5 km offshore in open Atlantic. The operator
+  has no fixed beach office; Google's data was wrong.
+- Supertubos's Maps coord put it 1 km off the actual beach (Praia dos
+  Supertubos at 39.344, -9.363 not 39.358, -9.434).
+
+**Rule: after Chrome MCP returns a coord, sanity-check it before POST:**
+
+1. **Centers must be on land/beach.** Never in open water. If Maps'
+   coord lands in the ocean (very low longitude on Atlantic coasts,
+   etc.), fall back to the nearest beach where the operator actually
+   teaches. Add a `coords_label` explaining: "Multi-beach operator —
+   pinned at primary lesson beach since operator has no fixed office."
+2. **Spots can be on the beach or just offshore — never far offshore.**
+   The wave breaks 80-150m from shore for most beach breaks. Pin at
+   the BEACH (visually anchored) rather than at the exact wave-break
+   coord (visually orphaned in the blue). Big-wave/reef-only spots may
+   need offshore pins but flag those explicitly.
+3. **If Maps gives you an obviously-wrong coord** (in the ocean for a
+   land business, on a different coastline, etc.), search again with a
+   more specific query OR fall back to a sensible beach approximation
+   and document the substitution.
+
+The June 2026 LDW feedback explicitly said: "If there is no clear
+location available, you may consider to take the assumption that a
+surf center should always be on the main land and/or beach, never
+fully surrounded by water. If unclear, pin at the closest beach."
+
+#### Hard Gate 4.7 · booking_url must resolve
+
+**Pre-POST check: every `booking_url` must return HTTP 2xx/3xx.**
+The Peniche batch POSTed Na Onda Surf School with `naondasurf.com`
+which returns DNS_PROBE_FINISHED_NXDOMAIN — the domain doesn't even
+exist. Real site is `ericeirasurf.com`. LDW caught this when clicking
+"Visit website" on the live page.
+
+**Rule: before adding to the POST payload, curl-test the URL:**
+```bash
+curl -sIo /dev/null -w "%{http_code}" -L "$URL"
+```
+- 200/3xx → use it
+- 404/500/connection failed → find a different URL, or set
+  `booking_url: null` with a note rather than ship a broken link
+- If the operator genuinely has no working site → DELETE the center.
+  We don't feature operators we can't link to.
+
+#### Hard Gate 4.8 · Brand-vs-Maps mismatch hard-stop
+
+**Already covered above as Gate 4 brand-vs-Maps cross-check — but
+the Sea View Surf Camp / Pure Sea View Surfcamp failure in June 2026
+proves it needs sharper teeth:** Maps' "Open in Google Maps" link for
+"Sea View Surf Camp" in Portugal resolved to "Pure Sea View Surfcamp"
+in Morocco. Same word "Sea View" → completely different business in
+a completely different country. Visitors clicked through and got
+mis-directed.
+
+**Rule: if your candidate center's name doesn't have an EXACT Maps
+match for the right country, STOP.** Don't approximate, don't trust
+"close enough", don't POST hoping nobody will click the Maps link.
+Either: (a) find the operator's actual Maps listing with a more
+specific query, (b) skip the center entirely, or (c) flag the
+mismatch in `coords_label` AND set `google_maps_query: false` so the
+"Open in Google Maps" button is hidden for this entry.
+
 #### Brand-vs-Maps cross-check — mandatory red-flag detection
 
 **When you search the center's name in Google Maps and the results return
