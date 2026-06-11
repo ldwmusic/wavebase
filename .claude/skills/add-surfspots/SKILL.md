@@ -459,6 +459,62 @@ hotel because we searched by name only. Anti-pattern from the Crete batch:
 description said it was. Always match by **name + location + visible
 coastline shape**, and run the delta-check before POST.
 
+#### Hard Gate 5.5 · Spot pin = Maps beach-place coord, NEVER your working coord
+
+**The pin you POST must come from a Google Maps beach-place lookup
+(`!3d/!4d` of the playa/beach place), not from the coordinate you used
+for research or Open-Meteo.** These are two different numbers with two
+different jobs:
+
+- **Working coord** — where you point Open-Meteo. Often deliberately
+  offshore (Marine API needs sea cells) or eyeballed from a guide.
+  Lives only in `stats.source`.
+- **Pin coord** — what renders on every map on the site. Must sit ON
+  the sand at the named beach, sourced from the Maps place for that
+  beach (search "Playa de <name>" / "<name> beach"), or — when no
+  beach-place exists — a satellite-view-verified point on the sand.
+
+**The Fuerteventura lesson (June 2026):** the island batch POSTed 7
+spots using working coords as pins. Five drifted seaward — La Pared
+750 m offshore in the breakers, Piedra Playa 700 m off on the cliff
+line, Flag Beach / Sotavento / Risco 150–600 m into the water or
+lagoon. LDW caught it on the live map ("voornamelijk La Pared"). Every
+pin had passed Nominatim reverse-geocoding (it snaps to the nearest
+address — useless as a water-check) and a full re-verification round
+was needed: look up each beach's own Maps place, repin, re-test every
+google_maps_query.
+
+**The procedure, per spot, before POST:**
+
+1. Search Maps for the BEACH place ("Playa de la Pared Fuerteventura",
+   "Piedra Playa El Cotillo") and take its `!3d/!4d` pin. Beach places
+   exist for nearly every named beach — use them.
+2. No beach place? Drop a satellite-view pin on the sand (zoom 16+,
+   confirm visually: sand under the pin, not blue, not breakers).
+3. Compute the delta between pin coord and working coord. Note it in
+   `stats.source` ("data cell 2 km north of the pin") when they differ.
+4. Nominatim reverse is NOT a substitute for the visual check — it
+   resolves ocean coords to the nearest land address without warning.
+
+#### google_maps_query — Fuerteventura anti-patterns (test EVERY query)
+
+The query must be TESTED to land on the right place — three new
+failure modes from the June 2026 island batch:
+
+- **Accommodation-name collision:** query "Punta Elena Beach Corralejo"
+  landed on the apartment complex "Punta Elena Beach The Home
+  Collection", not the surf break. Beaches and hotels share names
+  constantly — prefer the official playa-place name ("Playa Punta
+  Prieta Corralejo").
+- **Ambiguous brand queries:** "Flag Beach Windsurf Kitesurf Centre
+  Corralejo" returned a search-results page with COMPETITOR schools
+  ranked above the target. If the query doesn't redirect straight to
+  a `/place/`, fall back to raw `lat,lng` as the query — a coord query
+  always lands exactly.
+- **Multi-place beach names:** 10 km beaches (Sotavento) carry several
+  identical place listings. A name query may land on the wrong section
+  — use raw coords for long-beach spots.
+
 #### No batched WORK on any per-spot step
 
 The Crete batch tried to shortcut this gate by trusting research-derived
