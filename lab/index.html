@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <meta name="theme-color" content="#3f6f7d">
+  <meta name="robots" content="noindex, nofollow">
+  <title>SurfGoose · Design Lab</title>
+  <meta name="description" content="Experimental design preview for SurfGoose. Not the live site.">
+  <meta property="og:type" content="website">
+  <meta property="og:site_name" content="SurfGoose">
+  <meta property="og:title" content="SurfGoose · Design Lab — the goose flies you in">
+  <meta property="og:description" content="Experimental design preview: intro flight, water-feel scrolling, 3D cards and the goose landing on the map. Not the live site.">
+  <meta property="og:image" content="https://surfgoose.com/og-image.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/icon-32.png">
+  <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+  <link rel="stylesheet" href="lab.css?v=1">
+  <script>
+    /* Decide before first paint whether the intro overlay shows, so there
+       is no flash. Full intro on first visit this session, a short one on
+       repeat visits, none at all if the visitor prefers reduced motion. */
+    (function () {
+      var reduce = window.matchMedia && matchMedia("(prefers-reduced-motion: reduce)").matches;
+      var seen = false;
+      try { seen = sessionStorage.getItem("sgLabIntroSeen") === "1"; } catch (e) {}
+      if (!reduce) {
+        document.documentElement.classList.add(seen ? "intro-short" : "intro-full", "intro-lock");
+      }
+    })();
+  </script>
+</head>
+<body class="lab lab-home">
+
+  <!-- ===== Intro: the goose flies the brand in ===== -->
+  <div id="intro" aria-hidden="true">
+    <div class="intro-sky">
+      <div class="intro-sun"></div>
+      <div class="intro-horizon"></div>
+    </div>
+    <div class="intro-sea">
+      <svg class="intro-wave intro-wave-far" viewBox="0 0 1440 90" preserveAspectRatio="none" aria-hidden="true"><path d="M0,55 C240,20 480,85 720,55 C960,25 1200,80 1440,50 L1440,90 L0,90 Z"/></svg>
+      <svg class="intro-wave intro-wave-mid" viewBox="0 0 1440 90" preserveAspectRatio="none" aria-hidden="true"><path d="M0,45 C260,90 520,15 780,55 C1040,95 1240,25 1440,60 L1440,90 L0,90 Z"/></svg>
+      <svg class="intro-wave intro-wave-near" viewBox="0 0 1440 90" preserveAspectRatio="none" aria-hidden="true"><path d="M0,60 C220,15 460,90 720,50 C980,15 1220,85 1440,45 L1440,90 L0,90 Z"/></svg>
+    </div>
+    <div class="intro-stage">
+      <div class="intro-goose" id="intro-goose"></div>
+      <div class="intro-splash" id="intro-splash"></div>
+      <div class="intro-word" id="intro-word" aria-hidden="true">
+        <span>S</span><span>u</span><span>r</span><span>f</span><span class="sea">G</span><span class="sea">o</span><span class="sea">o</span><span class="sea">s</span><span class="sea">e</span>
+      </div>
+      <p class="intro-tag" id="intro-tag">surfing, told honestly</p>
+    </div>
+    <button type="button" class="intro-skip" id="intro-skip">Skip intro</button>
+  </div>
+
+  <!-- ===== Page transition veil (card → detail) ===== -->
+  <div id="veil" aria-hidden="true">
+    <svg class="veil-wave" viewBox="0 0 1440 110" preserveAspectRatio="none" aria-hidden="true"><path d="M0,70 C240,20 480,105 720,60 C960,15 1200,95 1440,55 L1440,110 L0,110 Z"/></svg>
+    <div class="veil-goose" id="veil-goose"></div>
+  </div>
+
+  <header class="lab-header" id="lab-header">
+    <div class="wrap">
+      <a href="index.html" class="lab-logo">
+        <span class="lab-logo-goose" id="header-goose"></span>
+        <span class="lab-logo-text">Surf<span>Goose</span></span>
+      </a>
+      <nav class="lab-nav">
+        <a href="index.html" class="active">Lab home</a>
+        <a href="spot.html" data-transition>Landing demo</a>
+        <a href="/index.html" class="lab-nav-live">Live site &nearr;</a>
+      </nav>
+      <span class="lab-badge" title="Experimental preview — not the live site">Design&nbsp;Lab</span>
+    </div>
+  </header>
+
+  <div class="swell-stage">
+    <div class="swell-inner" id="swell-inner">
+      <main id="content">
+
+        <!-- ===== Hero ===== -->
+        <section class="lab-hero wrap">
+          <p class="kicker reveal">Honest surf guide — design experiment</p>
+          <h1 class="reveal"><span class="hero-line">Surfing, told</span> <span class="hero-line"><span class="ul">honestly.</span></span></h1>
+          <p class="lead reveal">Same goose, same honest reviews — new feathers. This page is a living
+          design test: the goose guides you in, the page moves like water, and every
+          card below is real data from the live SurfGoose catalog.</p>
+          <div class="hero-scrollcue reveal" aria-hidden="true">
+            <span class="cue-label">paddle&nbsp;down</span>
+            <svg viewBox="0 0 38 18" class="cue-wave"><path d="M1,9 C7,2 12,16 19,9 C26,2 31,16 37,9" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"/></svg>
+          </div>
+        </section>
+
+        <!-- ===== Cards ===== -->
+        <section class="cards-section wrap" id="cards-section">
+          <div class="section-head reveal">
+            <div>
+              <h2>Peaking right now</h2>
+              <p class="section-sub" id="cards-sub">Real spots, centers and stays from the live catalog — in season this month.</p>
+            </div>
+            <div class="type-pills" id="type-pills" role="tablist" aria-label="Filter by type">
+              <button class="type-pill is-on" data-type="all" role="tab" aria-selected="true">All</button>
+              <button class="type-pill" data-type="spot" role="tab" aria-selected="false">Spots</button>
+              <button class="type-pill" data-type="center" role="tab" aria-selected="false">Centers</button>
+              <button class="type-pill" data-type="stay" role="tab" aria-selected="false">Stays</button>
+            </div>
+          </div>
+          <div class="lab-cards" id="lab-cards"></div>
+        </section>
+
+        <!-- ===== Paddle band ===== -->
+        <section class="paddle-band" id="paddle-band">
+          <div class="band-layer band-blob band-blob-a" data-drift="0.18"></div>
+          <div class="band-layer band-blob band-blob-b" data-drift="-0.12"></div>
+          <div class="band-foam" id="band-foam"></div>
+          <div class="wrap band-inner">
+            <p class="band-kicker reveal">Why a goose?</p>
+            <p class="band-quote reveal">&ldquo;Because a goose doesn&rsquo;t do marketing spin. It lands,
+            it looks around, and it honks the truth about the place.&rdquo;</p>
+            <p class="band-sub reveal">Every story on SurfGoose is built from recent reviews and
+            people who&rsquo;ve actually been there — never from brochures.</p>
+          </div>
+          <div class="band-goose" id="band-goose" aria-hidden="true"></div>
+        </section>
+
+        <!-- ===== How the goose guides you ===== -->
+        <section class="steps-section wrap">
+          <h2 class="reveal">Follow the goose</h2>
+          <div class="steps">
+            <article class="step-card reveal">
+              <span class="step-num">01</span>
+              <h3>It flies you in</h3>
+              <p>Every page opens with the goose bringing you to the right place — the
+              brand is the navigation.</p>
+            </article>
+            <article class="step-card reveal">
+              <span class="step-num">02</span>
+              <h3>It lands on the spot</h3>
+              <p>On a spot, center or stay page the goose touches down on the map at the
+              exact coordinates. <a href="spot.html" data-transition>Watch the landing →</a></p>
+            </article>
+            <article class="step-card reveal">
+              <span class="step-num">03</span>
+              <h3>It tells it honestly</h3>
+              <p>Season by season, level by level — built from recent reviews, with the
+              sources named. Same content, new motion.</p>
+            </article>
+          </div>
+        </section>
+
+      </main>
+
+      <footer class="lab-footer">
+        <div class="wrap">
+          <div>SurfGoose <strong>design lab</strong> — an experiment, not the live site.</div>
+          <div class="lab-footer-links">
+            <a href="/index.html">Go to the real SurfGoose</a>
+          </div>
+        </div>
+      </footer>
+    </div>
+  </div>
+
+  <!-- ===== Scroll buddy: the goose that paddles with you ===== -->
+  <div class="buddy" id="buddy" aria-hidden="true">
+    <svg class="buddy-track" viewBox="0 0 56 560" fill="none" aria-hidden="true">
+      <path id="buddy-path" d="M28,12 C52,82 4,152 28,222 C52,292 4,362 28,432 C44,482 36,516 28,548" stroke="currentColor" stroke-width="2" stroke-dasharray="1 9" stroke-linecap="round"/>
+    </svg>
+    <div class="buddy-goose" id="buddy-goose"></div>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/gsap@3.13.0/dist/gsap.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/gsap@3.13.0/dist/MotionPathPlugin.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/lenis@1.3.11/dist/lenis.min.js"></script>
+  <!-- data.js (not constants.js — both declare the same consts) provides the
+       slug snapshot + WAVEBASE_DESTINATIONS; api-client.js then swaps in the
+       live API catalog, exactly like the real site. -->
+  <script src="/data.js"></script>
+  <script src="/api-client.js"></script>
+  <script src="lab.js?v=1"></script>
+</body>
+</html>

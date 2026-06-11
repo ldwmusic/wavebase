@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <meta name="theme-color" content="#3f6f7d">
+  <meta name="robots" content="noindex, nofollow">
+  <title>SurfGoose · Design Lab — landing</title>
+  <meta name="description" content="Experimental design preview for SurfGoose. Not the live site.">
+  <link rel="icon" type="image/png" sizes="32x32" href="/icon-32.png">
+  <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin="">
+  <link rel="stylesheet" href="lab.css?v=1">
+  <script>
+    /* Arriving through the wave transition? Keep the veil up so the page
+       builds behind it, then the goose landing carries on the story. */
+    (function () {
+      var t = false;
+      try { t = sessionStorage.getItem("sgLabTransit") === "1"; } catch (e) {}
+      if (t) document.documentElement.classList.add("arrived-via-veil");
+    })();
+  </script>
+</head>
+<body class="lab lab-detail">
+
+  <div id="veil" aria-hidden="true">
+    <svg class="veil-wave" viewBox="0 0 1440 110" preserveAspectRatio="none" aria-hidden="true"><path d="M0,70 C240,20 480,105 720,60 C960,15 1200,95 1440,55 L1440,110 L0,110 Z"/></svg>
+    <div class="veil-goose" id="veil-goose"></div>
+  </div>
+
+  <header class="lab-header" id="lab-header">
+    <div class="wrap">
+      <a href="index.html" class="lab-logo" data-transition>
+        <span class="lab-logo-goose" id="header-goose"></span>
+        <span class="lab-logo-text">Surf<span>Goose</span></span>
+      </a>
+      <nav class="lab-nav">
+        <a href="index.html" data-transition>Lab home</a>
+        <a href="spot.html" class="active">Landing demo</a>
+        <a href="/index.html" class="lab-nav-live">Live site &nearr;</a>
+      </nav>
+      <span class="lab-badge" title="Experimental preview — not the live site">Design&nbsp;Lab</span>
+    </div>
+  </header>
+
+  <main id="content">
+
+    <section class="detail-hero wrap">
+      <div class="detail-meta" id="detail-meta">
+        <span class="type-chip skeleton-chip">&nbsp;</span>
+      </div>
+      <h1 id="detail-name" class="skeleton-text">&nbsp;</h1>
+      <p class="detail-tagline" id="detail-tagline"></p>
+    </section>
+
+    <section class="map-section wrap">
+      <div class="map-frame reveal">
+        <div id="lab-map" aria-label="Map with the exact location"></div>
+        <div class="map-flight" id="map-flight" aria-hidden="true"></div>
+        <button type="button" class="map-replay" id="map-replay" title="Replay the goose landing">
+          <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 12a9 9 0 1 0 3-6.7"/><path d="M3 4v5h5"/></svg>
+          Replay landing
+        </button>
+      </div>
+      <p class="map-coords" id="map-coords"></p>
+    </section>
+
+    <section class="detail-body wrap" id="detail-body"></section>
+
+  </main>
+
+  <footer class="lab-footer">
+    <div class="wrap">
+      <div>SurfGoose <strong>design lab</strong> — an experiment, not the live site.</div>
+      <div class="lab-footer-links">
+        <a href="index.html" data-transition>Back to the lab</a>
+        <a href="/index.html">Go to the real SurfGoose</a>
+      </div>
+    </div>
+  </footer>
+
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
+  <script src="https://cdn.jsdelivr.net/npm/gsap@3.13.0/dist/gsap.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/gsap@3.13.0/dist/MotionPathPlugin.min.js"></script>
+  <!-- data.js (not constants.js — both declare the same consts) provides the
+       slug snapshot + WAVEBASE_DESTINATIONS; api-client.js then swaps in the
+       live API catalog, exactly like the real site. -->
+  <script src="/data.js"></script>
+  <script src="/api-client.js"></script>
+  <script src="lab.js?v=1"></script>
+</body>
+</html>
