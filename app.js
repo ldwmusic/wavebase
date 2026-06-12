@@ -1762,6 +1762,41 @@ function seasonForMonth(stats, monthNum) {
 }
 
 /* ---- card ---- */
+/* Analytical key-data row for a spot card (June 2026, Michiel #8 —
+   "get rid of the long texts, show the wind/gust/chance-of-wind numbers
+   so you immediately see which spots are the windiest"). Year-round
+   averages from the spot's monthly stat arrays, so cards are scannable
+   and comparable at a glance regardless of month (month detail lives on
+   the spot page). Returns "" when a spot has no usable stats — the card
+   then falls back to its tagline so it never looks broken. */
+function spotKeyStatsHTML(e) {
+  const s = getStatsFor(e);
+  if (!s) return "";
+  const avg = (arr) => {
+    if (!Array.isArray(arr) || !arr.length) return null;
+    const v = arr.map(Number).filter(x => !isNaN(x));
+    return v.length ? v.reduce((a, b) => a + b, 0) / v.length : null;
+  };
+  const windAvg  = avg(s.monthlyWindKn);
+  const gustPeak = avg(s.monthlyGustPeakKn);
+  const windPct  = avg(s.monthlyWindProb);
+  const waveAvg  = avg(s.monthlyWaveM);
+
+  const chips = [];
+  if (windAvg != null)
+    chips.push(`<span class="kstat" title="Average wind, year-round"><span class="kstat-n">${Math.round(windAvg)}<span class="kstat-u">kn</span></span><span class="kstat-l">avg wind</span></span>`);
+  if (gustPeak != null)
+    chips.push(`<span class="kstat" title="Typical daily-peak gusts"><span class="kstat-n">${Math.round(gustPeak)}<span class="kstat-u">kn</span></span><span class="kstat-l">gusts</span></span>`);
+  if (windPct != null)
+    chips.push(`<span class="kstat kstat-pct" title="Share of days with workable wind"><span class="kstat-n">${Math.round(windPct)}<span class="kstat-u">%</span></span><span class="kstat-l">windy days</span></span>`);
+  // Pure wave spots (no wind stats): show wave height instead of nothing.
+  if (!chips.length && waveAvg != null)
+    chips.push(`<span class="kstat"><span class="kstat-n">${waveAvg.toFixed(1)}<span class="kstat-u">m</span></span><span class="kstat-l">wave</span></span>`);
+
+  if (!chips.length) return "";
+  return `<div class="card-kstats">${chips.slice(0, 3).join("")}</div>`;
+}
+
 function cardHTML(e, distKm, opts) {
   // opts: { showMetric, monthIdx, sportFilter, useDailyPeak }
   // Used to inject a wind/wave metric chip on the card. Off by default
@@ -1806,6 +1841,17 @@ function cardHTML(e, distKm, opts) {
       ${priceVal ? `<span class="card-price-val">${priceVal}</span>` : ""}
     </div>`;
   }
+  // Spot cards lead with analytical key data (wind / gusts / chance of
+  // wind) instead of the long tagline (Michiel #8). Stays + centers keep
+  // their tagline (+ opt-in metric chip). Spots fall back to the tagline
+  // only if they have no usable stats, so a card is never empty.
+  let bodyLead;
+  if (e.type === "spot") {
+    const kstats = spotKeyStatsHTML(e);
+    bodyLead = kstats || `<p class="tag">${e.tagline}</p>`;
+  } else {
+    bodyLead = `<p class="tag">${e.tagline}</p>${metricChip ? `<div class="metric-row">${metricChip}</div>` : ""}`;
+  }
   return `
   <article class="card" data-href="${spotHref(e.id)}">
     <div class="thumb ${e.type}${e.photo ? " has-photo" : ""}"${thumbStyle(e)}>
@@ -1819,8 +1865,7 @@ function cardHTML(e, distKm, opts) {
     <div class="body">
       <div class="place">${e.town}${distHint}</div>
       <h3>${e.name}</h3>
-      <p class="tag">${e.tagline}</p>
-      ${metricChip ? `<div class="metric-row">${metricChip}</div>` : ""}
+      ${bodyLead}
       <div class="meta">${pills}</div>
       ${priceLine}
     </div>
