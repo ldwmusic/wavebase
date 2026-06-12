@@ -915,8 +915,20 @@ const WaveBaseAuth = (function () {
 
   /* ---- public auth actions ---- */
   async function signup({ email, password }) {
-    const data = await postJSON("/users/", { email, password });
+    // Signup no longer returns a token (June 2026 — email verification).
+    // The account is created unverified and a 6-digit code is emailed;
+    // this returns {status:"verification_sent", email}. The token only
+    // arrives later from verifyEmail(). The caller drives the code step.
+    return await postJSON("/users/", { email, password });
+  }
+  async function verifyEmail({ email, code }) {
+    // Confirm the signup code → server activates the account and returns
+    // a real AuthResponse, which we apply to log the user in.
+    const data = await postJSON("/users/verify-email", { email, code });
     return applyAuthResponse(data);
+  }
+  async function resendVerification(email) {
+    return await postJSON("/users/resend-verification", { email });
   }
   async function login({ email, password }) {
     const data = await postJSON("/users/login", { email, password });
@@ -1063,6 +1075,8 @@ const WaveBaseAuth = (function () {
 
   return {
     signup: signup,
+    verifyEmail: verifyEmail,
+    resendVerification: resendVerification,
     login: login,
     loginWithGoogle: loginWithGoogle,
     logout: logout,
@@ -1733,6 +1747,14 @@ const WaveBaseAuthModal = (function () {
   // Profile-view (step 2 after signup). Assigned in build().
   let authViewEl     = null;  // .auth-view-auth   — login / signup form
   let profileViewEl  = null;  // .auth-view-profile — full profile form
+  let verifyViewEl   = null;  // .auth-view-verify  — email-code step
+  let verifyFormEl   = null;
+  let verifyCodeEl   = null;
+  let verifyErrorEl  = null;
+  let verifySubmitEl = null;
+  let verifyEmailEl  = null;
+  let verifyResendEl = null;
+  let pendingVerifyEmail = null;  // address awaiting its signup code
   let profileSlot    = null;
   let profileSkipBtn = null;
   let profileContBtn = null;
@@ -1832,6 +1854,28 @@ const WaveBaseAuthModal = (function () {
             <button type="button" class="btn"       data-action="continue">Save and continue &rarr;</button>
           </div>
         </div>
+
+        <!-- Verify-email view (mode === "verify") — shown after signup
+             (or when an unverified user tries to log in). The account
+             only activates once the emailed 6-digit code is confirmed
+             here. June 2026, Michiel's "verify email at registration". -->
+        <div class="auth-view auth-view-verify" hidden>
+          <h2 class="auth-title">Check your inbox</h2>
+          <p class="auth-subtitle">We sent a 6-digit code to <strong class="auth-verify-email"></strong>. Enter it to finish creating your account.</p>
+          <form class="auth-verify-form" novalidate>
+            <label class="auth-field">
+              <span>Verification code</span>
+              <input type="text" name="code" inputmode="numeric" autocomplete="one-time-code" maxlength="6" pattern="[0-9]*" placeholder="123456" aria-label="6-digit verification code">
+            </label>
+            <div class="auth-error auth-verify-error" hidden></div>
+            <button type="submit" class="auth-submit auth-verify-submit">Verify &amp; continue</button>
+            <p class="auth-footer">
+              <span>Didn&rsquo;t get it?</span>
+              <button type="button" class="auth-resend-btn">Resend code</button>
+            </p>
+            <p class="auth-fineprint">Check your spam folder if it&rsquo;s not in your inbox within a minute. The code expires in 15 minutes.</p>
+          </form>
+        </div>
       </div>
     `;
 
@@ -1854,6 +1898,14 @@ const WaveBaseAuthModal = (function () {
     profileSlot    = profileViewEl.querySelector(".auth-profile-slot");
     profileSkipBtn = profileViewEl.querySelector('[data-action="skip"]');
     profileContBtn = profileViewEl.querySelector('[data-action="continue"]');
+    // Verify-email view elements (the post-signup code step).
+    verifyViewEl   = rootEl.querySelector(".auth-view-verify");
+    verifyFormEl   = verifyViewEl.querySelector(".auth-verify-form");
+    verifyCodeEl   = verifyViewEl.querySelector('input[name="code"]');
+    verifyErrorEl  = verifyViewEl.querySelector(".auth-verify-error");
+    verifySubmitEl = verifyViewEl.querySelector(".auth-verify-submit");
+    verifyEmailEl  = verifyViewEl.querySelector(".auth-verify-email");
+    verifyResendEl = verifyViewEl.querySelector(".auth-resend-btn");
 
     // Close: X button, backdrop click, Escape key.
     rootEl.querySelector(".auth-modal-close").addEventListener("click", close);
@@ -1928,6 +1980,14 @@ const WaveBaseAuthModal = (function () {
     // by the time the user looks at the modal.
     _initGoogleButton();
 
+    // Verify-email step: code form submit + resend button.
+    if (verifyFormEl) verifyFormEl.addEventListener("submit", onVerifySubmit);
+    if (verifyResendEl) verifyResendEl.addEventListener("click", onResendClick);
+    // Keep the code field numeric-only as the user types.
+    if (verifyCodeEl) verifyCodeEl.addEventListener("input", function () {
+      verifyCodeEl.value = verifyCodeEl.value.replace(/\D/g, "").slice(0, 6);
+    });
+
     // Profile-step Skip + Continue. Both close the modal and land
     // the user on account.html where their full account UI lives.
     // Continue first flushes any pending debounced server-sync so
@@ -1964,6 +2024,19 @@ const WaveBaseAuthModal = (function () {
 
   function setMode(next) {
     mode = next;
+    if (mode === "verify") {
+      // Post-signup code step. Hide login/signup + profile, show the
+      // code form, and drop in the address we're verifying.
+      authViewEl.setAttribute("hidden", "");
+      profileViewEl.setAttribute("hidden", "");
+      verifyViewEl.removeAttribute("hidden");
+      cardEl.classList.remove("is-profile-step");
+      if (verifyEmailEl) verifyEmailEl.textContent = pendingVerifyEmail || "your email";
+      _clearVerifyError();
+      if (verifyCodeEl) { verifyCodeEl.value = ""; setTimeout(function () { try { verifyCodeEl.focus(); } catch (e) {} }, 50); }
+      return;
+    }
+    if (verifyViewEl) verifyViewEl.setAttribute("hidden", "");
     if (mode === "profile") {
       // Step 2 of the popup after a successful signup. Hide the
       // email/password view, show the profile form, and widen the
@@ -2162,23 +2235,19 @@ const WaveBaseAuthModal = (function () {
       if (wasSignup && typeof WaveBaseTracking !== "undefined") {
         WaveBaseTracking.track("signup_submitted", {});
       }
-      const user = wasSignup
-        ? await WaveBaseAuth.signup({ email: email, password: password })
-        : await WaveBaseAuth.login({ email: email, password: password });
-
       if (wasSignup) {
-        // Signup success → transition the SAME modal to its profile
-        // step. The user keeps the popup context (no page jump) and
-        // can fill in the form or hit Skip — both close the modal
-        // and land them on account.html.
+        // Signup no longer logs the user straight in — it emails a code
+        // and we move to the verify step. The token comes after the
+        // code is confirmed there.
+        await WaveBaseAuth.signup({ email: email, password: password });
+        pendingVerifyEmail = email;
         setBusy(false);
-        setMode("profile");
-        if (typeof onSuccess === "function") {
-          try { onSuccess(user, "signup"); } catch (e) { console.error(e); }
-        }
+        setMode("verify");
         return;
       }
 
+      // Login.
+      const user = await WaveBaseAuth.login({ email: email, password: password });
       // Login success — close + navigate to the account page (or
       // refresh if we're already there) so the user lands on their
       // account UI.
@@ -2193,11 +2262,95 @@ const WaveBaseAuthModal = (function () {
         }
       }
     } catch (e) {
+      // An unverified account trying to log in → route to the code step
+      // and (quietly) trigger a fresh code, rather than show a raw error.
+      if (e && e.status === 403 && /email_not_verified/i.test(e.message || "")) {
+        pendingVerifyEmail = email;
+        setBusy(false);
+        setMode("verify");
+        WaveBaseAuth.resendVerification(email).catch(function () {});
+        _showVerifyError("Please confirm your email first — we just sent you a fresh code.");
+        return;
+      }
       showError(e.message || "Something went wrong. Please try again.");
       setBusy(false);
       return;
     }
     setBusy(false);
+  }
+
+  /* ---- Verify-email step helpers + wiring ---- */
+  function _showVerifyError(msg) {
+    if (!verifyErrorEl) return;
+    verifyErrorEl.textContent = msg;
+    verifyErrorEl.hidden = false;
+  }
+  function _clearVerifyError() {
+    if (!verifyErrorEl) return;
+    verifyErrorEl.textContent = "";
+    verifyErrorEl.hidden = true;
+  }
+  function _setVerifyBusy(busy) {
+    if (verifySubmitEl) {
+      verifySubmitEl.disabled = busy;
+      verifySubmitEl.textContent = busy ? "Verifying…" : "Verify & continue";
+    }
+    if (verifyCodeEl) verifyCodeEl.disabled = busy;
+  }
+
+  async function onVerifySubmit(ev) {
+    ev.preventDefault();
+    _clearVerifyError();
+    const code = (verifyCodeEl.value || "").trim();
+    if (!/^\d{6}$/.test(code)) {
+      _showVerifyError("Enter the 6-digit code from the email.");
+      verifyCodeEl.focus();
+      return;
+    }
+    _setVerifyBusy(true);
+    try {
+      const user = await WaveBaseAuth.verifyEmail({ email: pendingVerifyEmail, code: code });
+      // Verified + logged in → continue to the profile step, exactly
+      // like the old signup flow did right after account creation.
+      _setVerifyBusy(false);
+      setMode("profile");
+      if (typeof onSuccess === "function") {
+        try { onSuccess(user, "signup"); } catch (e) { console.error(e); }
+      }
+    } catch (e) {
+      _showVerifyError(e.message || "That didn't work. Try again.");
+      _setVerifyBusy(false);
+    }
+  }
+
+  let _resendCooldownTimer = null;
+  async function onResendClick() {
+    if (!pendingVerifyEmail || (verifyResendEl && verifyResendEl.disabled)) return;
+    _clearVerifyError();
+    try {
+      await WaveBaseAuth.resendVerification(pendingVerifyEmail);
+      // Brief cooldown on the button so people don't hammer it (the
+      // server also rate-limits, but this is friendlier feedback).
+      if (verifyResendEl) {
+        let secs = 30;
+        verifyResendEl.disabled = true;
+        const tick = function () {
+          verifyResendEl.textContent = "Resend code (" + secs + "s)";
+          if (secs <= 0) {
+            if (_resendCooldownTimer) clearInterval(_resendCooldownTimer);
+            verifyResendEl.disabled = false;
+            verifyResendEl.textContent = "Resend code";
+            return;
+          }
+          secs -= 1;
+        };
+        tick();
+        if (_resendCooldownTimer) clearInterval(_resendCooldownTimer);
+        _resendCooldownTimer = setInterval(tick, 1000);
+      }
+    } catch (e) {
+      _showVerifyError(e.message || "Couldn't resend right now. Try again in a moment.");
+    }
   }
 
   function open(opts) {

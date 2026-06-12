@@ -6159,7 +6159,8 @@ button.rml-key.off .rml-dot {
   font-size: 14px; color: var(--ink-soft);
   text-align: center;
 }
-.auth-toggle-btn {
+.auth-toggle-btn,
+.auth-resend-btn {
   font-family: 'DM Sans', sans-serif;
   font-size: 14px; font-weight: 600;
   color: var(--sea);
@@ -6169,7 +6170,14 @@ button.rml-key.off .rml-dot {
   text-decoration: underline;
   text-underline-offset: 3px;
 }
-.auth-toggle-btn:hover { color: var(--ink); }
+.auth-toggle-btn:hover,
+.auth-resend-btn:hover { color: var(--ink); }
+.auth-resend-btn:disabled { color: var(--ink-soft); text-decoration: none; cursor: default; }
+/* The verify-code input: centered, wide letter-spacing for legibility */
+.auth-view-verify input[name="code"] {
+  letter-spacing: 8px; font-size: 20px; text-align: center;
+  font-family: 'DM Sans', sans-serif; font-weight: 600;
+}
 
 .auth-fineprint {
   margin: 6px 0 0;
