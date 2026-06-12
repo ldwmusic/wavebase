@@ -9004,9 +9004,10 @@ function initDestinations() {
   }
 }
 
-/* ---- mobile bottom tab bar (Home / Explorer / Map / Compare / Me) ----
-   About is intentionally not on the mobile bar — 6 tabs is too tight;
-   it stays in the desktop nav + the footer. */
+/* ---- mobile bottom tab bar (Home / Nearby / Map / Compare / Me / About) ----
+   About was added to the mobile bar June 2026 (Michiel: it wasn't reachable
+   on phone at all). Six tabs is tight but the labels are short; the bar
+   scrolls nothing and each tab stays tappable. */
 function initMobileTabbar() {
   if (document.querySelector(".mobile-tabbar")) return;
 
@@ -9024,14 +9025,16 @@ function initMobileTabbar() {
     map: '<svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 1 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>',
     compare: '<svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="17 1 21 5 17 9"/><path d="M3 11V9a4 4 0 0 1 4-4h14"/><polyline points="7 23 3 19 7 15"/><path d="M21 13v2a4 4 0 0 1-4 4H3"/></svg>',
     me: '<svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>',
-    explorer: '<svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="7"/><line x1="12" y1="2" x2="12" y2="5"/><line x1="12" y1="19" x2="12" y2="22"/><line x1="2" y1="12" x2="5" y2="12"/><line x1="19" y1="12" x2="22" y2="12"/><circle cx="12" cy="12" r="2.4" fill="currentColor" stroke="none"/></svg>'
+    explorer: '<svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="7"/><line x1="12" y1="2" x2="12" y2="5"/><line x1="12" y1="19" x2="12" y2="22"/><line x1="2" y1="12" x2="5" y2="12"/><line x1="19" y1="12" x2="22" y2="12"/><circle cx="12" cy="12" r="2.4" fill="currentColor" stroke="none"/></svg>',
+    about: '<svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><line x1="12" y1="11" x2="12" y2="16"/><circle cx="12" cy="8" r="0.6" fill="currentColor" stroke="none"/></svg>'
   };
   const tabs = [
     { route: "discover", href: "index.html", label: "Home" },
     { route: "explorer", href: "explorer.html", label: "Nearby" },
     { route: "map", href: "kaart.html", label: "Map" },
     { route: "compare", href: "compare.html", label: "Compare" },
-    { route: "me", href: "account.html", label: "Me" }
+    { route: "me", href: "account.html", label: "Me" },
+    { route: "about", href: "about.html", label: "About" }
   ];
 
   const html = tabs.map(t =>

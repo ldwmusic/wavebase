@@ -1322,6 +1322,14 @@ table.cal td.host { color: var(--clay); }
   border-radius: 50%;
   font-size: 14px;
 }
+/* On phone the floating "Compare N selected" button overlapped the
+   bottom tab bar and made the tabs hard to tap (Michiel #15, Lode's
+   note: just remove it on phone — the Compare tab already shows the
+   count and is one tap away). The selection itself still works; only
+   this floating shortcut is hidden at the tabbar breakpoint. */
+@media (max-width: 620px) {
+  .compare-mode-fab { display: none !important; }
+}
 
 /* Cookie consent banner — slides up from bottom, on-brand styling. */
 .consent-banner {
