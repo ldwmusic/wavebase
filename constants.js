@@ -14,6 +14,18 @@
 
 const WAVEBASE_MONTHS = ["", "Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
 
+/* Google Sign-In client ID (June 2026, Michiel's "Log in with Google"
+   feedback). This value is PUBLIC by design — it's embedded in the
+   Google Identity Services button on the client. The matching secret
+   is never used by our flow (the backend verifies the ID token against
+   Google's public keys), so nothing sensitive lives here.
+   Empty string disables the Google button gracefully — the auth modal
+   falls back to email/password, so the site never breaks if this is
+   blanked or the GIS script is blocked.
+   The SAME id must be set as GOOGLE_OAUTH_CLIENT_ID on the API (Render)
+   so the backend accepts the tokens this id produces. */
+const WAVEBASE_GOOGLE_CLIENT_ID = "962579470282-hb47tofas3lhrhi61bhtf8ndc5jo797m.apps.googleusercontent.com";
+
 const WAVEBASE_DESTINATIONS = [
   {
     continent: "Europe",

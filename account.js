@@ -920,6 +920,19 @@ const WaveBaseAuth = (function () {
     const data = await postJSON("/users/login", { email, password });
     return applyAuthResponse(data);
   }
+  /* Sign in (or sign up) with a Google ID token. The token comes from
+     the Google Identity Services button in the auth modal; the backend
+     verifies it against Google's public keys and returns the same
+     AuthResponse as email/password login, so the rest of the app treats
+     a Google session identically. A first-time Google user comes back
+     with an empty profile — the modal routes them to the profile step,
+     same as a fresh email signup. If the API hasn't been configured
+     with its GOOGLE_OAUTH_CLIENT_ID yet, the backend answers 503 and
+     postJSON surfaces that message verbatim. */
+  async function loginWithGoogle(idToken) {
+    const data = await postJSON("/users/auth/google", { id_token: idToken });
+    return applyAuthResponse(data);
+  }
   function logout() {
     clearAuth();
     // Wipe local account-data too — the saved/surfed/compare/trips
@@ -1049,6 +1062,7 @@ const WaveBaseAuth = (function () {
   return {
     signup: signup,
     login: login,
+    loginWithGoogle: loginWithGoogle,
     logout: logout,
     isLoggedIn: isLoggedIn,
     currentUser: currentUser,
@@ -1746,6 +1760,16 @@ const WaveBaseAuthModal = (function () {
             <h2 class="auth-title"    id="auth-modal-title">Sign in to SurfGoose</h2>
             <p  class="auth-subtitle">Save spots, plan trips, take your list with you.</p>
 
+            <!-- Google Sign-In (June 2026, Michiel). The official GIS
+                 button renders into the slot at build-time. If the
+                 client id is blank or the GIS script is blocked, the
+                 whole wrap is removed and the form stays email/password
+                 only — never a broken button. -->
+            <div class="auth-google-wrap">
+              <div class="auth-google-slot"></div>
+              <div class="auth-or"><span>or</span></div>
+            </div>
+
             <label class="auth-field">
               <span>Email</span>
               <input type="email" name="email" required autocomplete="email" inputmode="email" autocapitalize="none" />
@@ -1895,6 +1919,11 @@ const WaveBaseAuthModal = (function () {
     // Submit handler.
     formEl.addEventListener("submit", onSubmit);
 
+    // Google Sign-In button (renders into .auth-google-slot, or
+    // removes itself if unavailable). Kicked off here so it's ready
+    // by the time the user looks at the modal.
+    _initGoogleButton();
+
     // Profile-step Skip + Continue. Both close the modal and land
     // the user on account.html where their full account UI lives.
     // Continue first flushes any pending debounced server-sync so
@@ -2000,6 +2029,107 @@ const WaveBaseAuthModal = (function () {
     submitEl.textContent = busy
       ? (mode === "login" ? "Signing in…" : "Creating account…")
       : (mode === "login" ? "Sign in" : "Create account");
+  }
+
+  /* ---- Google Sign-In wiring ----
+     Progressive enhancement: the email/password form always works.
+     The Google button only appears if (a) a client id is configured
+     and (b) Google's gsi/client script loads. If either fails we strip
+     the wrap so the modal degrades cleanly to email/password — same
+     philosophy as the rest of the site's motion/3D fallbacks. */
+
+  // Load Google Identity Services once per page, shared across re-opens.
+  function _loadGsi(cb) {
+    if (window.google && google.accounts && google.accounts.id) { cb(true); return; }
+    var existing = document.getElementById("gsi-client");
+    if (existing) {
+      existing.addEventListener("load",  function () { cb(true); });
+      existing.addEventListener("error", function () { cb(false); });
+      return;
+    }
+    var s = document.createElement("script");
+    s.id = "gsi-client";
+    s.src = "https://accounts.google.com/gsi/client";
+    s.async = true; s.defer = true;
+    s.onload  = function () { cb(true); };
+    s.onerror = function () { cb(false); };
+    document.head.appendChild(s);
+  }
+
+  function _removeGoogleWrap() {
+    var wrap = rootEl && rootEl.querySelector(".auth-google-wrap");
+    if (wrap) wrap.remove();
+  }
+
+  function _initGoogleButton() {
+    var slot = rootEl && rootEl.querySelector(".auth-google-slot");
+    if (!slot) return;
+    // Not configured → no button, clean fallback.
+    if (typeof WAVEBASE_GOOGLE_CLIENT_ID === "undefined" || !WAVEBASE_GOOGLE_CLIENT_ID) {
+      _removeGoogleWrap();
+      return;
+    }
+    _loadGsi(function (ok) {
+      if (!ok || !window.google || !google.accounts || !google.accounts.id) {
+        _removeGoogleWrap();   // script blocked (adblock / offline)
+        return;
+      }
+      try {
+        google.accounts.id.initialize({
+          client_id: WAVEBASE_GOOGLE_CLIENT_ID,
+          callback:  handleGoogleCredential,
+        });
+        google.accounts.id.renderButton(slot, {
+          type:           "standard",
+          theme:          "outline",
+          size:           "large",
+          text:           "continue_with",
+          shape:          "pill",
+          logo_alignment: "left",
+          width:          Math.min(360, slot.clientWidth || 320),
+        });
+      } catch (e) {
+        _removeGoogleWrap();
+      }
+    });
+  }
+
+  // GIS callback: response.credential is the Google ID token (a JWT).
+  // Hand it to the backend; route the result the same way onSubmit does
+  // — fresh profile → profile step, otherwise close + go to account.
+  function handleGoogleCredential(resp) {
+    if (!resp || !resp.credential) {
+      showError("Google sign-in was cancelled.");
+      return;
+    }
+    clearError();
+    setBusy(true);
+    WaveBaseAuth.loginWithGoogle(resp.credential).then(function (user) {
+      var fresh = !user.surf_level
+        && !(user.surf_types    || []).length
+        && !user.home_country
+        && !(user.discipline    || []).length
+        && !(user.travel_styles || []).length;
+      if (fresh) {
+        setBusy(false);
+        setMode("profile");
+        if (typeof onSuccess === "function") {
+          try { onSuccess(user, "signup"); } catch (e) { console.error(e); }
+        }
+        return;
+      }
+      close();
+      if (typeof onSuccess === "function") {
+        try { onSuccess(user, "login"); } catch (e) { console.error(e); }
+      } else if (window.location.pathname.split("/").pop() !== "account.html") {
+        window.location.href = "account.html";
+      } else {
+        window.location.reload();
+      }
+    }).catch(function (e) {
+      showError(e.message || "Google sign-in failed. Please try again.");
+      setBusy(false);
+    });
   }
 
   async function onSubmit(ev) {

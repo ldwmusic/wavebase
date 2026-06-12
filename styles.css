@@ -6052,6 +6052,20 @@ button.rml-key.off .rml-dot {
   color: var(--ink-soft);
 }
 
+/* Google Sign-In button + "or" divider (June 2026, Michiel) */
+.auth-google-wrap { margin: 6px 0 2px; }
+.auth-google-slot { display: flex; justify-content: center; min-height: 40px; }
+.auth-or {
+  display: flex; align-items: center;
+  margin: 14px 0 4px;
+  color: var(--ink-soft); font-size: 12px; letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+.auth-or::before, .auth-or::after {
+  content: ""; flex: 1 1 auto; height: 1px; background: var(--sand-deep);
+}
+.auth-or span { padding: 0 12px; }
+
 .auth-field { display: flex; flex-direction: column; gap: 6px; }
 .auth-field > span {
   font-size: 12px; font-weight: 600; letter-spacing: 0.04em;
