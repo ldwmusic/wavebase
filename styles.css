@@ -5743,7 +5743,18 @@ button.rml-key.off .rml-dot {
   border: 1.5px solid #fff; box-shadow: 0 0 0 1px rgba(0,0,0,.12);
 }
 .exp-leg-dot.fresh { background: var(--sea); }
-.exp-leg-dot.known { background: #9c968a; margin-left: 10px; }
+.exp-leg-dot.known { background: #9c968a; }
+/* Interactive legend toggles (June 2026, Michiel) — each chip turns its
+   category on/off in the list + map. is-off greys + strikes it through. */
+.exp-leg-toggle {
+  display: inline-flex; align-items: center; gap: 6px;
+  font: inherit; color: var(--ink-soft); cursor: pointer;
+  background: transparent; border: 1px solid transparent;
+  border-radius: 999px; padding: 3px 9px;
+}
+.exp-leg-toggle:hover { border-color: var(--sand-deep); }
+.exp-leg-toggle.is-off { opacity: 0.45; text-decoration: line-through; }
+.exp-leg-toggle.is-off .exp-leg-dot { background: #c9bfa8; }
 .exp-row.is-known .exp-row-name { color: var(--ink-soft); }
 .exp-row.is-faded { opacity: 0.55; }
 .exp-row.is-faded .exp-row-dist { color: var(--ink-soft); }

@@ -11,13 +11,13 @@
   <link rel="icon" type="image/png" sizes="32x32" href="icon-32.png">
   <link rel="icon" type="image/png" sizes="192x192" href="icon-192.png">
   <link rel="apple-touch-icon" sizes="180x180" href="apple-touch-icon.png">
-  <title>Explorer — find a surf spot near you — SurfGoose</title>
-  <meta name="description" content="Set your base, pick how far you'll go, and find surf spots within reach — with the ones new to you highlighted. The SurfGoose spot explorer.">
+  <title>Find spots near you — SurfGoose</title>
+  <meta name="description" content="Drop your location, pick how far you'll go, and find surf spots within reach — with the ones new to you highlighted. Find surf spots near you with SurfGoose.">
   <link rel="canonical" href="https://surfgoose.com/explorer.html">
   <meta property="og:type" content="website">
   <meta property="og:site_name" content="SurfGoose">
-  <meta property="og:title" content="Explorer — SurfGoose">
-  <meta property="og:description" content="Set your base, pick how far you'll go, and find surf spots within reach.">
+  <meta property="og:title" content="Find spots near you — SurfGoose">
+  <meta property="og:description" content="Drop your location, pick how far you'll go, and find surf spots within reach.">
   <meta property="og:url" content="https://surfgoose.com/explorer.html">
   <meta property="og:image" content="https://surfgoose.com/og-image.png">
   <meta property="og:image:secure_url" content="https://surfgoose.com/og-image.png">
@@ -27,7 +27,7 @@
   <meta property="og:image:alt" content="SurfGoose — surfing, told honestly">
   <meta name="twitter:card" content="summary_large_image">
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin="">
-  <link rel="stylesheet" href="styles.css?v=419">
+  <link rel="stylesheet" href="styles.css?v=420">
 </head>
 <body>
 
@@ -43,7 +43,7 @@
       </div>
       <nav class="site-nav">
         <a href="index.html">Home</a>
-        <a href="explorer.html" class="active">Explorer</a>
+        <a href="explorer.html" class="active">Nearby</a>
         <a href="kaart.html">Map</a>
         <a href="compare.html" id="nav-compare">Compare</a>
         <a href="about.html">About</a>
@@ -55,26 +55,26 @@
   <main class="explorer-page">
     <section class="wrap">
       <div class="map-intro">
-        <h1>Explorer</h1>
-        <p>Set your base, pick how far you'll go — and find surf spots within reach. Got your own gear and want a spot you don't know yet? Start here.</p>
+        <h1>Find spots near you</h1>
+        <p>Drop your location, pick how far you'll go — and find surf spots within reach. Got your own gear and want a spot you don't know yet? Start here.</p>
       </div>
 
       <div class="explorer-controls">
         <div class="exp-field">
-          <label for="exp-region">Region</label>
+          <label for="exp-region">Country</label>
           <select id="exp-region"></select>
         </div>
         <div class="exp-field exp-field-base">
-          <label>Your base</label>
+          <label>Your location</label>
           <div class="exp-base-controls">
             <button type="button" class="exp-btn" id="exp-geo">📍 Use my location</button>
             <select id="exp-stay"><option value="">Pick a stay…</option></select>
-            <span class="exp-hint">or click the map</span>
+            <span class="exp-hint">or click the map to drop a pin</span>
           </div>
         </div>
         <div class="exp-field exp-field-reach">
-          <label for="exp-reach">Reach: <strong id="exp-reach-val">25 km</strong></label>
-          <input type="range" id="exp-reach" min="1" max="120" value="25" step="1" aria-label="Maximum distance from base">
+          <label for="exp-reach">Radius: <strong id="exp-reach-val">25 km</strong></label>
+          <input type="range" id="exp-reach" min="1" max="120" value="25" step="1" aria-label="Maximum distance from your location">
         </div>
         <div class="exp-field">
           <label>Sport</label>
@@ -108,9 +108,9 @@
   </footer>
 
   <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
-  <script src="constants.js?v=419"></script>
-  <script src="account.js?v=419"></script>
-  <script src="app.js?v=419"></script>
+  <script src="constants.js?v=420"></script>
+  <script src="account.js?v=420"></script>
+  <script src="app.js?v=420"></script>
   <script src="api-client.js?v=413"></script>
 </body>
 </html>

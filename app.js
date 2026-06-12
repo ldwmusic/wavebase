@@ -9016,7 +9016,7 @@ function initMobileTabbar() {
   };
   const tabs = [
     { route: "discover", href: "index.html", label: "Home" },
-    { route: "explorer", href: "explorer.html", label: "Explorer" },
+    { route: "explorer", href: "explorer.html", label: "Nearby" },
     { route: "map", href: "kaart.html", label: "Map" },
     { route: "compare", href: "compare.html", label: "Compare" },
     { route: "me", href: "account.html", label: "Me" }
@@ -9438,7 +9438,7 @@ function initExplorer() {
     try {
       localStorage.setItem(LS_KEY, JSON.stringify({
         region: state.region, base: state.base, maxKm: state.maxKm,
-        sports: state.sports, onlyNew: state.onlyNew
+        sports: state.sports, showNew: state.showNew, showKnown: state.showKnown
       }));
     } catch (e) {}
   }
@@ -9456,7 +9456,12 @@ function initExplorer() {
     base:   stored.base || null,          // {lat, lng, label}
     maxKm:  stored.maxKm || 25,
     sports: stored.sports || { wave: true, wind: true, kite: true, wing: true },
-    onlyNew: false                        // "only new to me" — removed
+    // Two independent category toggles (June 2026, Michiel): show/hide
+    // "new to you" spots and "surfed / saved / in a trip" spots in the
+    // list + on the map. Both on by default. Clicking a legend chip
+    // flips its category.
+    showNew:   stored.showNew   !== false,
+    showKnown: stored.showKnown !== false
   };
 
   // Fase 2 — "known" spots = surfed / saved / in a trip. A spot you've
@@ -9554,7 +9559,9 @@ function initExplorer() {
       const dist = state.base ? distanceKm([state.base.lat, state.base.lng], e.coords) : null;
       const inReach = dist == null ? true : dist <= state.maxKm;
       const known = spotKnown(e);
-      if (state.onlyNew && known) return;   // "only new to me" — drop known spots
+      // Category toggles: drop spots whose category is switched off.
+      if (known && !state.showKnown) return;
+      if (!known && !state.showNew) return;
       const faded = state.base && !inReach;
       // Pin style: out-of-reach faded · in-reach known greyed · in-reach fresh bright.
       let fill, fillOp, op, rad;
@@ -9612,21 +9619,32 @@ function initExplorer() {
     let head;
     if (state.base) {
       head = inReachCount
-        ? `<div class="exp-list-head">${inReachCount} spot${inReachCount===1?"":"s"} within ${state.maxKm} km${state.onlyNew ? "" : ` · <span class="exp-fresh-count">${freshCount} new to you</span>`}</div>`
-        : `<div class="exp-list-head">Nothing within ${state.maxKm} km yet <span class="muted">— widen your reach</span></div>`;
+        ? `<div class="exp-list-head">${inReachCount} spot${inReachCount===1?"":"s"} within ${state.maxKm} km${state.showNew ? ` · <span class="exp-fresh-count">${freshCount} new to you</span>` : ""}</div>`
+        : `<div class="exp-list-head">Nothing within ${state.maxKm} km yet <span class="muted">— widen your radius</span></div>`;
     } else if (state.region === "all") {
-      head = `<div class="exp-list-head">${list.length} spot${list.length===1?"":"s"} across every region <span class="muted">— set your base to sort by distance</span></div>`;
+      head = `<div class="exp-list-head">${list.length} spot${list.length===1?"":"s"} across every country <span class="muted">— set your location to sort by distance</span></div>`;
     } else {
-      head = `<div class="exp-list-head">${list.length} spot${list.length===1?"":"s"} in ${escHTML(state.region)} <span class="muted">— set your base to sort by distance</span></div>`;
+      head = `<div class="exp-list-head">${list.length} spot${list.length===1?"":"s"} in ${escHTML(state.region)} <span class="muted">— set your location to sort by distance</span></div>`;
     }
-    const legend = (state.base && !state.onlyNew)
-      ? `<div class="exp-legend"><span class="exp-leg-dot fresh"></span>new to you<span class="exp-leg-dot known"></span>surfed / saved / in a trip</div>`
-      : "";
+    // Interactive legend (June 2026, Michiel): each dot is a toggle that
+    // switches its category on/off in the list + on the map. is-off greys
+    // it out. Always shown so the toggles are reachable even before a base
+    // is set.
+    const legend = `<div class="exp-legend">
+      <button type="button" class="exp-leg-toggle${state.showNew ? "" : " is-off"}" data-cat="new" aria-pressed="${state.showNew}"><span class="exp-leg-dot fresh"></span>new to you</button>
+      <button type="button" class="exp-leg-toggle${state.showKnown ? "" : " is-off"}" data-cat="known" aria-pressed="${state.showKnown}"><span class="exp-leg-dot known"></span>surfed / saved / in a trip</button>
+    </div>`;
     if (!list.length) {
-      const msg = state.onlyNew
-        ? "Nothing new to you in this region — switch off “only new to me” to see every spot."
-        : "No spots match — turn a sport filter back on.";
-      el.innerHTML = head + `<p class="exp-list-empty">${msg}</p>`;
+      const bothOff = !state.showNew && !state.showKnown;
+      const msg = bothOff
+        ? "Both categories are switched off — tap a dot above to show spots again."
+        : (!state.showNew
+            ? "No “surfed / saved / in a trip” spots here — tap “new to you” above to see the rest."
+            : (!state.showKnown
+                ? "Nothing new to you here — tap “surfed / saved / in a trip” above to see the rest."
+                : "No spots match — turn a sport filter back on."));
+      el.innerHTML = head + legend + `<p class="exp-list-empty">${msg}</p>`;
+      _wireLegendToggles(el);
       return;
     }
     const items = list.map(r => {
@@ -9643,10 +9661,25 @@ function initExplorer() {
       </button>`;
     }).join("");
     el.innerHTML = head + legend + `<div class="exp-rows">${items}</div>`;
+    _wireLegendToggles(el);
     el.querySelectorAll(".exp-row").forEach(btn => {
       btn.addEventListener("click", () => {
         const r = rows.find(x => x.entry.id === btn.dataset.id);
         if (r) { map.panTo(r.entry.coords); r.marker.openPopup(); }
+      });
+    });
+  }
+
+  // Wire the two category-legend toggles (new-to-you / known). Flipping
+  // one re-runs redraw so the map + list update together; no map re-fit
+  // so the view holds still while you toggle.
+  function _wireLegendToggles(el) {
+    el.querySelectorAll(".exp-leg-toggle").forEach(btn => {
+      btn.addEventListener("click", () => {
+        if (btn.dataset.cat === "new")   state.showNew   = !state.showNew;
+        if (btn.dataset.cat === "known") state.showKnown = !state.showKnown;
+        saveState();
+        redraw(false);
       });
     });
   }
