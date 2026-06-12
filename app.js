@@ -3297,7 +3297,7 @@ const ISO_TO_CONTINENT = {
 // Country name → ISO 3166-1 alpha-2. Used to drop pin markers on the
 // inline SVG and to mark a country path as live/queued.
 const COUNTRY_TO_ISO = {
-  "Greece":"gr", "Belgium":"be", "Portugal":"pt", "Spain":"es", "France":"fr", "Italy":"it",
+  "Greece":"gr", "Belgium":"be", "Netherlands":"nl", "Germany":"de", "Portugal":"pt", "Spain":"es", "France":"fr", "Italy":"it",
   "Ireland":"ie", "United Kingdom":"gb", "Norway":"no", "Iceland":"is",
   "Morocco":"ma", "South Africa":"za", "Senegal":"sn", "Namibia":"na",
   "Mozambique":"mz", "Cape Verde":"cv",
