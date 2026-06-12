@@ -126,10 +126,12 @@ a, button, [role="button"] { -webkit-tap-highlight-color: rgba(63,111,125,0.08);
 }
 .logo-icon { width: 36px; height: auto; flex-shrink: 0; display: block; }
 .logo-text { display: inline-block; line-height: 1; }
-.logo .logo-text span { color: var(--sea); }
+/* "Goose" in the wordmark is brand red (clay), not sea-blue — Michiel's
+   June-2026 call: red reads warmer/nicer than the blue. */
+.logo .logo-text span { color: var(--clay); }
 /* Legacy support — old text-only .logo span selector still works for any
    markup that wasn't updated. */
-.logo > span:not(.logo-text):not(.logo-icon) { color: var(--sea); }
+.logo > span:not(.logo-text):not(.logo-icon) { color: var(--clay); }
 .tagline-top {
   font-size: 13px;
   color: var(--ink-soft);

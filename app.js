@@ -8925,7 +8925,15 @@ function initDestinations() {
   trigger.className = "nav-destinations";
   trigger.type = "button";
   trigger.textContent = "Destinations";
-  nav.prepend(trigger);
+  // Insert right AFTER the Home link so the order reads Home → Destinations
+  // (June 2026, Michiel: Home should come first). Falls back to prepend if
+  // the Home link isn't found for some reason.
+  const homeLink = nav.querySelector('a[href="index.html"]');
+  if (homeLink) {
+    homeLink.insertAdjacentElement("afterend", trigger);
+  } else {
+    nav.prepend(trigger);
+  }
 
   const cols = WAVEBASE_DESTINATIONS.map(c => {
     const chips = c.countries.map(co => {
