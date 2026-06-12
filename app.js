@@ -2926,22 +2926,21 @@ const WaveBaseCompareMode = (function () {
       marker.on("click", function (ev) {
         if (active) {
           L.DomEvent.stop(ev);
-          // Type-lock check
-          const currentLock = lockedType || selectedTypeFromList();
-          if (currentLock && entry.type !== currentLock) {
-            alert(`You're already comparing ${currentLock}s — only one type at a time. Clear the selection on the Compare tab to switch.`);
-            return;
-          }
+          // Separate comparison projects (June 2026, Michiel #4): you can
+          // now select spots AND centers AND stays — they form independent
+          // comparison tables, never mixed. So no type-lock; the cap is
+          // per-type instead of overall (5 of each keeps each table
+          // readable while letting you build several).
           const list = WaveBaseAccount.getCompare();
           const isIn = list.indexOf(entry.id) !== -1;
-          // Max selection guard
-          if (!isIn && list.length >= MAX_SELECTION) {
-            alert(`Max ${MAX_SELECTION} selected at once — comparison tables get unreadable beyond that.`);
-            return;
+          if (!isIn) {
+            const sameType = list.map(byId).filter(x => x && x.type === entry.type).length;
+            if (sameType >= MAX_SELECTION) {
+              alert(`Max ${MAX_SELECTION} ${entry.type}s at once — comparison tables get unreadable beyond that. (Other types aren't affected.)`);
+              return;
+            }
           }
           WaveBaseAccount.toggleCompare(entry.id);
-          if (!isIn && list.length === 0) lockedType = entry.type;
-          if (isIn && list.length === 1) lockedType = null;
           syncSelectedMarker(marker, entry);
           syncFAB();
           updateNav();
@@ -8496,7 +8495,10 @@ function windMonthCellHTML(stats, currentIdx) {
 // winnerDirection per dimension says which extreme is "better" for the
 // clay accent: "higher" = longest bar wins, "lower" = shortest bar wins
 // (e.g. distance to spot), null = no winner (preference-driven).
-function compareScoreboardHTML(items) {
+function compareScoreboardHTML(items, idSuffix) {
+  // idSuffix keeps the month-select id unique when several scoreboards
+  // (one per comparison project / type) sit on the page at once.
+  const sbMonthId = "sb-month-select" + (idSuffix ? "-" + idSuffix : "");
   if (items.length < 2) return "";
   const types = new Set(items.map(i => i.type));
   if (types.size > 1) return "";
@@ -8849,7 +8851,7 @@ function compareScoreboardHTML(items) {
   // pref via the change handler wired in renderCompare.
   const monthSelectHTML = `<label class="sb-month-select-wrap">
     <span class="sb-month-select-label">📅 Month</span>
-    <select id="sb-month-select" class="sb-month-select" aria-label="Compare for month">
+    <select id="${sbMonthId}" class="sb-month-select" aria-label="Compare for month">
       ${monthNames.map((mn, i) =>
         `<option value="${i + 1}"${i === m ? " selected" : ""}>${mn}</option>`
       ).join("")}
@@ -8968,10 +8970,11 @@ function renderCompare() {
   const items = WaveBaseAccount.getCompare().map(byId).filter(Boolean);
   if (!items.length) {
     root.innerHTML = `<h1>Compare</h1>
-      <p class="muted">Nothing to compare yet. Tap the "⇄" button on a spot or stay, then come back here.</p>`;
+      <p class="muted">Nothing to compare yet. Tap the "⇄" button on a spot, center or stay, then come back here.</p>`;
     return;
   }
-  const cols = items.map(e => {
+
+  const cardCol = e => {
     const pts = compareKeyPoints(e).map(([k, v]) =>
       v ? `<div class="cmp-row"><span class="cmp-k">${k}</span><span class="cmp-v">${v}</span></div>` : "").join("");
     return `<div class="cmp-col">
@@ -8987,15 +8990,34 @@ function renderCompare() {
         ${pts}
       </div>
     </div>`;
-  }).join("");
+  };
+
+  // Separate comparison projects (Michiel #4): one table per type, never
+  // mixed, stacked under each other. You can build several at once —
+  // 2 spots, 3 centers, 4 stays — each compared on its own dimensions.
+  const TYPE_ORDER = [
+    { type: "spot",   label: "Spots" },
+    { type: "center", label: "Surf centers" },
+    { type: "stay",   label: "Stays" }
+  ];
+  const sectionFor = ({ type, label }) => {
+    const group = items.filter(e => e.type === type);
+    if (!group.length) return "";
+    return `<section class="cmp-project" data-cmp-type="${type}">
+      <div class="cmp-project-head"><h2>${label} <span class="seccount">${group.length}</span></h2></div>
+      <div class="compare-scoreboard-slot" data-sb-type="${type}">${compareScoreboardHTML(group, type)}</div>
+      <div class="cmp-grid">${group.map(cardCol).join("")}</div>
+    </section>`;
+  };
+  const sections = TYPE_ORDER.map(sectionFor).join("");
+
   root.innerHTML = `
     <div class="compare-head">
       <h1>Compare <span class="seccount">${items.length}</span></h1>
       <button class="btn ghost" id="clear-compare">Clear all</button>
     </div>
     ${compareMapHTML(items)}
-    <div id="compare-scoreboard-slot">${compareScoreboardHTML(items)}</div>
-    <div class="cmp-grid">${cols}</div>`;
+    ${sections}`;
   initCompareMap(items);
   document.getElementById("clear-compare").addEventListener("click", () => {
     WaveBaseAccount.clearCompare(); updateNav(); renderCompare();
@@ -9006,19 +9028,22 @@ function renderCompare() {
       updateNav(); renderCompare();
     });
   });
-  // Month dropdown lives inside the scoreboard header. Re-bind on every
-  // slot re-render so the freshly-rendered select stays interactive.
-  const wireMonthSelect = () => {
-    const sel = document.getElementById("sb-month-select");
-    if (!sel) return;
-    sel.addEventListener("change", () => {
-      setMonthPref(parseInt(sel.value, 10));
-      const slot = document.getElementById("compare-scoreboard-slot");
-      if (slot) slot.innerHTML = compareScoreboardHTML(items);
-      wireMonthSelect();
+  // Each project's scoreboard has its own month dropdown — re-render just
+  // that project's scoreboard on change (month pref is global, so a switch
+  // in one updates the others on their next render too).
+  const wireMonthSelects = () => {
+    TYPE_ORDER.forEach(({ type }) => {
+      const sel = document.getElementById("sb-month-select-" + type);
+      if (!sel) return;
+      sel.addEventListener("change", () => {
+        setMonthPref(parseInt(sel.value, 10));
+        const slot = root.querySelector('.compare-scoreboard-slot[data-sb-type="' + type + '"]');
+        if (slot) slot.innerHTML = compareScoreboardHTML(items.filter(e => e.type === type), type);
+        wireMonthSelects();
+      });
     });
   };
-  wireMonthSelect();
+  wireMonthSelects();
 }
 
 /* ---- destinations mega-menu ---- */
