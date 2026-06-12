@@ -1302,19 +1302,27 @@ table.cal td.host { color: var(--clay); }
   position: fixed; right: 24px; bottom: 24px; z-index: 1200;
   background: var(--clay); color: #fff;
   font-family: 'DM Sans', sans-serif; font-size: 15px; font-weight: 700;
-  padding: 14px 22px;
+  padding: 8px 10px 8px 8px;
   border-radius: 999px;
   box-shadow: 0 6px 20px rgba(189,98,66,0.4);
-  text-decoration: none;
-  display: inline-flex; align-items: center; gap: 10px;
-  transition: transform 0.15s ease, box-shadow 0.15s ease;
-  cursor: pointer;
+  display: inline-flex; align-items: center; gap: 4px;
+  transition: box-shadow 0.15s ease;
 }
-.compare-mode-fab:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 10px 24px rgba(189,98,66,0.5);
-  text-decoration: none; color: #fff;
+.compare-mode-fab:hover { box-shadow: 0 10px 24px rgba(189,98,66,0.5); }
+.compare-mode-fab .cmf-go {
+  color: #fff; text-decoration: none; padding: 6px 12px 6px 6px;
+  display: inline-flex; align-items: center; gap: 8px;
 }
+.compare-mode-fab .cmf-go:hover { color: #fff; text-decoration: none; }
+.compare-mode-fab .cmf-clear {
+  flex: 0 0 auto;
+  width: 30px; height: 30px; border-radius: 50%;
+  border: none; cursor: pointer;
+  background: rgba(255,255,255,0.22); color: #fff;
+  font-size: 19px; line-height: 1;
+  display: inline-flex; align-items: center; justify-content: center;
+}
+.compare-mode-fab .cmf-clear:hover { background: rgba(255,255,255,0.38); }
 .compare-mode-fab .cmf-n {
   display: inline-flex; align-items: center; justify-content: center;
   width: 26px; height: 26px;

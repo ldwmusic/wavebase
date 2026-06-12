@@ -2781,6 +2781,18 @@ const WaveBaseCompareMode = (function () {
   const MAX_SELECTION = 5;
   let active = false;          // mode on/off
   let lockedType = null;       // first-clicked type ("spot" / "center" / "stay")
+  let _resyncMarkers = null;   // set in init() — re-applies selected styling to every pin
+
+  // Clear the whole selection in one go (June 2026, Michiel #9 — instead
+  // of clicking every pin off). Wipes the compare list, re-syncs all the
+  // map pins back to unselected, and refreshes the FAB + nav count.
+  function clearAll() {
+    WaveBaseAccount.clearCompare();
+    lockedType = null;
+    if (typeof _resyncMarkers === "function") _resyncMarkers();
+    syncFAB();
+    if (typeof updateNav === "function") updateNav();
+  }
 
   function selectedCount() {
     return WaveBaseAccount.getCompare().length;
@@ -2801,13 +2813,21 @@ const WaveBaseCompareMode = (function () {
       return;
     }
     if (!fab) {
-      fab = document.createElement("a");
+      fab = document.createElement("div");
       fab.id = "compare-mode-fab";
-      fab.href = "compare.html";
       fab.className = "compare-mode-fab";
       document.body.appendChild(fab);
     }
-    fab.innerHTML = `Compare <span class="cmf-n">${n}</span> selected &rarr;`;
+    // A clear-all (✕) button sits beside the "Compare N →" link so you can
+    // wipe the whole selection in one tap instead of clicking every pin.
+    fab.innerHTML = `
+      <button type="button" class="cmf-clear" aria-label="Clear selection" title="Clear selection">&times;</button>
+      <a class="cmf-go" href="compare.html">Compare <span class="cmf-n">${n}</span> selected &rarr;</a>`;
+    const clearBtn = fab.querySelector(".cmf-clear");
+    if (clearBtn) clearBtn.addEventListener("click", function (ev) {
+      ev.preventDefault(); ev.stopPropagation();
+      clearAll();
+    });
   }
 
   // Build a Leaflet control with the "Compare multiple" toggle button.
@@ -2887,6 +2907,8 @@ const WaveBaseCompareMode = (function () {
     init(map, markerEntries) {
       if (!L || !map || !markerEntries) return;
       const attachAll = () => wireMarkers(markerEntries, map);
+      // Let clearAll() re-paint every pin back to unselected after a wipe.
+      _resyncMarkers = () => markerEntries.forEach(({ marker, entry }) => syncSelectedMarker(marker, entry));
       buildLeafletControl(map, attachAll);
       attachAll();
       syncFAB();
