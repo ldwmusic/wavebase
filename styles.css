@@ -6173,11 +6173,23 @@ button.rml-key.off .rml-dot {
 .auth-toggle-btn:hover,
 .auth-resend-btn:hover { color: var(--ink); }
 .auth-resend-btn:disabled { color: var(--ink-soft); text-decoration: none; cursor: default; }
-/* The verify-code input: centered, wide letter-spacing for legibility */
-.auth-view-verify input[name="code"] {
+/* The verify / reset code inputs: centered, wide letter-spacing */
+.auth-view-verify input[name="code"],
+.auth-view-forgot input[name="forgot-code"] {
   letter-spacing: 8px; font-size: 20px; text-align: center;
   font-family: 'DM Sans', sans-serif; font-weight: 600;
 }
+
+/* "Forgot password?" link under the password field (login only) */
+.auth-forgot-row { margin: -4px 0 0; text-align: right; }
+.auth-forgot-btn {
+  font-family: 'DM Sans', sans-serif;
+  font-size: 13px; font-weight: 500;
+  color: var(--ink-soft);
+  background: transparent; border: none; cursor: pointer;
+  padding: 0; text-decoration: underline; text-underline-offset: 3px;
+}
+.auth-forgot-btn:hover { color: var(--sea); }
 
 .auth-fineprint {
   margin: 6px 0 0;

@@ -930,6 +930,15 @@ const WaveBaseAuth = (function () {
   async function resendVerification(email) {
     return await postJSON("/users/resend-verification", { email });
   }
+  async function requestPasswordReset(email) {
+    return await postJSON("/users/request-password-reset", { email });
+  }
+  async function resetPassword({ email, code, new_password }) {
+    // On success the server returns a fresh AuthResponse (the reset
+    // doubles as a login), which we apply.
+    const data = await postJSON("/users/reset-password", { email, code, new_password });
+    return applyAuthResponse(data);
+  }
   async function login({ email, password }) {
     const data = await postJSON("/users/login", { email, password });
     return applyAuthResponse(data);
@@ -1077,6 +1086,8 @@ const WaveBaseAuth = (function () {
     signup: signup,
     verifyEmail: verifyEmail,
     resendVerification: resendVerification,
+    requestPasswordReset: requestPasswordReset,
+    resetPassword: resetPassword,
     login: login,
     loginWithGoogle: loginWithGoogle,
     logout: logout,
@@ -1755,6 +1766,18 @@ const WaveBaseAuthModal = (function () {
   let verifyEmailEl  = null;
   let verifyResendEl = null;
   let pendingVerifyEmail = null;  // address awaiting its signup code
+  // Forgot-password view (.auth-view-forgot)
+  let forgotViewEl    = null;
+  let forgotFormEl    = null;
+  let forgotEmailEl   = null;
+  let forgotStep2El   = null;
+  let forgotCodeEl    = null;
+  let forgotNewpassEl = null;
+  let forgotErrorEl   = null;
+  let forgotSubmitEl  = null;
+  let forgotBackEl    = null;
+  let forgotLinkEl    = null;  // "Forgot password?" link in the login view
+  let forgotStage     = "request";  // "request" (email) | "confirm" (code+pw)
   let profileSlot    = null;
   let profileSkipBtn = null;
   let profileContBtn = null;
@@ -1820,6 +1843,8 @@ const WaveBaseAuthModal = (function () {
               </div>
             </label>
 
+            <p class="auth-forgot-row"><button type="button" class="auth-forgot-btn">Forgot password?</button></p>
+
             <div class="auth-error" hidden></div>
 
             <button type="submit" class="auth-submit">Sign in</button>
@@ -1876,6 +1901,36 @@ const WaveBaseAuthModal = (function () {
             <p class="auth-fineprint">Check your spam folder if it&rsquo;s not in your inbox within a minute. The code expires in 15 minutes.</p>
           </form>
         </div>
+
+        <!-- Forgot-password view (mode === "forgot"). Two stages in one
+             view: first ask for the email and send a code, then reveal
+             the code + new-password fields. June 2026, Michiel #7. -->
+        <div class="auth-view auth-view-forgot" hidden>
+          <h2 class="auth-title">Reset your password</h2>
+          <p class="auth-subtitle auth-forgot-sub">Enter your email and we&rsquo;ll send you a reset code.</p>
+          <form class="auth-forgot-form" novalidate>
+            <label class="auth-field">
+              <span>Email</span>
+              <input type="email" name="forgot-email" autocomplete="email" inputmode="email" autocapitalize="none" placeholder="you@example.com" />
+            </label>
+            <div class="auth-forgot-step2" hidden>
+              <label class="auth-field">
+                <span>Reset code</span>
+                <input type="text" name="forgot-code" inputmode="numeric" autocomplete="one-time-code" maxlength="6" pattern="[0-9]*" placeholder="123456" />
+              </label>
+              <label class="auth-field">
+                <span>New password</span>
+                <input type="password" name="forgot-newpass" minlength="6" autocomplete="new-password" placeholder="At least 6 characters" />
+              </label>
+            </div>
+            <div class="auth-error auth-forgot-error" hidden></div>
+            <button type="submit" class="auth-submit auth-forgot-submit">Send reset code</button>
+            <p class="auth-footer">
+              <span>Remembered it?</span>
+              <button type="button" class="auth-toggle-btn auth-forgot-back">Back to sign in</button>
+            </p>
+          </form>
+        </div>
       </div>
     `;
 
@@ -1906,6 +1961,17 @@ const WaveBaseAuthModal = (function () {
     verifySubmitEl = verifyViewEl.querySelector(".auth-verify-submit");
     verifyEmailEl  = verifyViewEl.querySelector(".auth-verify-email");
     verifyResendEl = verifyViewEl.querySelector(".auth-resend-btn");
+    // Forgot-password view elements.
+    forgotViewEl    = rootEl.querySelector(".auth-view-forgot");
+    forgotFormEl    = forgotViewEl.querySelector(".auth-forgot-form");
+    forgotEmailEl   = forgotViewEl.querySelector('input[name="forgot-email"]');
+    forgotStep2El   = forgotViewEl.querySelector(".auth-forgot-step2");
+    forgotCodeEl    = forgotViewEl.querySelector('input[name="forgot-code"]');
+    forgotNewpassEl = forgotViewEl.querySelector('input[name="forgot-newpass"]');
+    forgotErrorEl   = forgotViewEl.querySelector(".auth-forgot-error");
+    forgotSubmitEl  = forgotViewEl.querySelector(".auth-forgot-submit");
+    forgotBackEl    = forgotViewEl.querySelector(".auth-forgot-back");
+    forgotLinkEl    = rootEl.querySelector(".auth-forgot-btn");
 
     // Close: X button, backdrop click, Escape key.
     rootEl.querySelector(".auth-modal-close").addEventListener("click", close);
@@ -1988,6 +2054,14 @@ const WaveBaseAuthModal = (function () {
       verifyCodeEl.value = verifyCodeEl.value.replace(/\D/g, "").slice(0, 6);
     });
 
+    // Forgot-password: open link, the staged form, the back link.
+    if (forgotLinkEl) forgotLinkEl.addEventListener("click", function () { setMode("forgot"); });
+    if (forgotFormEl) forgotFormEl.addEventListener("submit", onForgotSubmit);
+    if (forgotBackEl) forgotBackEl.addEventListener("click", function () { setMode("login"); });
+    if (forgotCodeEl) forgotCodeEl.addEventListener("input", function () {
+      forgotCodeEl.value = forgotCodeEl.value.replace(/\D/g, "").slice(0, 6);
+    });
+
     // Profile-step Skip + Continue. Both close the modal and land
     // the user on account.html where their full account UI lives.
     // Continue first flushes any pending debounced server-sync so
@@ -2029,6 +2103,7 @@ const WaveBaseAuthModal = (function () {
       // code form, and drop in the address we're verifying.
       authViewEl.setAttribute("hidden", "");
       profileViewEl.setAttribute("hidden", "");
+      if (forgotViewEl) forgotViewEl.setAttribute("hidden", "");
       verifyViewEl.removeAttribute("hidden");
       cardEl.classList.remove("is-profile-step");
       if (verifyEmailEl) verifyEmailEl.textContent = pendingVerifyEmail || "your email";
@@ -2036,7 +2111,22 @@ const WaveBaseAuthModal = (function () {
       if (verifyCodeEl) { verifyCodeEl.value = ""; setTimeout(function () { try { verifyCodeEl.focus(); } catch (e) {} }, 50); }
       return;
     }
+    if (mode === "forgot") {
+      // Reset-password view. Stage starts at "request" (email only);
+      // sending a code reveals the code + new-password fields.
+      authViewEl.setAttribute("hidden", "");
+      profileViewEl.setAttribute("hidden", "");
+      if (verifyViewEl) verifyViewEl.setAttribute("hidden", "");
+      forgotViewEl.removeAttribute("hidden");
+      cardEl.classList.remove("is-profile-step");
+      _setForgotStage("request");
+      // Carry over whatever they typed in the login email field.
+      if (forgotEmailEl) { forgotEmailEl.value = (emailEl && emailEl.value) || ""; }
+      _clearForgotError();
+      return;
+    }
     if (verifyViewEl) verifyViewEl.setAttribute("hidden", "");
+    if (forgotViewEl) forgotViewEl.setAttribute("hidden", "");
     if (mode === "profile") {
       // Step 2 of the popup after a successful signup. Hide the
       // email/password view, show the profile form, and widen the
@@ -2064,6 +2154,11 @@ const WaveBaseAuthModal = (function () {
     authViewEl.removeAttribute("hidden");
     profileViewEl.setAttribute("hidden", "");
     cardEl.classList.remove("is-profile-step");
+    // "Forgot password?" only makes sense on the sign-in tab.
+    if (forgotLinkEl) {
+      const row = forgotLinkEl.closest(".auth-forgot-row") || forgotLinkEl;
+      row.hidden = (mode !== "login");
+    }
     // Tear down the wired profile form if we were in profile mode
     // before — listeners stay until the slot is wiped on next render.
     if (profileWired) profileWired = null;
@@ -2320,6 +2415,98 @@ const WaveBaseAuthModal = (function () {
     } catch (e) {
       _showVerifyError(e.message || "That didn't work. Try again.");
       _setVerifyBusy(false);
+    }
+  }
+
+  /* ---- Forgot-password step helpers + wiring ---- */
+  function _showForgotError(msg) {
+    if (!forgotErrorEl) return;
+    forgotErrorEl.textContent = msg;
+    forgotErrorEl.hidden = false;
+  }
+  function _clearForgotError() {
+    if (!forgotErrorEl) return;
+    forgotErrorEl.textContent = "";
+    forgotErrorEl.hidden = true;
+  }
+  function _setForgotStage(stage) {
+    forgotStage = stage;
+    const sub = forgotViewEl.querySelector(".auth-forgot-sub");
+    if (stage === "confirm") {
+      if (forgotStep2El) forgotStep2El.hidden = false;
+      if (forgotEmailEl) forgotEmailEl.setAttribute("readonly", "");
+      if (forgotSubmitEl) forgotSubmitEl.textContent = "Set new password";
+      if (sub) sub.textContent = "We sent a code to your email. Enter it and pick a new password.";
+      setTimeout(function () { try { forgotCodeEl.focus(); } catch (e) {} }, 50);
+    } else {
+      if (forgotStep2El) forgotStep2El.hidden = true;
+      if (forgotEmailEl) forgotEmailEl.removeAttribute("readonly");
+      if (forgotSubmitEl) forgotSubmitEl.textContent = "Send reset code";
+      if (sub) sub.textContent = "Enter your email and we’ll send you a reset code.";
+      if (forgotCodeEl) forgotCodeEl.value = "";
+      if (forgotNewpassEl) forgotNewpassEl.value = "";
+    }
+  }
+  function _setForgotBusy(busy, labelBusy) {
+    if (forgotSubmitEl) {
+      forgotSubmitEl.disabled = busy;
+      if (busy) forgotSubmitEl.textContent = labelBusy;
+    }
+  }
+
+  async function onForgotSubmit(ev) {
+    ev.preventDefault();
+    _clearForgotError();
+    const email = (forgotEmailEl.value || "").trim();
+    if (!email || email.indexOf("@") === -1) {
+      _showForgotError("Please enter a valid email address.");
+      forgotEmailEl.focus();
+      return;
+    }
+
+    if (forgotStage === "request") {
+      _setForgotBusy(true, "Sending…");
+      try {
+        await WaveBaseAuth.requestPasswordReset(email);
+        // The server always says "sent" (it won't reveal whether the
+        // address exists), so we always advance to the code step.
+        _setForgotStage("confirm");
+        _setForgotBusy(false);
+      } catch (e) {
+        _showForgotError(e.message || "Couldn't send the code. Try again.");
+        _setForgotBusy(false);
+      }
+      return;
+    }
+
+    // stage === "confirm"
+    const code = (forgotCodeEl.value || "").trim();
+    const newPass = (forgotNewpassEl.value || "");
+    if (!/^\d{6}$/.test(code)) {
+      _showForgotError("Enter the 6-digit code from the email.");
+      forgotCodeEl.focus();
+      return;
+    }
+    if (newPass.length < 6) {
+      _showForgotError("New password should be at least 6 characters.");
+      forgotNewpassEl.focus();
+      return;
+    }
+    _setForgotBusy(true, "Resetting…");
+    try {
+      const user = await WaveBaseAuth.resetPassword({ email: email, code: code, new_password: newPass });
+      // Reset succeeds AND logs the user in. Close + go to their account.
+      close();
+      if (typeof onSuccess === "function") {
+        try { onSuccess(user, "login"); } catch (e) { console.error(e); }
+      } else if (window.location.pathname.split("/").pop() !== "account.html") {
+        window.location.href = "account.html";
+      } else {
+        window.location.reload();
+      }
+    } catch (e) {
+      _showForgotError(e.message || "That didn't work. Check the code and try again.");
+      _setForgotBusy(false);
     }
   }
 
