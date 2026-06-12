@@ -4767,8 +4767,22 @@ button.rml-key.off .rml-dot {
   font-size: 14px; font-style: italic; color: var(--ink-soft);
 }
 @media (max-width: 620px) {
-  .destinations-menu { padding: 20px 0; max-height: 72vh; overflow-y: auto; }
-  .dest-grid { gap: 20px; }
+  /* On phone the worldwide chip-wall was too much (Michiel #13, Lode's
+     note: phone only — computer stays as is). Render it as a simple,
+     compact single-column list, and HIDE non-matching rows as you type
+     so the filtering is visibly shrinking the list. Desktop keeps the
+     full chip grid. */
+  .destinations-menu { padding: 14px 0 18px; max-height: 76vh; overflow-y: auto; }
+  .dest-grid { grid-template-columns: 1fr; gap: 14px; }
+  .dest-continent h3 { font-size: 12px; padding-bottom: 5px; margin-bottom: 8px; }
+  .dest-chips { flex-direction: column; gap: 4px; }
+  .dest-chip {
+    width: 100%; justify-content: flex-start;
+    border-radius: 10px; padding: 11px 14px; font-size: 15px;
+  }
+  .dest-chip.dimmed { display: none; }        /* typing visibly filters the list */
+  .dest-continent.dimmed { display: none; }
+  .dest-note { margin-top: 14px; font-size: 13px; }
 }
 
 /* ===== round 8: coming-soon state for non-live countries ===== */
