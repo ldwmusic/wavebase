@@ -1,0 +1,368 @@
+/* ============================================================
+   SurfGoose · FLIGHT DECK (design lab 03)
+   Interactive holographic deck over a photoreal dusk ocean.
+   Standalone — never touches the live site's styles.
+   ============================================================ */
+
+@font-face {
+  font-family: 'Space Grotesk';
+  font-style: normal;
+  font-weight: 500;
+  font-display: swap;
+  src: url('sg-latin-500.woff2') format('woff2');
+}
+@font-face {
+  font-family: 'Space Grotesk';
+  font-style: normal;
+  font-weight: 700;
+  font-display: swap;
+  src: url('sg-latin-700.woff2') format('woff2');
+}
+@font-face {
+  font-family: 'Fraunces';
+  font-style: normal;
+  font-weight: 500 600;
+  font-display: swap;
+  src: url('/fonts/Fraunces-latin.woff2') format('woff2');
+}
+@font-face {
+  font-family: 'DM Sans';
+  font-style: normal;
+  font-weight: 400 600;
+  font-display: swap;
+  src: url('/fonts/DMSans-latin.woff2') format('woff2');
+}
+
+:root {
+  --void:      #03121c;
+  --holo:      #6ef3ff;
+  --holo-dim:  rgba(110, 243, 255, 0.55);
+  --holo-soft: rgba(110, 243, 255, 0.14);
+  --amber:     #ffc46a;
+  --cream:     #f4fbfd;
+  --cream-dim: rgba(244, 251, 253, 0.72);
+  --beak:      #ff8a4d;
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
+html, body.deck { height: 100%; }
+body.deck {
+  background: var(--void);
+  color: var(--cream);
+  font-family: 'DM Sans', -apple-system, sans-serif;
+  font-size: 16px;
+  line-height: 1.55;
+  overflow: hidden;                 /* no scroll — you steer, you don't scroll */
+  -webkit-font-smoothing: antialiased;
+  cursor: crosshair;
+}
+a { color: inherit; text-decoration: none; }
+button { font: inherit; color: inherit; background: none; border: 0; cursor: pointer; }
+
+.hud-label {
+  font-family: 'Space Grotesk', monospace;
+  font-size: 11px; font-weight: 700;
+  letter-spacing: 0.28em; text-transform: uppercase;
+  color: var(--holo);
+  text-shadow: 0 0 12px var(--holo-dim);
+}
+
+/* ============================================================
+   HOLO PRIMITIVES
+   ============================================================ */
+.holo-chip, .holo-btn, .holo-panel {
+  position: relative;
+  background: linear-gradient(160deg, rgba(8, 40, 56, 0.72), rgba(4, 22, 34, 0.55));
+  -webkit-backdrop-filter: blur(14px) saturate(140%);
+  backdrop-filter: blur(14px) saturate(140%);
+  border: 1px solid rgba(110, 243, 255, 0.30);
+  box-shadow:
+    0 0 0 1px rgba(3, 18, 28, 0.5),
+    0 14px 44px -16px rgba(0, 0, 0, 0.8),
+    inset 0 0 22px rgba(110, 243, 255, 0.06),
+    inset 0 1px 0 rgba(110, 243, 255, 0.25);
+  border-radius: 14px;
+}
+/* corner brackets */
+.holo-panel::before, .holo-panel::after {
+  content: ""; position: absolute; width: 14px; height: 14px;
+  border: 2px solid var(--holo); opacity: .8; pointer-events: none;
+}
+.holo-panel::before { left: -2px; top: -2px; border-right: 0; border-bottom: 0; border-radius: 4px 0 0 0; }
+.holo-panel::after { right: -2px; bottom: -2px; border-left: 0; border-top: 0; border-radius: 0 0 4px 0; }
+
+.holo-chip {
+  display: inline-flex; align-items: center; gap: 9px;
+  padding: 9px 16px;
+  font-family: 'Space Grotesk', monospace;
+  font-size: 11.5px; font-weight: 700;
+  letter-spacing: 0.16em; text-transform: uppercase;
+  color: var(--cream);
+  border-radius: 999px;
+}
+.holo-chip a { color: var(--cream-dim); padding: 2px 7px; border-radius: 7px; transition: color .2s, background .2s, text-shadow .2s; }
+.holo-chip a:hover { color: var(--holo); background: var(--holo-soft); text-shadow: 0 0 10px var(--holo-dim); }
+
+.holo-btn {
+  display: inline-flex; align-items: center; gap: 10px;
+  padding: 12px 22px;
+  border-radius: 12px;
+  font-family: 'Space Grotesk', monospace;
+  font-size: 13px; font-weight: 700;
+  letter-spacing: 0.18em; text-transform: uppercase;
+  color: var(--holo);
+  text-shadow: 0 0 14px var(--holo-dim);
+  transition: transform .18s ease, box-shadow .25s ease, background .25s ease;
+}
+.holo-btn:hover {
+  transform: translateY(-2px);
+  background: linear-gradient(160deg, rgba(14, 64, 88, 0.85), rgba(6, 34, 50, 0.7));
+  box-shadow:
+    0 0 0 1px rgba(110, 243, 255, 0.35),
+    0 18px 44px -14px rgba(110, 243, 255, 0.35),
+    inset 0 0 26px rgba(110, 243, 255, 0.12);
+}
+.holo-btn.ghost { color: var(--cream-dim); border-color: rgba(244, 251, 253, 0.22); text-shadow: none; }
+.holo-btn.big { padding: 15px 30px; font-size: 14px; border-radius: 16px; }
+.holo-btn.big i { font-style: normal; font-size: 16px; }
+.holo-btn.is-on {
+  background: linear-gradient(160deg, rgba(110, 243, 255, 0.20), rgba(110, 243, 255, 0.06));
+  box-shadow: 0 0 0 1px var(--holo-dim), 0 0 34px -6px var(--holo-dim), inset 0 0 24px rgba(110, 243, 255, 0.15);
+}
+.holo-x {
+  font-size: 20px; line-height: 1;
+  color: var(--cream-dim); padding: 4px 9px; border-radius: 9px;
+}
+.holo-x:hover { color: var(--holo); background: var(--holo-soft); }
+
+/* flicker for that projected feel — subtle! */
+@keyframes holo-flicker {
+  0%, 94%, 100% { opacity: 1; }
+  95% { opacity: 0.92; }
+  96% { opacity: 0.98; }
+  97% { opacity: 0.88; }
+  98% { opacity: 1; }
+}
+.holo-panel { animation: holo-flicker 7s linear infinite; }
+
+/* ============================================================
+   POSTER
+   ============================================================ */
+#poster { display: none; }
+.poster-mode #poster {
+  display: grid; place-items: center;
+  position: fixed; inset: 0; z-index: 600;
+  padding: 24px;
+  background:
+    radial-gradient(110% 70% at 50% 100%, rgba(110, 243, 255, 0.16) 0%, transparent 55%),
+    linear-gradient(180deg, #03121c 0%, #07293c 100%);
+}
+.poster-mode #stage, .poster-mode #fx, .poster-mode #boot,
+.poster-mode .hud-top, .poster-mode #dock, .poster-mode #hint { display: none !important; }
+.poster-card { max-width: 540px; padding: 38px 36px; text-align: center; border-radius: 20px; }
+.poster-card h1 { font-family: 'Fraunces', serif; font-size: 54px; margin: 12px 0 14px; }
+.poster-card p { color: var(--cream-dim); }
+.poster-links { display: flex; gap: 10px; justify-content: center; margin-top: 24px; flex-wrap: wrap; }
+
+/* ============================================================
+   BOOT
+   ============================================================ */
+#boot {
+  position: fixed; inset: 0; z-index: 500;
+  display: grid; place-items: center;
+  background:
+    radial-gradient(80% 55% at 50% 42%, rgba(110, 243, 255, 0.10) 0%, transparent 60%),
+    var(--void);
+}
+.boot-box { text-align: center; width: min(420px, 86vw); }
+.boot-goose { width: 64px; filter: drop-shadow(0 0 18px rgba(110, 243, 255, 0.5)); }
+.boot-title {
+  font-family: 'Space Grotesk', monospace; font-weight: 700;
+  font-size: clamp(30px, 6vw, 44px);
+  letter-spacing: 0.34em; text-indent: 0.34em;
+  color: var(--holo);
+  text-shadow: 0 0 26px var(--holo-dim);
+  margin: 14px 0 18px;
+}
+.boot-lines {
+  font-family: 'Space Grotesk', monospace; font-size: 12px;
+  letter-spacing: 0.12em;
+  color: var(--cream-dim);
+  min-height: 72px; text-align: left;
+  padding: 12px 16px;
+  border: 1px solid rgba(110, 243, 255, 0.2);
+  border-radius: 10px;
+  background: rgba(4, 22, 34, 0.5);
+}
+.boot-lines div::before { content: "▸ "; color: var(--holo); }
+.boot-pct { margin-top: 14px; font-family: 'Space Grotesk', monospace; font-size: 12px; letter-spacing: 0.3em; color: var(--holo); }
+
+/* ============================================================
+   STAGE + FX
+   ============================================================ */
+#stage { position: fixed; inset: 0; width: 100%; height: 100dvh; display: block; z-index: 1; }
+#fx { position: fixed; inset: 0; z-index: 2; pointer-events: none; }
+.scanlines {
+  position: absolute; inset: 0;
+  background: repeating-linear-gradient(180deg,
+    rgba(110, 243, 255, 0.022) 0 1px, transparent 1px 4px);
+  mix-blend-mode: screen;
+}
+.vig {
+  position: absolute; inset: 0;
+  background: radial-gradient(115% 90% at 50% 45%, transparent 55%, rgba(2, 8, 13, 0.65) 100%);
+}
+
+/* ============================================================
+   HUD
+   ============================================================ */
+.hud-top {
+  position: fixed; top: 16px; left: 16px; right: 16px; z-index: 40;
+  display: flex; justify-content: space-between; align-items: flex-start; gap: 12px;
+  opacity: 0; transition: opacity .9s ease;
+}
+body.deck-on .hud-top { opacity: 1; }
+.holo-chip.brand img { width: 26px; filter: drop-shadow(0 0 8px rgba(110, 243, 255, 0.45)); }
+.holo-chip.brand em { font-style: normal; color: var(--holo); }
+.hud-right { display: flex; gap: 10px; }
+.snd-ico {
+  width: 8px; height: 8px; border-radius: 50%;
+  background: var(--cream-dim);
+  box-shadow: 0 0 10px transparent;
+  transition: background .3s, box-shadow .3s;
+}
+#sound-chip[aria-pressed="true"] .snd-ico { background: var(--holo); box-shadow: 0 0 12px var(--holo); }
+
+#hint {
+  position: fixed; left: 50%; bottom: 104px; z-index: 40;
+  transform: translateX(-50%);
+  max-width: min(560px, 88vw);
+  text-align: center;
+  letter-spacing: 0.14em;
+  color: var(--cream-dim);
+  opacity: 0; transition: opacity .6s ease;
+  pointer-events: none;
+}
+#hint.is-on { opacity: 1; }
+#hint b { color: var(--holo); font-weight: 700; }
+
+#dock {
+  position: fixed; left: 50%; bottom: 26px; z-index: 40;
+  transform: translateX(-50%);
+  display: flex; gap: 14px;
+  opacity: 0; transition: opacity .9s ease .15s;
+}
+body.deck-on #dock { opacity: 1; }
+
+/* ============================================================
+   GLOBE UI
+   ============================================================ */
+#pin-card {
+  position: fixed; z-index: 45;
+  padding: 12px 16px;
+  border-radius: 12px;
+  pointer-events: none;
+  min-width: 150px;
+  transform: translate(-50%, calc(-100% - 18px));
+}
+#pin-card .pc-town { font-family: 'Space Grotesk', monospace; font-weight: 700; font-size: 15px; letter-spacing: 0.06em; color: var(--cream); }
+#pin-card .pc-meta { font-size: 12px; color: var(--holo); letter-spacing: 0.1em; margin-top: 2px; font-family: 'Space Grotesk', monospace; }
+#pin-card .pc-tap { font-size: 10.5px; color: var(--cream-dim); letter-spacing: 0.2em; margin-top: 6px; font-family: 'Space Grotesk', monospace; }
+
+#town-panel {
+  position: fixed; right: 22px; top: 50%; z-index: 46;
+  transform: translateY(-50%);
+  width: min(340px, calc(100vw - 36px));
+  padding: 18px 18px 14px;
+  border-radius: 16px;
+}
+#town-panel header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; }
+#town-list { display: grid; gap: 8px; max-height: 52dvh; overflow: auto; }
+.town-item {
+  display: flex; align-items: center; gap: 10px;
+  text-align: left;
+  padding: 10px 12px;
+  border: 1px solid rgba(110, 243, 255, 0.18);
+  border-radius: 10px;
+  transition: background .2s, border-color .2s, transform .2s;
+  width: 100%;
+}
+.town-item:hover { background: var(--holo-soft); border-color: var(--holo-dim); transform: translateX(-3px); }
+.town-item .t-type {
+  font-family: 'Space Grotesk', monospace; font-size: 9.5px; font-weight: 700;
+  letter-spacing: 0.18em; text-transform: uppercase;
+  padding: 3px 8px; border-radius: 999px;
+  border: 1px solid var(--holo-dim); color: var(--holo);
+  flex-shrink: 0;
+}
+.town-item .t-name { font-size: 14.5px; font-weight: 600; color: var(--cream); }
+
+/* ============================================================
+   DOSSIER
+   ============================================================ */
+#dossier {
+  position: fixed; right: 22px; top: 50%; z-index: 47;
+  transform: translateY(-50%);
+  width: min(420px, calc(100vw - 36px));
+  max-height: 88dvh; overflow: auto;
+  padding: 20px 22px 16px;
+  border-radius: 18px;
+}
+#dossier header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; }
+#dossier h2 {
+  font-family: 'Fraunces', serif; font-weight: 600;
+  font-size: clamp(26px, 4vw, 34px);
+  color: var(--cream);
+  text-shadow: 0 0 30px rgba(110, 243, 255, 0.25);
+}
+.ds-place { font-family: 'Space Grotesk', monospace; font-size: 12px; letter-spacing: 0.18em; color: var(--holo); margin: 4px 0 10px; text-transform: uppercase; }
+.ds-tagline { color: var(--cream-dim); font-size: 14.5px; margin-bottom: 14px; }
+.ds-grid { display: flex; gap: 16px; align-items: center; margin-bottom: 12px; }
+.ds-dial { text-align: center; flex-shrink: 0; }
+.ds-dial svg { width: 116px; height: 116px; filter: drop-shadow(0 0 12px rgba(110, 243, 255, 0.35)); }
+.ds-dial figcaption { font-family: 'Space Grotesk', monospace; font-size: 9.5px; letter-spacing: 0.3em; color: var(--cream-dim); margin-top: 4px; }
+.ds-stats { display: grid; gap: 8px; flex: 1; }
+.ds-stat { display: flex; justify-content: space-between; gap: 10px; border-bottom: 1px dashed rgba(110, 243, 255, 0.22); padding-bottom: 6px; }
+.ds-stat span { font-family: 'Space Grotesk', monospace; font-size: 10.5px; letter-spacing: 0.16em; color: var(--cream-dim); text-transform: uppercase; }
+.ds-stat b { font-family: 'Space Grotesk', monospace; font-size: 13.5px; color: var(--holo); text-shadow: 0 0 10px var(--holo-dim); white-space: nowrap; }
+.ds-chips { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 10px; }
+.ds-chips span {
+  font-family: 'Space Grotesk', monospace; font-size: 10px; font-weight: 700;
+  letter-spacing: 0.16em; text-transform: uppercase;
+  border: 1px solid var(--holo-dim); color: var(--holo);
+  padding: 4px 10px; border-radius: 999px;
+}
+.ds-fit { font-size: 13.5px; color: var(--cream-dim); font-style: italic; margin-bottom: 14px; }
+.ds-actions { display: grid; gap: 8px; margin-bottom: 12px; }
+.ds-actions .holo-btn { justify-content: center; }
+.ds-foot { font-size: 10.5px; color: rgba(244, 251, 253, 0.4); line-height: 1.6; }
+
+/* ============================================================
+   HONK
+   ============================================================ */
+#honk {
+  position: fixed; z-index: 60;
+  font-family: 'Space Grotesk', monospace; font-weight: 700;
+  font-size: 22px; letter-spacing: 0.18em;
+  color: var(--amber);
+  text-shadow: 0 0 18px rgba(255, 196, 106, 0.8);
+  opacity: 0; pointer-events: none;
+  transform: translate(-50%, -50%);
+}
+
+/* ============================================================
+   RESPONSIVE + MOTION
+   ============================================================ */
+@media (max-width: 700px) {
+  .hud-top { top: 10px; left: 10px; right: 10px; }
+  .holo-chip.brand em { display: none; }
+  .holo-chip.links a:first-child { display: none; }
+  #hint { bottom: 96px; font-size: 10.5px; }
+  #dock { bottom: 18px; }
+  .holo-btn.big { padding: 13px 22px; }
+  #town-panel, #dossier { right: 50%; transform: translate(50%, -50%); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .holo-panel { animation: none; }
+}

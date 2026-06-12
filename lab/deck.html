@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <meta name="theme-color" content="#03121c">
+  <meta name="robots" content="noindex, nofollow">
+  <title>SurfGoose · Flight Deck — design lab 03</title>
+  <meta name="description" content="Interactive design experiment: fly the goose, spin the holographic world, open real spot dossiers. Not the live site.">
+  <meta property="og:type" content="website">
+  <meta property="og:site_name" content="SurfGoose">
+  <meta property="og:title" content="SurfGoose · Flight Deck — fly the goose yourself">
+  <meta property="og:description" content="Design lab 03: photoreal dusk ocean, a steerable goose, and a holographic world map of real surf spots.">
+  <meta property="og:image" content="https://surfgoose.com/og-image.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/icon-32.png">
+  <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+  <link rel="stylesheet" href="deck.css?v=1">
+  <script type="importmap">
+  {
+    "imports": {
+      "three": "https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.min.js",
+      "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/"
+    }
+  }
+  </script>
+</head>
+<body class="deck">
+
+  <!-- ===== Poster fallback ===== -->
+  <section id="poster" aria-hidden="true">
+    <div class="poster-card holo-panel">
+      <p class="hud-label">SurfGoose · design lab 03</p>
+      <h1>Flight Deck</h1>
+      <p>This experiment is an interactive 3D deck — it needs WebGL and motion.
+      The other labs work everywhere.</p>
+      <p class="poster-links">
+        <a class="holo-btn" href="flight.html">Lab 02 · The Flight</a>
+        <a class="holo-btn" href="index.html">Lab 01 · Design lab</a>
+        <a class="holo-btn ghost" href="/index.html">Live site &nearr;</a>
+      </p>
+    </div>
+  </section>
+
+  <!-- ===== Boot sequence ===== -->
+  <div id="boot">
+    <div class="boot-box">
+      <img src="goose.svg" alt="" class="boot-goose">
+      <p class="boot-title">FLIGHT&nbsp;DECK</p>
+      <div class="boot-lines" id="boot-lines"></div>
+      <p class="boot-pct" id="boot-pct">0%</p>
+    </div>
+  </div>
+
+  <canvas id="stage" aria-hidden="true"></canvas>
+
+  <!-- holo post overlays -->
+  <div id="fx" aria-hidden="true">
+    <div class="scanlines"></div>
+    <div class="vig"></div>
+  </div>
+
+  <!-- ===== HUD ===== -->
+  <header class="hud-top">
+    <a class="holo-chip brand" href="index.html">
+      <img src="goose.svg" alt="">
+      <span>SURFGOOSE <em>FLIGHT DECK · LAB 03</em></span>
+    </a>
+    <div class="hud-right">
+      <button class="holo-chip" id="sound-chip" type="button" aria-pressed="false">
+        <span class="snd-ico" aria-hidden="true"></span><span id="sound-label">SOUND OFF</span>
+      </button>
+      <nav class="holo-chip links">
+        <a href="flight.html">LAB 02</a>
+        <a href="index.html">LAB 01</a>
+        <a href="/index.html">LIVE &nearr;</a>
+      </nav>
+    </div>
+  </header>
+
+  <p id="hint" class="holo-chip" aria-live="polite"></p>
+
+  <!-- ===== Dock ===== -->
+  <nav id="dock" aria-label="Deck modes">
+    <button class="holo-btn big is-on" id="btn-fly" type="button">
+      <i aria-hidden="true">&#10148;</i> FLY
+    </button>
+    <button class="holo-btn big" id="btn-globe" type="button">
+      <i aria-hidden="true">&#9737;</i> WORLD
+    </button>
+  </nav>
+
+  <!-- ===== Globe UI ===== -->
+  <div id="pin-card" class="holo-panel mini" hidden></div>
+  <aside id="town-panel" class="holo-panel" hidden>
+    <header>
+      <p class="hud-label" id="town-name"></p>
+      <button class="holo-x" id="town-close" type="button" aria-label="Close">&times;</button>
+    </header>
+    <div id="town-list"></div>
+  </aside>
+
+  <!-- ===== Dossier ===== -->
+  <aside id="dossier" class="holo-panel" hidden>
+    <header>
+      <p class="hud-label" id="ds-type"></p>
+      <button class="holo-x" id="ds-close" type="button" aria-label="Close">&times;</button>
+    </header>
+    <h2 id="ds-name"></h2>
+    <p class="ds-place" id="ds-place"></p>
+    <p class="ds-tagline" id="ds-tagline"></p>
+    <div class="ds-grid">
+      <figure class="ds-dial">
+        <svg id="ds-season" viewBox="0 0 120 120" aria-label="Season dial"></svg>
+        <figcaption>SEASON</figcaption>
+      </figure>
+      <div class="ds-stats" id="ds-stats"></div>
+    </div>
+    <div class="ds-chips" id="ds-levels"></div>
+    <p class="ds-fit" id="ds-fit"></p>
+    <div class="ds-actions">
+      <a class="holo-btn" id="ds-open" href="#">READ THE HONEST STORY &rarr;</a>
+      <button class="holo-btn ghost" id="ds-back" type="button">BACK TO THE WORLD</button>
+    </div>
+    <p class="ds-foot">Live data from the SurfGoose catalog. Earth texture: NASA Blue Marble via three.js ·
+    bird: &ldquo;Stork&rdquo; by mirada (ro.me) CC-BY · an experiment, not the live site.</p>
+  </aside>
+
+  <div id="honk" aria-hidden="true">HONK!</div>
+
+  <script>
+    window.__deckBooted = false;
+    setTimeout(function () {
+      if (!window.__deckBooted) document.body.classList.add("poster-mode");
+    }, 12000);
+  </script>
+  <script src="https://cdn.jsdelivr.net/npm/gsap@3.13.0/dist/gsap.min.js"></script>
+  <script src="/data.js"></script>
+  <script src="/api-client.js"></script>
+  <script type="module" src="deck.js?v=8"></script>
+</body>
+</html>

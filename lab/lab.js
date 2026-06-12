@@ -812,6 +812,38 @@
         map.flyTo(ll, 12, { duration: far || map.distance(current, L.latLng(ll)) > 50000 ? 1.4 : 0.8 });
       });
     }
+
+    initHoloToggle();
+  }
+
+  /* Lab 03 companion: swap the Leaflet map for the holographic 3D
+     local map. Lazy — three.js only loads if the visitor asks. */
+  function initHoloToggle() {
+    if (!motionOK || !detail.entry || (detail.entry.coords || []).length !== 2) return;
+    var frame = $(".map-frame");
+    if (!frame || $(".holo-toggle", frame)) return;
+    var btn = document.createElement("button");
+    btn.type = "button";
+    btn.className = "holo-toggle";
+    btn.innerHTML = "&#11041; HOLO 3D";
+    btn.title = "Experimental holographic view (lab 03)";
+    frame.appendChild(btn);
+    var busy = false;
+    btn.addEventListener("click", function () {
+      if (busy) return;
+      busy = true;
+      btn.classList.add("is-loading");
+      import("./holomap.js?v=2").then(function (m) {
+        m.toggleHolo({ frame: frame, entry: detail.entry, all: WAVEBASE_DATA, btn: btn });
+      }).catch(function (err) {
+        console.error("[lab] holomap failed:", err);
+        btn.textContent = "HOLO unavailable";
+        btn.disabled = true;
+      }).finally(function () {
+        busy = false;
+        btn.classList.remove("is-loading");
+      });
+    });
   }
 
   /* ============================================================
