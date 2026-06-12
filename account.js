@@ -1546,17 +1546,103 @@ const WaveBasePageTime = (function () {
   return { start: start, flush: flush };
 })();
 
+/* ============================================================
+   Site visit + whole-visit clock — powers the admin "Core stats"
+   (website visits in last N days + average time on site).
+
+   Same legitimate-interest, no-identifiers model as the Views
+   counter and page_time (June 2026, Michiel's core-stats feedback):
+
+   - "site_visit": fired ONCE per browser session (sessionStorage
+     guard), carries nothing at all. A pure footfall counter that
+     works for every real visitor, consented or not.
+   - "visit_time": cumulative ACTIVE seconds across ALL pages of the
+     visit (page_time only measures detail/country pages; the visit
+     clock includes home, explorer, everything). Sent on every
+     pagehide with the running total + a random per-visit key; the
+     backend keeps MAX per key, so the last beacon that lands wins.
+     The key lives in sessionStorage, dies with the tab session, and
+     is never sent together with a user id — it exists only so two
+     beacons from the same visit don't count as two visits.
+   - Nothing is sent until the visit crosses 10s of active time:
+     Michiel's threshold — open-and-directly-close visits must not
+     drag the average down, and sub-10s visits aren't worth a beacon.
+
+   Active = tab visible; the clock pauses on hide, like page_time.
+   Admin self-visits are dropped by anonEvent's client-side check.
+   ============================================================ */
+const WaveBaseSiteVisit = (function () {
+  const FLAG_KEY    = "wavebase_visit_counted";
+  const VISIT_KEY   = "wavebase_visit_key";
+  const SECONDS_KEY = "wavebase_visit_seconds";   // total from PREVIOUS pages
+  const MIN_SEND_SECONDS = 10;
+  const CAP_SECONDS = 6 * 3600;   // sanity ceiling for a single visit
+  let activeMs = 0, lastResume = 0, running = false;
+
+  function _visitKey() {
+    try {
+      let k = sessionStorage.getItem(VISIT_KEY);
+      if (!k) {
+        k = (typeof crypto !== "undefined" && crypto.randomUUID)
+          ? crypto.randomUUID()
+          : ("v-" + Math.random().toString(36).slice(2) + Date.now().toString(36));
+        sessionStorage.setItem(VISIT_KEY, k);
+      }
+      return k;
+    } catch (e) { return null; }   // sessionStorage blocked → skip the clock
+  }
+  function _priorSeconds() {
+    try { return Math.max(0, parseInt(sessionStorage.getItem(SECONDS_KEY) || "0", 10) || 0); }
+    catch (e) { return 0; }
+  }
+  function resume() { if (!running) { running = true; lastResume = Date.now(); } }
+  function pause()  { if (running)  { running = false; activeMs += Date.now() - lastResume; } }
+
+  function flush() {
+    pause();
+    const key = _visitKey();
+    if (!key) return;
+    let total = _priorSeconds() + Math.round(activeMs / 1000);
+    if (total > CAP_SECONDS) total = CAP_SECONDS;
+    try { sessionStorage.setItem(SECONDS_KEY, String(total)); } catch (e) {}
+    if (total < MIN_SEND_SECONDS) return;   // bounce — below Michiel's threshold
+    if (window.WaveBaseTracking && WaveBaseTracking.anonEvent) {
+      WaveBaseTracking.anonEvent("visit_time", { visit_key: key, seconds: total });
+    }
+  }
+
+  function start() {
+    // Count the visit (once per browser session).
+    try {
+      if (!sessionStorage.getItem(FLAG_KEY)) {
+        sessionStorage.setItem(FLAG_KEY, "1");
+        WaveBaseTracking.anonEvent("site_visit", {});
+      }
+    } catch (e) { /* sessionStorage blocked → don't risk double-counting */ }
+    // Run the visit clock on every page.
+    resume();
+    document.addEventListener("visibilitychange", function () {
+      if (document.visibilityState === "hidden") pause(); else resume();
+    });
+    window.addEventListener("pagehide", flush);
+  }
+
+  return { start: start, flush: flush };
+})();
+
 if (typeof window !== "undefined") {
   if (document.readyState === "loading") {
     document.addEventListener("DOMContentLoaded", function () {
       WaveBaseTracking.pageview();
       WaveBasePresence.start();
       WaveBasePageTime.start();
+      WaveBaseSiteVisit.start();
     });
   } else {
     WaveBaseTracking.pageview();
     WaveBasePresence.start();
     WaveBasePageTime.start();
+    WaveBaseSiteVisit.start();
   }
 
   /* Affiliate / "Book now" clicks. Delegated listener so every

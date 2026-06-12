@@ -6224,6 +6224,40 @@ button.rml-key.off .rml-dot {
 .adm-kpi-value { font-family: 'Fraunces', serif; font-size: 36px; font-weight: 600; color: var(--ink); line-height: 1.1; margin: 4px 0 2px; }
 .adm-kpi-sub   { font-size: 12px; color: var(--ink-soft); }
 
+/* Core stats — top of admin (June 2026, Michiel's feedback) */
+.adm-core { margin-bottom: 28px; }
+.adm-core-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 14px;
+  align-items: stretch;
+}
+@media (max-width: 900px) { .adm-core-grid { grid-template-columns: repeat(2, 1fr); } }
+@media (max-width: 540px) { .adm-core-grid { grid-template-columns: 1fr; } }
+.adm-core-visits .adm-kpi-value { font-size: 44px; color: var(--sea-deep); }
+.adm-core-split {
+  background: var(--paper);
+  border: 1px solid var(--sand-deep);
+  border-radius: 14px;
+  padding: 16px 18px;
+  box-shadow: var(--shadow-sm);
+}
+.adm-core-split .adm-pop-list { margin-top: 8px; }
+.adm-core-note { font-size: 11px; margin: 8px 0 0; }
+.adm-core-winrow { display: flex; gap: 6px; margin-top: 10px; }
+.adm-core-win {
+  font: 600 11px/1 'DM Sans', sans-serif;
+  letter-spacing: 0.04em;
+  padding: 5px 10px;
+  border-radius: 999px;
+  border: 1px solid var(--sand-deep);
+  background: var(--cream);
+  color: var(--ink-soft);
+  cursor: pointer;
+}
+.adm-core-win.is-active { background: var(--sea); border-color: var(--sea); color: #fff; }
+.adm-core-win.is-loading { opacity: 0.5; cursor: wait; }
+
 /* Online-now KPI + presence dot (June 2026 LDW feature) */
 .adm-kpi-online.is-live { border-color: #3fa34d; box-shadow: 0 0 0 2px rgba(63,163,77,0.12); }
 .adm-kpi-online.is-live .adm-kpi-value { color: #2f8c3c; }

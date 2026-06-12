@@ -125,6 +125,11 @@ function _renderAccessDenied() {
 
 /* ---------- main render ---------- */
 
+async function _loadCoreStats(days) {
+  const res = await WaveBaseAuth.authFetch("/admin/stats/core?days=" + encodeURIComponent(days || 30));
+  if (!res.ok) throw new Error("Core stats failed: " + res.status);
+  return res.json();
+}
 async function _loadOverview() {
   const res = await WaveBaseAuth.authFetch("/admin/overview");
   if (!res.ok) throw new Error("Overview failed: " + res.status);
@@ -211,6 +216,102 @@ function _sortUsers(users) {
     return 0;
   });
   return sorted;
+}
+
+/* ---------- Core stats (top of page, June 2026 — Michiel) ----------
+   One headline number (visits in a flexible window) + avg time on
+   site + age-group and country splits. Two honesty notes baked into
+   the UI: visits/time cover ALL visitors (anonymous counters), while
+   demographics can only come from registered profiles — each block
+   says which base it's standing on. */
+
+let _coreDays = 30;   // current window; switcher re-fetches just this section
+
+function _fmtDateShort(iso) {
+  if (!iso) return "";
+  const d = new Date(iso);
+  if (isNaN(d)) return "";
+  return d.toLocaleDateString("en-GB", { day: "numeric", month: "short", year: "numeric" });
+}
+
+function _renderCoreStats(core) {
+  core = core || {};
+  const days = core.window_days || _coreDays;
+  const visits = core.visits != null ? core.visits : 0;
+  const avgS = core.avg_visit_seconds || 0;
+  const timedN = core.timed_visits || 0;
+  const since = _fmtDateShort(core.tracking_since);
+
+  const winBtn = (d, label) => `
+    <button type="button" class="adm-core-win${d === days ? " is-active" : ""}" data-core-days="${d}">${label}</button>`;
+
+  const ageRows = (core.age_groups || []).map(g => `
+    <li class="adm-pop-row">
+      <span class="adm-pop-name">${_esc(g.bucket)}</span>
+      <span class="adm-pop-bar"><span class="adm-pop-bar-fill" style="width:${g.pct}%"></span></span>
+      <span class="adm-pop-count">${g.pct}%</span>
+    </li>`).join("");
+  const countryRows = (core.countries || []).map(c => `
+    <li class="adm-pop-row">
+      <span class="adm-pop-name">${_esc(c.country)}</span>
+      <span class="adm-pop-bar"><span class="adm-pop-bar-fill" style="width:${c.pct}%"></span></span>
+      <span class="adm-pop-count">${c.pct}%</span>
+    </li>`).join("");
+
+  return `
+    <section class="adm-section adm-core" id="adm-core">
+      <div class="adm-core-grid">
+        <div class="adm-kpi adm-core-visits">
+          <div class="adm-kpi-label">Website visits</div>
+          <div class="adm-kpi-value">${visits}</div>
+          <div class="adm-kpi-sub">last ${days} days${since ? ` &middot; tracked since ${since}` : ""}</div>
+          <div class="adm-core-winrow">
+            ${winBtn(7, "7d")}${winBtn(30, "30d")}${winBtn(90, "90d")}${winBtn(365, "1y")}
+          </div>
+        </div>
+        <div class="adm-kpi">
+          <div class="adm-kpi-label">Avg time on site</div>
+          <div class="adm-kpi-value">${_fmtDuration(avgS)}</div>
+          <div class="adm-kpi-sub">${timedN ? `${timedN} visits over 10s` : "no visits over 10s yet"}</div>
+        </div>
+        <div class="adm-core-split">
+          <div class="adm-kpi-label">Age groups</div>
+          ${ageRows
+            ? `<ol class="adm-pop-list">${ageRows}</ol>
+               <p class="muted adm-core-note">of ${core.age_known} profiles with a birth year</p>`
+            : `<p class="muted adm-core-note">No birth years in profiles yet.</p>`}
+        </div>
+        <div class="adm-core-split">
+          <div class="adm-kpi-label">Countries</div>
+          ${countryRows
+            ? `<ol class="adm-pop-list">${countryRows}</ol>
+               <p class="muted adm-core-note">of ${core.country_known} profiles with a country</p>`
+            : `<p class="muted adm-core-note">No home countries in profiles yet.</p>`}
+        </div>
+      </div>
+      <p class="muted adm-table-hint">Visits &amp; time count every real visitor (anonymous counters, no cookies needed). Age &amp; country come from registered profiles &mdash; the only honest source we have.</p>
+    </section>
+  `;
+}
+
+function _wireCoreStats() {
+  const section = document.getElementById("adm-core");
+  if (!section) return;
+  section.addEventListener("click", async (e) => {
+    const btn = e.target.closest("[data-core-days]");
+    if (!btn) return;
+    const days = parseInt(btn.dataset.coreDays, 10) || 30;
+    if (days === _coreDays) return;
+    _coreDays = days;
+    btn.parentElement.querySelectorAll(".adm-core-win").forEach(b => b.classList.add("is-loading"));
+    try {
+      const core = await _loadCoreStats(days);
+      section.outerHTML = _renderCoreStats(core);
+      _wireCoreStats();   // re-wire: outerHTML replaced the node
+    } catch (err) {
+      section.querySelectorAll(".adm-core-win").forEach(b => b.classList.remove("is-loading"));
+    }
+  });
 }
 
 function _renderKpis(totals, today, onlineNow, onlineWindowMin) {
@@ -380,9 +481,9 @@ function _renderPopularity(pop) {
 
 async function _renderDashboard() {
   const root = document.getElementById("admin-root");
-  let overview, popularity, evAff, evViews, evFunnel, evSearch, recent, engagement, byCountry, affinity, mismatch, evConsent, evDwell;
+  let overview, popularity, evAff, evViews, evFunnel, evSearch, recent, engagement, byCountry, affinity, mismatch, evConsent, evDwell, coreStats;
   try {
-    [overview, popularity, evAff, evViews, evFunnel, evSearch, recent, engagement, byCountry, affinity, mismatch, evConsent, evDwell] = await Promise.all([
+    [overview, popularity, evAff, evViews, evFunnel, evSearch, recent, engagement, byCountry, affinity, mismatch, evConsent, evDwell, coreStats] = await Promise.all([
       _loadOverview(),
       _loadPopularity(),
       _loadEventsAffiliate(),
@@ -396,6 +497,10 @@ async function _renderDashboard() {
       _loadConditionsMismatch(),
       _loadEventsConsent(),
       _loadEventsDwell(),
+      // Core stats is the newest endpoint — if the backend deploy lags
+      // the frontend, the rest of the dashboard must still render, so
+      // a failure here degrades to a notice instead of killing the page.
+      _loadCoreStats(_coreDays).catch(() => null),
     ]);
   } catch (e) {
     root.innerHTML = `<p class="muted" style="color:var(--clay);">Failed to load admin data: ${_esc(e.message || e)}</p>`;
@@ -416,6 +521,9 @@ async function _renderDashboard() {
         <button type="button" class="link-btn" data-export="trips">trips</button>
       </div>
     </div>
+    ${coreStats
+      ? _renderCoreStats(coreStats)
+      : `<section class="adm-section adm-core" id="adm-core"><p class="muted">Core stats not available yet &mdash; the API may still be deploying. Reload in a minute.</p></section>`}
     ${_renderKpis(overview.totals, overview.today, overview.online_now, overview.online_window_min)}
     ${_renderConsent(evConsent)}
     ${_renderConditionsMismatch(mismatch)}
@@ -430,6 +538,7 @@ async function _renderDashboard() {
   `;
 
   _wireTableInteractions();
+  _wireCoreStats();
   _wireRecentReviews();
   _wireSearchActions();
   _wireCsvExports();
