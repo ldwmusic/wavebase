@@ -108,6 +108,17 @@ Sources to scan (same as `/add-surfcenters` Gate 3):
 - Multi-station chain sites (SurfIsland-style, regional)
 - Local Google Maps "surf school near [region]" searches
 
+**Inland waters are first-class (Lode's rule, 2026-06-12).** Wind,
+kite and wing spots don't need a coastline — Windsurfing Deinze (BE)
+and Surfcenter/Schildmeer (Steendam, Groningen) are the precedents
+in our own DB. For any country-wide run the Gate 3 sweep MUST include
+the inland lake districts as their own search grid, not just the
+famous coast: run "windsurfschool / kiteschool + [province or lake]"
+per inland region before declaring discovery done. Anti-pattern this
+rule kills: the Netherlands run of 2026-06 anchored discovery on
+coastal fame and silently skipped the whole northeast + every inland
+lake — Lode caught it via Roegeweg 1, Steendam.
+
 Build a candidate-centers list. **For each candidate**, capture:
 - Center name + URL
 - Beach/spot they teach at (per their own site + reviews)
