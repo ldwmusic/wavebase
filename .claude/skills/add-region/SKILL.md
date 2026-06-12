@@ -194,6 +194,40 @@ Each self-organized spot goes through the full `/add-surfspots` gates.
 The entry's prose should explicitly note "no school operates here —
 self-organized session only".
 
+### Gate 5.6 · World-class exception — fame alone is enough (Lode's rule, 2026-06-12)
+
+**If a spot is genuinely world-famous, it goes in — even when it fails
+the normal inclusion logic.** No center pair needed, no minimum review
+count, no "does the chart flatter it" test. World-class fame IS the
+visitor signal: people will search SurfGoose for it, and a gap there
+reads as ignorance, not curation.
+
+What counts as world-class (needs at least ONE, verifiable):
+- World tour / world cup / world championship venue, past or present
+  (Mundaka, La Gravière, Leucate's Mondial du Vent, Pozo's PWA).
+- Named in essentially every international guide for its discipline
+  (L'Almanarre for windsurf, Silver Rock for bodyboard).
+- A wave/wind phenomenon with its own name recognition beyond surf
+  media (Nazaré's canyon, Belharra, the Imsouane Bay).
+
+What does NOT count: "popular locally", "best spot of the province",
+big Instagram presence without contest/guide pedigree. The bar is
+international, not national.
+
+How to enter it:
+- Full `/add-surfspots` gates as always — fame is an inclusion
+  override, never a research shortcut.
+- If no school teaches there, say so explicitly in the entry
+  ("self-organized sessions only"), Mundaka-style.
+- If the honest data undercuts the legend (episodic wind, wrap-tax,
+  model-shadow cell), keep the honest data AND explain the legend in
+  the educational block — that contrast is exactly our brand.
+
+Precedents: Mundaka (no school — added anyway), the French
+Mediterranean wind icons (Leucate/La Franqui, L'Almanarre, Gruissan —
+added 2026-06 under this rule after the wave-stats objection was
+correctly overruled for wind-discipline fame).
+
 ### Gate 6 · Skip-list — explicit deferral log
 
 For every candidate spot you considered but didn't add (either via
