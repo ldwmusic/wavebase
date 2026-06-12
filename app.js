@@ -2158,6 +2158,10 @@ function updateSearchSuggestions(rawQ) {
   const list = document.getElementById("search-suggestions");
   if (!list) return;
   const q = String(rawQ || "").trim();
+  // Reset the arrow-navigation flag whenever the query changes — a fresh
+  // set of suggestions means the user hasn't picked one yet, so Enter
+  // shows all matches again.
+  list.dataset.navigated = "0";
   if (!q) { list.hidden = true; list.innerHTML = ""; return; }
   const matches = (typeof WAVEBASE_DATA !== "undefined" ? WAVEBASE_DATA : [])
     .filter(e => searchMatch(e, q))
@@ -2199,6 +2203,9 @@ function navigateSearchSuggestion(dir) {
   const nextIdx = ((curIdx + dir) + items.length) % items.length;
   items.forEach((x, i) => x.classList.toggle("is-active", i === nextIdx));
   items[nextIdx].scrollIntoView({ block: "nearest" });
+  // Mark that the user explicitly arrowed to a suggestion, so Enter jumps
+  // to that one entry instead of running the show-all search (Michiel #14).
+  list.dataset.navigated = "1";
 }
 
 // Classic two-row DP Levenshtein. O(m*n) but trivial at this scale.
@@ -3804,9 +3811,23 @@ function initIndex() {
         fSearch.blur();
       } else if (ev.key === "Enter") {
         ev.preventDefault();
+        // Show ALL entries matching the typed place — don't force picking
+        // one suggestion (Michiel #14: typing "Ericeira" + Enter should
+        // surface every spot, center and stay linked to it). runSearch
+        // filters the results grid by the query; clicking a suggestion
+        // still jumps straight to that one entry. Arrow-then-Enter on an
+        // explicitly highlighted suggestion keeps the jump-to-detail feel.
         const list = document.getElementById("search-suggestions");
-        const sug = list && (list.querySelector(".search-suggestion.is-active") || list.querySelector(".search-suggestion"));
-        if (sug && sug.dataset.href) window.location.href = sug.dataset.href;
+        const navd = list && list.dataset.navigated === "1";
+        const sug = navd && list.querySelector(".search-suggestion.is-active");
+        if (sug && sug.dataset.href) {
+          window.location.href = sug.dataset.href;
+        } else {
+          hideSearchSuggestions();
+          runSearch();
+          const results = document.getElementById("results");
+          if (results) results.scrollIntoView({ behavior: "smooth", block: "start" });
+        }
       } else if (ev.key === "ArrowDown") {
         ev.preventDefault();
         navigateSearchSuggestion(1);
