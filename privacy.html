@@ -81,7 +81,7 @@
       <ul class="about-list">
         <li><strong>Required:</strong> your email address and a <em>hashed</em> password (we use bcrypt &mdash; we never see your plaintext password and can't recover it).</li>
         <li><strong>Optional, you can skip these:</strong> your name, birth year, home country, sports you do, your surf level. These help us tailor recommendations on the home page but aren't shared with anyone else.</li>
-        <li><strong>Synced from your browser:</strong> the spots you save with the heart icon get synced to your account so they follow you across devices. Your trips, your "Surfed it" log, your reviews and your travel-style preferences currently stay on your device only &mdash; we may sync more in future versions and will tell you here when that changes.</li>
+        <li><strong>Synced from your browser:</strong> the spots you save with the heart icon, your trips (including any day notes you type in them), your "Surfed it" log, your reviews and your profile preferences get synced to your account so they follow you across devices. All of it is wiped with your account if you delete it (reviews excepted &mdash; see below).</li>
         <li><strong>When your account was last active, and roughly how long:</strong> while you're signed in and have the site open, we store a timestamp of when your account was last on SurfGoose, plus a running total of how long your account has spent actively on the site (the timer only counts while the tab is open and in focus, and treats a gap of more than 5 minutes as a new visit). It tells us which accounts are still in use and how much the service gets used &mdash; it is <em>not</em> a record of which individual pages you visited (that's the separate, consent-gated analytics described below). Legal basis: our legitimate interest in running, sizing and securing the service (Art. 6(1)(f) GDPR).</li>
       </ul>
       <p>Legal basis: contract (Art. 6(1)(b) GDPR) for the data needed to provide the account, and your consent (Art. 6(1)(a) GDPR) for optional profile fields. You can delete your account any time by emailing <a href="mailto:info.surfgoose@gmail.com">info.surfgoose@gmail.com</a> or by using the &ldquo;Delete account&rdquo; button at the bottom of your account page. We wipe the account record, your saved spots, your trips and your surf log immediately on request.</p>
@@ -98,6 +98,8 @@
         <li><strong>A page-hit count.</strong> When you open a spot, center or stay page we add <em>+1</em> to an anonymous counter for that page (so we can see, for example, that "Tenda Beach was viewed 40 times"). Stores only <em>which</em> page and when.</li>
         <li><strong>A time-on-page average.</strong> When you leave such a page we record how many seconds it was actively open (the timer pauses when the tab is hidden, is capped at 30 minutes, and ignores visits under 2 seconds), so we can see roughly how long people read each page. Stores only the page and a number of seconds &mdash; never a trail of where you went.</li>
         <li><strong>A cookie-choice tally.</strong> When the cookie banner is shown and when you click Accept or Reject, we add <em>+1</em> to the matching counter, so we know what share of visitors accept analytics. We can't gate the "reject" tally behind consent, so it runs here. It records only the choice, not who made it.</li>
+        <li><strong>A visit tally.</strong> The first page you open in a browser session adds <em>+1</em> to a site-wide visit counter (so we can see, for example, "1,200 visits in the last 30 days"). Stores only the moment it happened &mdash; nothing about you or what you looked at.</li>
+        <li><strong>A time-on-site average.</strong> When you leave the site we record how many seconds your visit was actively on screen in total (same honest timer as above: pauses when the tab is hidden; visits under 10 seconds are never sent at all). So that two halves of one visit aren't counted as two visits, this number travels with a random label that exists only for the duration of your browser session, is never stored with your account or any page trail, and can't be used to recognise you later.</li>
       </ul>
       <p>Because none of these can identify a person, they run on our legitimate interest in understanding which content is useful and how our consent banner performs (Art. 6(1)(f) GDPR) rather than on consent.</p>
 
@@ -136,7 +138,7 @@
       <h2>How long we keep things</h2>
       <ul class="about-list">
         <li><strong>localStorage data</strong> (saved places, trips, profile when not signed in): as long as you keep it &mdash; you control it from your browser settings.</li>
-        <li><strong>Account data</strong> (email, hashed password, optional profile fields, saved spots): kept for as long as your account exists. Deleted within 30 days of you asking us to delete your account.</li>
+        <li><strong>Account data</strong> (email, hashed password, optional profile fields, saved spots, trips, surf log, profile preferences): kept for as long as your account exists. Deleted within 30 days of you asking us to delete your account (reviews stay live as described above).</li>
         <li><strong>Cloudflare Web Analytics</strong>: Cloudflare retains anonymous aggregate metrics for about 6 months by default.</li>
         <li><strong>Server logs</strong>: short-term (days to a few weeks) per Cloudflare's and Render's standard retention.</li>
       </ul>
@@ -161,7 +163,7 @@
     <section class="wrap about-section">
       <h2>Changes to this policy</h2>
       <p>If we update this policy &mdash; for example when we sync more of your data to your account or add new processors &mdash; we'll bump the "Last updated" date below and explain what changed.</p>
-      <p class="muted">Last updated: <strong>May 2026</strong> &mdash; added account-creation flow (email + password) and the related processors (Render, MongoDB Atlas).</p>
+      <p class="muted">Last updated: <strong>12 June 2026</strong> &mdash; trips (incl. day notes), surf log, reviews and profile preferences now sync to your account (they used to stay on your device); added two anonymous counters (site-visit tally and time-on-site average). Previous update: May 2026 &mdash; account-creation flow (email + password) and the related processors (Render, MongoDB Atlas).</p>
     </section>
 
     <section class="wrap about-section about-cta">
