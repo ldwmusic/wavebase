@@ -4483,6 +4483,28 @@ function dienstenHTML(d) {
   </section>`;
 }
 
+/* "Go if" / "Skip if" cards (June 2026, Michiel #21 — he really liked
+   these in the demo; Lode: build them in the site's own style). Powered
+   by the ideal_for / not_ideal_if fields every entry already carries
+   (required in the API model), so the cards render for ALL entries —
+   existing and every new spot/center/stay added later. The goose marks
+   each verdict: sea-topped card = go, clay-topped card = skip. Replaces
+   the old plain "Ideal for / Not ideal if" boxes. */
+function goSkipHTML(e) {
+  if (!e.ideaalVoor && !e.nietIdeaalAls) return "";
+  const goose = `<img src="surfgoose_icon.svg" alt="" class="gs-goose" loading="lazy">`;
+  const card = (cls, title, text) => text
+    ? `<div class="gs-card ${cls}">
+        <div class="gs-head">${goose}<h3>${title}</h3></div>
+        <p>${text}</p>
+      </div>`
+    : "";
+  return `<section class="go-skip" aria-label="Go or skip verdict">
+    ${card("gs-go", "Go if", e.ideaalVoor)}
+    ${card("gs-skip", "Skip if", e.nietIdeaalAls)}
+  </section>`;
+}
+
 function buurtHTML(b, currentId) {
   if (!b) return "";
   return `<section class="buurt">
@@ -4911,6 +4933,8 @@ function initSpot() {
       <ul>${samenvatting}</ul>
     </div>
 
+    ${goSkipHTML(e)}
+
     ${conditiesHTML(e.condities)}
     ${verblijfHTML(e.verblijf)}
     ${dienstenHTML(e.diensten)}
@@ -4928,11 +4952,6 @@ function initSpot() {
     ${vergelijkingHTML(e.vergelijking)}
     ${relatedSectionsForDetail(e)}
     ${townPanelHTML(e.town)}
-
-    <section class="fit">
-      <div class="box yes"><h3>Ideal for</h3><p>${e.ideaalVoor}</p></div>
-      <div class="box no"><h3>Not ideal if</h3><p>${e.nietIdeaalAls}</p></div>
-    </section>
 
     ${moreInCountryHTML(e)}
 

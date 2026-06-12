@@ -84,7 +84,7 @@ Per spot you fill:
 | `conditions` | At-a-glance prose: wave_type, wave_height, wind, water, crowd | Combined sources |
 | `stats` | Structured data: 9 monthly arrays + periods[] + narrative fields | Open-Meteo + reviews |
 | `nearby` | Food / parking / rental | Reviews + Maps |
-| `ideal_for`, `not_ideal_if` | One line each | Who should pick this, who shouldn't |
+| `ideal_for`, `not_ideal_if` | One line each | Who should pick this, who shouldn't — these render as the prominent **"Go if" / "Skip if" goose cards** on the detail page (June 2026, Michiel), so write them as punchy second-person verdicts, e.g. "Beginners past the whitewater, and intermediates wanting to clock miles." / "You want power, quality and empty line-ups — or crowds put you off quickly." |
 
 ## Process — nine gates, in order
 
@@ -787,8 +787,8 @@ shape of the POST body. Capture for future regions:
 - `levels` — list of SurfLevel enum (`beginner|intermediate|advanced`)
 - `tagline` — string (1 line)
 - `good_months` — list of int 1-12 (**NOT** `best_months` — common mistake)
-- `ideal_for` — string (1 line, who should go)
-- `not_ideal_if` — string (1 line, who should skip)
+- `ideal_for` — string (1 line, who should go — shown as the "Go if" goose card on the detail page; write it as a direct verdict)
+- `not_ideal_if` — string (1 line, who should skip — shown as the "Skip if" goose card; same direct voice)
 
 **Nested object shapes (Pydantic strict — string ≠ object):**
 - `conditions` — dict with `wave_type`, `wave_height`, `wind`, `water`, `crowd` keys

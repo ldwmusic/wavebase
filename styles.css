@@ -1216,21 +1216,38 @@ table.cal td.mon { font-weight: 600; width: 90px; color: var(--ink-soft); }
 table.cal td.surf { color: var(--sea); }
 table.cal td.host { color: var(--clay); }
 
-.fit {
+/* "Go if" / "Skip if" verdict cards (June 2026, Michiel #21) — paper
+   cards with a colored top edge (sea = go, clay = skip), goose icon +
+   Fraunces title, replacing the old flat Ideal-for boxes. */
+.go-skip {
   display: grid;
   grid-template-columns: 1fr 1fr;
-  gap: 16px;
-  margin-top: 8px;
+  gap: 18px;
+  margin: 26px 0 8px;
 }
-.fit .box {
-  border-radius: 12px;
-  padding: 18px 22px;
+.gs-card {
+  background: var(--paper);
+  border: 1px solid var(--sand);
+  border-top: 4px solid var(--sea);
+  border-radius: 18px;
+  padding: 20px 24px 22px;
+  box-shadow: var(--shadow-sm);
 }
-.fit .box.yes { background: var(--sea-soft); border: 1px solid #cbe0e3; }
-.fit .box.no  { background: var(--clay-soft); border: 1px solid #e6cabb; }
-.fit .box h3 { font-size: 16px; margin-bottom: 6px; }
-.fit .box.yes h3 { color: var(--sea); }
-.fit .box.no h3  { color: var(--clay); }
+.gs-card.gs-skip { border-top-color: var(--clay); }
+.gs-head {
+  display: flex; align-items: center; gap: 10px;
+  margin-bottom: 8px;
+}
+.gs-goose { width: 26px; height: 26px; flex: 0 0 auto; }
+.gs-card.gs-skip .gs-goose { transform: scaleX(-1); }  /* skip-goose looks away */
+.gs-head h3 {
+  font-family: 'Fraunces', serif; font-size: 20px; font-weight: 600;
+  color: var(--ink);
+}
+.gs-card p { color: var(--ink-soft); font-size: 15px; line-height: 1.55; }
+@media (max-width: 640px) {
+  .go-skip { grid-template-columns: 1fr; gap: 12px; }
+}
 
 /* ---- footer ----
    Two-column compact layout: left has the brand line + legal links
@@ -1427,7 +1444,6 @@ table.cal td.host { color: var(--clay); }
   .hero { padding: 48px 0 20px; }
   .searcher { padding: 22px 18px; }
   .searcher .sentence { font-size: 18px; line-height: 1.9; }
-  .fit { grid-template-columns: 1fr; }
   .verhaal { padding: 24px 22px; }
   .laag .blok { padding: 14px 16px; }
 }
