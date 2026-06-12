@@ -194,6 +194,7 @@ const WaveBaseAccount = (function () {
         name: p.name || "",
         email: p.email || "",
         birthYear: p.birthYear || "",
+        sex: p.sex || "",
         level: p.level || "",
         boardType: p.boardType || "",
         travelStyle: p.travelStyle || "",
@@ -239,6 +240,7 @@ const WaveBaseAccount = (function () {
         name: (p.name || "").trim(),
         email: (p.email || "").trim(),
         birthYear: (p.birthYear || "").toString().trim(),
+        sex: p.sex || "",
         level: p.level || "",
         boardType: p.boardType || "",
         travelStyle: p.travelStyle || "",
@@ -1138,6 +1140,7 @@ function _hydrateLocalProfileFromServer() {
     name:            _pickScalar(serverUser.name,           local.name)            || "",
     email:           _pickScalar(serverUser.email,          local.email)           || "",
     birthYear:       _pickScalar(serverUser.birth_year,     local.birthYear)       || "",
+    sex:             _pickScalar(serverUser.sex,            local.sex)             || "",
     homeCountry:     _pickScalar(serverUser.home_country,   local.homeCountry)     || "",
     surfType:        _pickList  (serverUser.surf_types,     local.surfType),
     level:           _pickScalar(
@@ -1209,6 +1212,7 @@ function _backfillProfileFromLocalToServer() {
     return Number.isFinite(n) ? n : null;
   });
   pushScalar("home_country", "homeCountry");
+  pushScalar("sex", "sex");
   pushList  ("surf_types", "surfType");
   pushScalar("surf_level", "level", function (v) { return SURF_LEVEL_MAP[v] || null; });
   pushList  ("discipline", "discipline");

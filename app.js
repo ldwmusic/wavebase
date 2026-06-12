@@ -6279,6 +6279,7 @@ function _profileSummaryHTML(p, authEmail) {
     ${_profileSummaryRow("Name",      p.name,            "🧑")}
     ${_profileSummaryRow("Email",     authEmail,         "📧")}
     ${_profileSummaryRow("Born",      p.birthYear,       "🎂")}
+    ${_profileSummaryRow("Sex",       (WaveBaseProfileForm.sexLabel ? WaveBaseProfileForm.sexLabel(p.sex) : ""), "⚥")}
     ${_profileSummaryRow("Home base", p.homeCountry,     "🌍")}
     ${_profileSummaryRow("Surfing",   surfLine,          "🏄")}
     ${_profileSummaryRow("Travel",    trav,              "✈️")}
@@ -6984,6 +6985,17 @@ const WaveBaseProfileForm = (function () {
     "Friend / word of mouth", "Social media", "Search engine",
     "Surf forum / community", "Press / article", "Other"
   ];
+  // Sex (June 2026, Michiel's feedback). "prefer_not" is an explicit,
+  // stored choice — the user actively declined — distinct from an empty
+  // value (never answered). Kept as plain string keys so the option set
+  // can change without a backend redeploy.
+  const SEX_OPTS = [
+    { key: "female",     label: "Female" },
+    { key: "male",       label: "Male" },
+    { key: "other",      label: "Other" },
+    { key: "prefer_not", label: "Prefer not to mention" }
+  ];
+  const SEX_LABELS = SEX_OPTS.reduce((m, o) => { m[o.key] = o.label; return m; }, {});
   const LEVEL_DESCS = {
     beginner:     "Beginner — just starting out",
     intermediate: "Intermediate — pop up, paddle out, ride the face",
@@ -7016,6 +7028,7 @@ const WaveBaseProfileForm = (function () {
       name:                (get("p-name").value || "").trim() || null,
       birth_year:          Number.isFinite(byr) ? byr : null,
       home_country:        get("p-country").value || null,
+      sex:                 (get("p-sex") && get("p-sex").value) || null,
       surf_types:          _readChecks(rootEl, "surfType"),
       surf_level:          SURF_LEVEL_MAP[get("p-level").value] || null,
       discipline:          _readChecks(rootEl, "discipline"),
@@ -7037,6 +7050,9 @@ const WaveBaseProfileForm = (function () {
     const foundOpts = FOUND_OPTS.map(o =>
       `<option value="${o}" ${p.howDidYouFindUs === o ? "selected" : ""}>${o}</option>`
     ).join("");
+    const sexOpts = SEX_OPTS.map(o =>
+      `<option value="${o.key}" ${p.sex === o.key ? "selected" : ""}>${_esc(o.label)}</option>`
+    ).join("");
     const initialTravelStyles = (p.travelStyles && p.travelStyles.length)
       ? p.travelStyles
       : (p.travelStyle ? [p.travelStyle] : []);
@@ -7052,6 +7068,7 @@ const WaveBaseProfileForm = (function () {
           <label class="prof-field"><span>Name</span><input type="text" id="p-name" value="${_esc(p.name || "")}" placeholder="Your name" autocomplete="name"></label>
           <label class="prof-field"><span>Email</span><input type="email" id="p-email" value="${_esc(p.email || "")}" placeholder="you@example.com" autocomplete="email"></label>
           <label class="prof-field"><span>Birth year</span><input type="number" id="p-birthyear" value="${_esc(p.birthYear || "")}" placeholder="1985" min="1920" max="2020" inputmode="numeric"></label>
+          <label class="prof-field"><span>Sex</span><select id="p-sex"><option value="">— select —</option>${sexOpts}</select></label>
           <label class="prof-field"><span>Home base</span><select id="p-country" autocomplete="country-name"><option value="">— pick a country —</option>${countryOpts}</select></label>
         </div>
       </div>
@@ -7126,6 +7143,7 @@ const WaveBaseProfileForm = (function () {
         name:            get("p-name").value,
         email:           get("p-email").value,
         birthYear:       get("p-birthyear").value,
+        sex:             get("p-sex") ? get("p-sex").value : "",
         homeCountry:     get("p-country").value,
         level:           get("p-level").value,
         travelStyles:    _readChecks(rootEl, "travelStyles"),
@@ -7180,7 +7198,7 @@ const WaveBaseProfileForm = (function () {
         }
       });
       // Selects: save on change.
-      ["p-country", "p-level", "p-found"].forEach(id => {
+      ["p-sex", "p-country", "p-level", "p-found"].forEach(id => {
         const el = get(id);
         if (el) el.addEventListener("change", save);
       });
@@ -7220,9 +7238,14 @@ const WaveBaseProfileForm = (function () {
     return { flushPendingSave: flushPendingSave };
   }
 
+  // Human label for a stored sex key ("female" → "Female"). Empty for
+  // unset, so the account summary row hides itself when not answered.
+  function sexLabel(key) { return key ? (SEX_LABELS[key] || "") : ""; }
+
   return {
     buildBlocksHTML: buildBlocksHTML,
     wire:            wire,
+    sexLabel:        sexLabel,
   };
 })();
 
