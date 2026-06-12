@@ -4769,8 +4769,8 @@ function initSpot() {
       <p class="tag">${e.tagline}</p>
       ${e.coordsLabel ? `<p class="coords-note">About the location: ${e.coordsLabel}</p>` : ""}
       <div class="detail-actions">
-        ${e.type === "stay" ? `<a class="btn btn-book" href="${bookingHref(e)}" target="_blank" rel="noopener">Book now ↗</a>` : ""}
-        ${e.type === "center" && e.bookingUrl ? `<a class="btn btn-book" href="${e.bookingUrl}" target="_blank" rel="noopener">Visit website ↗</a>` : ""}
+        ${e.type === "stay" ? `<a class="btn btn-book" href="${bookingHref(e)}" data-spot-id="${e.id}" data-track-kind="book" target="_blank" rel="noopener">Book now ↗</a>` : ""}
+        ${e.type === "center" && e.bookingUrl ? `<a class="btn btn-book" href="${e.bookingUrl}" data-spot-id="${e.id}" data-track-kind="website" target="_blank" rel="noopener">Visit website ↗</a>` : ""}
         <button class="btn ghost ${saved ? "on" : ""}" id="save-toggle">${saved ? "♥ Saved" : "♡ Save this place"}</button>
         <button class="btn ghost ${comparing ? "on" : ""}" id="compare-toggle">${comparing ? "✓ In compare" : "+ Compare"}</button>
         ${e.type === "spot" ? `<button class="btn ghost surfed-btn ${surfed ? "on" : ""}" id="surfed-toggle">${surfed ? "✓ Surfed it" : "Surfed it"}</button>` : ""}
@@ -5549,7 +5549,7 @@ function tripItemRowHTML(t, e, idx, readonly) {
    Empty for spots and centers; shown in editable and shared trips. */
 function bookBtnHTML(e) {
   if (!e || e.type !== "stay") return "";
-  return `<a class="tc-book" href="${bookingHref(e)}" target="_blank" rel="noopener" title="Check availability — ${escHTML(e.name)}">Book ↗</a>`;
+  return `<a class="tc-book" href="${bookingHref(e)}" data-spot-id="${e.id}" data-track-kind="book" target="_blank" rel="noopener" title="Check availability — ${escHTML(e.name)}">Book ↗</a>`;
 }
 
 /* Read-only stay dates for a shared trip — the period + nights + cost

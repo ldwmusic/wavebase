@@ -6258,6 +6258,9 @@ button.rml-key.off .rml-dot {
 .adm-core-win.is-active { background: var(--sea); border-color: var(--sea); color: #fff; }
 .adm-core-win.is-loading { opacity: 0.5; cursor: wait; }
 
+/* Outbound-click split (website / book / untagged) in the Activity list */
+.adm-aff-split { display: block; font-size: 10px; white-space: nowrap; }
+
 /* Online-now KPI + presence dot (June 2026 LDW feature) */
 .adm-kpi-online.is-live { border-color: #3fa34d; box-shadow: 0 0 0 2px rgba(63,163,77,0.12); }
 .adm-kpi-online.is-live .adm-kpi-value { color: #2f8c3c; }

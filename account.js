@@ -1645,18 +1645,25 @@ if (typeof window !== "undefined") {
     WaveBaseSiteVisit.start();
   }
 
-  /* Affiliate / "Book now" clicks. Delegated listener so every
-     .btn-book on the page is auto-tracked without per-render
-     wiring. spot_id comes from:
+  /* Outbound clicks: "Book now" / "Visit website" / trip-row "Book ↗".
+     Delegated listener so every .btn-book and .tc-book on the page is
+     auto-tracked without per-render wiring. spot_id comes from:
        - data-spot-id on the link (preferred — set at render time
          when we have the entry in hand), OR
        - ?id= URL parameter (works on spot.html detail pages),
        - else omitted (still tracked, just without per-spot
          grouping in the admin chart).
+     kind (June 2026, Michiel's feedback) says WHICH button was
+     clicked — "website" (Visit website ↗, the center's own site) vs
+     "book" (a booking platform). The admin splits the counts per
+     entry; the per-center website number is negotiation ammo (we're
+     creating traffic for them). Renderers set data-track-kind; the
+     default is "book" because every untagged outbound link today is
+     a booking one.
      Track happens BEFORE the navigation; keepalive=true on the
      fetch makes sure the event lands. */
   document.addEventListener("click", function (ev) {
-    const a = ev.target && ev.target.closest && ev.target.closest("a.btn-book");
+    const a = ev.target && ev.target.closest && ev.target.closest("a.btn-book, a.tc-book");
     if (!a) return;
     let spotId = a.getAttribute("data-spot-id") || null;
     if (!spotId) {
@@ -1669,6 +1676,7 @@ if (typeof window !== "undefined") {
     }
     WaveBaseTracking.track("affiliate_click", {
       spot_id: spotId,
+      kind:    a.getAttribute("data-track-kind") || "book",
       href:    a.getAttribute("href") || "",
     });
   });

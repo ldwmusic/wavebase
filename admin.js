@@ -666,12 +666,37 @@ function _renderActivity(evAff, evViews, evFunnel, evSearch) {
       </li>`;
   }
 
-  // Top affiliate clicks
+  // Top outbound clicks, split by button (June 2026 — Michiel):
+  // "website" = Visit website ↗ (the center's own site — the number
+  // that proves we send centers traffic), "book" = booking links.
+  // Legacy events from before kind-tagging sit in the total only.
+  function _affRow(item, maxCount) {
+    const entry = _entryById(item.spot_id);
+    const name  = entry ? entry.name : (item.spot_id || "(unknown)");
+    const town  = entry ? entry.town : "";
+    const emoji = entry ? _typeEmoji(entry.type) : "·";
+    const pct   = Math.round((item.count / maxCount) * 100);
+    const web   = item.website || 0;
+    const book  = item.book || 0;
+    const legacy = item.count - web - book;
+    const split = [
+      web  ? `${web} website` : "",
+      book ? `${book} book` : "",
+      legacy > 0 ? `${legacy} untagged` : "",
+    ].filter(Boolean).join(" · ");
+    return `
+      <li class="adm-pop-row">
+        <span class="adm-pop-name">${emoji} ${_esc(name)} <span class="muted">${_esc(town)}</span>${split ? `<span class="muted adm-aff-split">${split}</span>` : ""}</span>
+        <span class="adm-pop-bar"><span class="adm-pop-bar-fill" style="width:${pct}%"></span></span>
+        <span class="adm-pop-count">${item.count}</span>
+      </li>`;
+  }
   const aff = evAff.top || [];
   const affMax = Math.max(1, ...aff.map(x => x.count));
   const affHtml = aff.length
-    ? `<ol class="adm-pop-list">${aff.map(x => _spotRow(x, affMax)).join("")}</ol>`
-    : `<p class="muted">No affiliate clicks yet.</p>`;
+    ? `<ol class="adm-pop-list">${aff.map(x => _affRow(x, affMax)).join("")}</ol>
+       <p class="muted adm-table-hint">website = &lsquo;Visit website&rsquo; clicks (traffic we send to the center&rsquo;s own site &mdash; your negotiation number) &middot; book = booking-platform clicks &middot; untagged = clicks from before the split existed.</p>`
+    : `<p class="muted">No outbound clicks yet.</p>`;
 
   // Top viewed pages
   const views = evViews.top || [];
