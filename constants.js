@@ -22,7 +22,7 @@ const WAVEBASE_DESTINATIONS = [
       { name: "Belgium", flag: "🇧🇪", status: "live" },
       { name: "Portugal", flag: "🇵🇹", status: "live" },
       { name: "Spain", flag: "🇪🇸", status: "live" },
-      { name: "France", flag: "🇫🇷", status: "soon" },
+      { name: "France", flag: "🇫🇷", status: "live" },
       { name: "Italy", flag: "🇮🇹", status: "soon" },
       { name: "Ireland", flag: "🇮🇪", status: "soon" },
       { name: "United Kingdom", flag: "🇬🇧", status: "soon" },
