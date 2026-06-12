@@ -869,10 +869,23 @@ const WAVEBASE_MONTHS_FULL = ["", "January", "February", "March", "April", "May"
    Returns null when there's nothing useful to show (no month, no stats,
    not a spot, etc.). */
 function primaryMetricForSpot(e, monthIdx, sportFilter, useDaily) {
-  if (!e || e.type !== "spot" || !monthIdx) return null;
+  if (!e || e.type !== "spot") return null;
   const stats = getStatsFor(e);
   if (!stats) return null;
-  const i = monthIdx - 1;
+
+  // Pick the value for the selected month, or — when no month is chosen
+  // ("Doesn't matter") — the year-round average, so the Top-spots ranking
+  // still works on a plain country pick (Michiel #10 / Lode's note: top 5
+  // by wave height for wave, by wind for wind/kite/wing, month or not).
+  const pick = (arr) => {
+    if (!Array.isArray(arr) || !arr.length) return null;
+    if (monthIdx && monthIdx >= 1 && monthIdx <= 12) {
+      const v = arr[monthIdx - 1];
+      return (v == null || isNaN(v)) ? null : Number(v);
+    }
+    const nums = arr.map(Number).filter(x => !isNaN(x));
+    return nums.length ? nums.reduce((a, b) => a + b, 0) / nums.length : null;
+  };
 
   // Which metric? Explicit sport filter wins; else fall back to the
   // spot's own primary sport (first in its sports array).
@@ -885,18 +898,15 @@ function primaryMetricForSpot(e, monthIdx, sportFilter, useDaily) {
   }
 
   if (metricType === "wave") {
-    // No daily-peak data exists for waves yet — fall back to typical
-    // (monthlyWaveM is itself a monthly mean). Phase 2: add wave-peak.
-    const v = stats.monthlyWaveM ? stats.monthlyWaveM[i] : null;
+    const v = pick(stats.monthlyWaveM);
     if (v == null) return null;
-    return { type: "wave", icon: "🌊", value: v, label: `${v.toFixed(1)} m typical`, sortValue: v };
+    return { type: "wave", icon: "🌊", value: v, label: `${v.toFixed(1)} m${monthIdx ? " typical" : " avg"}`, sortValue: v };
   } else {
     // Wind: prefer the daily peak when asked (better headline number
     // than the 24h mean — users care about the windiest stretch).
     const arr = useDaily ? (stats.monthlyDailyPeakKn || stats.monthlyWindKn)
                          : stats.monthlyWindKn;
-    if (!arr) return null;
-    const v = arr[i];
+    const v = pick(arr);
     if (v == null) return null;
     const suffix = (useDaily && stats.monthlyDailyPeakKn) ? "kn peak" : "kn avg";
     return { type: "wind", icon: "💨", value: v, label: `${Math.round(v)} ${suffix}`, sortValue: v };
@@ -922,7 +932,7 @@ function topSpotsBlockHTML(matches, monthIdx, sportFilter) {
   if (!scored.length) return "";
   const subLabel = monthIdx
     ? `Sorted by daily-peak wind / typical waves in ${WAVEBASE_MONTHS_FULL[monthIdx]}.`
-    : "Sorted by peak conditions.";
+    : "Sorted by year-round wind / wave strength.";
   const cards = scored.map(x => cardHTML(x.e, undefined, {
     showMetric: true,
     monthIdx,
@@ -3139,10 +3149,26 @@ function runSearch() {
     return;
   }
 
-  // no country yet → make the whole empty box one big click target that
-  // opens the country picker (per LDW: no link-in-text, the whole dotted
-  // panel is the affordance).
+  // No country yet → instead of an empty "Pick a country to begin" box
+  // (Michiel #11: it was useless + caused scrolling), surface the most
+  // relevant spots right away, adapting to the sport + month filters
+  // (Michiel #10): windiest first for wind/kite/wing, biggest waves first
+  // for wave. Reuses the same Top-spots ranking the country view uses.
   if (!country) {
+    const mInt = parseInt(month, 10);
+    const monthIdx = (mInt >= 1 && mInt <= 12) ? mInt : null;
+    const featuredSpots = WAVEBASE_DATA.filter(e =>
+      e.type === "spot" &&
+      (sportIsAll || entrySports(e).some(s => sportSet.has(s))) &&
+      (level === "all" || (Array.isArray(e.levels) && e.levels.includes(level))));
+    const featured = topSpotsBlockHTML(featuredSpots, monthIdx, sport);
+    if (featured) {
+      results.innerHTML = featured +
+        `<p class="featured-hint muted">Pick a country in &ldquo;Where?&rdquo; above to focus on one place &mdash; or search a spot by name.</p>`;
+      wireCards(results);
+      return;
+    }
+    // Genuine no-data fallback: keep the tap-to-open-picker affordance.
     results.innerHTML = `<button type="button" class="empty empty-clickable" id="empty-open-destinations">
       <strong>Pick a country to begin.</strong>
       <span class="empty-sub">Tap here to open the country picker &mdash; or use the &ldquo;Where?&rdquo; field above, or type a place in the search bar.</span>
