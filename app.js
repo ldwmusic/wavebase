@@ -3753,7 +3753,11 @@ function initIndex() {
       if (first) first.click();
     });
   }
-  document.getElementById("search-btn").addEventListener("click", runSearch);
+  // The old "Show what fits me" button was removed (June 2026, Lode's
+  // note — the results already update live on every filter change, so the
+  // button was redundant). Guard in case any cached markup still has it.
+  const searchBtn = document.getElementById("search-btn");
+  if (searchBtn) searchBtn.addEventListener("click", runSearch);
 
   // Free-text search: typing shows a live SUGGESTIONS dropdown right
   // under the searchbar (same pattern as "+ Add a place" in trip-add).
