@@ -12,6 +12,13 @@ __pycache__/
 !.claude/skills/
 !.claude/skills/**
 
+# Google OAuth client secret — NEVER commit (this repo is public).
+# Our code doesn't even use the secret (the backend verifies Google ID
+# tokens against Google's public keys), so this file is only a local
+# copy of the downloaded credentials. Keep it OUT of git.
+client_secret_*.json
+*client_secret*.json
+
 # Design references / project docs — not part of the deployed site
 *.pdf
 sport-icon-options.png
