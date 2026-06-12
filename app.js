@@ -8601,9 +8601,18 @@ function compareScoreboardHTML(items) {
       { icon: "⭐", label: "Review rating", max: 5, unit: " / 5", winnerDirection: "higher",
         fmt: x => x.toFixed(1),
         get: e => parseRating(e.verblijf && e.verblijf.rating, e.verblijf && e.verblijf.ratingScore) },
-      // Things to do counts comma/and-separated items in activiteiten.
-      { icon: "🗺️", label: "Things to do nearby", max: 8, unit: " items", winnerDirection: "higher",
-        get: e => itemCount(e.verblijf && e.verblijf.activiteiten) },
+      // Things to do: write out the ACTUAL activities, not a count
+      // (Michiel #5 — "5 items" tells you nothing). Same approach as the
+      // Gear-brands / Facilities rows above: normalise the separators to a
+      // clean comma-separated keyword list, wrap it in the cell.
+      { icon: "🗺️", label: "Things to do nearby", mode: "label", labelStyle: "wrap",
+        get: e => {
+          const raw = e.verblijf && e.verblijf.activiteiten;
+          if (!raw || typeof raw !== "string" || !raw.trim()) return null;
+          const parts = raw.split(/[,;]|\sand\s|\s\+\s/i)
+            .map(s => s.trim().replace(/\.$/, "")).filter(Boolean);
+          return parts.length ? parts.join(", ") : raw.trim();
+        } },
       // ---- Prices (partial: kept even if some stays are "by enquiry") ----
       { icon: "🎟️", label: "Trip type", mode: "label", partial: true,
         get: e => e.prices && e.prices.tier ? cap(e.prices.tier) : null },
@@ -8741,7 +8750,7 @@ function compareScoreboardHTML(items) {
       <ul class="sb-sources-list">
         <li><strong>Distance to surf spot</strong> &mdash; parsed from each stay's <code>verblijf.afstandSpot</code> prose.</li>
         <li><strong>Review rating</strong> &mdash; parsed from each stay's <code>verblijf.rating</code> prose (TripAdvisor / Booking / Google / Hostelworld figures).</li>
-        <li><strong>Things to do</strong> &mdash; count of comma- or and-separated items in <code>verblijf.activiteiten</code>.</li>
+        <li><strong>Things to do nearby</strong> &mdash; the actual activities listed in each stay's <code>verblijf.activiteiten</code>, written out as keywords.</li>
         <li><strong>Food / Hosts / Comfort / Cleanliness / Value / Style / Vibe</strong> &mdash; inferred by Claude from each stay's samenvatting / verhaal / lagen reviewer prose. See per-stay bron-strength labels (SOLID / MOSTLY SOLID / STALE) on the detail page for confidence.</li>
         <li><strong>Food &mdash; "Self-catering"</strong> &mdash; shown instead of a star score for stays with no meal service (kitchenette-only apartments). We don't rate food where no food is served.</li>
       </ul>
