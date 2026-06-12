@@ -4945,10 +4945,26 @@ function initSpot() {
     L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
       attribution: "&copy; OpenStreetMap contributors", maxZoom: 19
     }).addTo(m);
+    // Highlight ring around the marked place — the "circle" that makes
+    // the spot pop on landing (Lode's note on Michiel #22). Plus the dot.
+    L.circle(e.coords, {
+      radius: 1100, color: typeColor(e.type), weight: 1.5,
+      fillColor: typeColor(e.type), fillOpacity: 0.08,
+      dashArray: "5,6", interactive: false
+    }).addTo(m);
     L.circleMarker(e.coords, { radius: 10, color: "#fff", weight: 3, fillColor: typeColor(e.type), fillOpacity: 1 })
       .bindPopup(`<strong>${e.name}</strong><br>${typeLabel(e.type)} &middot; ${e.town}`)
       .addTo(m);
-    m.setView(e.coords, 14);
+    // Animated zoom-IN to the spot on landing (Michiel #22, Lode's note:
+    // just the map zoom to the place + keep the marked circle, no goose).
+    // Start wide, then fly in. Respect reduced-motion: jump straight there.
+    const reduceMotion = matchMedia("(prefers-reduced-motion: reduce)").matches;
+    if (reduceMotion) {
+      m.setView(e.coords, 14);
+    } else {
+      m.setView(e.coords, 8, { animate: false });
+      setTimeout(() => { m.flyTo(e.coords, 14, { duration: 1.7, easeLinearity: 0.18 }); }, 400);
+    }
   }
 
   // Wire embedded entry cards (related sections + "More in country") + the
