@@ -1238,8 +1238,6 @@ table.cal td.host { color: var(--clay); }
   display: flex; align-items: center; gap: 10px;
   margin-bottom: 8px;
 }
-.gs-goose { width: 26px; height: 26px; flex: 0 0 auto; }
-.gs-card.gs-skip .gs-goose { transform: scaleX(-1); }  /* skip-goose looks away */
 .gs-head h3 {
   font-family: 'Fraunces', serif; font-size: 20px; font-weight: 600;
   color: var(--ink);

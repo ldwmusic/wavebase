@@ -4511,10 +4511,10 @@ function dienstenHTML(d) {
    the old plain "Ideal for / Not ideal if" boxes. */
 function goSkipHTML(e) {
   if (!e.ideaalVoor && !e.nietIdeaalAls) return "";
-  const goose = `<img src="surfgoose_icon.svg" alt="" class="gs-goose" loading="lazy">`;
+  // No goose icon in the card heads — Lode, 13 Jun 2026.
   const card = (cls, title, text) => text
     ? `<div class="gs-card ${cls}">
-        <div class="gs-head">${goose}<h3>${title}</h3></div>
+        <div class="gs-head"><h3>${title}</h3></div>
         <p>${text}</p>
       </div>`
     : "";
