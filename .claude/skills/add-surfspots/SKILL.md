@@ -245,10 +245,15 @@ each):
 - `monthly_gust_peak_kn[12]` — **absolute single-hour max GUST across the
   whole 5-year archive**, per month. This is the "max ever recorded" in
   the daytime window — useful as the upper-bound storm-day reference.
-- `monthly_wind_prob[12]` — share of days where mean daytime wind ≥ workable
-  threshold. **Default baseline**: 12 kn for windsurf/kite, **10 kn for wing
-  (wing foils plane EARLIER than windsurf gear — less wind needed, not more;
-  corrected June 2026 per Lode)**.
+- `monthly_wind_prob[12]` — share of days with **at least 2 daytime hours
+  (10–18h) at or above the workable threshold**. (Definition set by Lode,
+  13 June 2026 — replaces the old "daytime MEAN ≥ threshold" rule, which
+  undercounted real sessions: a meltemi afternoon that blasts 3 hours but
+  averages below threshold over the whole day IS a windy day to a rider.
+  All 133 existing spots were recomputed + repatched to this definition.)
+  **Threshold baseline**: 12 kn for windsurf/kite, **10 kn for wing-only
+  spots (wing foils plane EARLIER than windsurf gear — less wind needed,
+  not more; corrected June 2026 per Lode)**.
   **Override per spot** when local norm clearly differs — e.g. a light-wind
   beachie where everything ≥ 8 kn is rideable, or a heavy-wind point where
   the regulars only paddle out above 18 kn. When you override, mention the
