@@ -246,7 +246,9 @@ each):
   whole 5-year archive**, per month. This is the "max ever recorded" in
   the daytime window — useful as the upper-bound storm-day reference.
 - `monthly_wind_prob[12]` — share of days where mean daytime wind ≥ workable
-  threshold. **Default baseline**: 12 kn for windsurf/kite, 15 kn for wing.
+  threshold. **Default baseline**: 12 kn for windsurf/kite, **10 kn for wing
+  (wing foils plane EARLIER than windsurf gear — less wind needed, not more;
+  corrected June 2026 per Lode)**.
   **Override per spot** when local norm clearly differs — e.g. a light-wind
   beachie where everything ≥ 8 kn is rideable, or a heavy-wind point where
   the regulars only paddle out above 18 kn. When you override, mention the
