@@ -1782,26 +1782,45 @@ function seasonForMonth(stats, monthNum) {
 function spotKeyStatsHTML(e) {
   const s = getStatsFor(e);
   if (!s) return "";
-  const avg = (arr) => {
+
+  // SAME month the rest of the site uses (the detail page's "Your month"
+  // panel, the season chip) — so the card numbers match what the user
+  // sees after clicking through. Falls back to the year average for any
+  // month with no value. (June 2026 fix: the card first showed year-round
+  // averages, which read as "wrong" next to the month-specific detail.)
+  const m = userSelectedMonth();
+  const mLabel = WAVEBASE_MONTHS[m] || "";
+  const pickMonth = (arr) => {
     if (!Array.isArray(arr) || !arr.length) return null;
-    const v = arr.map(Number).filter(x => !isNaN(x));
-    return v.length ? v.reduce((a, b) => a + b, 0) / v.length : null;
+    const v = arr[m - 1];
+    if (typeof v === "number" && !isNaN(v)) return v;
+    const nums = arr.map(Number).filter(x => !isNaN(x));
+    return nums.length ? nums.reduce((a, b) => a + b, 0) / nums.length : null;
   };
-  const windAvg  = avg(s.monthlyWindKn);
-  const gustPeak = avg(s.monthlyGustPeakKn);
-  const windPct  = avg(s.monthlyWindProb);
-  const waveAvg  = avg(s.monthlyWaveM);
+  // monthly_wind_prob is stored as a 0–1 FRACTION in the API (0.52 =
+  // 52% of days) even though it reads like a percentage. Normalise
+  // defensively so both scales render correctly. (June 2026 fix: the
+  // card showed "0%" because it rounded the raw fraction.)
+  const toPct = (v) => v == null ? null : Math.round(v <= 1.5 ? v * 100 : v);
+
+  const wind    = pickMonth(s.monthlyWindKn);
+  // Mean gust — the same series the detail page's "gust ~X" line leads
+  // with. NOT monthlyGustPeakKn: that's the monthly MAX gust ("max 52 kn"
+  // on the detail page), which read absurdly high as a headline number.
+  const gust    = pickMonth(s.monthlyGustKn);
+  const windPct = toPct(pickMonth(s.monthlyWindProb));
+  const wave    = pickMonth(s.monthlyWaveM);
 
   const chips = [];
-  if (windAvg != null)
-    chips.push(`<span class="kstat" title="Average wind, year-round"><span class="kstat-n">${Math.round(windAvg)}<span class="kstat-u">kn</span></span><span class="kstat-l">avg wind</span></span>`);
-  if (gustPeak != null)
-    chips.push(`<span class="kstat" title="Typical daily-peak gusts"><span class="kstat-n">${Math.round(gustPeak)}<span class="kstat-u">kn</span></span><span class="kstat-l">gusts</span></span>`);
+  if (wind != null)
+    chips.push(`<span class="kstat" title="Average wind in ${escHTML(mLabel)}"><span class="kstat-n">${Math.round(wind)}<span class="kstat-u">kn</span></span><span class="kstat-l">${escHTML(mLabel)} wind</span></span>`);
+  if (gust != null)
+    chips.push(`<span class="kstat" title="Typical gusts in ${escHTML(mLabel)}"><span class="kstat-n">${Math.round(gust)}<span class="kstat-u">kn</span></span><span class="kstat-l">${escHTML(mLabel)} gusts</span></span>`);
   if (windPct != null)
-    chips.push(`<span class="kstat kstat-pct" title="Share of days with workable wind"><span class="kstat-n">${Math.round(windPct)}<span class="kstat-u">%</span></span><span class="kstat-l">windy days</span></span>`);
+    chips.push(`<span class="kstat kstat-pct" title="Share of ${escHTML(mLabel)} days with workable wind"><span class="kstat-n">${windPct}<span class="kstat-u">%</span></span><span class="kstat-l">windy days</span></span>`);
   // Pure wave spots (no wind stats): show wave height instead of nothing.
-  if (!chips.length && waveAvg != null)
-    chips.push(`<span class="kstat"><span class="kstat-n">${waveAvg.toFixed(1)}<span class="kstat-u">m</span></span><span class="kstat-l">wave</span></span>`);
+  if (!chips.length && wave != null)
+    chips.push(`<span class="kstat"><span class="kstat-n">${wave.toFixed(1)}<span class="kstat-u">m</span></span><span class="kstat-l">${escHTML(mLabel)} wave</span></span>`);
 
   if (!chips.length) return "";
   return `<div class="card-kstats">${chips.slice(0, 3).join("")}</div>`;
