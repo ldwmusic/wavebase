@@ -975,6 +975,8 @@ a, button, [role="button"] { -webkit-tap-highlight-color: rgba(63,111,125,0.08);
   min-width: 62px;
 }
 .card-kstats .kstat-pct { background: var(--cream); border-color: var(--sand-deep); }
+.card-kstats .kstat-wave { background: var(--clay-soft); border-color: #ecd0c2; }
+.card-kstats .kstat-wave .kstat-n { color: var(--clay); }
 .card-kstats .kstat-n {
   font-family: 'Fraunces', serif; font-weight: 600; font-size: 19px;
   color: var(--sea-deep); line-height: 1;

@@ -1803,24 +1803,36 @@ function spotKeyStatsHTML(e) {
   // card showed "0%" because it rounded the raw fraction.)
   const toPct = (v) => v == null ? null : Math.round(v <= 1.5 ? v * 100 : v);
 
-  const wind    = pickMonth(s.monthlyWindKn);
-  // Mean gust — the same series the detail page's "gust ~X" line leads
-  // with. NOT monthlyGustPeakKn: that's the monthly MAX gust ("max 52 kn"
-  // on the detail page), which read absurdly high as a headline number.
-  const gust    = pickMonth(s.monthlyGustKn);
-  const windPct = toPct(pickMonth(s.monthlyWindProb));
-  const wave    = pickMonth(s.monthlyWaveM);
-
   const chips = [];
-  if (wind != null)
-    chips.push(`<span class="kstat" title="Average wind in ${escHTML(mLabel)}"><span class="kstat-n">${Math.round(wind)}<span class="kstat-u">kn</span></span><span class="kstat-l">${escHTML(mLabel)} wind</span></span>`);
-  if (gust != null)
-    chips.push(`<span class="kstat" title="Typical gusts in ${escHTML(mLabel)}"><span class="kstat-n">${Math.round(gust)}<span class="kstat-u">kn</span></span><span class="kstat-l">${escHTML(mLabel)} gusts</span></span>`);
-  if (windPct != null)
-    chips.push(`<span class="kstat kstat-pct" title="Share of ${escHTML(mLabel)} days with workable wind"><span class="kstat-n">${windPct}<span class="kstat-u">%</span></span><span class="kstat-l">windy days</span></span>`);
-  // Pure wave spots (no wind stats): show wave height instead of nothing.
-  if (!chips.length && wave != null)
-    chips.push(`<span class="kstat"><span class="kstat-n">${wave.toFixed(1)}<span class="kstat-u">m</span></span><span class="kstat-l">${escHTML(mLabel)} wave</span></span>`);
+  // Show the metrics that actually matter for THIS spot's discipline
+  // (June 2026, Lode: wave breaks like Anchor Point have no "windy days"
+  // — that's a windsurf/kite metric. Lead a wave break with wave height,
+  // a wind/kite/wing spot with wind). Primary sport = first in the array.
+  const primary = (entrySports(e)[0] === "wave") ? "wave" : "wind";
+
+  if (primary === "wave") {
+    const wave  = pickMonth(s.monthlyWaveM);
+    const water = pickMonth(s.monthlyWaterC);
+    const wind  = pickMonth(s.monthlyWindKn);
+    if (wave != null)
+      chips.push(`<span class="kstat kstat-wave" title="Typical wave height in ${escHTML(mLabel)}"><span class="kstat-n">${wave.toFixed(1)}<span class="kstat-u">m</span></span><span class="kstat-l">${escHTML(mLabel)} wave</span></span>`);
+    if (water != null)
+      chips.push(`<span class="kstat" title="Sea temperature in ${escHTML(mLabel)}"><span class="kstat-n">${Math.round(water)}<span class="kstat-u">°C</span></span><span class="kstat-l">water</span></span>`);
+    if (wind != null)
+      chips.push(`<span class="kstat" title="Average wind in ${escHTML(mLabel)} — lighter is cleaner for surf"><span class="kstat-n">${Math.round(wind)}<span class="kstat-u">kn</span></span><span class="kstat-l">${escHTML(mLabel)} wind</span></span>`);
+  } else {
+    const wind    = pickMonth(s.monthlyWindKn);
+    // Mean gust — same series the detail page's "gust ~X" line leads with.
+    // NOT monthlyGustPeakKn (the monthly MAX, "max 52 kn" on the page).
+    const gust    = pickMonth(s.monthlyGustKn);
+    const windPct = toPct(pickMonth(s.monthlyWindProb));
+    if (wind != null)
+      chips.push(`<span class="kstat" title="Average wind in ${escHTML(mLabel)}"><span class="kstat-n">${Math.round(wind)}<span class="kstat-u">kn</span></span><span class="kstat-l">${escHTML(mLabel)} wind</span></span>`);
+    if (gust != null)
+      chips.push(`<span class="kstat" title="Typical gusts in ${escHTML(mLabel)}"><span class="kstat-n">${Math.round(gust)}<span class="kstat-u">kn</span></span><span class="kstat-l">${escHTML(mLabel)} gusts</span></span>`);
+    if (windPct != null)
+      chips.push(`<span class="kstat kstat-pct" title="Share of ${escHTML(mLabel)} days with workable wind"><span class="kstat-n">${windPct}<span class="kstat-u">%</span></span><span class="kstat-l">windy days</span></span>`);
+  }
 
   if (!chips.length) return "";
   return `<div class="card-kstats">${chips.slice(0, 3).join("")}</div>`;
