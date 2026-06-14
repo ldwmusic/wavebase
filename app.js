@@ -5071,10 +5071,10 @@ function videosSectionHTML(e) {
   const vids = SPOT_VIDEOS[e && e.name];
   if (!vids || !vids.length) return "";
   const cards = vids.map((v, i) => `
-    <button class="vid-card" type="button" data-video-load="${i}" aria-label="Play TikTok: ${v.title}">
-      <span class="vid-tt">TikTok</span>
-      <span class="vid-play" aria-hidden="true"><svg viewBox="0 0 24 24" width="22" height="22" fill="currentColor"><path d="M8 5v14l11-7z"/></svg></span>
+    <button class="vid-card" type="button" data-video-load="${i}">
+      <span class="vid-play" aria-hidden="true">▶</span>
       <span class="vid-meta"><span class="vid-author">${v.author}</span><span class="vid-title">${v.title}</span></span>
+      <span class="vid-tt">TikTok</span>
     </button>`).join("");
   return `
     <section class="videos-section">
@@ -5092,37 +5092,21 @@ function wireVideos(e, root) {
     const btn = ev.target.closest("[data-video-load]");
     if (!btn) return;
     const v = vids[parseInt(btn.getAttribute("data-video-load"), 10)];
-    if (v) openVideoModal(v);
+    if (!v) return;
+    const holder = document.createElement("div");
+    holder.className = "vid-embed";
+    holder.innerHTML =
+      `<blockquote class="tiktok-embed" cite="${v.url}" data-video-id="${_videoId(v.url)}" style="max-width:605px;min-width:280px;margin:0 auto;"><section></section></blockquote>`;
+    btn.replaceWith(holder);
+    // (Re)inject TikTok's embed script so it renders the new blockquote.
+    const old = document.getElementById("tiktok-embed-script");
+    if (old) old.remove();
+    const s = document.createElement("script");
+    s.id = "tiktok-embed-script";
+    s.src = "https://www.tiktok.com/embed.js";
+    s.async = true;
+    document.body.appendChild(s);
   });
-}
-
-/* Play a TikTok in a focused, centered modal — keeps the card grid clean
-   and uniform, and click-to-load means TikTok loads nothing until here. */
-function openVideoModal(v) {
-  const old = document.querySelector(".vid-modal");
-  if (old) old.remove();
-  const m = document.createElement("div");
-  m.className = "vid-modal";
-  m.innerHTML =
-    `<button class="vid-modal-close" aria-label="Close">&times;</button>
-     <div class="vid-modal-body">
-       <blockquote class="tiktok-embed" cite="${v.url}" data-video-id="${_videoId(v.url)}" style="max-width:605px;min-width:280px;margin:0;"><section></section></blockquote>
-     </div>`;
-  document.body.appendChild(m);
-  document.body.style.overflow = "hidden";
-  const close = function () { m.remove(); document.body.style.overflow = ""; document.removeEventListener("keydown", onKey); };
-  const onKey = function (ev) { if (ev.key === "Escape") close(); };
-  m.querySelector(".vid-modal-close").addEventListener("click", close);
-  m.addEventListener("click", (ev) => { if (ev.target === m) close(); });
-  document.addEventListener("keydown", onKey);
-  // (Re)inject TikTok's embed script so it renders the blockquote.
-  const oldS = document.getElementById("tiktok-embed-script");
-  if (oldS) oldS.remove();
-  const s = document.createElement("script");
-  s.id = "tiktok-embed-script";
-  s.src = "https://www.tiktok.com/embed.js";
-  s.async = true;
-  document.body.appendChild(s);
 }
 
 function _adminImgThumbs(e) {
