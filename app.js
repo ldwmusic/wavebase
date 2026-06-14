@@ -679,13 +679,34 @@ function crowdLabel(n) {
     druk: "Busy", hoog: "Busy",
   })[n] || n;
 }
-/* The display image for an entry: first uploaded Cloudinary image, with
-   the retired `photo` field kept only as a defensive fallback. */
+/* The primary image OBJECT for an entry ({id,url,crop}); first uploaded
+   image, with the retired `photo` field kept only as a defensive fallback. */
 function entryImg(e) {
-  if (e && e.images && e.images[0] && e.images[0].url) return e.images[0].url;
-  return (e && e.photo) ? e.photo : "";
+  if (e && e.images && e.images[0]) return e.images[0];
+  return (e && e.photo) ? { url: e.photo } : null;
 }
-function thumbStyle(e) { const u = entryImg(e); return u ? ` style="background-image:url('${u}')"` : ""; }
+/* Build a Cloudinary delivery URL with the right transforms: optional
+   non-destructive crop (admin-set, in original pixels) chained before a
+   container fill, then auto format + quality. opts: {w,h} fill, {w} limit,
+   or {} for full. The original asset is never modified. */
+function cldUrl(image, opts) {
+  opts = opts || {};
+  const u = (image && image.url) || "";
+  const i = u.indexOf("/upload/");
+  if (i === -1) return u;   // not a Cloudinary url (legacy photo) — use as-is
+  const comps = [];
+  const c = image && image.crop;
+  if (c && c.w > 0 && c.h > 0) comps.push(`c_crop,x_${c.x|0},y_${c.y|0},w_${c.w|0},h_${c.h|0}`);
+  if (opts.w && opts.h)      comps.push(`c_fill,g_auto,w_${opts.w},h_${opts.h},f_auto,q_auto`);
+  else if (opts.w)           comps.push(`c_limit,w_${opts.w},f_auto,q_auto`);
+  else                       comps.push(`f_auto,q_auto`);
+  return u.slice(0, i + 8) + comps.join("/") + "/" + u.slice(i + 8);
+}
+function entryImgList(e) {
+  if (e && e.images && e.images.length) return e.images;
+  return (e && e.photo) ? [{ url: e.photo }] : [];
+}
+function thumbStyle(e) { const im = entryImg(e); const u = im ? cldUrl(im, { w: 600, h: 600 }) : ""; return u ? ` style="background-image:url('${u}')"` : ""; }
 
 /* ---- nav: account label + compare count ---- */
 function updateNav() {
@@ -4914,10 +4935,125 @@ function tripViewLinkHTML(entryId) {
    403s. --------------------------------------------------------------- */
 const _ENTITY_SLUG = { spot: "surf-spots", center: "centers", stay: "stays" };
 
+/* ---- Public hero: carousel + lightbox -------------------------------- */
+function heroHTML(e) {
+  const imgs = entryImgList(e);
+  if (!imgs.length) {
+    return `<div class="detail-photo ${e.type}"><span class="photo-placeholder">Photo coming soon</span></div>`;
+  }
+  const slides = imgs.map((im, i) =>
+    `<div class="dp-slide${i === 0 ? " is-active" : ""}" style="background-image:url('${cldUrl(im, { w: 1600, h: 600 })}')"></div>`).join("");
+  const multi = imgs.length > 1;
+  const arrows = multi
+    ? `<button class="dp-arrow dp-prev" data-prev aria-label="Previous photo">&lsaquo;</button><button class="dp-arrow dp-next" data-next aria-label="Next photo">&rsaquo;</button>`
+    : "";
+  const dots = multi
+    ? `<div class="dp-dots">${imgs.map((_, i) => `<button class="dp-dot${i === 0 ? " is-active" : ""}" data-goto="${i}" aria-label="Photo ${i + 1}"></button>`).join("")}</div>`
+    : "";
+  return `<div class="detail-photo ${e.type} has-photo" data-carousel>${slides}${arrows}${dots}<button class="dp-zoom" data-zoom aria-label="View full size">⤢</button></div>`;
+}
+
+let _heroTimer = null;
+function wireHero(e, root) {
+  if (_heroTimer) { clearInterval(_heroTimer); _heroTimer = null; }
+  const hero = root.querySelector(".detail-photo[data-carousel]");
+  if (!hero) return;
+  const imgs   = entryImgList(e);
+  const slides = Array.prototype.slice.call(hero.querySelectorAll(".dp-slide"));
+  const dots   = Array.prototype.slice.call(hero.querySelectorAll(".dp-dot"));
+  let idx = 0;
+  const show = function (n) {
+    idx = (n + slides.length) % slides.length;
+    slides.forEach((s, i) => s.classList.toggle("is-active", i === idx));
+    dots.forEach((d, i) => d.classList.toggle("is-active", i === idx));
+  };
+  const start = function () { if (slides.length > 1) _heroTimer = setInterval(() => show(idx + 1), 5000); };
+  const restart = function () { if (_heroTimer) { clearInterval(_heroTimer); _heroTimer = null; } start(); };
+  if (slides.length > 1) {
+    const prev = hero.querySelector("[data-prev]"), next = hero.querySelector("[data-next]");
+    if (prev) prev.addEventListener("click", (ev) => { ev.stopPropagation(); show(idx - 1); restart(); });
+    if (next) next.addEventListener("click", (ev) => { ev.stopPropagation(); show(idx + 1); restart(); });
+    dots.forEach((d) => d.addEventListener("click", (ev) => { ev.stopPropagation(); show(parseInt(d.dataset.goto, 10)); restart(); }));
+    hero.addEventListener("mouseenter", () => { if (_heroTimer) { clearInterval(_heroTimer); _heroTimer = null; } });
+    hero.addEventListener("mouseleave", () => { if (!_heroTimer) start(); });
+    start();
+  }
+  hero.addEventListener("click", (ev) => {
+    if (ev.target.closest("[data-prev],[data-next],.dp-dot")) return;
+    if (imgs.length) openLightbox(imgs, idx);
+  });
+}
+
+function rebuildHero(e, root) {
+  const hero = root.querySelector(".detail-photo");
+  if (!hero) return;
+  const tmp = document.createElement("div");
+  tmp.innerHTML = heroHTML(e);
+  hero.replaceWith(tmp.firstElementChild);
+  wireHero(e, root);
+}
+
+function openLightbox(imgs, startIndex) {
+  if (!imgs || !imgs.length) return;
+  let idx = startIndex || 0;
+  const old = document.querySelector(".lightbox");
+  if (old) old.remove();
+  const multi = imgs.length > 1;
+  const lb = document.createElement("div");
+  lb.className = "lightbox";
+  lb.innerHTML =
+    `<button class="lb-close" aria-label="Close">&times;</button>` +
+    (multi ? `<button class="lb-arrow lb-prev" aria-label="Previous">&lsaquo;</button><button class="lb-arrow lb-next" aria-label="Next">&rsaquo;</button>` : "") +
+    `<img class="lb-img" alt="">` +
+    (multi ? `<div class="lb-count"></div>` : "");
+  document.body.appendChild(lb);
+  document.body.style.overflow = "hidden";
+  const imgEl = lb.querySelector(".lb-img");
+  const countEl = lb.querySelector(".lb-count");
+  const render = function () {
+    idx = (idx + imgs.length) % imgs.length;
+    imgEl.src = cldUrl(imgs[idx], { w: 2000 });
+    if (countEl) countEl.textContent = (idx + 1) + " / " + imgs.length;
+  };
+  const close = function () { lb.remove(); document.body.style.overflow = ""; document.removeEventListener("keydown", onKey); };
+  const onKey = function (ev) {
+    if (ev.key === "Escape") close();
+    else if (ev.key === "ArrowRight") { idx++; render(); }
+    else if (ev.key === "ArrowLeft") { idx--; render(); }
+  };
+  lb.querySelector(".lb-close").addEventListener("click", close);
+  lb.addEventListener("click", (ev) => { if (ev.target === lb) close(); });
+  const p = lb.querySelector(".lb-prev"), n = lb.querySelector(".lb-next");
+  if (p) p.addEventListener("click", () => { idx--; render(); });
+  if (n) n.addEventListener("click", () => { idx++; render(); });
+  document.addEventListener("keydown", onKey);
+  render();
+}
+
+/* Lazy-load Cropper.js from CDN only when the admin opens the crop tool. */
+let _cropperLoading = null;
+function _loadCropper() {
+  if (window.Cropper) return Promise.resolve(true);
+  if (_cropperLoading) return _cropperLoading;
+  _cropperLoading = new Promise((resolve) => {
+    const css = document.createElement("link");
+    css.rel = "stylesheet";
+    css.href = "https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.6.2/cropper.min.css";
+    document.head.appendChild(css);
+    const js = document.createElement("script");
+    js.src = "https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.6.2/cropper.min.js";
+    js.onload = () => resolve(true);
+    js.onerror = () => resolve(false);
+    document.head.appendChild(js);
+  });
+  return _cropperLoading;
+}
+
 function _adminImgThumbs(e) {
   return (e.images || []).map((im, i) => `
-    <div class="aimg-thumb${i === 0 ? " is-primary" : ""}" style="background-image:url('${im.url}')">
+    <div class="aimg-thumb${i === 0 ? " is-primary" : ""}" draggable="true" data-img="${im.id}" style="background-image:url('${cldUrl(im, { w: 300, h: 300 })}')">
       ${i === 0 ? `<span class="aimg-tag">shown</span>` : ""}
+      <button class="aimg-crop" data-crop-img="${im.id}" title="Crop / frame">Crop</button>
       <button class="aimg-del" data-del-img="${im.id}" title="Delete image" aria-label="Delete image">&times;</button>
     </div>`).join("");
 }
@@ -4925,7 +5061,7 @@ function _adminImgThumbs(e) {
 function adminImagePanel(e) {
   return `
     <div class="aimg-panel" data-entity="${e.type}" data-id="${e.id}">
-      <div class="aimg-head">Admin · photos <span class="aimg-hint">first photo is shown publicly · drag not yet — delete to reorder</span></div>
+      <div class="aimg-head">Admin · photos <span class="aimg-hint">drag to reorder · first photo is the public one · Crop to frame</span></div>
       <div class="aimg-list">${_adminImgThumbs(e)}</div>
       <label class="aimg-upload">
         <input type="file" accept="image/jpeg,image/png,image/webp" hidden>
@@ -4953,23 +5089,7 @@ function wireAdminImagePanel(e, root) {
 
   function refresh() {
     listEl.innerHTML = _adminImgThumbs(e);
-    // Keep the public hero in sync with image[0].
-    const hero = root.querySelector(".detail-photo");
-    if (hero) {
-      const u = entryImg(e);
-      if (u) {
-        hero.classList.add("has-photo");
-        hero.style.backgroundImage = `url('${u}')`;
-        const ph = hero.querySelector(".photo-placeholder");
-        if (ph) ph.remove();
-      } else {
-        hero.classList.remove("has-photo");
-        hero.style.backgroundImage = "";
-        if (!hero.querySelector(".photo-placeholder")) {
-          hero.innerHTML = '<span class="photo-placeholder">Photo coming soon</span>';
-        }
-      }
-    }
+    rebuildHero(e, root);   // re-render the public carousel from e.images
   }
 
   fileEl.addEventListener("change", async () => {
@@ -5012,6 +5132,12 @@ function wireAdminImagePanel(e, root) {
   });
 
   listEl.addEventListener("click", async (ev) => {
+    const cropBtn = ev.target.closest("[data-crop-img]");
+    if (cropBtn) {
+      const im = (e.images || []).find(x => x.id === cropBtn.getAttribute("data-crop-img"));
+      if (im) openCropModal(im);
+      return;
+    }
     const btn = ev.target.closest("[data-del-img]");
     if (!btn) return;
     const imgId = btn.getAttribute("data-del-img");
@@ -5027,6 +5153,110 @@ function wireAdminImagePanel(e, root) {
       setStatus(err.message || "Delete failed.", true);
     }
   });
+
+  /* ---- drag to reorder (image[0] becomes the public one) ---- */
+  let _dragId = null;
+  listEl.addEventListener("dragstart", (ev) => {
+    const t = ev.target.closest(".aimg-thumb");
+    if (!t) return;
+    _dragId = t.getAttribute("data-img");
+    t.classList.add("is-dragging");
+    if (ev.dataTransfer) ev.dataTransfer.effectAllowed = "move";
+  });
+  listEl.addEventListener("dragend", (ev) => {
+    const t = ev.target.closest(".aimg-thumb");
+    if (t) t.classList.remove("is-dragging");
+  });
+  listEl.addEventListener("dragover", (ev) => ev.preventDefault());
+  listEl.addEventListener("drop", async (ev) => {
+    ev.preventDefault();
+    const over = ev.target.closest(".aimg-thumb");
+    if (!over || !_dragId) return;
+    const targetId = over.getAttribute("data-img");
+    if (!targetId || targetId === _dragId) return;
+    const arr = (e.images || []).slice();
+    const from = arr.findIndex(im => im.id === _dragId);
+    if (from === -1) return;
+    const moved = arr.splice(from, 1)[0];
+    const to = arr.findIndex(im => im.id === targetId);
+    arr.splice(to < 0 ? arr.length : to, 0, moved);
+    e.images = arr;
+    _dragId = null;
+    refresh();
+    try {
+      setStatus("Saving order…");
+      const res = await WaveBaseAuth.authFetch(`/${slug}/${e.id}/images/order`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ order: arr.map(im => im.id) }),
+      });
+      if (!res.ok) throw new Error("Couldn't save the new order.");
+      setStatus("Order saved ✓");
+    } catch (err) {
+      setStatus(err.message || "Reorder failed.", true);
+    }
+  });
+
+  /* ---- crop tool: stores a region (non-destructive), Cloudinary applies it ---- */
+  async function saveCrop(im, crop) {
+    try {
+      setStatus("Saving crop…");
+      const res = await WaveBaseAuth.authFetch(`/${slug}/${e.id}/images/${im.id}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ crop: crop }),
+      });
+      if (!res.ok) throw new Error("Couldn't save the crop.");
+      im.crop = crop || undefined;
+      refresh();
+      setStatus(crop ? "Crop saved ✓" : "Crop cleared ✓");
+    } catch (err) {
+      setStatus(err.message || "Crop failed.", true);
+    }
+  }
+
+  async function openCropModal(im) {
+    setStatus("Loading crop tool…");
+    const ok = await _loadCropper();
+    if (!ok || !window.Cropper) { setStatus("Couldn't load the crop tool (offline?). Try again.", true); return; }
+    setStatus("");
+    const modal = document.createElement("div");
+    modal.className = "aimg-crop-modal";
+    modal.innerHTML =
+      `<div class="aimg-crop-box">
+        <div class="aimg-crop-stage"><img alt="crop"></div>
+        <div class="aimg-crop-actions">
+          <span class="aimg-crop-hint">Drag the box to frame the photo</span>
+          <button class="aimg-crop-cancel">Cancel</button>
+          <button class="aimg-crop-clear">Clear crop</button>
+          <button class="aimg-crop-save">Save crop</button>
+        </div>
+      </div>`;
+    document.body.appendChild(modal);
+    document.body.style.overflow = "hidden";
+    const imgEl = modal.querySelector("img");
+    let cropper = null;
+    const closeModal = function () { if (cropper) cropper.destroy(); modal.remove(); document.body.style.overflow = ""; };
+    // Restore an existing crop once Cropper is ready.
+    imgEl.addEventListener("ready", function () {
+      if (im.crop && im.crop.w) cropper.setData({ x: im.crop.x, y: im.crop.y, width: im.crop.w, height: im.crop.h });
+    });
+    // Original, untransformed image → Cropper measures natural pixels (matches c_crop).
+    imgEl.src = im.url;
+    imgEl.onload = function () {
+      cropper = new Cropper(imgEl, { viewMode: 1, autoCropArea: 1, background: false, zoomable: false });
+    };
+    modal.querySelector(".aimg-crop-cancel").addEventListener("click", closeModal);
+    modal.querySelector(".aimg-crop-clear").addEventListener("click", async () => { await saveCrop(im, null); closeModal(); });
+    modal.querySelector(".aimg-crop-save").addEventListener("click", async () => {
+      if (!cropper) { closeModal(); return; }
+      const d = cropper.getData(true);
+      const crop = { x: Math.max(0, d.x | 0), y: Math.max(0, d.y | 0), w: d.width | 0, h: d.height | 0 };
+      closeModal();
+      if (crop.w > 0 && crop.h > 0) await saveCrop(im, crop);
+    });
+    modal.addEventListener("click", (ev) => { if (ev.target === modal) closeModal(); });
+  }
 }
 
 function initSpot() {
@@ -5054,9 +5284,7 @@ function initSpot() {
   const backHref = `index.html?country=${encodeURIComponent(entryCountry(e))}`;
   root.innerHTML = `
     <a class="backlink" href="${backHref}">&larr; Back to all places</a>
-    <div class="detail-photo ${e.type}${entryImg(e) ? " has-photo" : ""}"${entryImg(e) ? ` style="background-image:url('${entryImg(e)}')"` : ""}>
-      ${entryImg(e) ? "" : `<span class="photo-placeholder">Photo coming soon</span>`}
-    </div>
+    ${heroHTML(e)}
     ${(typeof WaveBaseAuth !== "undefined" && WaveBaseAuth.isAdmin && WaveBaseAuth.isAdmin()) ? adminImagePanel(e) : ""}
     <header class="detail-head">
       <div class="place">
@@ -5219,6 +5447,7 @@ function initSpot() {
     });
   }
 
+  wireHero(e, root);
   if (typeof WaveBaseAuth !== "undefined" && WaveBaseAuth.isAdmin && WaveBaseAuth.isAdmin()) {
     wireAdminImagePanel(e, root);
   }

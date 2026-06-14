@@ -3776,6 +3776,64 @@ body:not(.is-home) .searchbar-wrap { display: none; }
 .aimg-upload:hover .aimg-upload-btn { background: var(--sea); color: #fff; border-color: var(--sea); }
 .aimg-status { margin-top: 8px; font-size: 12px; color: var(--ink-soft); }
 .aimg-status.is-error { color: var(--clay); }
+
+/* ---- detail hero carousel ---- */
+.detail-photo { position: relative; overflow: hidden; }
+.dp-slide {
+  position: absolute; inset: 0;
+  background-size: cover; background-position: center;
+  opacity: 0; transition: opacity .6s ease;
+}
+.dp-slide.is-active { opacity: 1; }
+.detail-photo[data-carousel] { cursor: zoom-in; }
+.dp-arrow {
+  position: absolute; top: 50%; transform: translateY(-50%);
+  width: 40px; height: 40px; border-radius: 50%; border: none; cursor: pointer;
+  background: rgba(42,39,35,.45); color: #fff; font-size: 24px; line-height: 1;
+  display: flex; align-items: center; justify-content: center; z-index: 2; transition: background .2s;
+}
+.dp-arrow:hover { background: rgba(42,39,35,.75); }
+.dp-prev { left: 12px; } .dp-next { right: 12px; }
+.dp-dots { position: absolute; bottom: 12px; left: 0; right: 0; z-index: 2; display: flex; gap: 7px; justify-content: center; }
+.dp-dot { width: 8px; height: 8px; border-radius: 50%; border: none; cursor: pointer; padding: 0; background: rgba(255,255,255,.55); transition: transform .2s; }
+.dp-dot.is-active { background: #fff; transform: scale(1.3); }
+.dp-zoom {
+  position: absolute; top: 12px; right: 12px; z-index: 2;
+  width: 34px; height: 34px; border-radius: 9px; border: none; cursor: pointer;
+  background: rgba(42,39,35,.45); color: #fff; font-size: 16px;
+}
+.dp-zoom:hover { background: rgba(42,39,35,.75); }
+
+/* ---- lightbox ---- */
+.lightbox { position: fixed; inset: 0; z-index: 9999; background: rgba(20,18,15,.92); display: flex; align-items: center; justify-content: center; }
+.lb-img { max-width: 92vw; max-height: 88vh; border-radius: 8px; box-shadow: 0 20px 60px rgba(0,0,0,.5); }
+.lb-close, .lb-arrow { position: absolute; border: none; cursor: pointer; color: #fff; background: rgba(255,255,255,.12); border-radius: 50%; display: flex; align-items: center; justify-content: center; }
+.lb-close { top: 18px; right: 20px; width: 44px; height: 44px; font-size: 26px; }
+.lb-arrow { top: 50%; transform: translateY(-50%); width: 52px; height: 52px; font-size: 32px; }
+.lb-prev { left: 18px; } .lb-next { right: 18px; }
+.lb-close:hover, .lb-arrow:hover { background: rgba(255,255,255,.25); }
+.lb-count { position: absolute; bottom: 20px; left: 0; right: 0; text-align: center; color: rgba(255,255,255,.8); font-size: 13px; }
+
+/* ---- admin: crop button, drag state, crop modal ---- */
+.aimg-tag { top: 4px; bottom: auto; }   /* move 'shown' to top so Crop fits bottom-left */
+.aimg-thumb { cursor: grab; }
+.aimg-thumb.is-dragging { opacity: .4; }
+.aimg-crop {
+  position: absolute; left: 4px; bottom: 4px;
+  font-size: 10px; font-weight: 600; letter-spacing: .03em;
+  border: none; cursor: pointer; border-radius: 6px;
+  background: rgba(63,111,125,.92); color: #fff; padding: 2px 7px;
+}
+.aimg-crop:hover { background: var(--sea); }
+.aimg-crop-modal { position: fixed; inset: 0; z-index: 10000; background: rgba(20,18,15,.85); display: flex; align-items: center; justify-content: center; padding: 20px; }
+.aimg-crop-box { background: var(--paper); border-radius: 14px; padding: 14px; max-width: 92vw; max-height: 90vh; display: flex; flex-direction: column; gap: 12px; }
+.aimg-crop-stage { max-width: 80vw; max-height: 68vh; overflow: hidden; }
+.aimg-crop-stage img { max-width: 100%; display: block; }
+.aimg-crop-actions { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+.aimg-crop-hint { font-size: 12px; color: var(--ink-soft); margin-right: auto; }
+.aimg-crop-actions button { border: 1px solid var(--sand-deep); background: var(--cream); cursor: pointer; border-radius: 999px; padding: 7px 14px; font-size: 13px; font-weight: 600; color: var(--ink); }
+.aimg-crop-save { background: var(--sea); color: #fff; border-color: var(--sea); }
+.aimg-crop-clear { color: var(--clay); }
 .photo-placeholder {
   font-size: 12px; letter-spacing: 0.1em; text-transform: uppercase;
   color: rgba(255,255,255,0.9);
