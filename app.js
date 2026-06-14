@@ -2257,24 +2257,28 @@ function searchScore(e, q) {
   const prose = [e.tagline, ...(e.samenvatting || []), ...(e.verhaal || []), layerText]
     .join(" ").toLowerCase();
 
-  // 1. Whole-query hits on identity fields, best quality first.
+  const qWords = ql.split(/\s+/).filter(Boolean);
+  const multi  = qWords.length > 1;
+
+  // 1. Whole-query hits on identity fields, best quality first. For a
+  //    multi-word query, "all words present in the name" slots in just under
+  //    a clean name-prefix so the spot itself ("Praia do Norte") tops places
+  //    that merely mention it ("praia norte" → not Nazaré Surf School).
   if (name === ql) return 1000;
   if (name.startsWith(ql)) return 900;
+  if (multi && qWords.every(w => name.includes(w))) return 850;
   if (name.includes(ql)) return 800;
   if (town.startsWith(ql)) return 700;
   if (town.includes(ql)) return 650;
   if (country.startsWith(ql)) return 600;
   if (country.includes(ql)) return 550;
+  if (multi && qWords.every(w => (name + " " + town + " " + country).includes(w))) return 520;
 
   // 2. Any identity WORD starting with the query ("bea" → "Banana Beach").
   if (idWords.some(w => w.startsWith(ql))) return 500;
 
-  // 3. Multi-word query where every word appears somewhere ("praia norte").
-  const qWords = ql.split(/\s+/).filter(Boolean);
-  if (qWords.length > 1) {
-    const full = name + " " + town + " " + country + " " + prose;
-    if (qWords.every(w => full.includes(w))) return 300;
-  }
+  // 3. Multi-word query where every word appears somewhere (incl. prose).
+  if (multi && qWords.every(w => (name + " " + town + " " + country + " " + prose).includes(w))) return 300;
 
   // 4. Exact substring anywhere in the prose (tagline / summary / story / layers).
   if (prose.includes(ql)) return 200;
