@@ -2236,33 +2236,64 @@ function escHTML(s) {
    falls back to a per-word fuzzy compare using Levenshtein distance so
    typos still match ("kremeenos" → "kouremenos", "tagazout" →
    "taghazout", etc.). */
-function searchMatch(e, q) {
+// Relevance score for a query against an entry. Higher = better; 0 = no
+// match. Identity fields (name / town / country) dominate, so a name-prefix
+// hit ("kou" → "Kouremenos") always beats a stray word in the description —
+// and typo-tolerance is limited to those identity fields. (Fuzzy-matching
+// the full prose turned "kou" into "you" and surfaced every spot whose
+// description contained "you".) Callers sort by this; searchMatch just asks
+// "score > 0?".
+function searchScore(e, q) {
   const ql = String(q || "").toLowerCase().trim();
-  if (!ql) return true;
-  const layerText = (e.lagen || []).map(l => l.titel + " " + (l.inhoud || []).map(b => b.kop + " " + b.tekst).join(" ")).join(" ");
-  const haystack = [
-    e.name, e.town, entryCountry(e), e.tagline,
-    ...(e.samenvatting || []),
-    ...(e.verhaal || []),
-    layerText
-  ].join(" ").toLowerCase();
-  if (haystack.includes(ql)) return true;
-  // Spelling tolerance: split the query into words ≥3 chars and check
-  // each against every haystack word ≥3 chars within an edit-distance
-  // budget proportional to length (≤4 → 1 typo, ≤7 → 2, else 3). A
-  // single tolerated query word is enough to match.
-  const qWords = ql.split(/\s+/).filter(w => w.length >= 3);
-  if (!qWords.length) return false;
-  const hayWords = haystack.split(/[^a-zà-ÿ0-9]+/i).filter(w => w.length >= 3);
-  for (const qw of qWords) {
+  if (!ql) return 0;
+  const name    = (e.name || "").toLowerCase();
+  const town    = (e.town || "").toLowerCase();
+  const country = (entryCountry(e) || "").toLowerCase();
+  const idWords = (name + " " + town + " " + country)
+    .split(/[^a-zà-ÿ0-9]+/i).filter(w => w.length >= 2);
+  const layerText = (e.lagen || [])
+    .map(l => (l.titel || "") + " " + (l.inhoud || []).map(b => (b.kop || "") + " " + (b.tekst || "")).join(" "))
+    .join(" ");
+  const prose = [e.tagline, ...(e.samenvatting || []), ...(e.verhaal || []), layerText]
+    .join(" ").toLowerCase();
+
+  // 1. Whole-query hits on identity fields, best quality first.
+  if (name === ql) return 1000;
+  if (name.startsWith(ql)) return 900;
+  if (name.includes(ql)) return 800;
+  if (town.startsWith(ql)) return 700;
+  if (town.includes(ql)) return 650;
+  if (country.startsWith(ql)) return 600;
+  if (country.includes(ql)) return 550;
+
+  // 2. Any identity WORD starting with the query ("bea" → "Banana Beach").
+  if (idWords.some(w => w.startsWith(ql))) return 500;
+
+  // 3. Multi-word query where every word appears somewhere ("praia norte").
+  const qWords = ql.split(/\s+/).filter(Boolean);
+  if (qWords.length > 1) {
+    const full = name + " " + town + " " + country + " " + prose;
+    if (qWords.every(w => full.includes(w))) return 300;
+  }
+
+  // 4. Exact substring anywhere in the prose (tagline / summary / story / layers).
+  if (prose.includes(ql)) return 200;
+
+  // 5. Typo tolerance — identity words ONLY (never the prose, see above).
+  for (const qw of qWords.filter(w => w.length >= 3)) {
     const budget = qw.length <= 4 ? 1 : qw.length <= 7 ? 2 : 3;
-    for (const hw of hayWords) {
-      // Length-prefilter: words too different in length can't match.
-      if (Math.abs(hw.length - qw.length) > budget) continue;
-      if (levenshtein(qw, hw) <= budget) return true;
+    for (const hw of idWords) {
+      if (hw.length >= 3 && Math.abs(hw.length - qw.length) <= budget && levenshtein(qw, hw) <= budget) {
+        return 100;
+      }
     }
   }
-  return false;
+  return 0;
+}
+
+function searchMatch(e, q) {
+  if (!String(q || "").trim()) return true;   // empty query = everything (unchanged)
+  return searchScore(e, q) > 0;
 }
 // Render the live suggestions dropdown under the home searchbar. Pure
 // JS, no full page render — keeps iOS focus + keyboard alive while the
@@ -2277,8 +2308,11 @@ function updateSearchSuggestions(rawQ) {
   list.dataset.navigated = "0";
   if (!q) { list.hidden = true; list.innerHTML = ""; return; }
   const matches = (typeof WAVEBASE_DATA !== "undefined" ? WAVEBASE_DATA : [])
-    .filter(e => searchMatch(e, q))
-    .slice(0, 8);
+    .map(e => ({ e, s: searchScore(e, q) }))
+    .filter(x => x.s > 0)
+    .sort((a, b) => b.s - a.s || (a.e.name || "").localeCompare(b.e.name || ""))
+    .slice(0, 8)
+    .map(x => x.e);
   if (!matches.length) {
     list.innerHTML = `<div class="search-suggestion-empty muted">No match — try a different spelling or a broader term.</div>`;
     list.hidden = false;
