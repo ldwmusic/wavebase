@@ -679,7 +679,13 @@ function crowdLabel(n) {
     druk: "Busy", hoog: "Busy",
   })[n] || n;
 }
-function thumbStyle(e) { return e.photo ? ` style="background-image:url('${e.photo}')"` : ""; }
+/* The display image for an entry: first uploaded Cloudinary image, with
+   the retired `photo` field kept only as a defensive fallback. */
+function entryImg(e) {
+  if (e && e.images && e.images[0] && e.images[0].url) return e.images[0].url;
+  return (e && e.photo) ? e.photo : "";
+}
+function thumbStyle(e) { const u = entryImg(e); return u ? ` style="background-image:url('${u}')"` : ""; }
 
 /* ---- nav: account label + compare count ---- */
 function updateNav() {
@@ -1895,7 +1901,7 @@ function cardHTML(e, distKm, opts) {
   }
   return `
   <article class="card" data-href="${spotHref(e.id)}">
-    <div class="thumb ${e.type}${e.photo ? " has-photo" : ""}"${thumbStyle(e)}>
+    <div class="thumb ${e.type}${entryImg(e) ? " has-photo" : ""}"${thumbStyle(e)}>
       <span class="badge">${typeBadge(e.type)}</span>
       ${seasonChip}
       ${e.type === "stay" ? "" : sportIconsHTML(entrySports(e))}
@@ -4899,6 +4905,130 @@ function tripViewLinkHTML(entryId) {
 
    Editing copy on spot pages? Most prose comes from `data.js` (per-entry
    `verhaal`, `samenvatting`, `lagen` fields), NOT from this function. */
+/* ---- Admin-only image manager on the detail page ----------------------
+   Browser → Cloudinary direct: ask the API for a signed upload, send the
+   file straight to Cloudinary, then record the { public_id, url } on the
+   entry. The first image is what the public sees (the hero + cards).
+   Only rendered when WaveBaseAuth.isAdmin() — the API enforces the real
+   gate (require_admin_role), so a non-admin who forces the UI just gets
+   403s. --------------------------------------------------------------- */
+const _ENTITY_SLUG = { spot: "surf-spots", center: "centers", stay: "stays" };
+
+function _adminImgThumbs(e) {
+  return (e.images || []).map((im, i) => `
+    <div class="aimg-thumb${i === 0 ? " is-primary" : ""}" style="background-image:url('${im.url}')">
+      ${i === 0 ? `<span class="aimg-tag">shown</span>` : ""}
+      <button class="aimg-del" data-del-img="${im.id}" title="Delete image" aria-label="Delete image">&times;</button>
+    </div>`).join("");
+}
+
+function adminImagePanel(e) {
+  return `
+    <div class="aimg-panel" data-entity="${e.type}" data-id="${e.id}">
+      <div class="aimg-head">Admin · photos <span class="aimg-hint">first photo is shown publicly · drag not yet — delete to reorder</span></div>
+      <div class="aimg-list">${_adminImgThumbs(e)}</div>
+      <label class="aimg-upload">
+        <input type="file" accept="image/jpeg,image/png,image/webp" hidden>
+        <span class="aimg-upload-btn">+ Upload photo</span>
+      </label>
+      <div class="aimg-status" role="status" hidden></div>
+    </div>`;
+}
+
+function wireAdminImagePanel(e, root) {
+  const panel = root.querySelector(".aimg-panel");
+  if (!panel) return;
+  const slug = _ENTITY_SLUG[e.type];
+  if (!slug) return;
+  const listEl   = panel.querySelector(".aimg-list");
+  const statusEl = panel.querySelector(".aimg-status");
+  const fileEl   = panel.querySelector('input[type="file"]');
+
+  function setStatus(msg, isErr) {
+    if (!msg) { statusEl.hidden = true; statusEl.textContent = ""; return; }
+    statusEl.hidden = false;
+    statusEl.textContent = msg;
+    statusEl.classList.toggle("is-error", !!isErr);
+  }
+
+  function refresh() {
+    listEl.innerHTML = _adminImgThumbs(e);
+    // Keep the public hero in sync with image[0].
+    const hero = root.querySelector(".detail-photo");
+    if (hero) {
+      const u = entryImg(e);
+      if (u) {
+        hero.classList.add("has-photo");
+        hero.style.backgroundImage = `url('${u}')`;
+        const ph = hero.querySelector(".photo-placeholder");
+        if (ph) ph.remove();
+      } else {
+        hero.classList.remove("has-photo");
+        hero.style.backgroundImage = "";
+        if (!hero.querySelector(".photo-placeholder")) {
+          hero.innerHTML = '<span class="photo-placeholder">Photo coming soon</span>';
+        }
+      }
+    }
+  }
+
+  fileEl.addEventListener("change", async () => {
+    const file = fileEl.files && fileEl.files[0];
+    if (!file) return;
+    if (file.size > 10 * 1024 * 1024) { setStatus("That file is over 10 MB — pick a smaller one.", true); fileEl.value = ""; return; }
+    try {
+      setStatus("Uploading…");
+      // 1. signed params from our API (secret stays server-side)
+      const sigRes = await WaveBaseAuth.authFetch(`/${slug}/images/signature`, { method: "POST" });
+      if (!sigRes.ok) throw new Error("Couldn't get an upload signature.");
+      const sig = await sigRes.json();
+      // 2. upload straight to Cloudinary
+      const fd = new FormData();
+      fd.append("file", file);
+      fd.append("api_key", sig.api_key);
+      fd.append("timestamp", sig.timestamp);
+      fd.append("folder", sig.folder);
+      fd.append("signature", sig.signature);
+      const upRes = await fetch(`https://api.cloudinary.com/v1_1/${sig.cloud_name}/image/upload`, { method: "POST", body: fd });
+      const up = await upRes.json();
+      if (!up.public_id || !up.secure_url) throw new Error((up.error && up.error.message) || "Cloudinary upload failed.");
+      // 3. record it on the entry
+      const addRes = await WaveBaseAuth.authFetch(`/${slug}/${e.id}/images`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ public_id: up.public_id, url: up.secure_url }),
+      });
+      const added = await addRes.json();
+      if (!addRes.ok) throw new Error(added.detail || "Couldn't save the image.");
+      e.images = e.images || [];
+      e.images.push(added);
+      fileEl.value = "";
+      refresh();
+      setStatus("Photo added ✓");
+    } catch (err) {
+      setStatus(err.message || "Upload failed.", true);
+      fileEl.value = "";
+    }
+  });
+
+  listEl.addEventListener("click", async (ev) => {
+    const btn = ev.target.closest("[data-del-img]");
+    if (!btn) return;
+    const imgId = btn.getAttribute("data-del-img");
+    if (!confirm("Delete this photo? This removes it from Cloudinary too.")) return;
+    try {
+      setStatus("Deleting…");
+      const res = await WaveBaseAuth.authFetch(`/${slug}/${e.id}/images/${imgId}`, { method: "DELETE" });
+      if (!res.ok) throw new Error("Couldn't delete the image.");
+      e.images = (e.images || []).filter(im => im.id !== imgId);
+      refresh();
+      setStatus("Photo deleted ✓");
+    } catch (err) {
+      setStatus(err.message || "Delete failed.", true);
+    }
+  });
+}
+
 function initSpot() {
   const root = document.getElementById("detail-root");
   const id = new URLSearchParams(window.location.search).get("id");
@@ -4924,9 +5054,10 @@ function initSpot() {
   const backHref = `index.html?country=${encodeURIComponent(entryCountry(e))}`;
   root.innerHTML = `
     <a class="backlink" href="${backHref}">&larr; Back to all places</a>
-    <div class="detail-photo ${e.type}${e.photo ? " has-photo" : ""}"${e.photo ? ` style="background-image:url('${e.photo}')"` : ""}>
-      ${e.photo ? "" : `<span class="photo-placeholder">Photo coming soon</span>`}
+    <div class="detail-photo ${e.type}${entryImg(e) ? " has-photo" : ""}"${entryImg(e) ? ` style="background-image:url('${entryImg(e)}')"` : ""}>
+      ${entryImg(e) ? "" : `<span class="photo-placeholder">Photo coming soon</span>`}
     </div>
+    ${(typeof WaveBaseAuth !== "undefined" && WaveBaseAuth.isAdmin && WaveBaseAuth.isAdmin()) ? adminImagePanel(e) : ""}
     <header class="detail-head">
       <div class="place">
         <a class="head-chip" href="index.html?type=${e.type}">${typeLabel(e.type)}</a>
@@ -5086,6 +5217,10 @@ function initSpot() {
       st.matchedOnly = matchedCb.checked;
       _refreshSpotReviews(e.id);
     });
+  }
+
+  if (typeof WaveBaseAuth !== "undefined" && WaveBaseAuth.isAdmin && WaveBaseAuth.isAdmin()) {
+    wireAdminImagePanel(e, root);
   }
 
   document.getElementById("save-toggle").addEventListener("click", function () {
@@ -9028,7 +9163,7 @@ function renderCompare() {
     const pts = compareKeyPoints(e).map(([k, v]) =>
       v ? `<div class="cmp-row"><span class="cmp-k">${k}</span><span class="cmp-v">${v}</span></div>` : "").join("");
     return `<div class="cmp-col">
-      <div class="thumb ${e.type}${e.photo ? " has-photo" : ""}"${thumbStyle(e)}>
+      <div class="thumb ${e.type}${entryImg(e) ? " has-photo" : ""}"${thumbStyle(e)}>
         <span class="badge">${typeBadge(e.type)}</span>
         <button class="cmp-remove" data-uncompare="${e.id}" aria-label="Remove from compare" title="Remove from compare">×</button>
         ${e.type === "stay" ? "" : sportIconsHTML(entrySports(e))}

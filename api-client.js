@@ -122,6 +122,7 @@ function _apiToFrontendSpot(api, slugByName) {
     googleMapsQuery: api.google_maps_query,
     coordsLabel:    api.coords_label,
     photo:           api.photo || "",
+    images:          api.images || [],   // Cloudinary uploads; frontend shows images[0]
     samenvatting:    api.summary || [],
     verhaal:         api.story || [],
     lagen:           (api.layers || []).map(_apiToFrontendLayer),
@@ -152,6 +153,7 @@ function _apiToFrontendCenter(api, slugByName, slugByApiId) {
     googleMapsQuery: api.google_maps_query,
     coordsLabel:    api.coords_label,
     photo:           api.photo || "",
+    images:          api.images || [],   // Cloudinary uploads; frontend shows images[0]
     linkedSpotId:    api.linked_spot_id ? (slugByApiId[api.linked_spot_id] || api.linked_spot_id) : undefined,
     bookingUrl:      api.booking_url,
     diensten: d ? {
@@ -202,6 +204,7 @@ function _apiToFrontendStay(api, slugByName, slugByApiId) {
     googleMapsQuery: api.google_maps_query,
     coordsLabel:    api.coords_label,
     photo:           api.photo || "",
+    images:          api.images || [],   // Cloudinary uploads; frontend shows images[0]
     linkedSpotId:    api.linked_spot_id ? (slugByApiId[api.linked_spot_id] || api.linked_spot_id) : undefined,
     bookingUrl:      api.booking_url,
     verblijf: v ? {

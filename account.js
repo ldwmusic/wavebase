@@ -975,6 +975,17 @@ const WaveBaseAuth = (function () {
     return getCachedUser();
   }
 
+  /* ---- is the signed-in user an admin? Cosmetic only — the real gate
+          is the API's require_admin_role (non-admins get 403). Used to
+          decide whether to show admin-only UI like the image uploader.
+          Same allowlist as ADMIN_EMAILS_LC / admin.js. ---- */
+  function isAdmin() {
+    const u = getCachedUser();
+    if (!u || !u.email) return false;
+    return ["lode.b162@gmail.com", "michiel.decooman@gmail.com"]
+      .indexOf(u.email.toLowerCase()) !== -1;
+  }
+
   /* ---- authenticated fetch wrapper. Use for any call that needs
           the Authorization: Bearer header. On 401 it auto-logs out
           and dispatches auth-changed so the UI returns to the
@@ -1093,6 +1104,7 @@ const WaveBaseAuth = (function () {
     logout: logout,
     isLoggedIn: isLoggedIn,
     currentUser: currentUser,
+    isAdmin: isAdmin,
     fetchMe: fetchMe,
     updateProfile: updateProfile,
     deleteAccount: deleteAccount,
