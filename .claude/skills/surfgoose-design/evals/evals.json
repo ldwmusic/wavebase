@@ -1,0 +1,35 @@
+{
+  "skill_name": "surfgoose-design",
+  "evals": [
+    {
+      "id": 0,
+      "name": "teaser-card",
+      "prompt": "Voeg op de SurfGoose lab-homepage (lab/index.html) een kleine teaser-sectie toe voor een komend experiment: 'Lab 04 — Night Surf'. Het moet stilistisch kloppen bij de rest van de pagina, een link naar deck.html bevatten, en de echte (productie)site mag absoluut niet geraakt worden.",
+      "expected_output": "A teaser section added to lab/index.html (+ lab.css if needed) using SurfGoose brand tokens, reveal animation conventions, goose presence; only lab/ files touched; ?v bumped if lab.css changed.",
+      "files": [],
+      "assertions": [
+        "Only files under lab/ were created or modified — the production site is untouched",
+        "The new section uses existing SurfGoose brand tokens/classes (cream/paper/ink/sea/clay/amber/beak vars or existing card classes) — no foreign palette or fonts",
+        "The teaser links to deck.html",
+        "The section participates in the page's reveal/animation conventions (e.g. reveal class) instead of appearing unstyled/static",
+        "If lab.css was modified, its ?v= cache-bust parameter was bumped in the HTML that references it"
+      ]
+    },
+    {
+      "id": 1,
+      "name": "storm-page",
+      "prompt": "Maak een nieuwe experimentpagina lab/storm.html voor SurfGoose: een klein, op zichzelf staand experiment waar de gans door een storm vliegt. Het moet bij de huisstijl passen, gedeeld kunnen worden met Michiel, en ook netjes werken als animaties of CDN's niet beschikbaar zijn.",
+      "expected_output": "A standalone lab/storm.html (+css/js) in a coherent SurfGoose register, reusing goose assets, with noindex+OG tags, reduced-motion/CDN fallbacks, failsafe timers, self-hosted fonts, cache-busted refs.",
+      "files": [],
+      "assertions": [
+        "All new files live under lab/ — production untouched",
+        "Page has a noindex robots meta tag (experiments must not be indexed)",
+        "Page has OG tags (og:title/og:description/og:image) so the WhatsApp share preview works",
+        "Page honors prefers-reduced-motion AND degrades gracefully when CDN libraries fail (guard like typeof gsap checks, static fallback or failsafe)",
+        "The existing goose asset is reused (goose.svg / inline goose paths) rather than a new mascot being invented",
+        "Fonts are self-hosted (/fonts/ or lab woff2) — no Google Fonts CDN <link>",
+        "Styling stays in one coherent SurfGoose register (editorial cream/ink/sea, glass night, or holo) using the documented palette values"
+      ]
+    }
+  ]
+}

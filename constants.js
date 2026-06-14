@@ -24,7 +24,13 @@ const WAVEBASE_MONTHS = ["", "Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "A
    blanked or the GIS script is blocked.
    The SAME id must be set as GOOGLE_OAUTH_CLIENT_ID on the API (Render)
    so the backend accepts the tokens this id produces. */
-const WAVEBASE_GOOGLE_CLIENT_ID = "962579470282-hb47tofas3lhrhi61bhtf8ndc5jo797m.apps.googleusercontent.com";
+// TEMPORARILY DISABLED 2026-06-14: the Google account that owns this OAuth
+// client was suspended → Google returns "401 disabled_client" and the button
+// dead-ends on Google's own error page. Blanking the id makes account.js
+// remove the button cleanly (email/password login keeps working). To re-enable:
+// recover the Google account (or create a new OAuth client) and restore the id.
+// const WAVEBASE_GOOGLE_CLIENT_ID = "962579470282-hb47tofas3lhrhi61bhtf8ndc5jo797m.apps.googleusercontent.com";
+const WAVEBASE_GOOGLE_CLIENT_ID = "";
 
 const WAVEBASE_DESTINATIONS = [
   {
