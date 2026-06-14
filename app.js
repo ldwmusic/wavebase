@@ -5049,6 +5049,66 @@ function _loadCropper() {
   return _cropperLoading;
 }
 
+/* ---- "Videos from surfers": curated TikTok embeds (test: Praia do Norte) -
+   Privacy-first CLICK-TO-LOAD: we render a styled card and only inject
+   TikTok's embed (iframe + embed.js) after the visitor clicks — so TikTok
+   loads nothing for people who don't opt in. Keyed by spot NAME so it's
+   robust to id changes. All four URLs were oEmbed-verified as public +
+   embeddable (Jun 2026). To extend to more spots later this becomes a
+   DB `videos` field + admin paste-URL (full Idea A). */
+const SPOT_VIDEOS = {
+  "Praia do Norte": [
+    { url: "https://www.tiktok.com/@nicvonrupp/video/7612410494321724704",       author: "@nicvonrupp",       title: "Why Nazaré has the biggest waves in the world" },
+    { url: "https://www.tiktok.com/@gigantesdenazare/video/7354721669413489925", author: "@gigantesdenazare", title: "Sebastian Steudtner on a Nazaré giant" },
+    { url: "https://www.tiktok.com/@gigantesdenazare/video/7513685699242249478", author: "@gigantesdenazare", title: "A day with 20m+ waves at Nazaré" },
+    { url: "https://www.tiktok.com/@nicvonrupp/video/7562563883592994081",       author: "@nicvonrupp",       title: "Nazaré — truly insane" },
+  ],
+};
+
+function _videoId(url) { const m = (url || "").match(/\/video\/(\d+)/); return m ? m[1] : ""; }
+
+function videosSectionHTML(e) {
+  const vids = SPOT_VIDEOS[e && e.name];
+  if (!vids || !vids.length) return "";
+  const cards = vids.map((v, i) => `
+    <button class="vid-card" type="button" data-video-load="${i}">
+      <span class="vid-play" aria-hidden="true">▶</span>
+      <span class="vid-meta"><span class="vid-author">${v.author}</span><span class="vid-title">${v.title}</span></span>
+      <span class="vid-tt">TikTok</span>
+    </button>`).join("");
+  return `
+    <section class="videos-section">
+      <h2>Videos from surfers</h2>
+      <p class="videos-sub">Real clips from this spot — tap to play. We only load TikTok when you click.</p>
+      <div class="videos-grid">${cards}</div>
+    </section>`;
+}
+
+function wireVideos(e, root) {
+  const sec = root.querySelector(".videos-section");
+  if (!sec) return;
+  const vids = SPOT_VIDEOS[e && e.name] || [];
+  sec.addEventListener("click", (ev) => {
+    const btn = ev.target.closest("[data-video-load]");
+    if (!btn) return;
+    const v = vids[parseInt(btn.getAttribute("data-video-load"), 10)];
+    if (!v) return;
+    const holder = document.createElement("div");
+    holder.className = "vid-embed";
+    holder.innerHTML =
+      `<blockquote class="tiktok-embed" cite="${v.url}" data-video-id="${_videoId(v.url)}" style="max-width:605px;min-width:280px;margin:0 auto;"><section></section></blockquote>`;
+    btn.replaceWith(holder);
+    // (Re)inject TikTok's embed script so it renders the new blockquote.
+    const old = document.getElementById("tiktok-embed-script");
+    if (old) old.remove();
+    const s = document.createElement("script");
+    s.id = "tiktok-embed-script";
+    s.src = "https://www.tiktok.com/embed.js";
+    s.async = true;
+    document.body.appendChild(s);
+  });
+}
+
 function _adminImgThumbs(e) {
   return (e.images || []).map((im, i) => `
     <div class="aimg-thumb${i === 0 ? " is-primary" : ""}" draggable="true" data-img="${im.id}" style="background-image:url('${cldUrl(im, { w: 300, h: 300 })}')">
@@ -5316,6 +5376,8 @@ function initSpot() {
     ${e.coords ? `<div class="detail-map" id="detail-map"></div>
       <p class="map-actions"><a href="${googleMapsHref(e)}" target="_blank" rel="noopener">Open in Google Maps ↗</a></p>` : ""}
 
+    ${videosSectionHTML(e)}
+
     ${statsPanelHTML(e)}
 
     <div class="kort">
@@ -5448,6 +5510,7 @@ function initSpot() {
   }
 
   wireHero(e, root);
+  wireVideos(e, root);
   if (typeof WaveBaseAuth !== "undefined" && WaveBaseAuth.isAdmin && WaveBaseAuth.isAdmin()) {
     wireAdminImagePanel(e, root);
   }

@@ -3834,6 +3834,26 @@ body:not(.is-home) .searchbar-wrap { display: none; }
 .aimg-crop-actions button { border: 1px solid var(--sand-deep); background: var(--cream); cursor: pointer; border-radius: 999px; padding: 7px 14px; font-size: 13px; font-weight: 600; color: var(--ink); }
 .aimg-crop-save { background: var(--sea); color: #fff; border-color: var(--sea); }
 .aimg-crop-clear { color: var(--clay); }
+
+/* ---- "Videos from surfers" (TikTok, click-to-load) ---- */
+.videos-section { margin: 22px 0; }
+.videos-sub { color: var(--ink-soft); font-size: 14px; margin: 2px 0 14px; }
+.videos-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; }
+@media (max-width: 640px) { .videos-grid { grid-template-columns: 1fr; } }
+.vid-card {
+  position: relative; display: flex; align-items: center; gap: 13px; text-align: left;
+  cursor: pointer; border: none; border-radius: 14px; padding: 16px 16px 16px 15px;
+  color: #fff; min-height: 92px; box-shadow: var(--shadow-sm);
+  background: linear-gradient(150deg, #3f6f7d, #2a4d57);
+  transition: filter .15s, transform .15s;
+}
+.vid-card:hover { filter: brightness(1.07); transform: translateY(-1px); }
+.vid-play { flex: none; width: 42px; height: 42px; border-radius: 50%; background: rgba(255,255,255,.18); display: flex; align-items: center; justify-content: center; font-size: 15px; padding-left: 3px; }
+.vid-meta { display: flex; flex-direction: column; gap: 3px; min-width: 0; }
+.vid-author { font-weight: 700; font-size: 13px; }
+.vid-title { font-size: 13px; opacity: .92; line-height: 1.32; }
+.vid-tt { position: absolute; top: 11px; right: 13px; font-size: 10px; letter-spacing: .08em; text-transform: uppercase; opacity: .7; }
+.vid-embed { display: flex; justify-content: center; align-items: flex-start; min-height: 92px; }
 .photo-placeholder {
   font-size: 12px; letter-spacing: 0.1em; text-transform: uppercase;
   color: rgba(255,255,255,0.9);
