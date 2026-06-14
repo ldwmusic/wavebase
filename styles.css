@@ -3857,6 +3857,29 @@ body:not(.is-home) .searchbar-wrap { display: none; }
 .vid-card.is-yt { background: linear-gradient(150deg, #8a4242, #582a2a); }
 .vid-embed-yt { width: 100%; }
 .vid-embed-yt iframe { width: 100%; max-width: 420px; aspect-ratio: 9 / 16; border: 0; border-radius: 14px; box-shadow: var(--shadow-sm); }
+
+/* Admin video panel — paste-URL add, delete, drag-reorder (mirrors .aimg-panel) */
+.avid-panel { margin: 16px 0 0; padding: 12px 14px; border: 1px dashed var(--sand-deep); border-radius: 14px; background: var(--paper); }
+.avid-head { font-size: 12px; font-weight: 600; letter-spacing: 0.04em; text-transform: uppercase; color: var(--sea); margin-bottom: 10px; }
+.avid-hint { display: block; margin-top: 2px; font-weight: 400; text-transform: none; letter-spacing: 0; font-size: 11px; color: var(--ink-soft); }
+.avid-list { display: flex; flex-direction: column; gap: 7px; margin-bottom: 12px; }
+.avid-row { display: flex; align-items: center; gap: 10px; padding: 8px 10px; border-radius: 10px; background: var(--sand); box-shadow: var(--shadow-sm); cursor: grab; }
+.avid-row.is-dragging { opacity: 0.5; }
+.avid-grip { flex: none; color: var(--ink-soft); opacity: 0.5; font-size: 13px; line-height: 1; letter-spacing: -3px; }
+.avid-srctag { flex: none; font-size: 10px; font-weight: 700; letter-spacing: 0.06em; text-transform: uppercase; padding: 3px 8px; border-radius: 999px; background: #2a4d57; color: #fff; }
+.avid-srctag.is-yt { background: #582a2a; }
+.avid-rowmeta { display: flex; flex-direction: column; gap: 1px; min-width: 0; flex: 1; }
+.avid-rowauthor { font-weight: 700; font-size: 12px; color: var(--ink); }
+.avid-rowtitle { font-size: 12px; color: var(--ink-soft); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.avid-del { flex: none; width: 24px; height: 24px; border-radius: 50%; border: none; cursor: pointer; background: var(--ink); color: #fff; font-size: 15px; line-height: 1; display: flex; align-items: center; justify-content: center; }
+.avid-del:hover { background: var(--clay); }
+.avid-add { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
+.avid-in { flex: 1 1 170px; min-width: 0; padding: 8px 11px; border: 1px solid var(--sand-deep); border-radius: 9px; font: inherit; font-size: 13px; background: #fff; color: var(--ink); }
+.avid-url { flex-basis: 100%; }
+.avid-add-btn { flex: none; padding: 8px 15px; border: 1px solid var(--sea-soft); border-radius: 999px; background: var(--sea-soft); color: var(--sea); font: inherit; font-size: 13px; font-weight: 600; cursor: pointer; }
+.avid-add-btn:hover { background: var(--sea); color: #fff; border-color: var(--sea); }
+.avid-status { margin-top: 9px; font-size: 12px; color: var(--ink-soft); }
+.avid-status.is-error { color: var(--clay); }
 .photo-placeholder {
   font-size: 12px; letter-spacing: 0.1em; text-transform: uppercase;
   color: rgba(255,255,255,0.9);

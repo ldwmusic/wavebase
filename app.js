@@ -5049,58 +5049,59 @@ function _loadCropper() {
   return _cropperLoading;
 }
 
-/* ---- "Videos from surfers": curated TikTok + YouTube Shorts (test: Praia do
-   Norte) — SOURCE-AGNOSTIC: the kind (tiktok | youtube) is auto-detected from
-   the URL, so a later admin paste-URL field can accept either with no extra UI.
-   Privacy-first CLICK-TO-LOAD: we render a styled card and only inject the
-   player after the visitor clicks — TikTok loads nothing, and YouTube uses the
-   youtube-nocookie domain, for people who don't opt in. Keyed by spot NAME so
-   it's robust to id changes. All URLs were oEmbed-verified as public +
-   embeddable (Jun 2026). To extend to more spots later this becomes a DB
-   `videos` field + admin paste-URL (full Idea A). */
-const SPOT_VIDEOS = {
-  "Praia do Norte": [
-    { url: "https://www.tiktok.com/@nicvonrupp/video/7612410494321724704",       author: "@nicvonrupp",         title: "Why Nazaré has the biggest waves in the world" },
-    { url: "https://www.youtube.com/shorts/u6qWsM3OmYI",                          author: "SurferToday",          title: "Mason Barnes & the 100-foot wave at Nazaré" },
-    { url: "https://www.tiktok.com/@gigantesdenazare/video/7354721669413489925", author: "@gigantesdenazare",   title: "Sebastian Steudtner on a Nazaré giant" },
-    { url: "https://www.youtube.com/shorts/v50_8z0d4pE",                          author: "Big Wave Surf Channel", title: "Paddle wipeout at Praia do Norte — Juan Cruz Garcia" },
-    { url: "https://www.tiktok.com/@gigantesdenazare/video/7513685699242249478", author: "@gigantesdenazare",   title: "A day with 20m+ waves at Nazaré" },
-    { url: "https://www.youtube.com/shorts/t75qgNyjfic",                          author: "REIDS on the ROAD",   title: "Praia do Norte, Nazaré — the wave up close" },
-  ],
-};
+/* ---- "Videos from surfers": admin-curated TikTok + YouTube Shorts, stored on
+   the spot's DB `videos` field (manage them in the admin panel below, or via the
+   API). SOURCE-AGNOSTIC: the kind (tiktok | youtube) and the platform video-id
+   are auto-detected from each URL, so the admin paste-URL field and the API both
+   accept either with no extra UI. Privacy-first CLICK-TO-LOAD: a card renders
+   first and the player is injected only after the visitor clicks — TikTok loads
+   nothing, and YouTube uses the youtube-nocookie domain, for people who don't
+   opt in. Add a clip by pasting any public TikTok / YouTube (Short) URL. */
 
 function _videoKind(url) { return /(?:youtube\.com|youtu\.be)/.test(url || "") ? "youtube" : "tiktok"; }
 function _ttId(url) { const m = (url || "").match(/\/video\/(\d+)/); return m ? m[1] : ""; }
 function _ytId(url) { const m = (url || "").match(/(?:shorts\/|embed\/|v=|youtu\.be\/)([\w-]{6,})/); return m ? m[1] : ""; }
+function _escHtml(s) { return String(s == null ? "" : s).replace(/[&<>"']/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c])); }
 
-function videosSectionHTML(e) {
-  const vids = SPOT_VIDEOS[e && e.name];
-  if (!vids || !vids.length) return "";
-  const cards = vids.map((v, i) => {
+// One card per video — shared by the public grid and the admin refresh.
+function _videoCardsHTML(e) {
+  return (e.videos || []).map((v, i) => {
     const yt = _videoKind(v.url) === "youtube";
     return `
     <button class="vid-card${yt ? " is-yt" : ""}" type="button" data-video-load="${i}">
       <span class="vid-play" aria-hidden="true">▶</span>
-      <span class="vid-meta"><span class="vid-author">${v.author}</span><span class="vid-title">${v.title}</span></span>
+      <span class="vid-meta"><span class="vid-author">${_escHtml(v.author || "")}</span><span class="vid-title">${_escHtml(v.title || "")}</span></span>
       <span class="vid-tt">${yt ? "YouTube" : "TikTok"}</span>
     </button>`;
   }).join("");
+}
+
+function videosSectionHTML(e) {
+  if (!e || e.type !== "spot") return "";          // videos surface on spots only
+  const vids = e.videos || [];
+  const admin = (typeof WaveBaseAuth !== "undefined" && WaveBaseAuth.isAdmin && WaveBaseAuth.isAdmin());
+  if (!vids.length && !admin) return "";           // hide entirely if nothing to show
   return `
     <section class="videos-section">
       <h2>Videos from surfers</h2>
       <p class="videos-sub">Real clips from this spot — tap to play. We only load the player when you click.</p>
-      <div class="videos-grid">${cards}</div>
+      <div class="videos-grid">${_videoCardsHTML(e)}</div>
+      ${admin ? adminVideoPanel(e) : ""}
     </section>`;
 }
 
 function wireVideos(e, root) {
   const sec = root.querySelector(".videos-section");
   if (!sec) return;
-  const vids = SPOT_VIDEOS[e && e.name] || [];
-  sec.addEventListener("click", (ev) => {
+  const grid = sec.querySelector(".videos-grid");
+  if (!grid) return;
+  // Delegated on the grid (not the whole section) so the admin panel's own
+  // buttons never trip this. Reads e.videos LIVE so it stays correct after the
+  // admin adds / removes / reorders and the grid is re-rendered.
+  grid.addEventListener("click", (ev) => {
     const btn = ev.target.closest("[data-video-load]");
     if (!btn) return;
-    const v = vids[parseInt(btn.getAttribute("data-video-load"), 10)];
+    const v = (e.videos || [])[parseInt(btn.getAttribute("data-video-load"), 10)];
     if (!v) return;
     const holder = document.createElement("div");
     holder.className = "vid-embed";
@@ -5126,6 +5127,145 @@ function wireVideos(e, root) {
       s.src = "https://www.tiktok.com/embed.js";
       s.async = true;
       document.body.appendChild(s);
+    }
+  });
+}
+
+/* ---- Admin: manage a spot's videos (paste-URL add, delete, drag-reorder).
+   Mirrors the admin photo panel; the API enforces the real admin check. */
+function _adminVidRows(e) {
+  return (e.videos || []).map((v) => {
+    const yt = _videoKind(v.url) === "youtube";
+    return `
+    <div class="avid-row" draggable="true" data-vid="${v.id}">
+      <span class="avid-grip" aria-hidden="true">⋮⋮</span>
+      <span class="avid-srctag${yt ? " is-yt" : ""}">${yt ? "YouTube" : "TikTok"}</span>
+      <span class="avid-rowmeta"><span class="avid-rowauthor">${_escHtml(v.author || "")}</span><span class="avid-rowtitle">${_escHtml(v.title || v.url)}</span></span>
+      <button class="avid-del" data-del-vid="${v.id}" title="Remove video" aria-label="Remove video">&times;</button>
+    </div>`;
+  }).join("");
+}
+
+function adminVideoPanel(e) {
+  return `
+    <div class="avid-panel" data-id="${e.id}">
+      <div class="avid-head">Admin · videos <span class="avid-hint">paste a TikTok or YouTube link · drag to reorder</span></div>
+      <div class="avid-list">${_adminVidRows(e)}</div>
+      <div class="avid-add">
+        <input class="avid-in avid-url" type="url" placeholder="Paste TikTok or YouTube URL" autocomplete="off">
+        <input class="avid-in avid-author" type="text" placeholder="Author (optional, e.g. @handle)" autocomplete="off">
+        <input class="avid-in avid-title" type="text" placeholder="Caption (optional)" autocomplete="off">
+        <button class="avid-add-btn" type="button">+ Add video</button>
+      </div>
+      <div class="avid-status" role="status" hidden></div>
+    </div>`;
+}
+
+function wireAdminVideoPanel(e, root) {
+  const panel = root.querySelector(".avid-panel");
+  if (!panel) return;
+  const slug = _ENTITY_SLUG[e.type];
+  if (slug !== "surf-spots") return;               // videos are spot-only for now
+  const listEl   = panel.querySelector(".avid-list");
+  const statusEl = panel.querySelector(".avid-status");
+  const urlEl    = panel.querySelector(".avid-url");
+  const authorEl = panel.querySelector(".avid-author");
+  const titleEl  = panel.querySelector(".avid-title");
+  const addBtn   = panel.querySelector(".avid-add-btn");
+  const gridEl   = root.querySelector(".videos-grid");
+
+  function setStatus(msg, isErr) {
+    if (!msg) { statusEl.hidden = true; statusEl.textContent = ""; return; }
+    statusEl.hidden = false;
+    statusEl.textContent = msg;
+    statusEl.classList.toggle("is-error", !!isErr);
+  }
+  function refresh() {
+    listEl.innerHTML = _adminVidRows(e);
+    if (gridEl) gridEl.innerHTML = _videoCardsHTML(e);   // rebuild the public grid live
+  }
+
+  addBtn.addEventListener("click", async () => {
+    const url = (urlEl.value || "").trim();
+    if (!url) { setStatus("Paste a TikTok or YouTube URL first.", true); return; }
+    const valid = _videoKind(url) === "youtube" ? !!_ytId(url) : !!_ttId(url);
+    if (!valid) { setStatus("That doesn't look like a TikTok or YouTube video URL.", true); return; }
+    try {
+      setStatus("Adding…");
+      const res = await WaveBaseAuth.authFetch(`/${slug}/${e.id}/videos`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ url: url, author: (authorEl.value || "").trim() || null, title: (titleEl.value || "").trim() || null }),
+      });
+      const added = await res.json();
+      if (!res.ok) throw new Error(added.detail || "Couldn't add the video.");
+      e.videos = e.videos || [];
+      e.videos.push(added);
+      urlEl.value = authorEl.value = titleEl.value = "";
+      refresh();
+      setStatus("Video added ✓");
+    } catch (err) {
+      setStatus(err.message || "Add failed.", true);
+    }
+  });
+
+  listEl.addEventListener("click", async (ev) => {
+    const btn = ev.target.closest("[data-del-vid]");
+    if (!btn) return;
+    const vid = btn.getAttribute("data-del-vid");
+    if (!confirm("Remove this video from the spot?")) return;
+    try {
+      setStatus("Removing…");
+      const res = await WaveBaseAuth.authFetch(`/${slug}/${e.id}/videos/${vid}`, { method: "DELETE" });
+      if (!res.ok) throw new Error("Couldn't remove the video.");
+      e.videos = (e.videos || []).filter(v => v.id !== vid);
+      refresh();
+      setStatus("Video removed ✓");
+    } catch (err) {
+      setStatus(err.message || "Remove failed.", true);
+    }
+  });
+
+  /* ---- drag to reorder (video[0] shows first) ---- */
+  let _dragId = null;
+  listEl.addEventListener("dragstart", (ev) => {
+    const t = ev.target.closest(".avid-row");
+    if (!t) return;
+    _dragId = t.getAttribute("data-vid");
+    t.classList.add("is-dragging");
+    if (ev.dataTransfer) ev.dataTransfer.effectAllowed = "move";
+  });
+  listEl.addEventListener("dragend", (ev) => {
+    const t = ev.target.closest(".avid-row");
+    if (t) t.classList.remove("is-dragging");
+  });
+  listEl.addEventListener("dragover", (ev) => ev.preventDefault());
+  listEl.addEventListener("drop", async (ev) => {
+    ev.preventDefault();
+    const over = ev.target.closest(".avid-row");
+    if (!over || !_dragId) return;
+    const targetId = over.getAttribute("data-vid");
+    if (!targetId || targetId === _dragId) return;
+    const arr = (e.videos || []).slice();
+    const from = arr.findIndex(v => v.id === _dragId);
+    if (from === -1) return;
+    const moved = arr.splice(from, 1)[0];
+    const to = arr.findIndex(v => v.id === targetId);
+    arr.splice(to < 0 ? arr.length : to, 0, moved);
+    e.videos = arr;
+    _dragId = null;
+    refresh();
+    try {
+      setStatus("Saving order…");
+      const res = await WaveBaseAuth.authFetch(`/${slug}/${e.id}/videos/order`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ order: arr.map(v => v.id) }),
+      });
+      if (!res.ok) throw new Error("Couldn't save the new order.");
+      setStatus("Order saved ✓");
+    } catch (err) {
+      setStatus(err.message || "Reorder failed.", true);
     }
   });
 }
@@ -5534,6 +5674,7 @@ function initSpot() {
   wireVideos(e, root);
   if (typeof WaveBaseAuth !== "undefined" && WaveBaseAuth.isAdmin && WaveBaseAuth.isAdmin()) {
     wireAdminImagePanel(e, root);
+    wireAdminVideoPanel(e, root);
   }
 
   document.getElementById("save-toggle").addEventListener("click", function () {

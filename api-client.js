@@ -123,6 +123,7 @@ function _apiToFrontendSpot(api, slugByName) {
     coordsLabel:    api.coords_label,
     photo:           api.photo || "",
     images:          api.images || [],   // Cloudinary uploads; frontend shows images[0]
+    videos:          api.videos || [],   // admin-curated TikTok / YouTube Shorts
     samenvatting:    api.summary || [],
     verhaal:         api.story || [],
     lagen:           (api.layers || []).map(_apiToFrontendLayer),
