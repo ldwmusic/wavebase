@@ -3854,6 +3854,9 @@ body:not(.is-home) .searchbar-wrap { display: none; }
 .vid-title { font-size: 13px; opacity: .92; line-height: 1.32; }
 .vid-tt { position: absolute; top: 11px; right: 13px; font-size: 10px; letter-spacing: .08em; text-transform: uppercase; opacity: .7; }
 .vid-embed { display: flex; justify-content: center; align-items: flex-start; min-height: 92px; }
+.vid-card.is-yt { background: linear-gradient(150deg, #8a4242, #582a2a); }
+.vid-embed-yt { width: 100%; }
+.vid-embed-yt iframe { width: 100%; max-width: 330px; aspect-ratio: 9 / 16; border: 0; border-radius: 14px; box-shadow: var(--shadow-sm); }
 .photo-placeholder {
   font-size: 12px; letter-spacing: 0.1em; text-transform: uppercase;
   color: rgba(255,255,255,0.9);

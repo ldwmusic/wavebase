@@ -5049,37 +5049,46 @@ function _loadCropper() {
   return _cropperLoading;
 }
 
-/* ---- "Videos from surfers": curated TikTok embeds (test: Praia do Norte) -
-   Privacy-first CLICK-TO-LOAD: we render a styled card and only inject
-   TikTok's embed (iframe + embed.js) after the visitor clicks — so TikTok
-   loads nothing for people who don't opt in. Keyed by spot NAME so it's
-   robust to id changes. All four URLs were oEmbed-verified as public +
-   embeddable (Jun 2026). To extend to more spots later this becomes a
-   DB `videos` field + admin paste-URL (full Idea A). */
+/* ---- "Videos from surfers": curated TikTok + YouTube Shorts (test: Praia do
+   Norte) — SOURCE-AGNOSTIC: the kind (tiktok | youtube) is auto-detected from
+   the URL, so a later admin paste-URL field can accept either with no extra UI.
+   Privacy-first CLICK-TO-LOAD: we render a styled card and only inject the
+   player after the visitor clicks — TikTok loads nothing, and YouTube uses the
+   youtube-nocookie domain, for people who don't opt in. Keyed by spot NAME so
+   it's robust to id changes. All URLs were oEmbed-verified as public +
+   embeddable (Jun 2026). To extend to more spots later this becomes a DB
+   `videos` field + admin paste-URL (full Idea A). */
 const SPOT_VIDEOS = {
   "Praia do Norte": [
-    { url: "https://www.tiktok.com/@nicvonrupp/video/7612410494321724704",       author: "@nicvonrupp",       title: "Why Nazaré has the biggest waves in the world" },
-    { url: "https://www.tiktok.com/@gigantesdenazare/video/7354721669413489925", author: "@gigantesdenazare", title: "Sebastian Steudtner on a Nazaré giant" },
-    { url: "https://www.tiktok.com/@gigantesdenazare/video/7513685699242249478", author: "@gigantesdenazare", title: "A day with 20m+ waves at Nazaré" },
-    { url: "https://www.tiktok.com/@nicvonrupp/video/7562563883592994081",       author: "@nicvonrupp",       title: "Nazaré — truly insane" },
+    { url: "https://www.tiktok.com/@nicvonrupp/video/7612410494321724704",       author: "@nicvonrupp",         title: "Why Nazaré has the biggest waves in the world" },
+    { url: "https://www.youtube.com/shorts/u6qWsM3OmYI",                          author: "SurferToday",          title: "Mason Barnes & the 100-foot wave at Nazaré" },
+    { url: "https://www.tiktok.com/@gigantesdenazare/video/7354721669413489925", author: "@gigantesdenazare",   title: "Sebastian Steudtner on a Nazaré giant" },
+    { url: "https://www.youtube.com/shorts/v50_8z0d4pE",                          author: "Big Wave Surf Channel", title: "Paddle wipeout at Praia do Norte — Juan Cruz Garcia" },
+    { url: "https://www.tiktok.com/@gigantesdenazare/video/7513685699242249478", author: "@gigantesdenazare",   title: "A day with 20m+ waves at Nazaré" },
+    { url: "https://www.youtube.com/shorts/t75qgNyjfic",                          author: "REIDS on the ROAD",   title: "Praia do Norte, Nazaré — the wave up close" },
   ],
 };
 
-function _videoId(url) { const m = (url || "").match(/\/video\/(\d+)/); return m ? m[1] : ""; }
+function _videoKind(url) { return /(?:youtube\.com|youtu\.be)/.test(url || "") ? "youtube" : "tiktok"; }
+function _ttId(url) { const m = (url || "").match(/\/video\/(\d+)/); return m ? m[1] : ""; }
+function _ytId(url) { const m = (url || "").match(/(?:shorts\/|embed\/|v=|youtu\.be\/)([\w-]{6,})/); return m ? m[1] : ""; }
 
 function videosSectionHTML(e) {
   const vids = SPOT_VIDEOS[e && e.name];
   if (!vids || !vids.length) return "";
-  const cards = vids.map((v, i) => `
-    <button class="vid-card" type="button" data-video-load="${i}">
+  const cards = vids.map((v, i) => {
+    const yt = _videoKind(v.url) === "youtube";
+    return `
+    <button class="vid-card${yt ? " is-yt" : ""}" type="button" data-video-load="${i}">
       <span class="vid-play" aria-hidden="true">▶</span>
       <span class="vid-meta"><span class="vid-author">${v.author}</span><span class="vid-title">${v.title}</span></span>
-      <span class="vid-tt">TikTok</span>
-    </button>`).join("");
+      <span class="vid-tt">${yt ? "YouTube" : "TikTok"}</span>
+    </button>`;
+  }).join("");
   return `
     <section class="videos-section">
       <h2>Videos from surfers</h2>
-      <p class="videos-sub">Real clips from this spot — tap to play. We only load TikTok when you click.</p>
+      <p class="videos-sub">Real clips from this spot — tap to play. We only load the player when you click.</p>
       <div class="videos-grid">${cards}</div>
     </section>`;
 }
@@ -5095,17 +5104,29 @@ function wireVideos(e, root) {
     if (!v) return;
     const holder = document.createElement("div");
     holder.className = "vid-embed";
-    holder.innerHTML =
-      `<blockquote class="tiktok-embed" cite="${v.url}" data-video-id="${_videoId(v.url)}" style="max-width:605px;min-width:280px;margin:0 auto;"><section></section></blockquote>`;
-    btn.replaceWith(holder);
-    // (Re)inject TikTok's embed script so it renders the new blockquote.
-    const old = document.getElementById("tiktok-embed-script");
-    if (old) old.remove();
-    const s = document.createElement("script");
-    s.id = "tiktok-embed-script";
-    s.src = "https://www.tiktok.com/embed.js";
-    s.async = true;
-    document.body.appendChild(s);
+    if (_videoKind(v.url) === "youtube") {
+      // YouTube Short — privacy domain (youtube-nocookie), injected only on click.
+      const id = _ytId(v.url);
+      holder.classList.add("vid-embed-yt");
+      holder.innerHTML =
+        `<iframe src="https://www.youtube-nocookie.com/embed/${id}?autoplay=1&playsinline=1&rel=0&modestbranding=1" `
+        + `title="${(v.title || "video").replace(/"/g, "&quot;")}" loading="lazy" `
+        + `allow="autoplay; encrypted-media; picture-in-picture; web-share; fullscreen" `
+        + `referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>`;
+      btn.replaceWith(holder);
+    } else {
+      // TikTok — official blockquote + embed.js, (re)injected to render it.
+      holder.innerHTML =
+        `<blockquote class="tiktok-embed" cite="${v.url}" data-video-id="${_ttId(v.url)}" style="max-width:605px;min-width:280px;margin:0 auto;"><section></section></blockquote>`;
+      btn.replaceWith(holder);
+      const old = document.getElementById("tiktok-embed-script");
+      if (old) old.remove();
+      const s = document.createElement("script");
+      s.id = "tiktok-embed-script";
+      s.src = "https://www.tiktok.com/embed.js";
+      s.async = true;
+      document.body.appendChild(s);
+    }
   });
 }
 
