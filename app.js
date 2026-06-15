@@ -375,6 +375,7 @@ async function _refreshSpotReviews(entryId) {
       </div>
       <div class="my-review-meta">${matchTag}${visited ? ` <span class="muted">visited ${visited}</span>` : ""} <span class="muted">posted ${_fmtReviewDate(r.created_at)}</span></div>
       ${_renderReviewText(r, st)}
+      ${_reviewClipHTML(r)}
       ${detailPills ? `<div class="my-review-details">${detailPills}</div>` : ""}
       ${_renderAnalyzedBadge(r)}
       <div class="my-review-reactions">
@@ -394,6 +395,14 @@ async function _refreshSpotReviews(entryId) {
       if (!confirm("Delete your review?")) return;
       WaveBaseAccount.deleteReview(btn.dataset.delReview);
       _refreshSpotReviews(entryId);
+    });
+  });
+  // Click-to-load a reviewer's attached clip (TikTok/YouTube), in place.
+  el.querySelectorAll("[data-review-clip]").forEach(btn => {
+    btn.addEventListener("click", () => {
+      const holder = document.createElement("div");
+      _mountVideoEmbed(holder, { url: btn.dataset.clipUrl, title: btn.dataset.clipTitle });
+      btn.replaceWith(holder);
     });
   });
   // Wire the edit links — fill the form with the review's values
@@ -4870,6 +4879,11 @@ function reviewsMockHTML(e) {
         <textarea id="review-text" name="text" rows="5" placeholder="What surprised you? What worked? Anything off? Talk to a friend who's about to go there."></textarea>
       </div>
 
+      <div class="review-field">
+        <label for="review-video">Add a clip <span class="muted">— optional: paste a TikTok or YouTube link of your session</span></label>
+        <input id="review-video" type="url" name="videoUrl" placeholder="https://www.tiktok.com/… or https://youtube.com/shorts/…" autocomplete="off">
+      </div>
+
       <div class="review-bottom">
         <label class="review-name-field">First name or initials
           <input type="text" name="name" placeholder="e.g. Lode D." value="${escHTML(preName)}">
@@ -5101,17 +5115,65 @@ function _ttId(url) { const m = (url || "").match(/\/video\/(\d+)/); return m ? 
 function _ytId(url) { const m = (url || "").match(/(?:shorts\/|embed\/|v=|youtu\.be\/)([\w-]{6,})/); return m ? m[1] : ""; }
 function _escHtml(s) { return String(s == null ? "" : s).replace(/[&<>"']/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c])); }
 
+// Inline background for a video tile: the real thumbnail (when we have one)
+// behind a dark overlay, with the brand gradient as the last fallback layer
+// so an absent/expired thumb degrades to the plain coloured card.
+function _videoTileStyle(v, yt) {
+  const base = yt ? "linear-gradient(150deg,#8a4242,#582a2a)" : "linear-gradient(150deg,#3f6f7d,#2a4d57)";
+  const thumb = v && v.thumbnail ? String(v.thumbnail).replace(/['"\\)]/g, "") : "";
+  return thumb
+    ? ` style="background-image:linear-gradient(rgba(18,18,22,.32),rgba(18,18,22,.62)), url('${thumb}'), ${base}"`
+    : "";
+}
+
+// Build the click-to-load embed for a clip into `holder` — a privacy-domain
+// YouTube iframe or a TikTok blockquote (+ embed.js). Shared by the spot
+// video grid AND review clips, so both load nothing until the visitor clicks.
+function _mountVideoEmbed(holder, v) {
+  holder.className = "vid-embed";
+  if (_videoKind(v.url) === "youtube") {
+    const id = _ytId(v.url);
+    holder.classList.add("vid-embed-yt");
+    holder.innerHTML =
+      `<iframe src="https://www.youtube-nocookie.com/embed/${id}?autoplay=1&playsinline=1&rel=0&modestbranding=1" `
+      + `title="${(v.title || "video").replace(/"/g, "&quot;")}" loading="lazy" `
+      + `allow="autoplay; encrypted-media; picture-in-picture; web-share; fullscreen" `
+      + `referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>`;
+  } else {
+    holder.innerHTML =
+      `<blockquote class="tiktok-embed" cite="${v.url}" data-video-id="${_ttId(v.url)}" style="max-width:605px;min-width:280px;margin:0 auto;"><section></section></blockquote>`;
+    const old = document.getElementById("tiktok-embed-script");
+    if (old) old.remove();
+    const s = document.createElement("script");
+    s.id = "tiktok-embed-script";
+    s.src = "https://www.tiktok.com/embed.js";
+    s.async = true;
+    document.body.appendChild(s);
+  }
+}
+
 // One card per video — shared by the public grid and the admin refresh.
 function _videoCardsHTML(e) {
   return (e.videos || []).map((v, i) => {
     const yt = _videoKind(v.url) === "youtube";
     return `
-    <button class="vid-card${yt ? " is-yt" : ""}" type="button" data-video-load="${i}">
+    <button class="vid-card${yt ? " is-yt" : ""}" type="button" data-video-load="${i}"${_videoTileStyle(v, yt)}>
       <span class="vid-play" aria-hidden="true">▶</span>
       <span class="vid-meta"><span class="vid-author">${_escHtml(v.author || "")}</span><span class="vid-title">${_escHtml(v.title || "")}</span></span>
       <span class="vid-tt">${yt ? "YouTube" : "TikTok"}</span>
     </button>`;
   }).join("");
+}
+
+// A reviewer's attached clip — a compact click-to-load tile under the review.
+function _reviewClipHTML(r) {
+  const v = r && r.video;
+  if (!v || !v.url) return "";
+  const yt = _videoKind(v.url) === "youtube";
+  return `<div class="review-clip-wrap"><button type="button" class="review-clip" data-review-clip data-clip-url="${escHTML(v.url)}" data-clip-title="${escHTML(v.title || "")}"${_videoTileStyle(v, yt)}>
+      <span class="vid-play" aria-hidden="true">▶</span>
+      <span class="review-clip-meta"><span class="review-clip-label">${escHTML(v.title || "Watch this surfer's clip")}</span><span class="review-clip-src">${yt ? "YouTube" : "TikTok"}</span></span>
+    </button></div>`;
 }
 
 function videosSectionHTML(e) {
@@ -5142,30 +5204,8 @@ function wireVideos(e, root) {
     const v = (e.videos || [])[parseInt(btn.getAttribute("data-video-load"), 10)];
     if (!v) return;
     const holder = document.createElement("div");
-    holder.className = "vid-embed";
-    if (_videoKind(v.url) === "youtube") {
-      // YouTube Short — privacy domain (youtube-nocookie), injected only on click.
-      const id = _ytId(v.url);
-      holder.classList.add("vid-embed-yt");
-      holder.innerHTML =
-        `<iframe src="https://www.youtube-nocookie.com/embed/${id}?autoplay=1&playsinline=1&rel=0&modestbranding=1" `
-        + `title="${(v.title || "video").replace(/"/g, "&quot;")}" loading="lazy" `
-        + `allow="autoplay; encrypted-media; picture-in-picture; web-share; fullscreen" `
-        + `referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>`;
-      btn.replaceWith(holder);
-    } else {
-      // TikTok — official blockquote + embed.js, (re)injected to render it.
-      holder.innerHTML =
-        `<blockquote class="tiktok-embed" cite="${v.url}" data-video-id="${_ttId(v.url)}" style="max-width:605px;min-width:280px;margin:0 auto;"><section></section></blockquote>`;
-      btn.replaceWith(holder);
-      const old = document.getElementById("tiktok-embed-script");
-      if (old) old.remove();
-      const s = document.createElement("script");
-      s.id = "tiktok-embed-script";
-      s.src = "https://www.tiktok.com/embed.js";
-      s.async = true;
-      document.body.appendChild(s);
-    }
+    _mountVideoEmbed(holder, v);
+    btn.replaceWith(holder);
   });
 }
 
@@ -5191,8 +5231,8 @@ function adminVideoPanel(e) {
       <div class="avid-list">${_adminVidRows(e)}</div>
       <div class="avid-add">
         <input class="avid-in avid-url" type="url" placeholder="Paste TikTok or YouTube URL" autocomplete="off">
-        <input class="avid-in avid-author" type="text" placeholder="Author (optional, e.g. @handle)" autocomplete="off">
-        <input class="avid-in avid-title" type="text" placeholder="Caption (optional)" autocomplete="off">
+        <input class="avid-in avid-author" type="text" placeholder="Author (auto-filled if blank)" autocomplete="off">
+        <input class="avid-in avid-title" type="text" placeholder="Caption (auto-filled if blank)" autocomplete="off">
         <button class="avid-add-btn" type="button">+ Add video</button>
       </div>
       <div class="avid-status" role="status" hidden></div>
@@ -5812,8 +5852,10 @@ function initSpot() {
       // Text + name.
       const tEl = reviewForm.querySelector('[name="text"]');
       const nEl = reviewForm.querySelector('[name="name"]');
+      const vEl = reviewForm.querySelector('[name="videoUrl"]');
       if (tEl) tEl.value = r.text || "";
       if (nEl) nEl.value = r.name || "";
+      if (vEl) vEl.value = r.videoUrl || (r.video && r.video.url) || "";
       // details — each key/value maps to an input/select with the
       // same name. Set whatever matches; skip what doesn't.
       Object.entries(r.details || {}).forEach(([k, v]) => {
@@ -5883,7 +5925,7 @@ function initSpot() {
       const fd = new FormData(reviewForm);
       // Fields handled at top level: stars, year, month, matches, text, name.
       // Everything else gets bundled into details — that's the per-type chip data.
-      const TOP = new Set(["yearVisited", "monthVisited", "matches", "text", "name"]);
+      const TOP = new Set(["yearVisited", "monthVisited", "matches", "text", "name", "videoUrl"]);
       const details = {};
       for (const [k, v] of fd.entries()) {
         if (TOP.has(k) || !v) continue;
@@ -5899,6 +5941,7 @@ function initSpot() {
         matches:   fd.get("matches") || "",
         text:      fd.get("text") || "",
         name:      fd.get("name") || "",
+        videoUrl:  fd.get("videoUrl") || "",
         details:   details,
       };
       if (editId) {

@@ -158,6 +158,7 @@ const WaveBaseAccount = (function () {
       matches:       localReview.matches || null,
       text:          localReview.text || "",
       name:          localReview.name || null,
+      video_url:     localReview.videoUrl || null,
       details:       localReview.details || {},
     };
     WaveBaseAuth.authFetch("/reviews/", {
@@ -629,6 +630,7 @@ const WaveBaseAccount = (function () {
         matches:   review.matches || "",
         text:      (review.text || "").trim(),
         name:      (review.name || "").trim(),
+        videoUrl:  (review.videoUrl || "").trim(),
         // Type-specific tags live here as an open dict so we can add more
         // fields per type without changing the schema.
         details:   (review.details && typeof review.details === "object") ? review.details : {},
@@ -663,6 +665,7 @@ const WaveBaseAccount = (function () {
         matches:      fields.matches || "",
         text:         (fields.text || "").trim(),
         name:         (fields.name || "").trim(),
+        videoUrl:     ((fields.videoUrl !== undefined ? fields.videoUrl : r.videoUrl) || "").trim(),
         details:      (fields.details && typeof fields.details === "object") ? fields.details : {},
         when:         new Date().toISOString(),
       });
@@ -680,6 +683,7 @@ const WaveBaseAccount = (function () {
           matches:       r.matches || null,
           text:          r.text || "",
           name:          r.name || null,
+          video_url:     r.videoUrl || null,
           details:       r.details || {},
         };
         WaveBaseAuth.authFetch(
@@ -734,6 +738,8 @@ const WaveBaseAccount = (function () {
             matches:        sr.matches || "",
             text:           sr.text || "",
             name:           sr.name || "",
+            videoUrl:       (sr.video && sr.video.url) || "",
+            video:          sr.video || null,
             details:        sr.details || {},
             when:           sr.created_at || new Date().toISOString(),
             // Analyzed-by-admin marker — used by My-reviews block on
