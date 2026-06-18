@@ -11150,3 +11150,76 @@ function pruneStaleAccountIds() {
     try { sessionStorage.setItem("sg_skip_intro", "1"); } catch (e) {}
   }, true);
 })();
+
+/* ============================================================
+   TAB-SWITCH VEIL — wave + goose page transition (Lab1 port, Lode 18 Jun).
+   ============================================================
+   Clicking a TOP TAB (desktop .site-nav or the mobile tabbar) plays a
+   sea-coloured wave that rises with a goose gliding across, then navigates;
+   the destination page lands already covered (an inline <head> script reads
+   the one-shot `sgVeilTransit` flag pre-paint) and JS lifts the veil to
+   reveal it. Scoped to tabs only — content links (cards, search, map pins)
+   navigate normally. Deliberately a touch slower than the lab so the goose
+   reads clearly. Reduced-motion or no-GSAP → a plain navigate (no veil). */
+(function sgVeilTransition() {
+  function start() {
+    var docEl = document.documentElement;
+    var veil = document.getElementById("sg-veil");
+    var goose = document.getElementById("sg-veil-goose");
+    var reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    var hasGSAP = typeof window.gsap !== "undefined";
+
+    if (goose && !goose.firstChild) {
+      var im = new Image(); im.src = "surfgoose_icon.svg"; im.alt = "";
+      goose.appendChild(im);
+    }
+
+    /* ---- Arrived through the veil → lift it to reveal this page ---- */
+    if (veil && docEl.classList.contains("sg-arrived-veil")) {
+      if (!reduce && hasGSAP) {
+        gsap.to(veil, {
+          yPercent: 100, y: 96, duration: 0.8, ease: "power3.out", delay: 0.12,
+          onComplete: function () { docEl.classList.remove("sg-arrived-veil"); gsap.set(veil, { clearProps: "transform" }); }
+        });
+      } else {
+        docEl.classList.remove("sg-arrived-veil");   // reduced-motion / no GSAP → instant reveal
+      }
+    }
+
+    /* ---- Leave through the veil on a top-tab click ---- */
+    function leaveVia(url) {
+      if (reduce || !veil || !hasGSAP) { location.href = url; return; }
+      try { sessionStorage.setItem("sgVeilTransit", "1"); } catch (e) {}
+      var W = window.innerWidth || docEl.clientWidth || 1200;
+      var done = false;
+      function go() { if (done) return; done = true; location.href = url; }
+      gsap.timeline()
+        .set(veil, { yPercent: 100, y: 96 })
+        .to(veil, { yPercent: 0, y: 0, duration: 0.6, ease: "power3.in" })
+        .fromTo(goose,
+          { x: -0.20 * W, y: 0, opacity: 1, rotation: 6 },
+          { x: 1.12 * W, y: -64, rotation: -8, duration: 0.72, ease: "power1.inOut" }, 0.16)
+        .add(go, 0.82);
+      setTimeout(go, 1100);   // failsafe: navigate even if the timeline stalls
+    }
+
+    document.addEventListener("click", function (e) {
+      if (e.defaultPrevented || e.metaKey || e.ctrlKey || e.shiftKey || e.altKey) return;
+      var a = e.target.closest && e.target.closest("a[href]");
+      if (!a) return;
+      if (!(a.closest(".site-nav") || a.closest(".mobile-tabbar"))) return;   // tabs only
+      if (a.target === "_blank") return;
+      var href = a.getAttribute("href") || "";
+      if (/^(https?:|mailto:|tel:|#)/i.test(href)) return;                    // external / anchor
+      try { if (new URL(href, location.href).pathname === location.pathname) return; } catch (e2) {}  // same page → let it reload
+      e.preventDefault();
+      leaveVia(href);
+    }, true);
+  }
+
+  if (document.readyState === "loading") {
+    document.addEventListener("DOMContentLoaded", start);
+  } else {
+    start();
+  }
+})();

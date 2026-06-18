@@ -963,6 +963,36 @@ a, button, [role="button"] { -webkit-tap-highlight-color: rgba(63,111,125,0.08);
   .buddy { display: none !important; }
 }
 
+/* Page-transition veil — a sea-coloured wave rises with a goose gliding
+   across when you switch top tabs, then lifts on the next page to reveal it
+   (Lab1 port, Lode 18 Jun). Deliberately slow so the goose reads clearly.
+   z-index 5000 covers header (1000) / FAB (1200) / consent; below modals.
+   Reduced-motion: hidden, and the click handler falls back to a plain nav. */
+#sg-veil {
+  position: fixed; inset: 0; z-index: 5000;
+  pointer-events: none;
+  transform: translateY(calc(100% + 96px));   /* parked below; +96px clears the wave crest */
+  /* Hardcoded hex (the site has --sea but no --sea-deep; an undefined var
+     drops the whole gradient). Matches the intro splash's deep sea. */
+  background: linear-gradient(180deg, #3f6f7d 0%, #2e545f 100%);
+  will-change: transform;
+}
+.sg-veil-wave { position: absolute; left: -2%; width: 104%; bottom: 99.5%; height: 92px; }
+.sg-veil-wave path { fill: var(--sea); }
+.sg-veil-goose {
+  position: absolute; left: 0; top: 36%;
+  width: 116px; height: 116px; opacity: 0;
+  filter: drop-shadow(0 14px 22px rgba(20, 32, 36, 0.45));
+  will-change: transform;
+}
+.sg-veil-goose img { width: 100%; height: 100%; object-fit: contain; display: block; }
+/* Arrived through the veil: cover the screen pre-paint (set by an inline
+   head script), then JS lifts it down to reveal the page. */
+html.sg-arrived-veil #sg-veil { transform: translateY(0); }
+@media (prefers-reduced-motion: reduce) {
+  #sg-veil { display: none !important; }
+}
+
 /* Depth-reveal start state (Lab1 port). JS adds .sg-reveal-init to <html>
    only when motion is allowed; targets start hidden and GSAP fades+rises
    them in on view. A 4.2s failsafe removes the class so nothing can stay
