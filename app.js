@@ -10924,19 +10924,25 @@ function pruneStaleAccountIds() {
         the right as a scroll-progress indicator, banking with speed.
    Plus depth reveals: cards & sections rise out of the deep (rotateX +
    fade) as they enter view. All mouse-only + reduced-motion aware, and
-   everything no-ops gracefully if GSAP/Lenis didn't load. Home only. */
-(function sgHomeMotion() {
+   everything no-ops gracefully if GSAP/Lenis didn't load.
+
+   Scope (Lode 18 Jun: "die buddy mag eigenlijk op elke pagina staan"): the
+   BUDDY goose runs on EVERY page; the Lenis glide, swell-tilt and depth
+   reveals stay HOME-only (they're tied to home content and would fight the
+   near-full-screen maps elsewhere). */
+(function sgMotion() {
   function start() {
-    if (!document.body || !document.body.classList.contains("is-home")) return;
+    if (!document.body) return;
+    var isHome = document.body.classList.contains("is-home");
 
     var reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
     var finePtr = window.matchMedia("(hover: hover) and (pointer: fine)").matches;
     var motionOK = !reduce;
     var clamp = function (v, lo, hi) { return Math.max(lo, Math.min(hi, v)); };
 
-    /* ---- Lenis smooth scroll (glide) ---- */
+    /* ---- Lenis smooth scroll (glide) — HOME only ---- */
     var smooth = null;
-    if (motionOK && finePtr && typeof window.Lenis !== "undefined") {
+    if (isHome && motionOK && finePtr && typeof window.Lenis !== "undefined") {
       try {
         smooth = new Lenis({ duration: 1.35, smoothWheel: true });
         window.__sgLenis = smooth;   // debug handle
@@ -10960,10 +10966,10 @@ function pruneStaleAccountIds() {
     if (buddy && motionOK && finePtr && buddyLen) buddy.classList.add("is-on");
 
     /* ---- Swell-tilt targets: main's content sections, minus the
-            fixed-capable searcher and the Leaflet world map ---- */
+            fixed-capable searcher and the Leaflet world map — HOME only ---- */
     var swellSecs = [];
     var main = document.querySelector("main");
-    if (motionOK && finePtr && main) {
+    if (isHome && motionOK && finePtr && main) {
       Array.prototype.forEach.call(main.children, function (el) {
         if (el.tagName !== "SECTION") return;
         if (el.classList.contains("searcher-wrap")) return;     // goes position:fixed
@@ -11004,12 +11010,14 @@ function pruneStaleAccountIds() {
 
       requestAnimationFrame(frame);
     }
-    if (motionOK) requestAnimationFrame(frame);
+    // Run the loop whenever there's something to drive (buddy everywhere;
+    // swell/Lenis on home only).
+    if (motionOK && finePtr && (buddyLen || swellSecs.length || smooth)) requestAnimationFrame(frame);
 
-    /* ---- Depth reveals: cards & sections rise from the deep on view.
-            Guarded so content is NEVER left hidden if GSAP is missing or
-            throws (a hard failsafe un-hides everything after 4s). ---- */
-    if (motionOK && finePtr && typeof window.gsap !== "undefined" && "IntersectionObserver" in window) {
+    /* ---- Depth reveals: cards & sections rise from the deep on view — HOME
+            only. Guarded so content is NEVER left hidden if GSAP is missing
+            or throws (a hard failsafe un-hides everything after 4s). ---- */
+    if (isHome && motionOK && finePtr && typeof window.gsap !== "undefined" && "IntersectionObserver" in window) {
       try {
         var docEl = document.documentElement;
         docEl.classList.add("sg-reveal-init");

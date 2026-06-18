@@ -919,13 +919,19 @@ a, button, [role="button"] { -webkit-tap-highlight-color: rgba(63,111,125,0.08);
   .grid { perspective: 1600px; }
   .card { transform-style: preserve-3d; transition: box-shadow 0.3s ease; will-change: transform; }
   .card:hover { transform: none; box-shadow: var(--shadow); }   /* JS owns the transform */
-  .card .thumb::after {
-    content: ""; position: absolute; inset: 0; z-index: 4; pointer-events: none;
-    background: linear-gradient(115deg, transparent 35%, rgba(255,255,255,0.22) 48%, transparent 60%);
+  /* Light-glance — Lab1's exact sheen code (115deg, .16 white, -120%→120%
+     over .8s). On ::before, NOT ::after: ::after is the thumb's scalloped
+     wave-edge — reusing it destroyed that detail. z-index:1 keeps the glance
+     above the photo but below the badges/buttons (z-index:2), so it glances
+     across the image like Lab1's card-art, leaving controls crisp. */
+  .card .thumb::before {
+    content: ""; position: absolute; inset: 0; z-index: 1; pointer-events: none;
+    background: linear-gradient(115deg, transparent 35%, rgba(255,255,255,0.16) 48%, transparent 60%);
     transform: translateX(-120%);
     transition: transform 0.8s ease;
   }
-  .card:hover .thumb::after { transform: translateX(120%); }
+  .card:hover .thumb::before { transform: translateX(120%); }
+  .grid.list-view .card .thumb::before { display: none; }   /* keep list view clean, like the wave-edge */
 }
 
 /* Scroll buddy — small goose paddling down a dotted swell-line (Lab1 port,
