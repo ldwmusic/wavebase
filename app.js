@@ -10920,3 +10920,49 @@ function pruneStaleAccountIds() {
     start();
   }
 })();
+
+/* Intro / landing splash controller (Michiel 18 Jun). Blue screen + goose
+   fly-in, ONCE per browser session, skippable (button / click / Esc), with
+   a failsafe auto-dismiss. Self-guards on the #sg-intro element so it only
+   runs on the home page. */
+(function sgIntroSplash() {
+  function start() {
+    var el = document.getElementById("sg-intro");
+    if (!el) return;
+    var KEY = "sg_intro_seen_v1";
+    var seen = false;
+    try { seen = sessionStorage.getItem(KEY) === "1"; } catch (e) {}
+    if (seen) { el.remove(); return; }       // already shown this session
+    try { sessionStorage.setItem(KEY, "1"); } catch (e) {}
+
+    var reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    document.documentElement.classList.add("sg-intro-lock");
+
+    var done = false;
+    function dismiss() {
+      if (done) return; done = true;
+      el.classList.add("is-dismissed");
+      document.documentElement.classList.remove("sg-intro-lock");
+      document.removeEventListener("keydown", onKey);
+      setTimeout(function () { if (el && el.parentNode) el.remove(); }, 650);
+    }
+    function onKey(ev) { if (ev.key === "Escape") dismiss(); }
+
+    var skip = document.getElementById("sg-intro-skip");
+    if (skip) skip.addEventListener("click", dismiss);
+    // Click anywhere on the splash also enters the site.
+    el.addEventListener("click", function (ev) {
+      if (ev.target.closest(".sg-intro-skip")) return;  // handled above
+      dismiss();
+    });
+    document.addEventListener("keydown", onKey);
+
+    // Auto-dismiss after the animation has played (shorter for reduced motion).
+    setTimeout(dismiss, reduce ? 1100 : 3200);
+  }
+  if (document.readyState === "loading") {
+    document.addEventListener("DOMContentLoaded", start);
+  } else {
+    start();
+  }
+})();
