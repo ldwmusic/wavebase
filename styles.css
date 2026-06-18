@@ -5927,6 +5927,18 @@ button.rml-key.off .rml-dot {
   height: calc(100vh - 200px); min-height: 600px;
   border-radius: 12px; overflow: hidden; background: #eef2f4; z-index: 0;
 }
+/* Pin cursor on the explorer map (Michiel 18 Jun): make it obvious you can
+   click the map to drop your location. Overrides Leaflet's default grab-hand
+   on the tile panes; hotspot is the pin tip (bottom centre). */
+#exp-map.leaflet-container,
+#exp-map .leaflet-grab,
+#exp-map .leaflet-interactive {
+  cursor: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='30' height='38' viewBox='0 0 30 38'%3E%3Cpath d='M15 2C8.9 2 4 6.9 4 13c0 7.7 11 22 11 22s11-14.3 11-22C26 6.9 21.1 2 15 2z' fill='%23da6132' stroke='white' stroke-width='2.5'/%3E%3Ccircle cx='15' cy='13' r='4.5' fill='white'/%3E%3C/svg%3E") 15 36, crosshair;
+}
+/* While actively dragging the map, fall back to a move cursor so panning
+   still feels natural. */
+#exp-map.leaflet-drag-target .leaflet-grab,
+.leaflet-dragging #exp-map .leaflet-grab { cursor: grabbing; }
 .exp-list {
   flex: 0 0 330px; max-width: 330px;
   height: calc(100vh - 200px); min-height: 600px;
