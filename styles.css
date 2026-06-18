@@ -1001,7 +1001,8 @@ html.sg-arrived-veil #sg-veil { transform: translateY(0); }
 .sg-reveal-init .region-card,
 .sg-reveal-init .peaking-card,
 .sg-reveal-init .world-map-head,
-.sg-reveal-init .region-strip .region-more { opacity: 0; }
+.sg-reveal-init .region-strip .region-more,
+.sg-reveal-init .detail-card { opacity: 0; }
 
 .card .thumb {
   height: 150px;

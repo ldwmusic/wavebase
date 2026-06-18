@@ -11018,43 +11018,40 @@ function pruneStaleAccountIds() {
     // swell/Lenis on home only).
     if (motionOK && finePtr && (buddyLen || swellSecs.length || smooth)) requestAnimationFrame(frame);
 
-    /* ---- Depth reveals: cards & sections rise from the deep on view — HOME
-            only. Guarded so content is NEVER left hidden if GSAP is missing
-            or throws (a hard failsafe un-hides everything after 4s). ---- */
-    if (isHome && motionOK && finePtr && typeof window.gsap !== "undefined" && "IntersectionObserver" in window) {
+    /* ---- Depth reveals: cards & sections rise from the deep as they enter
+            view AND sink back as they leave (Lode 18 Jun: "altijd toepassen"
+            + "ook het omgekeerde als ze weg scrollen"). On EVERY page except
+            the two map tabs. Guarded: if GSAP is missing we never hide
+            anything, and a one-shot failsafe surfaces any IN-VIEW element
+            still hidden (off-screen ones stay sunk on purpose). ---- */
+    var REVEAL_SEL = ".card, .region-card, .peaking-card, .world-map-head, .region-strip .region-more, .detail-card";
+    if (!onMapTab && motionOK && finePtr && typeof window.gsap !== "undefined" && "IntersectionObserver" in window) {
       try {
         var docEl = document.documentElement;
         docEl.classList.add("sg-reveal-init");
+        var DEEP = { y: 40, rotateX: 7, autoAlpha: 0, transformPerspective: 900, transformOrigin: "50% 100%" };
         var io = new IntersectionObserver(function (entries) {
           entries.forEach(function (en) {
-            if (!en.isIntersecting) return;
-            io.unobserve(en.target);
             var el = en.target;
             try {
-              var idx = parseInt(el.getAttribute("data-sgri") || "0", 10);
-              gsap.fromTo(el,
-                { y: 52, rotateX: 9, autoAlpha: 0, transformPerspective: 900, transformOrigin: "50% 100%" },
-                { y: 0, rotateX: 0, autoAlpha: 1, duration: 0.9, delay: (idx % 3) * 0.08,
-                  ease: "power3.out", clearProps: "transform,perspective" });
-                  // NB: don't clear opacity/visibility — the tween's end state
-                  // (autoAlpha:1) must stay inline to override the .sg-reveal-init
-                  // hide rule, or revealed elements would vanish again.
+              if (en.isIntersecting) {
+                gsap.to(el, { y: 0, rotateX: 0, autoAlpha: 1, duration: 0.85, ease: "power3.out", overwrite: "auto" });
+              } else {
+                gsap.to(el, { y: 40, rotateX: 7, autoAlpha: 0, duration: 0.5, ease: "power2.in", overwrite: "auto" });
+              }
             } catch (e) {
-              // Tween failed → never leave it hidden.
-              el.style.opacity = ""; el.style.visibility = "";
+              el.style.opacity = ""; el.style.visibility = ""; el.style.transform = "";
             }
           });
-        }, { threshold: 0.12, rootMargin: "0px 0px -40px 0px" });
+        }, { threshold: 0.12 });
 
         window.__sgObserveReveals = function (root) {
-          var scope = root || document;
-          var sel = ".card, .region-card, .peaking-card, .world-map-head, .region-strip .region-more";
-          var els = scope.querySelectorAll(sel);
+          var els = (root || document).querySelectorAll(REVEAL_SEL);
           for (var i = 0; i < els.length; i++) {
             var el = els[i];
             if (el.dataset.sgriSeen) continue;
             el.dataset.sgriSeen = "1";
-            el.setAttribute("data-sgri", String(i));
+            gsap.set(el, DEEP);   // start in the deep; IO surfaces/sinks it
             io.observe(el);
           }
         };
@@ -11065,14 +11062,18 @@ function pruneStaleAccountIds() {
           window.__sgObserveReveals();
           if (++rescans >= 8) clearInterval(rescan);   // ~4s of catching late renders
         }, 500);
-        // Hard failsafe: nothing stays invisible. Drop the hide class AND
-        // clear any inline hidden-state left by an interrupted tween (e.g. a
-        // backgrounded tab where the rAF-driven reveal never completed).
+        // Failsafe: drop the pre-paint hide class and surface anything that is
+        // IN VIEW yet still hidden (a stalled tween). Off-screen elements are
+        // meant to be sunk, so leave them.
         setTimeout(function () {
           docEl.classList.remove("sg-reveal-init");
-          var sel = ".card, .region-card, .peaking-card, .world-map-head, .region-strip .region-more";
-          document.querySelectorAll(sel).forEach(function (el) {
-            if (getComputedStyle(el).opacity === "0") { el.style.opacity = "1"; el.style.visibility = "visible"; }
+          document.querySelectorAll(REVEAL_SEL).forEach(function (el) {
+            var r = el.getBoundingClientRect();
+            var inView = r.bottom > 0 && r.top < (window.innerHeight || 0);
+            if (inView && getComputedStyle(el).opacity === "0") {
+              try { gsap.to(el, { y: 0, rotateX: 0, autoAlpha: 1, duration: 0.4 }); }
+              catch (e) { el.style.opacity = "1"; el.style.visibility = "visible"; }
+            }
           });
         }, 4200);
       } catch (e) {
