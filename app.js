@@ -10949,10 +10949,13 @@ function pruneStaleAccountIds() {
       } catch (e) { smooth = null; }
     }
 
-    /* ---- Buddy goose on its dotted swell-line ---- */
-    var buddy = document.getElementById("buddy");
-    var buddyGoose = document.getElementById("buddy-goose");
-    var buddyPath = document.getElementById("buddy-path");
+    /* ---- Buddy goose on its dotted swell-line — every page EXCEPT the
+            Nearby/Map tabs (Lode 18 Jun: not wanted over the big maps).
+            Setting buddy = null there no-ops all the buddy code + the loop. ---- */
+    var onMapTab = /\/(explorer|kaart)\.html$/i.test(location.pathname);
+    var buddy = onMapTab ? null : document.getElementById("buddy");
+    var buddyGoose = buddy ? document.getElementById("buddy-goose") : null;
+    var buddyPath = buddy ? document.getElementById("buddy-path") : null;
     var buddyLen = 0;
     if (buddyGoose && !buddyGoose.firstChild) {
       var gi = new Image();
@@ -11195,12 +11198,15 @@ function pruneStaleAccountIds() {
       function go() { if (done) return; done = true; location.href = url; }
       gsap.timeline()
         .set(veil, { yPercent: 100, y: 96 })
-        .to(veil, { yPercent: 0, y: 0, duration: 0.6, ease: "power3.in" })
+        .to(veil, { yPercent: 0, y: 0, duration: 0.62, ease: "power3.in" })
+        // Slow, clearly-visible glide-away (Lode 18 Jun: "die mag trager
+        // wegvliegen"). The goose drifts across the covered sea over ~1.25s,
+        // lifting + banking as it leaves; we navigate once it's off-screen.
         .fromTo(goose,
-          { x: -0.20 * W, y: 0, opacity: 1, rotation: 6 },
-          { x: 1.12 * W, y: -64, rotation: -8, duration: 0.72, ease: "power1.inOut" }, 0.16)
-        .add(go, 0.82);
-      setTimeout(go, 1100);   // failsafe: navigate even if the timeline stalls
+          { x: -0.24 * W, y: 0, opacity: 1, rotation: 6 },
+          { x: 1.22 * W, y: -78, rotation: -11, duration: 1.25, ease: "power1.inOut" }, 0.12)
+        .add(go, 1.32);
+      setTimeout(go, 1750);   // failsafe: navigate even if the timeline stalls
     }
 
     document.addEventListener("click", function (e) {
