@@ -2059,6 +2059,49 @@ function wireCards(container) {
       updateNav();
     });
   });
+  wireCardTilt(container);
+}
+
+/* 3D pointer-tilt + light-glance on cards (Michiel 18 Jun — port the
+   mockup's interactive hover to the live site). Only on real pointers
+   (mouse), and never when the user prefers reduced motion. Each card
+   tilts toward the cursor and a soft highlight follows it across the
+   surface. Decorative only: a `.card-sheen` overlay is injected (no
+   markup change needed) and clicks pass straight through it. */
+function wireCardTilt(container) {
+  const canTilt = window.matchMedia("(hover: hover) and (pointer: fine)").matches
+    && !window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+  if (!canTilt) return;
+  container.querySelectorAll(".card").forEach(card => {
+    if (card.dataset.tiltWired) return;
+    card.dataset.tiltWired = "1";
+    let sheen = card.querySelector(".card-sheen");
+    if (!sheen) {
+      sheen = document.createElement("span");
+      sheen.className = "card-sheen";
+      card.appendChild(sheen);
+    }
+    let raf = null;
+    card.addEventListener("pointermove", ev => {
+      if (raf) return;
+      raf = requestAnimationFrame(() => {
+        raf = null;
+        const r = card.getBoundingClientRect();
+        const px = Math.min(1, Math.max(0, (ev.clientX - r.left) / r.width));
+        const py = Math.min(1, Math.max(0, (ev.clientY - r.top) / r.height));
+        const rx = (0.5 - py) * 9;    // tilt up/down
+        const ry = (px - 0.5) * 11;   // tilt left/right
+        card.style.transform = `rotateX(${rx.toFixed(2)}deg) rotateY(${ry.toFixed(2)}deg) translateY(-4px)`;
+        sheen.style.setProperty("--sx", (px * 100).toFixed(1) + "%");
+        sheen.style.setProperty("--sy", (py * 100).toFixed(1) + "%");
+      });
+    });
+    card.addEventListener("pointerenter", () => card.classList.add("is-tilting"));
+    card.addEventListener("pointerleave", () => {
+      card.classList.remove("is-tilting");
+      card.style.transform = "";
+    });
+  });
 }
 
 /* ---- INDEX: country-driven search ---- */
