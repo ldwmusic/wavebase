@@ -1820,6 +1820,89 @@ function seasonLabel(klass) {
   }
 }
 
+/* ---- Goose lands on the spot (detail-map) ----
+   Lode 18 Jun: when you open a spot/center/stay, the goose flies to the spot
+   instead of the old zoom/blue-blob. DOM overlay over the Leaflet container;
+   ported from the design lab's landing grammar (swoop → bank → flare →
+   touchdown → ripples + foam → settle → fade, leaving the marked place).
+   No-ops without GSAP; the caller skips it under reduced-motion. */
+function sgSpawnRipples(container, x, y, opts) {
+  if (typeof window.gsap === "undefined") return;
+  opts = opts || {};
+  var n = opts.count || 3;
+  for (var i = 0; i < n; i++) {
+    var r = document.createElement("div");
+    r.className = "dm-ripple";
+    var size = (opts.size || 110) * (1 + i * 0.55);
+    r.style.width = r.style.height = size + "px";
+    r.style.left = x + "px"; r.style.top = y + "px";
+    container.appendChild(r);
+    gsap.fromTo(r, { scale: 0.12, opacity: 0.9 },
+      { scale: 1, opacity: 0, duration: (opts.duration || 1.2) + i * 0.2, delay: i * 0.13,
+        ease: "power2.out", onComplete: function (el) { el.remove(); }, onCompleteParams: [r] });
+  }
+}
+function sgSpawnFoam(container, x, y, count) {
+  if (typeof window.gsap === "undefined") return;
+  for (var i = 0; i < (count || 12); i++) {
+    var d = document.createElement("div");
+    d.className = "dm-foam";
+    d.style.left = x + "px"; d.style.top = y + "px";
+    var s = 3 + Math.random() * 6;
+    d.style.width = d.style.height = s + "px";
+    container.appendChild(d);
+    var ang = Math.random() * Math.PI * 2;
+    var dist = 18 + Math.random() * 48;
+    gsap.to(d, { x: Math.cos(ang) * dist, y: Math.sin(ang) * dist * 0.55 - 12, opacity: 0,
+      duration: 0.6 + Math.random() * 0.5, ease: "power2.out",
+      onComplete: function (el) { el.remove(); }, onCompleteParams: [d] });
+  }
+}
+function sgGooseLandOnMap(map, e) {
+  if (typeof window.gsap === "undefined" || !map || !map.getContainer) return;
+  var container = map.getContainer();
+  if (!container) return;
+  var layer = document.createElement("div");
+  layer.className = "dm-goose-layer";
+  container.appendChild(layer);
+
+  function run() {
+    var pt;
+    try { pt = map.latLngToContainerPoint(e.coords); } catch (err) { layer.remove(); return; }
+    var goose = document.createElement("div");
+    goose.className = "dm-goose";
+    var img = new Image(); img.src = "surfgoose_icon.svg"; img.alt = "";
+    goose.appendChild(img);
+    layer.appendChild(goose);
+
+    // Goose art faces RIGHT → start off the top-LEFT so it flies rightward in.
+    var bob = gsap.to(img, { y: -5, rotation: 2, duration: 0.5, yoyo: true, repeat: -1, ease: "sine.inOut" });
+    gsap.timeline()
+      .set(goose, { x: -70, y: -30, scale: 0.45, rotation: -12, opacity: 0, transformOrigin: "50% 50%" })
+      .to(goose, { opacity: 1, duration: 0.3, ease: "power1.out" }, 0.05)
+      // arc to the marker: x glides, y drops faster near the end → a swoop
+      .to(goose, { x: pt.x, duration: 1.6, ease: "power1.inOut" }, 0.1)
+      .to(goose, { y: pt.y, duration: 1.6, ease: "power2.in" }, 0.1)
+      .to(goose, { scale: 1.0, duration: 1.0, ease: "power1.inOut" }, 0.1)   // grows on approach
+      .to(goose, { scale: 0.72, duration: 0.5, ease: "power2.out" }, 1.4)    // flares down
+      .to(goose, { rotation: 8, duration: 0.6, ease: "sine.inOut" }, 0.5)    // banking
+      .to(goose, { rotation: -4, duration: 0.5, ease: "sine.inOut" }, 1.15)
+      .to(goose, { rotation: 0, duration: 0.35, ease: "sine.out" }, 1.65)
+      .add(function () {                                                     // touchdown
+        bob.kill();
+        gsap.fromTo(goose, { scaleY: 1 }, { scaleY: 0.88, duration: 0.12, yoyo: true, repeat: 1, ease: "power1.inOut" });
+        sgSpawnRipples(layer, pt.x, pt.y + 12, { size: 90, count: 3 });
+        sgSpawnFoam(layer, pt.x, pt.y + 8, 11);
+        gsap.to(goose, { y: "+=4", duration: 0.95, yoyo: true, repeat: 2, ease: "sine.inOut" });
+      }, 1.7)
+      // perch a beat, then fade out to leave the marked place
+      .to(goose, { opacity: 0, scale: 0.85, duration: 0.6, ease: "power1.in",
+        onComplete: function () { layer.remove(); } }, 3.4);
+  }
+  if (map.whenReady) map.whenReady(function () { setTimeout(run, 60); });
+  else setTimeout(run, 60);
+}
+
 /* ---- card ---- */
 /* Analytical key-data row for a spot card (June 2026, Michiel #8 —
    "get rid of the long texts, show the wind/gust/chance-of-wind numbers
@@ -5741,25 +5824,21 @@ function initSpot() {
     L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
       attribution: "&copy; OpenStreetMap contributors", maxZoom: 19
     }).addTo(m);
-    // Highlight ring around the marked place — the "circle" that makes
-    // the spot pop on landing (Lode's note on Michiel #22). Plus the dot.
+    // The marked place — a tasteful ring + dot (Lode likes the marked
+    // circle). Smaller radius than before so it never balloons into a blob.
     L.circle(e.coords, {
-      radius: 1100, color: typeColor(e.type), weight: 1.5,
-      fillColor: typeColor(e.type), fillOpacity: 0.08,
+      radius: 650, color: typeColor(e.type), weight: 1.5,
+      fillColor: typeColor(e.type), fillOpacity: 0.07,
       dashArray: "5,6", interactive: false
     }).addTo(m);
     L.circleMarker(e.coords, { radius: 10, color: "#fff", weight: 3, fillColor: typeColor(e.type), fillOpacity: 1 })
       .bindPopup(`<strong>${e.name}</strong><br>${typeLabel(e.type)} &middot; ${e.town}`)
       .addTo(m);
-    // Animated zoom-IN to the spot on landing (Michiel #22, Lode's note:
-    // just the map zoom to the place + keep the marked circle, no goose).
-    // Start wide, then fly in. Respect reduced-motion: jump straight there.
-    const reduceMotion = matchMedia("(prefers-reduced-motion: reduce)").matches;
-    if (reduceMotion) {
-      m.setView(e.coords, 14);
-    } else {
-      m.setView(e.coords, 8, { animate: false });
-      setTimeout(() => { m.flyTo(e.coords, 14, { duration: 1.7, easeLinearity: 0.18 }); }, 400);
+    // Show the spot straight away (no jarring zoom/blob — Lode 18 Jun) and
+    // let the GOOSE fly in to it instead. Reduced-motion: just the marker.
+    m.setView(e.coords, 13, { animate: false });
+    if (!matchMedia("(prefers-reduced-motion: reduce)").matches) {
+      sgGooseLandOnMap(m, e);
     }
   }
 
