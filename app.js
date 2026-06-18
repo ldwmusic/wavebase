@@ -10888,3 +10888,35 @@ function pruneStaleAccountIds() {
     console.log(`[account] pruned ${stale.length} stale ${listName} id(s):`, stale);
   });
 }
+
+/* Scroll-following goose on the home page (Michiel 18 Jun). Descends with
+   scroll progress so it's obvious it goes down with you. Self-guards: does
+   nothing on pages without the #scroll-goose element. */
+(function initScrollGoose() {
+  function start() {
+    var goose = document.getElementById("scroll-goose");
+    if (!goose) return;
+    var MIN_VH = 14, MAX_VH = 64;   // vertical band it travels (top → bottom)
+    var ticking = false;
+    function update() {
+      ticking = false;
+      var doc = document.documentElement;
+      var max = (doc.scrollHeight - window.innerHeight) || 1;
+      var p = Math.min(1, Math.max(0, window.scrollY / max));
+      var vh = MIN_VH + (MAX_VH - MIN_VH) * p;
+      goose.style.setProperty("--goose-y", vh.toFixed(1) + "vh");
+    }
+    window.addEventListener("scroll", function () {
+      if (ticking) return;
+      ticking = true;
+      requestAnimationFrame(update);
+    }, { passive: true });
+    window.addEventListener("resize", update, { passive: true });
+    update();
+  }
+  if (document.readyState === "loading") {
+    document.addEventListener("DOMContentLoaded", start);
+  } else {
+    start();
+  }
+})();

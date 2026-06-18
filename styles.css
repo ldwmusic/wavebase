@@ -928,6 +928,38 @@ a, button, [role="button"] { -webkit-tap-highlight-color: rgba(63,111,125,0.08);
   .card.is-tilting .card-sheen { opacity: 1; }
 }
 
+/* Scroll-following goose on the home page (Michiel 18 Jun) — a clearly
+   visible goose on the right that descends as you scroll, so it obviously
+   "goes down with you". JS drives --goose-y from scroll progress; the img
+   bobs on top. Wide screens only (needs margin room beside the content). */
+.scroll-goose {
+  position: fixed;
+  right: clamp(8px, 2.2vw, 44px);
+  top: 0;
+  transform: translateY(var(--goose-y, 16vh));
+  transition: transform 0.3s cubic-bezier(.22,.61,.36,1);
+  z-index: 30; pointer-events: none;
+  display: none;
+  will-change: transform;
+}
+.scroll-goose-img {
+  width: 96px; height: auto; display: block;
+  transform: scaleX(-1);                       /* face into the page */
+  animation: goose-bob 3.4s ease-in-out infinite;
+  filter: drop-shadow(0 12px 20px rgba(42,39,35,0.22));
+}
+@keyframes goose-bob {
+  0%, 100% { transform: scaleX(-1) translateY(0)    rotate(0deg); }
+  50%      { transform: scaleX(-1) translateY(-9px) rotate(-3deg); }
+}
+@media (min-width: 1180px) {
+  .scroll-goose { display: block; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .scroll-goose { transition: none; }
+  .scroll-goose-img { animation: none; transform: scaleX(-1); }
+}
+
 .card .thumb {
   height: 150px;
   position: relative;
