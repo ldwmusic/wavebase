@@ -1807,6 +1807,19 @@ function seasonForMonth(stats, monthNum) {
   return { name: p.name, klass };
 }
 
+/* The season chip on a card shows ONLY the season LEVEL — high/low (Lode
+   18 Jun: "ik wil enkel weten of het hoog of laag seizoen is"). We used to
+   print the raw period name ("Meltemi Heart (Kite City)"), which was cryptic
+   and long enough to overlap the sport icons. A short label fixes both. */
+function seasonLabel(klass) {
+  switch (klass) {
+    case "peak":     return "Peak season";
+    case "shoulder": return "Shoulder season";
+    case "off":      return "Low season";
+    default:         return "High season";   // high + in-season "neutral" periods
+  }
+}
+
 /* ---- card ---- */
 /* Analytical key-data row for a spot card (June 2026, Michiel #8 —
    "get rid of the long texts, show the wind/gust/chance-of-wind numbers
@@ -1891,7 +1904,7 @@ function cardHTML(e, distKm, opts) {
   let seasonChip = "";
   if (e.type !== "stay") {
     const season = seasonForMonth(getStatsFor(e), userSelectedMonth());
-    if (season) seasonChip = `<span class="season-chip season-${season.klass}">${escHTML(season.name)}</span>`;
+    if (season) seasonChip = `<span class="season-chip season-${season.klass}">${escHTML(seasonLabel(season.klass))}</span>`;
   }
   // Metric chip — opt-in. The "Top spots" block uses it; the regular
   // section grid below does not (kept clean per LDW feedback).
@@ -1940,7 +1953,7 @@ function cardHTML(e, distKm, opts) {
       <button class="save-btn ${saved ? "on" : ""}" data-save="${e.id}" aria-label="Save" title="${saved ? "Saved" : "Save this place"}">${saved ? "♥" : "♡"}</button>
     </div>
     <div class="body">
-      <div class="place">${e.town}${distHint}</div>
+      <div class="place">${countryFlag(entryCountry(e)) ? `<span class="place-flag" aria-hidden="true">${countryFlag(entryCountry(e))}</span> ` : ""}${e.town}${distHint}</div>
       <h3>${e.name}</h3>
       ${bodyLead}
       <div class="meta">${pills}</div>
@@ -2135,6 +2148,19 @@ function findCountry(name) {
 
 /* Backward-compatible accessors — older Morocco entries lack country/sports fields */
 function entryCountry(e) { return e.country || "Morocco"; }
+
+/* Flag emoji for a country, from the destinations list. "" when unknown, so
+   callers can render it conditionally (Lode 18 Jun: a little flag on the
+   card makes the country obvious at a glance). */
+function countryFlag(name) {
+  if (!name || typeof WAVEBASE_DESTINATIONS === "undefined") return "";
+  for (const c of WAVEBASE_DESTINATIONS) {
+    for (const co of c.countries) {
+      if (co.name === name) return co.flag || "";
+    }
+  }
+  return "";
+}
 // Falls back to ["wave"] when the entry has no sport tags at all
 // (missing field OR empty array). Pre-API-migration the field was
 // undefined for surf-only stays, so `|| ["wave"]` was enough; the
@@ -5652,7 +5678,7 @@ function initSpot() {
         <span class="head-sep">&middot;</span>
         <a class="head-chip" href="index.html?country=${encodeURIComponent(entryCountry(e))}&amp;q=${encodeURIComponent(e.town)}">${e.town}</a>
         <span class="head-sep">&middot;</span>
-        <a class="head-chip" href="index.html?country=${encodeURIComponent(entryCountry(e))}">${entryCountry(e)}</a>
+        <a class="head-chip" href="index.html?country=${encodeURIComponent(entryCountry(e))}">${countryFlag(entryCountry(e)) ? countryFlag(entryCountry(e)) + " " : ""}${entryCountry(e)}</a>
       </div>
       <h1>${e.name}</h1>
       <p class="tag">${e.tagline}</p>

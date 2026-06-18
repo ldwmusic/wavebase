@@ -1103,6 +1103,7 @@ html.sg-arrived-veil #sg-veil { transform: translateY(0); }
 .thumb .season-chip {
   position: absolute; bottom: 36px; right: 12px; z-index: 2;
   font-size: 9.5px; font-weight: 600;
+  white-space: nowrap;   /* short season-level label, never wraps onto the icons */
   letter-spacing: 0.08em; text-transform: uppercase;
   border-radius: 999px; padding: 2px 8px 2px 6px;
   color: rgba(255, 255, 255, 0.85);
