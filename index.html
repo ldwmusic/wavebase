@@ -31,7 +31,7 @@
   <meta name="twitter:description" content="Honest, season-by-season surf info — based on recent reviews. Morocco, east Crete &amp; Belgium live.">
   <meta name="twitter:image" content="https://surfgoose.com/og-image.png">
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin="">
-  <link rel="stylesheet" href="styles.css?v=455">
+  <link rel="stylesheet" href="styles.css?v=456">
 </head>
 <body class="is-home">
 
@@ -67,12 +67,6 @@
   </header>
 
   <main>
-    <!-- Scroll-following goose (Michiel 18 Jun): a clearly visible goose on
-         the right that descends with the page as you scroll. Home only,
-         wide screens only (hidden where there's no room). Decorative. -->
-    <div class="scroll-goose" id="scroll-goose" aria-hidden="true">
-      <img src="surfgoose_icon.svg" alt="" class="scroll-goose-img">
-    </div>
     <section class="hero wrap">
       <p class="kicker">Find your next spot</p>
       <h1>Surf <span class="ul">Goose</span></h1>
@@ -199,10 +193,23 @@
     </div>
   </footer>
 
+  <!-- Scroll buddy: a small goose that paddles down a dotted swell-line as a
+       scroll-progress indicator, banking with your scroll speed (Lab1 port,
+       Lode 18 Jun). Body-level so the page-swell tilt never moves it. Wide
+       screens only; JS fills the goose + drives it along the path. -->
+  <div class="buddy" id="buddy" aria-hidden="true">
+    <svg class="buddy-track" viewBox="0 0 56 560" fill="none" aria-hidden="true">
+      <path id="buddy-path" d="M28,12 C52,82 4,152 28,222 C52,292 4,362 28,432 C44,482 36,516 28,548" stroke="currentColor" stroke-width="2" stroke-dasharray="1 9" stroke-linecap="round"/>
+    </svg>
+    <div class="buddy-goose" id="buddy-goose"></div>
+  </div>
+
   <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
+  <script src="https://cdn.jsdelivr.net/npm/gsap@3.13.0/dist/gsap.min.js" defer></script>
+  <script src="https://cdn.jsdelivr.net/npm/lenis@1.3.11/dist/lenis.min.js" defer></script>
   <script src="constants.js?v=422"></script>
   <script src="account.js?v=447"></script>
-  <script src="app.js?v=455"></script>
+  <script src="app.js?v=456"></script>
   <script src="api-client.js?v=437"></script>
 </body>
 </html>

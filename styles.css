@@ -910,55 +910,62 @@ a, button, [role="button"] { -webkit-tap-highlight-color: rgba(63,111,125,0.08);
 .card:hover { transform: translateY(-3px); box-shadow: var(--shadow); }
 .card a.card-link { color: inherit; text-decoration: none; display: flex; flex-direction: column; height: 100%; }
 
-/* 3D pointer-tilt + light-glance on cards (Michiel 18 Jun). Mouse only —
-   touch devices keep the simple lift. JS sets the per-pointer transform
-   inline + drives the sheen position via --sx/--sy. */
+/* 3D pointer-tilt + diagonal light-glance on cards — ported from Lab1
+   (Lode 18 Jun: "exactly like Lab1"). The tilt is driven by GSAP quickTo
+   in wireCardTilt (buttery), with an rAF lerp fallback where GSAP isn't
+   loaded. The glance is a diagonal sheen sweeping across the thumb on
+   hover. Mouse only — touch keeps the simple lift. */
 @media (hover: hover) and (pointer: fine) {
-  .grid { perspective: 1100px; }
-  .card { transform-style: preserve-3d; transition: transform 0.12s ease, box-shadow 0.2s ease; }
-  .card.is-tilting { transition: transform 0.05s linear, box-shadow 0.2s ease; box-shadow: var(--shadow); }
-  .card-sheen {
-    position: absolute; inset: 0; z-index: 5; pointer-events: none;
-    border-radius: inherit; opacity: 0;
-    transition: opacity 0.25s ease;
-    background: radial-gradient(240px circle at var(--sx, 50%) var(--sy, 0%),
-      rgba(255,255,255,0.45), rgba(255,255,255,0) 62%);
-    mix-blend-mode: soft-light;
+  .grid { perspective: 1600px; }
+  .card { transform-style: preserve-3d; transition: box-shadow 0.3s ease; will-change: transform; }
+  .card:hover { transform: none; box-shadow: var(--shadow); }   /* JS owns the transform */
+  .card .thumb::after {
+    content: ""; position: absolute; inset: 0; z-index: 4; pointer-events: none;
+    background: linear-gradient(115deg, transparent 35%, rgba(255,255,255,0.22) 48%, transparent 60%);
+    transform: translateX(-120%);
+    transition: transform 0.8s ease;
   }
-  .card.is-tilting .card-sheen { opacity: 1; }
+  .card:hover .thumb::after { transform: translateX(120%); }
 }
 
-/* Scroll-following goose on the home page (Michiel 18 Jun) — a clearly
-   visible goose on the right that descends as you scroll, so it obviously
-   "goes down with you". JS drives --goose-y from scroll progress; the img
-   bobs on top. Wide screens only (needs margin room beside the content). */
-.scroll-goose {
-  position: fixed;
-  right: clamp(8px, 2.2vw, 44px);
-  top: 0;
-  transform: translateY(var(--goose-y, 16vh));
-  transition: transform 0.3s cubic-bezier(.22,.61,.36,1);
+/* Scroll buddy — small goose paddling down a dotted swell-line (Lab1 port,
+   Lode 18 Jun). Fixed on the right, wide screens only; JS drives it along
+   the SVG path. */
+.buddy {
+  position: fixed; right: 18px; top: 50%;
+  transform: translateY(-50%);
+  height: min(560px, 72vh); width: 56px;
   z-index: 30; pointer-events: none;
+  color: var(--sand-deep);
+  opacity: 0; transition: opacity .8s ease;
   display: none;
+}
+.buddy.is-on { opacity: 1; }
+.buddy-track { width: 100%; height: 100%; }
+.buddy-goose {
+  position: absolute; left: 0; top: 0;
+  width: 44px; height: 44px; margin: -22px 0 0 -22px;
+  filter: drop-shadow(0 6px 10px rgba(42, 39, 35, 0.25));
   will-change: transform;
 }
-.scroll-goose-img {
-  width: 96px; height: auto; display: block;
-  transform: scaleX(-1);                       /* face into the page */
-  animation: goose-bob 3.4s ease-in-out infinite;
-  filter: drop-shadow(0 12px 20px rgba(42,39,35,0.22));
-}
-@keyframes goose-bob {
-  0%, 100% { transform: scaleX(-1) translateY(0)    rotate(0deg); }
-  50%      { transform: scaleX(-1) translateY(-9px) rotate(-3deg); }
-}
+.buddy-goose .goose-svg, .buddy-goose svg, .buddy-goose img { width: 100%; height: 100%; display: block; }
+.buddy-goose img { object-fit: contain; }   /* keep the goose's aspect ratio in its 44px box */
 @media (min-width: 1180px) {
-  .scroll-goose { display: block; }
+  .buddy { display: block; }
 }
 @media (prefers-reduced-motion: reduce) {
-  .scroll-goose { transition: none; }
-  .scroll-goose-img { animation: none; transform: scaleX(-1); }
+  .buddy { display: none !important; }
 }
+
+/* Depth-reveal start state (Lab1 port). JS adds .sg-reveal-init to <html>
+   only when motion is allowed; targets start hidden and GSAP fades+rises
+   them in on view. A 4.2s failsafe removes the class so nothing can stay
+   hidden. Without JS, the class is never added → everything is visible. */
+.sg-reveal-init .card,
+.sg-reveal-init .region-card,
+.sg-reveal-init .peaking-card,
+.sg-reveal-init .world-map-head,
+.sg-reveal-init .region-strip .region-more { opacity: 0; }
 
 .card .thumb {
   height: 150px;

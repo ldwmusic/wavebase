@@ -2060,47 +2060,65 @@ function wireCards(container) {
     });
   });
   wireCardTilt(container);
+  // Reveal newly-rendered cards from the deep (home water-scroll). Hooking
+  // here is more reliable than the periodic re-scan for async card renders.
+  if (typeof window.__sgObserveReveals === "function") window.__sgObserveReveals(container);
 }
 
-/* 3D pointer-tilt + light-glance on cards (Michiel 18 Jun — port the
-   mockup's interactive hover to the live site). Only on real pointers
-   (mouse), and never when the user prefers reduced motion. Each card
-   tilts toward the cursor and a soft highlight follows it across the
-   surface. Decorative only: a `.card-sheen` overlay is injected (no
-   markup change needed) and clicks pass straight through it. */
+/* 3D pointer-tilt on cards — ported verbatim from the design lab (Lab1)
+   per Lode 18 Jun ("de 3D hoover moet eigelijk precies zo zijn als bij
+   Lab1"). The card banks toward the cursor with GSAP quickTo for a
+   buttery feel; the light-glance is a pure-CSS diagonal sheen sweep on
+   `.card .thumb::after` (see styles.css). Mouse only, never under
+   reduced-motion. Falls back to a hand-rolled rAF lerp where GSAP isn't
+   loaded so the effect still works without the CDN. */
 function wireCardTilt(container) {
   const canTilt = window.matchMedia("(hover: hover) and (pointer: fine)").matches
     && !window.matchMedia("(prefers-reduced-motion: reduce)").matches;
   if (!canTilt) return;
+  const hasGSAP = typeof window.gsap !== "undefined";
   container.querySelectorAll(".card").forEach(card => {
     if (card.dataset.tiltWired) return;
     card.dataset.tiltWired = "1";
-    let sheen = card.querySelector(".card-sheen");
-    if (!sheen) {
-      sheen = document.createElement("span");
-      sheen.className = "card-sheen";
-      card.appendChild(sheen);
-    }
-    let raf = null;
-    card.addEventListener("pointermove", ev => {
-      if (raf) return;
-      raf = requestAnimationFrame(() => {
-        raf = null;
+
+    if (hasGSAP) {
+      // Lab1 values exactly: rotationX = py*-8, rotationY = px*9, z = 14,
+      // transformPerspective 900, 0.5s power2.out, snap back to 0 on leave.
+      const rx = gsap.quickTo(card, "rotationX", { duration: 0.5, ease: "power2.out" });
+      const ry = gsap.quickTo(card, "rotationY", { duration: 0.5, ease: "power2.out" });
+      const tz = gsap.quickTo(card, "z", { duration: 0.5, ease: "power2.out" });
+      gsap.set(card, { transformPerspective: 900 });
+      card.addEventListener("pointermove", ev => {
         const r = card.getBoundingClientRect();
-        const px = Math.min(1, Math.max(0, (ev.clientX - r.left) / r.width));
-        const py = Math.min(1, Math.max(0, (ev.clientY - r.top) / r.height));
-        const rx = (0.5 - py) * 9;    // tilt up/down
-        const ry = (px - 0.5) * 11;   // tilt left/right
-        card.style.transform = `rotateX(${rx.toFixed(2)}deg) rotateY(${ry.toFixed(2)}deg) translateY(-4px)`;
-        sheen.style.setProperty("--sx", (px * 100).toFixed(1) + "%");
-        sheen.style.setProperty("--sy", (py * 100).toFixed(1) + "%");
+        const px = (ev.clientX - r.left) / r.width - 0.5;
+        const py = (ev.clientY - r.top) / r.height - 0.5;
+        rx(py * -8); ry(px * 9); tz(14);
       });
+      card.addEventListener("pointerleave", () => { rx(0); ry(0); tz(0); });
+      return;
+    }
+
+    // Fallback: lerp toward the target tilt in rAF (no GSAP on the page).
+    let tx = 0, ty = 0, tzv = 0, cx = 0, cy = 0, cz = 0, raf = null;
+    function loop() {
+      cx += (tx - cx) * 0.18; cy += (ty - cy) * 0.18; cz += (tzv - cz) * 0.18;
+      card.style.transform =
+        `perspective(900px) rotateX(${cx.toFixed(2)}deg) rotateY(${cy.toFixed(2)}deg) translateZ(${cz.toFixed(1)}px)`;
+      if (Math.abs(tx - cx) + Math.abs(ty - cy) + Math.abs(tzv - cz) > 0.05) {
+        raf = requestAnimationFrame(loop);
+      } else {
+        raf = null;
+        if (tx === 0 && ty === 0 && tzv === 0) card.style.transform = "";
+      }
+    }
+    function kick() { if (!raf) raf = requestAnimationFrame(loop); }
+    card.addEventListener("pointermove", ev => {
+      const r = card.getBoundingClientRect();
+      const px = (ev.clientX - r.left) / r.width - 0.5;
+      const py = (ev.clientY - r.top) / r.height - 0.5;
+      tx = py * -8; ty = px * 9; tzv = 14; kick();
     });
-    card.addEventListener("pointerenter", () => card.classList.add("is-tilting"));
-    card.addEventListener("pointerleave", () => {
-      card.classList.remove("is-tilting");
-      card.style.transform = "";
-    });
+    card.addEventListener("pointerleave", () => { tx = 0; ty = 0; tzv = 0; kick(); });
   });
 }
 
@@ -10889,31 +10907,168 @@ function pruneStaleAccountIds() {
   });
 }
 
-/* Scroll-following goose on the home page (Michiel 18 Jun). Descends with
-   scroll progress so it's obvious it goes down with you. Self-guards: does
-   nothing on pages without the #scroll-goose element. */
-(function initScrollGoose() {
+/* ============================================================
+   HOME WATER-SCROLL — ported from the design lab (Lab1), Lode 18 Jun.
+   ============================================================
+   Three things move together on the home page, all driven by one rAF
+   loop so they stay in sync:
+     1. Lenis smooth-scroll — scrolling gets glide/inertia, like a
+        paddle stroke ("glij-traagheid zoals een peddelslag").
+     2. Swell tilt — the page content tips a hair with your scroll
+        SPEED (rotateX, clamped ±1.15°) as if you're riding swell.
+        Applied PER content-section, deliberately skipping the
+        searcher (it goes position:fixed and a transformed ancestor
+        would re-anchor it) and the world map (Leaflet — avoid tile
+        blur / hit-test drift).
+     3. Buddy goose — a small goose paddles down a dotted swell-line on
+        the right as a scroll-progress indicator, banking with speed.
+   Plus depth reveals: cards & sections rise out of the deep (rotateX +
+   fade) as they enter view. All mouse-only + reduced-motion aware, and
+   everything no-ops gracefully if GSAP/Lenis didn't load. Home only. */
+(function sgHomeMotion() {
   function start() {
-    var goose = document.getElementById("scroll-goose");
-    if (!goose) return;
-    var MIN_VH = 14, MAX_VH = 64;   // vertical band it travels (top → bottom)
-    var ticking = false;
-    function update() {
-      ticking = false;
-      var doc = document.documentElement;
-      var max = (doc.scrollHeight - window.innerHeight) || 1;
-      var p = Math.min(1, Math.max(0, window.scrollY / max));
-      var vh = MIN_VH + (MAX_VH - MIN_VH) * p;
-      goose.style.setProperty("--goose-y", vh.toFixed(1) + "vh");
+    if (!document.body || !document.body.classList.contains("is-home")) return;
+
+    var reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    var finePtr = window.matchMedia("(hover: hover) and (pointer: fine)").matches;
+    var motionOK = !reduce;
+    var clamp = function (v, lo, hi) { return Math.max(lo, Math.min(hi, v)); };
+
+    /* ---- Lenis smooth scroll (glide) ---- */
+    var smooth = null;
+    if (motionOK && finePtr && typeof window.Lenis !== "undefined") {
+      try {
+        smooth = new Lenis({ duration: 1.35, smoothWheel: true });
+        window.__sgLenis = smooth;   // debug handle
+      } catch (e) { smooth = null; }
     }
-    window.addEventListener("scroll", function () {
-      if (ticking) return;
-      ticking = true;
-      requestAnimationFrame(update);
-    }, { passive: true });
-    window.addEventListener("resize", update, { passive: true });
-    update();
+
+    /* ---- Buddy goose on its dotted swell-line ---- */
+    var buddy = document.getElementById("buddy");
+    var buddyGoose = document.getElementById("buddy-goose");
+    var buddyPath = document.getElementById("buddy-path");
+    var buddyLen = 0;
+    if (buddyGoose && !buddyGoose.firstChild) {
+      var gi = new Image();
+      gi.src = "surfgoose_icon.svg";
+      gi.alt = "";
+      buddyGoose.appendChild(gi);
+    }
+    if (buddyPath && buddyPath.getTotalLength) {
+      try { buddyLen = buddyPath.getTotalLength(); } catch (e) { buddyLen = 0; }
+    }
+    if (buddy && motionOK && finePtr && buddyLen) buddy.classList.add("is-on");
+
+    /* ---- Swell-tilt targets: main's content sections, minus the
+            fixed-capable searcher and the Leaflet world map ---- */
+    var swellSecs = [];
+    var main = document.querySelector("main");
+    if (motionOK && finePtr && main) {
+      Array.prototype.forEach.call(main.children, function (el) {
+        if (el.tagName !== "SECTION") return;
+        if (el.classList.contains("searcher-wrap")) return;     // goes position:fixed
+        if (el.classList.contains("searchbar-wrap")) return;    // moves host / can go fixed
+        if (el.classList.contains("world-map-wrap")) return;    // Leaflet map
+        el.style.transformOrigin = "50% 0%";
+        el.style.willChange = "transform";
+        swellSecs.push(el);
+      });
+    }
+
+    /* ---- The shared frame loop ---- */
+    var lastY = window.scrollY, vel = 0;
+    function frame(time) {
+      if (smooth) smooth.raf(time);
+      var y = window.scrollY;
+      vel += ((y - lastY) - vel) * 0.12;    // smoothed scroll velocity
+      lastY = y;
+
+      if (swellSecs.length) {
+        var tilt = clamp(vel * -0.045, -1.15, 1.15);
+        var tf = "perspective(1500px) rotateX(" + tilt.toFixed(3) + "deg)";
+        for (var i = 0; i < swellSecs.length; i++) swellSecs[i].style.transform = tf;
+      }
+
+      if (buddy && buddyLen && buddy.classList.contains("is-on")) {
+        var max = document.documentElement.scrollHeight - window.innerHeight;
+        var p = max > 0 ? clamp(y / max, 0, 1) : 0;
+        var pt = buddyPath.getPointAtLength(p * buddyLen);
+        // getPointAtLength is in viewBox units (0..560 tall); scale to the
+        // rendered SVG height so the goose tracks the line at any size.
+        var svgH = buddyPath.ownerSVGElement ? buddyPath.ownerSVGElement.clientHeight : 560;
+        var sY = svgH > 0 ? svgH / 560 : 1;
+        var bank = clamp(vel * 0.7, -26, 26);
+        buddyGoose.style.transform =
+          "translate(" + pt.x.toFixed(1) + "px," + (pt.y * sY).toFixed(1) + "px) rotate(" + bank.toFixed(1) + "deg)";
+      }
+
+      requestAnimationFrame(frame);
+    }
+    if (motionOK) requestAnimationFrame(frame);
+
+    /* ---- Depth reveals: cards & sections rise from the deep on view.
+            Guarded so content is NEVER left hidden if GSAP is missing or
+            throws (a hard failsafe un-hides everything after 4s). ---- */
+    if (motionOK && finePtr && typeof window.gsap !== "undefined" && "IntersectionObserver" in window) {
+      try {
+        var docEl = document.documentElement;
+        docEl.classList.add("sg-reveal-init");
+        var io = new IntersectionObserver(function (entries) {
+          entries.forEach(function (en) {
+            if (!en.isIntersecting) return;
+            io.unobserve(en.target);
+            var el = en.target;
+            try {
+              var idx = parseInt(el.getAttribute("data-sgri") || "0", 10);
+              gsap.fromTo(el,
+                { y: 52, rotateX: 9, autoAlpha: 0, transformPerspective: 900, transformOrigin: "50% 100%" },
+                { y: 0, rotateX: 0, autoAlpha: 1, duration: 0.9, delay: (idx % 3) * 0.08,
+                  ease: "power3.out", clearProps: "transform,perspective" });
+                  // NB: don't clear opacity/visibility — the tween's end state
+                  // (autoAlpha:1) must stay inline to override the .sg-reveal-init
+                  // hide rule, or revealed elements would vanish again.
+            } catch (e) {
+              // Tween failed → never leave it hidden.
+              el.style.opacity = ""; el.style.visibility = "";
+            }
+          });
+        }, { threshold: 0.12, rootMargin: "0px 0px -40px 0px" });
+
+        window.__sgObserveReveals = function (root) {
+          var scope = root || document;
+          var sel = ".card, .region-card, .peaking-card, .world-map-head, .region-strip .region-more";
+          var els = scope.querySelectorAll(sel);
+          for (var i = 0; i < els.length; i++) {
+            var el = els[i];
+            if (el.dataset.sgriSeen) continue;
+            el.dataset.sgriSeen = "1";
+            el.setAttribute("data-sgri", String(i));
+            io.observe(el);
+          }
+        };
+        window.__sgObserveReveals();
+        // Re-scan as dynamic content lands (results, region cards, carousel).
+        var rescans = 0;
+        var rescan = setInterval(function () {
+          window.__sgObserveReveals();
+          if (++rescans >= 8) clearInterval(rescan);   // ~4s of catching late renders
+        }, 500);
+        // Hard failsafe: nothing stays invisible. Drop the hide class AND
+        // clear any inline hidden-state left by an interrupted tween (e.g. a
+        // backgrounded tab where the rAF-driven reveal never completed).
+        setTimeout(function () {
+          docEl.classList.remove("sg-reveal-init");
+          var sel = ".card, .region-card, .peaking-card, .world-map-head, .region-strip .region-more";
+          document.querySelectorAll(sel).forEach(function (el) {
+            if (getComputedStyle(el).opacity === "0") { el.style.opacity = "1"; el.style.visibility = "visible"; }
+          });
+        }, 4200);
+      } catch (e) {
+        document.documentElement.classList.remove("sg-reveal-init");
+      }
+    }
   }
+
   if (document.readyState === "loading") {
     document.addEventListener("DOMContentLoaded", start);
   } else {
@@ -10921,19 +11076,22 @@ function pruneStaleAccountIds() {
   }
 })();
 
-/* Intro / landing splash controller (Michiel 18 Jun). Blue screen + goose
-   fly-in, ONCE per browser session, skippable (button / click / Esc), with
-   a failsafe auto-dismiss. Self-guards on the #sg-intro element so it only
-   runs on the home page. */
+/* Intro / landing splash controller (Michiel 18 Jun; show-logic reworked
+   per Lode 18 Jun). Blue screen + goose fly-in. Plays on every FRESH load
+   of the home — reopening the site, reloading, and clicking the logo all
+   replay it. It is suppressed ONLY when you arrived via an in-site link
+   (the Home tab, a country card, etc.): those links set a one-shot
+   `sg_skip_intro` flag just before navigating (see the click handler
+   below). Skippable (button / click / Esc) + failsafe auto-dismiss. */
 (function sgIntroSplash() {
   function start() {
     var el = document.getElementById("sg-intro");
     if (!el) return;
-    var KEY = "sg_intro_seen_v1";
-    var seen = false;
-    try { seen = sessionStorage.getItem(KEY) === "1"; } catch (e) {}
-    if (seen) { el.remove(); return; }       // already shown this session
-    try { sessionStorage.setItem(KEY, "1"); } catch (e) {}
+    var SKIP = "sg_skip_intro";
+    var skipNow = false;
+    try { skipNow = sessionStorage.getItem(SKIP) === "1"; } catch (e) {}
+    try { sessionStorage.removeItem(SKIP); } catch (e) {}   // one-shot — clear it
+    if (skipNow) { el.remove(); return; }    // arrived via an in-site link → no intro
 
     var reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
     document.documentElement.classList.add("sg-intro-lock");
@@ -10965,4 +11123,22 @@ function pruneStaleAccountIds() {
   } else {
     start();
   }
+})();
+
+/* Suppress the home intro on in-site navigation (Lode 18 Jun). Any internal
+   link click — Home tab, country card, mobile tab, back-to-home — sets a
+   one-shot flag so the splash does NOT replay on arrival. The LOGO is the
+   deliberate exception: clicking it replays the intro. Fresh loads (reload,
+   reopening the site) involve no click, so no flag → the intro plays. */
+(function sgIntroSuppressor() {
+  document.addEventListener("click", function (ev) {
+    var a = ev.target.closest && ev.target.closest("a[href]");
+    if (!a) return;
+    if (a.classList.contains("logo")) return;            // logo → replay the intro
+    if (a.target === "_blank") return;
+    if (ev.metaKey || ev.ctrlKey || ev.shiftKey || ev.altKey) return;
+    var href = a.getAttribute("href") || "";
+    if (/^(https?:|mailto:|tel:|#)/i.test(href)) return; // external / anchor — ignore
+    try { sessionStorage.setItem("sg_skip_intro", "1"); } catch (e) {}
+  }, true);
 })();
