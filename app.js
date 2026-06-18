@@ -10952,7 +10952,8 @@ function pruneStaleAccountIds() {
     /* ---- Buddy goose on its dotted swell-line — every page EXCEPT the
             Nearby/Map tabs (Lode 18 Jun: not wanted over the big maps).
             Setting buddy = null there no-ops all the buddy code + the loop. ---- */
-    var onMapTab = /\/(explorer|kaart)\.html$/i.test(location.pathname);
+    // Match both /explorer.html (local) and /explorer (Cloudflare clean URLs).
+    var onMapTab = /^\/(explorer|kaart)(\.html)?\/?$/i.test(location.pathname);
     var buddy = onMapTab ? null : document.getElementById("buddy");
     var buddyGoose = buddy ? document.getElementById("buddy-goose") : null;
     var buddyPath = buddy ? document.getElementById("buddy-path") : null;
@@ -11199,14 +11200,14 @@ function pruneStaleAccountIds() {
       gsap.timeline()
         .set(veil, { yPercent: 100, y: 96 })
         .to(veil, { yPercent: 0, y: 0, duration: 0.62, ease: "power3.in" })
-        // Slow, clearly-visible glide-away (Lode 18 Jun: "die mag trager
-        // wegvliegen"). The goose drifts across the covered sea over ~1.25s,
+        // Slow, clearly-visible glide-away (Lode 18 Jun: "die mag zeker 2x
+        // trager"). The goose drifts across the covered sea over ~2.5s,
         // lifting + banking as it leaves; we navigate once it's off-screen.
         .fromTo(goose,
           { x: -0.24 * W, y: 0, opacity: 1, rotation: 6 },
-          { x: 1.22 * W, y: -78, rotation: -11, duration: 1.25, ease: "power1.inOut" }, 0.12)
-        .add(go, 1.32);
-      setTimeout(go, 1750);   // failsafe: navigate even if the timeline stalls
+          { x: 1.22 * W, y: -90, rotation: -12, duration: 2.5, ease: "power1.inOut" }, 0.12)
+        .add(go, 2.5);
+      setTimeout(go, 3000);   // failsafe: navigate even if the timeline stalls
     }
 
     document.addEventListener("click", function (e) {
@@ -11217,7 +11218,12 @@ function pruneStaleAccountIds() {
       if (a.target === "_blank") return;
       var href = a.getAttribute("href") || "";
       if (/^(https?:|mailto:|tel:|#)/i.test(href)) return;                    // external / anchor
-      try { if (new URL(href, location.href).pathname === location.pathname) return; } catch (e2) {}  // same page → let it reload
+      // Same page → let it reload (no veil). Normalise .html/clean-URL/index
+      // so e.g. clicking the active tab doesn't trigger a transition-to-self.
+      try {
+        var nk = function (p) { p = p.replace(/\/+$/, "").replace(/\.html$/i, ""); return (p === "" || p === "/index") ? "/" : p; };
+        if (nk(new URL(href, location.href).pathname) === nk(location.pathname)) return;
+      } catch (e2) {}
       e.preventDefault();
       leaveVia(href);
     }, true);
