@@ -1253,58 +1253,48 @@ table.cal td.host { color: var(--clay); }
    Two-column compact layout: left has the brand line + legal links
    stacked together; right has the italic intro/note. No internal
    borders — the top border of .site-footer is plenty. */
+/* Footer — clean, professional, three blocks (brand · links · socials).
+   June 2026 (Michiel): dropped the "quick-and-dirty prototype" line and
+   the right-side note; links stacked vertically; socials labelled. */
 .site-footer {
   border-top: 1px solid var(--sand);
-  margin-top: 40px;
-  padding: 22px 0;
+  margin-top: 48px;
+  padding: 36px 0 32px;
   color: var(--ink-soft);
   font-size: 14px;
 }
 .site-footer .wrap {
   display: flex; justify-content: space-between; align-items: flex-start;
-  flex-wrap: wrap; gap: 16px 32px;
+  flex-wrap: wrap; gap: 26px 48px;
 }
-/* Left column wraps the brand line + the legal links under it. */
-.site-footer .foot-left { display: flex; flex-direction: column; gap: 6px; }
-.site-footer .note { font-style: italic; max-width: 52ch; }
-.site-footer .disclosure {
-  flex-basis: 100%;
-  font-size: 12.5px; color: var(--ink-soft);
-  border-top: 1px solid var(--sand);
-  padding-top: 8px; margin-top: 4px;
+.foot-brand { display: flex; flex-direction: column; gap: 7px; max-width: 32ch; }
+.foot-logo {
+  font-family: 'Fraunces', serif; font-size: 21px; font-weight: 600;
+  color: var(--ink); line-height: 1;
 }
+.foot-logo span { color: var(--clay); }   /* "Goose" in brand red, like the header */
+.foot-tagline { font-size: 13.5px; color: var(--ink-soft); line-height: 1.55; }
 
-/* Footer legal links — Privacy, Legal, Contact, Cookie preferences.
-   Sits inside .foot-left now, directly under the brand line. */
-.site-footer .legal-links {
-  display: flex; flex-wrap: wrap; gap: 4px 14px;
-  font-size: 12.5px; color: var(--ink-soft);
-}
-.site-footer .legal-links a,
-.site-footer .legal-links button {
+/* Legal links — stacked vertically (Michiel). */
+.foot-links { display: flex; flex-direction: column; gap: 9px; }
+.foot-links a,
+.foot-links button {
   color: var(--ink-soft); text-decoration: none;
-  background: none; border: none; cursor: pointer;
-  padding: 0; font: inherit;
+  background: none; border: none; cursor: pointer; padding: 0;
+  font: inherit; font-size: 14px; text-align: left;
 }
-.site-footer .legal-links a:hover,
-.site-footer .legal-links button:hover { color: var(--sea); text-decoration: underline; }
+.foot-links a:hover,
+.foot-links button:hover { color: var(--sea); }
 
-/* Social icons in footer — slightly larger than text links so they
-   stand out as icons (not as text). Inline SVG uses currentColor so
-   colour follows the link colour transitions. */
-.site-footer .legal-links .social-link {
-  display: inline-flex; align-items: center; justify-content: center;
-  width: 22px; height: 22px;
-  margin-left: 2px;
-  border-radius: 4px;
-  transition: color 0.15s ease, background-color 0.15s ease;
+/* Socials — icon + label so it's obviously a social link, not decoration. */
+.foot-social { display: flex; flex-direction: column; gap: 11px; }
+.foot-social .social-link {
+  display: inline-flex; align-items: center; gap: 9px;
+  color: var(--ink-soft); text-decoration: none; font-size: 14px;
+  transition: color 0.15s ease;
 }
-.site-footer .legal-links .social-link:hover {
-  color: var(--sea);
-  background: rgba(63,111,125,0.08);
-  text-decoration: none;
-}
-.site-footer .legal-links .social-link svg { display: block; }
+.foot-social .social-link svg { display: block; }
+.foot-social .social-link:hover { color: var(--sea); }
 
 /* ===========================================================
    Compare-mode for maps (June 2026 Michiel feature request)
