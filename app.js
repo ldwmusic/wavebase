@@ -715,7 +715,20 @@ function entryImgList(e) {
   if (e && e.images && e.images.length) return e.images;
   return (e && e.photo) ? [{ url: e.photo }] : [];
 }
-function thumbStyle(e) { const im = entryImg(e); const u = im ? cldUrl(im, { w: 600, h: 600 }) : ""; return u ? ` style="background-image:url('${u}')"` : ""; }
+/* Default photo for wave-surf spots that have no photo of their own (Lode 18
+   Jun): a surfer-at-sunset shot, framing the woman. Local file `wave-default.jpg`.
+   Layered behind the spot gradient so a missing file degrades gracefully. */
+function defaultWaveThumbUrl(e) {
+  return (e && e.type === "spot" && !entryImg(e) && entrySports(e).includes("wave")) ? "wave-default.jpg" : "";
+}
+function hasThumbImage(e) { return !!(entryImg(e) || defaultWaveThumbUrl(e)); }
+function thumbStyle(e) {
+  const im = entryImg(e);
+  if (im) { const u = cldUrl(im, { w: 600, h: 600 }); return u ? ` style="background-image:url('${u}')"` : ""; }
+  const dw = defaultWaveThumbUrl(e);
+  if (dw) return ` style="background-image:url('${dw}'), linear-gradient(150deg,#4a7c8c,#2f5360);background-size:cover;background-position:40% 35%"`;
+  return "";
+}
 
 /* ---- nav: account label + compare count ---- */
 function updateNav() {
@@ -2035,7 +2048,7 @@ function cardHTML(e, distKm, opts) {
   }
   return `
   <article class="card" data-href="${spotHref(e.id)}">
-    <div class="thumb ${e.type}${entryImg(e) ? " has-photo" : ""}"${thumbStyle(e)}>
+    <div class="thumb ${e.type}${hasThumbImage(e) ? " has-photo" : ""}${(!entryImg(e) && defaultWaveThumbUrl(e)) ? " is-default-photo" : ""}"${thumbStyle(e)}>
       <span class="badge">${typeBadge(e.type)}</span>
       ${seasonChip}
       ${e.type === "stay" ? "" : sportIconsHTML(entrySports(e))}
@@ -5254,6 +5267,8 @@ const _ENTITY_SLUG = { spot: "surf-spots", center: "centers", stay: "stays" };
 function heroHTML(e) {
   const imgs = entryImgList(e);
   if (!imgs.length) {
+    const dw = defaultWaveThumbUrl(e);
+    if (dw) return `<div class="detail-photo ${e.type} has-photo is-default-photo" style="background-image:url('${dw}'), linear-gradient(150deg,#4a7c8c,#2f5360)"></div>`;
     return `<div class="detail-photo ${e.type}"><span class="photo-placeholder">Photo coming soon</span></div>`;
   }
   const slides = imgs.map((im, i) =>
@@ -10153,7 +10168,7 @@ function renderCompare() {
     const pts = compareKeyPoints(e).map(([k, v]) =>
       v ? `<div class="cmp-row"><span class="cmp-k">${k}</span><span class="cmp-v">${v}</span></div>` : "").join("");
     return `<div class="cmp-col">
-      <div class="thumb ${e.type}${entryImg(e) ? " has-photo" : ""}"${thumbStyle(e)}>
+      <div class="thumb ${e.type}${hasThumbImage(e) ? " has-photo" : ""}${(!entryImg(e) && defaultWaveThumbUrl(e)) ? " is-default-photo" : ""}"${thumbStyle(e)}>
         <span class="badge">${typeBadge(e.type)}</span>
         <button class="cmp-remove" data-uncompare="${e.id}" aria-label="Remove from compare" title="Remove from compare">×</button>
         ${e.type === "stay" ? "" : sportIconsHTML(entrySports(e))}

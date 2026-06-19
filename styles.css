@@ -3749,7 +3749,12 @@ html.is-embed .buddy,
 html.is-embed .backlink,
 html.is-embed .mobile-tabbar,
 html.is-embed .mobile-filters-trigger { display: none !important; }
-html.is-embed main { padding-top: 8px; }
+/* Roomier framing inside the Map-tab bloom (Lode 18 Jun: the edge was sharply
+   cut). Inset the detail content from the panel edges and round the hero so it
+   doesn't hit the corners. */
+html.is-embed { background: var(--cream); }
+html.is-embed main { padding: 12px 18px 28px; }
+html.is-embed .detail-photo { border-radius: 16px; }
 
 @media (max-width: 620px) {
   .site-nav { gap: 14px; }
@@ -3899,6 +3904,9 @@ html.is-embed main { padding-top: 8px; }
 
 /* photo slots */
 .thumb.has-photo { background-size: cover; background-position: center; }
+/* Default wave-surf photo — frame the surfer (she sits left-of-centre). */
+.thumb.is-default-photo { background-position: 40% 35%; }
+.detail-photo.is-default-photo { background-size: cover; background-position: 42% 28%; }
 .detail-photo {
   height: 280px;
   border-radius: var(--radius);
@@ -5470,6 +5478,25 @@ button.rml-key.off .rml-dot {
 
 @media (max-width: 620px) {
   .view-toggle { display: none; }
+  /* On phone the horizontal list-view cards are cramped and hard to read
+     (Lode 18 Jun) — show them as normal vertical cards instead. */
+  .grid.list-view { display: grid; grid-template-columns: 1fr; gap: 18px; }
+  .grid.list-view .card { flex-direction: column; border-radius: var(--radius); }
+  .grid.list-view .card .thumb {
+    width: auto; min-width: 0; height: 150px;
+    display: flex; align-items: flex-end; padding: 14px 16px;
+  }
+  .grid.list-view .card .thumb::after { display: block; }   /* restore wave-edge */
+  .grid.list-view .card .body { padding: 16px 18px 18px; }
+  .grid.list-view .card h3 { font-size: 20px; }
+  .grid.list-view .card .badge { top: 12px; left: 12px; font-size: 12px; padding: 4px 12px; }
+  .grid.list-view .card .save-btn,
+  .grid.list-view .card .compare-btn,
+  .grid.list-view .card .trip-btn { width: 34px; height: 34px; top: 12px; font-size: 15px; }
+  .grid.list-view .card .save-btn    { right: 12px; }
+  .grid.list-view .card .compare-btn { right: 54px; }
+  .grid.list-view .card .trip-btn    { right: 96px; }
+  .grid.list-view .card .sport-icons { bottom: 32px; left: 12px; }
 }
 
 /* ===== round 13: sport pills (Wave / Wind / Kite / Wing) on Discover ===== */
