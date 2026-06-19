@@ -1041,20 +1041,15 @@ a, button, [role="button"] { -webkit-tap-highlight-color: rgba(63,111,125,0.08);
 }
 .card .sport-icons {
   position: absolute;
-  bottom: 30px; left: 12px;
+  bottom: 32px; left: 12px;
   z-index: 2;
   display: flex;
   align-items: center;
-  gap: 5px;
+  gap: 4px;
   color: #fffefb;
-  /* Frosted dark chip so the white icons read on ANY photo, not just the
-     plain gradient (Lode 18 Jun — they washed out on the new photos).
-     Same family as the .badge pill. */
-  background: rgba(0, 0, 0, 0.42);
-  border-radius: 999px;
-  padding: 4px 9px;
-  backdrop-filter: blur(3px);
-  -webkit-backdrop-filter: blur(3px);
+  /* Minimal: no chip — just a crisp shadow so the white icons stay legible on
+     any photo without crowding the card (Lode 18 Jun: the pill was too busy). */
+  filter: drop-shadow(0 1px 2.5px rgba(0, 0, 0, 0.6));
 }
 .card .sport-icon { display: inline-flex; }
 .card .sport-icon svg { width: 36px; height: 36px; display: block; }

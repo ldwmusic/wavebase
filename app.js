@@ -2251,17 +2251,19 @@ function wireCardTilt(container) {
     card.dataset.tiltWired = "1";
 
     if (hasGSAP) {
-      // Lab1 values exactly: rotationX = py*-8, rotationY = px*9, z = 14,
-      // transformPerspective 900, 0.5s power2.out, snap back to 0 on leave.
-      const rx = gsap.quickTo(card, "rotationX", { duration: 0.5, ease: "power2.out" });
-      const ry = gsap.quickTo(card, "rotationY", { duration: 0.5, ease: "power2.out" });
-      const tz = gsap.quickTo(card, "z", { duration: 0.5, ease: "power2.out" });
-      gsap.set(card, { transformPerspective: 900 });
+      // Gentle "floating on water" bank — toned down from the Lab1 values
+      // (rotationX ±3.5 / rotationY ±4 / z 6, flatter perspective, slightly
+      // longer glide) so it reads as a subtle sway, not a heavy tilt
+      // (Lode 18 Jun: "nog steeds te heftig, moet subtieler").
+      const rx = gsap.quickTo(card, "rotationX", { duration: 0.6, ease: "power2.out" });
+      const ry = gsap.quickTo(card, "rotationY", { duration: 0.6, ease: "power2.out" });
+      const tz = gsap.quickTo(card, "z", { duration: 0.6, ease: "power2.out" });
+      gsap.set(card, { transformPerspective: 1100 });
       card.addEventListener("pointermove", ev => {
         const r = card.getBoundingClientRect();
         const px = (ev.clientX - r.left) / r.width - 0.5;
         const py = (ev.clientY - r.top) / r.height - 0.5;
-        rx(py * -8); ry(px * 9); tz(14);
+        rx(py * -3.5); ry(px * 4); tz(6);
       });
       card.addEventListener("pointerleave", () => { rx(0); ry(0); tz(0); });
       return;
@@ -2270,9 +2272,9 @@ function wireCardTilt(container) {
     // Fallback: lerp toward the target tilt in rAF (no GSAP on the page).
     let tx = 0, ty = 0, tzv = 0, cx = 0, cy = 0, cz = 0, raf = null;
     function loop() {
-      cx += (tx - cx) * 0.18; cy += (ty - cy) * 0.18; cz += (tzv - cz) * 0.18;
+      cx += (tx - cx) * 0.14; cy += (ty - cy) * 0.14; cz += (tzv - cz) * 0.14;
       card.style.transform =
-        `perspective(900px) rotateX(${cx.toFixed(2)}deg) rotateY(${cy.toFixed(2)}deg) translateZ(${cz.toFixed(1)}px)`;
+        `perspective(1100px) rotateX(${cx.toFixed(2)}deg) rotateY(${cy.toFixed(2)}deg) translateZ(${cz.toFixed(1)}px)`;
       if (Math.abs(tx - cx) + Math.abs(ty - cy) + Math.abs(tzv - cz) > 0.05) {
         raf = requestAnimationFrame(loop);
       } else {
@@ -2285,7 +2287,7 @@ function wireCardTilt(container) {
       const r = card.getBoundingClientRect();
       const px = (ev.clientX - r.left) / r.width - 0.5;
       const py = (ev.clientY - r.top) / r.height - 0.5;
-      tx = py * -8; ty = px * 9; tzv = 14; kick();
+      tx = py * -3.5; ty = px * 4; tzv = 6; kick();
     });
     card.addEventListener("pointerleave", () => { tx = 0; ty = 0; tzv = 0; kick(); });
   });
