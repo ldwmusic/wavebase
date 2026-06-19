@@ -3755,6 +3755,12 @@ html.is-embed .mobile-filters-trigger { display: none !important; }
 html.is-embed { background: var(--cream); }
 html.is-embed main { padding: 12px 18px 28px; }
 html.is-embed .detail-photo { border-radius: 16px; }
+/* Full-screen Map in the bloom: drop the page heading + padding so the map
+   fills the panel, like the real Map tab. */
+html.is-embed .map-page main, html.is-embed main.map-page { padding: 0; }
+html.is-embed .map-intro { display: none; }
+html.is-embed .map-stage { margin: 8px 0; padding: 0 10px; }
+html.is-embed #map { height: calc(100vh - 72px); min-height: 0; }
 
 @media (max-width: 620px) {
   .site-nav { gap: 14px; }
@@ -4422,6 +4428,16 @@ html.is-embed .detail-photo { border-radius: 16px; }
   font-size: 13px;
   color: var(--ink-soft);
 }
+/* "Full screen" → blooms the full Map-tab map open over the page (Lode 18 Jun). */
+.results-map-fullscreen {
+  display: inline-flex; align-items: center; gap: 6px;
+  font: inherit; font-size: 13px; font-weight: 600; cursor: pointer;
+  color: var(--sea); background: var(--sea-soft); border: 1px solid #c9dde0;
+  border-radius: 999px; padding: 6px 13px;
+  transition: background 0.18s ease, color 0.18s ease;
+}
+.results-map-fullscreen:hover { background: var(--sea); color: #fff; }
+.results-map-fullscreen:focus-visible { outline: 3px solid var(--sea); outline-offset: 2px; }
 /* Legend keys double as click-toggles for layer visibility. Each key is
    a real <button> — no pill chrome, no background, just plain text with
    the colored dot. When OFF, only the dot goes hollow (white with a
