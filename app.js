@@ -2244,6 +2244,32 @@ function countryFlag(name) {
   }
   return "";
 }
+
+/* Is this string a country we list? Used so a bare country-name search
+   ("Greece") matches places IN that country only — not places whose prose
+   merely mentions it (Lode 18 Jun: searching Greece returned a Tenerife spot
+   that compares itself to Greece). */
+function isKnownCountry(name) {
+  if (!name || typeof WAVEBASE_DESTINATIONS === "undefined") return false;
+  const n = String(name).toLowerCase().trim();
+  for (const c of WAVEBASE_DESTINATIONS) {
+    for (const co of c.countries) {
+      if ((co.name || "").toLowerCase() === n) return true;
+    }
+  }
+  return false;
+}
+
+/* Multi-sport filter (Lode 18 Jun): selecting e.g. wind + wave shows only
+   places where BOTH work — AND, not OR — for spots and centers (the sport
+   venues). Stays are lodging, not a sport venue, so a stay matches if it
+   serves ANY selected sport (an area-relevant stay shouldn't vanish). Empty
+   selection = all sports. */
+function entryMatchesSports(e, sports) {
+  if (!sports || !sports.length) return true;
+  if (e.type === "stay") return entrySports(e).some(s => sports.includes(s));
+  return sports.every(s => entrySports(e).includes(s));
+}
 // Falls back to ["wave"] when the entry has no sport tags at all
 // (missing field OR empty array). Pre-API-migration the field was
 // undefined for surf-only stays, so `|| ["wave"]` was enough; the
@@ -2455,6 +2481,12 @@ function searchScore(e, q) {
 
   // 2. Any identity WORD starting with the query ("bea" → "Banana Beach").
   if (idWords.some(w => w.startsWith(ql))) return 500;
+
+  // A bare country-name query matches places IN that country only — places
+  // actually in it already scored above (country.* checks). Everyone else
+  // stops here, so prose that merely MENTIONS the country (a Tenerife spot
+  // comparing itself to Greece) no longer pulls it into the results.
+  if (!multi && isKnownCountry(ql) && country !== ql) return 0;
 
   // 3. Multi-word query where every word appears somewhere (incl. prose).
   if (multi && qWords.every(w => (name + " " + town + " " + country + " " + prose).includes(w))) return 300;
@@ -3416,7 +3448,7 @@ function runSearch() {
   if (query) {
     const matches = WAVEBASE_DATA.filter(e => {
       if (!searchMatch(e, query)) return false;
-      if (!sportIsAll && !sports.some(s => entrySports(e).includes(s))) return false;
+      if (!entryMatchesSports(e, sports)) return false;
       // Stays (guesthouses) host every level — filtering them by the
       // user's wave skill makes no sense and just hides options for
       // advanced surfers (LDW May 2026). Same in the country/sport
@@ -3456,7 +3488,7 @@ function runSearch() {
     const monthIdx = (mInt >= 1 && mInt <= 12) ? mInt : null;
     const featuredSpots = WAVEBASE_DATA.filter(e =>
       e.type === "spot" &&
-      (sportIsAll || entrySports(e).some(s => sportSet.has(s))) &&
+      entryMatchesSports(e, sports) &&
       (level === "all" || (Array.isArray(e.levels) && e.levels.includes(level))));
     const featured = topSpotsBlockHTML(featuredSpots, monthIdx, sport);
     if (featured) {
@@ -3483,7 +3515,7 @@ function runSearch() {
 
   // Data-driven: filter entries by country (with default) and sport (with default)
   const liveCountrySportEntries = WAVEBASE_DATA.filter(e =>
-    entryCountry(e) === country && (sportIsAll || sports.some(s => entrySports(e).includes(s)))
+    entryCountry(e) === country && entryMatchesSports(e, sports)
   );
 
   // No entries for this country×sport combo → COMING SOON with smart hints
@@ -4802,10 +4834,11 @@ function dienstenHTML(d) {
    the old plain "Ideal for / Not ideal if" boxes. */
 function goSkipHTML(e) {
   if (!e.ideaalVoor && !e.nietIdeaalAls) return "";
-  // No goose icon in the card heads — Lode, 13 Jun 2026.
+  // Goose logo in the card heads (Lode 18 Jun — like the mockup / Overture
+  // to-do; reverses the 13-Jun removal).
   const card = (cls, title, text) => text
     ? `<div class="gs-card ${cls}">
-        <div class="gs-head"><h3>${title}</h3></div>
+        <div class="gs-head"><img src="surfgoose_icon.svg" alt="" class="gs-goose"><h3>${title}</h3></div>
         <p>${text}</p>
       </div>`
     : "";

@@ -1325,6 +1325,7 @@ table.cal td.host { color: var(--clay); }
   display: flex; align-items: center; gap: 10px;
   margin-bottom: 8px;
 }
+.gs-goose { width: 30px; height: 30px; object-fit: contain; flex: none; }
 .gs-head h3 {
   font-family: 'Fraunces', serif; font-size: 20px; font-weight: 600;
   color: var(--ink);
