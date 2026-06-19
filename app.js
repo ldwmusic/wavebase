@@ -724,15 +724,31 @@ function entryImgList(e) {
    are the background-positions that frame each photo on the thumb / wide hero
    (default "center"). */
 const DEFAULT_PHOTO_POOLS = {
-  // Per-discipline pools in photos/disciplines/<sport>/. Add more entries as
-  // Lode drops photos in (append { url, card, hero }; default framing "center").
+  // Per-discipline pools in photos/disciplines/<sport>/. Append { url } as Lode
+  // drops photos in — `card`/`hero` (background-position) are optional and
+  // default to "center"; only set them when a photo needs reframing.
   wave: [
     { url: "photos/disciplines/wave/pexels-beach-1838501.jpg",      card: "50% 30%", hero: "50% 16%" },
-    { url: "photos/disciplines/wave/kinenriquez-beach-4426246.jpg", card: "center",  hero: "50% 42%" }
+    { url: "photos/disciplines/wave/kinenriquez-beach-4426246.jpg", hero: "50% 42%" },
+    { url: "photos/disciplines/wave/digtallife-girls-5662900.jpg" },
+    { url: "photos/disciplines/wave/palinska-bali-5111131.jpg" },
+    { url: "photos/disciplines/wave/stocksnap-surfing-926822.jpg" }
   ],
-  wind: [ { url: "photos/disciplines/wind/windsurf-action-surfing-3859466.jpg", card: "48% 54%", hero: "48% 56%" } ],
-  kite: [ { url: "photos/disciplines/kite/kitereisen-kite-surfing-3857698.jpg", card: "50% 52%", hero: "50% 54%" } ],
-  wing: [ { url: "photos/disciplines/kite/kitereisen-kite-surfing-3857698.jpg", card: "50% 52%", hero: "50% 54%" } ]
+  wind: [
+    { url: "photos/disciplines/wind/windsurf-action-surfing-3859466.jpg", card: "48% 54%", hero: "48% 56%" },
+    { url: "photos/disciplines/wind/iulian_ursache-sunset-5327019_1920.jpg" },
+    { url: "photos/disciplines/wind/justasurferdude-sunset-2295669_1920.jpg" },
+    { url: "photos/disciplines/wind/kanenori-windsurfing-7241074_1920.jpg" },
+    { url: "photos/disciplines/wind/loggawiggler-windsurfing-51880_1920.jpg" }
+  ],
+  kite: [
+    { url: "photos/disciplines/kite/kitereisen-kite-surfing-3857698.jpg", card: "50% 52%", hero: "50% 54%" },
+    { url: "photos/disciplines/kite/pexels-action-1867052_1920.jpg" },
+    { url: "photos/disciplines/kite/wasi1370-heaven-3353857_1920.jpg" }
+  ],
+  wing: [
+    { url: "photos/disciplines/wing/matthiaskost-sea-7514854_1920.jpg" }
+  ]
 };
 function _sgHashId(s) {
   s = String(s || ""); let h = 0;
