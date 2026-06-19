@@ -49,6 +49,7 @@
   --sand:       #e7dcc4;
   --sand-deep:  #d8c9a8;
   --sea:        #3f6f7d;
+  --sea-deep:   #2e5663;
   --sea-soft:   #dde8ea;
   --clay:       #bd6242;
   --clay-soft:  #f0ddd2;
@@ -403,12 +404,22 @@ a, button, [role="button"] { -webkit-tap-highlight-color: rgba(63,111,125,0.08);
   transition: background 0.2s ease, color 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease, transform 0.1s ease;
 }
 .searcher-reset { background: transparent; border-color: var(--sand-deep); color: var(--ink-soft); }
-.searcher-reset:hover { background: var(--sand); color: var(--ink); }
 .searcher-show {
   background: var(--sea); border-color: var(--sea); color: #fff;
   box-shadow: 0 6px 16px -6px rgba(63, 111, 125, 0.6);
 }
-.searcher-show:hover { background: var(--sea-deep); border-color: var(--sea-deep); }
+/* Hover only on real mouse — iOS Safari sticks :hover after a tap,
+   which made the button transparent (--sea-deep was undefined) and
+   thus invisible (white text on white parent). */
+@media (hover: hover) and (pointer: fine) {
+  .searcher-show:hover { background: var(--sea-deep); border-color: var(--sea-deep); }
+  .searcher-reset:hover { background: var(--sand); color: var(--ink); }
+}
+.searcher-show:active { background: var(--sea-deep); border-color: var(--sea-deep); }
+.searcher-show:focus, .searcher-show:focus-visible {
+  background: var(--sea); border-color: var(--sea); color: #fff;
+  outline: 3px solid rgba(63, 111, 125, 0.35); outline-offset: 2px;
+}
 .searcher-show:active, .searcher-reset:active { transform: translateY(1px); }
 
 /* ---- Floating filter card when scrolled past ---- */
