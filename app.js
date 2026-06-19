@@ -3832,10 +3832,56 @@ function renderRegionCards() {
     "Belgium": "The full coast + Deinze"
   };
   // Flag-colour band per country — gives each card its own pop.
+  // Flag-colour band per country (Lode 18 Jun — Greece/Belgium had it, the
+  // rest fell back to sea). Vertical stripes (the 7-px band is too thin for
+  // horizontal ones), with the flag's colours; white shown as a soft grey so
+  // it reads on the near-white card.
   const FLAG = {
-    "Morocco": "linear-gradient(90deg,#c1272d 0 42%,#0a7d3b 42% 58%,#c1272d 58%)",
-    "Greece":  "linear-gradient(90deg,#0d5eaf 0 38%,#eef2f6 38% 62%,#0d5eaf 62%)",
-    "Belgium": "linear-gradient(90deg,#2a2a2a 0 33.33%,#f4d23c 33.33% 66.66%,#e23636 66.66%)"
+    // Europe
+    "Greece":         "linear-gradient(90deg,#0d5eaf 0 38%,#eef2f6 38% 62%,#0d5eaf 62%)",
+    "Belgium":        "linear-gradient(90deg,#2a2a2a 0 33.33%,#f4d23c 33.33% 66.66%,#e23636 66.66%)",
+    "Netherlands":    "linear-gradient(90deg,#ae1c28 0 33.33%,#e8ecef 33.33% 66.66%,#21468b 66.66%)",
+    "Germany":        "linear-gradient(90deg,#161616 0 33.33%,#dd0000 33.33% 66.66%,#ffce00 66.66%)",
+    "Portugal":       "linear-gradient(90deg,#006600 0 40%,#da291c 40%)",
+    "Spain":          "linear-gradient(90deg,#aa151b 0 25%,#f1bf00 25% 75%,#aa151b 75%)",
+    "France":         "linear-gradient(90deg,#0055a4 0 33.33%,#e8ecef 33.33% 66.66%,#ef4135 66.66%)",
+    "Italy":          "linear-gradient(90deg,#009246 0 33.33%,#e8ecef 33.33% 66.66%,#ce2b37 66.66%)",
+    "Ireland":        "linear-gradient(90deg,#169b62 0 33.33%,#e8ecef 33.33% 66.66%,#ff883e 66.66%)",
+    "United Kingdom": "linear-gradient(90deg,#012169 0 33.33%,#e8ecef 33.33% 66.66%,#c8102e 66.66%)",
+    "Norway":         "linear-gradient(90deg,#ba0c2f 0 33.33%,#e8ecef 33.33% 66.66%,#00205b 66.66%)",
+    "Iceland":        "linear-gradient(90deg,#02529c 0 33.33%,#e8ecef 33.33% 66.66%,#dc1e35 66.66%)",
+    // Africa
+    "Morocco":        "linear-gradient(90deg,#c1272d 0 42%,#0a7d3b 42% 58%,#c1272d 58%)",
+    "South Africa":   "linear-gradient(90deg,#007a4d 0 25%,#ffb612 25% 50%,#de3831 50% 75%,#002395 75%)",
+    "Senegal":        "linear-gradient(90deg,#00853f 0 33.33%,#fdef42 33.33% 66.66%,#e31b23 66.66%)",
+    "Namibia":        "linear-gradient(90deg,#003580 0 40%,#d21034 40% 60%,#009543 60%)",
+    "Mozambique":     "linear-gradient(90deg,#009639 0 33.33%,#161616 33.33% 66.66%,#ffd100 66.66%)",
+    "Cape Verde":     "linear-gradient(90deg,#003893 0 45%,#cf2027 45% 60%,#f7d116 60%)",
+    // Asia / Indian Ocean
+    "Indonesia":      "linear-gradient(90deg,#ce1126 0 50%,#e8ecef 50%)",
+    "Sri Lanka":      "linear-gradient(90deg,#8d2029 0 60%,#eb7400 60% 80%,#00534e 80%)",
+    "Philippines":    "linear-gradient(90deg,#0038a8 0 50%,#ce1126 50%)",
+    "Maldives":       "linear-gradient(90deg,#d21034 0 30%,#007e3a 30% 70%,#d21034 70%)",
+    "Japan":          "linear-gradient(90deg,#e8ecef 0 35%,#bc002d 35% 65%,#e8ecef 65%)",
+    "India":          "linear-gradient(90deg,#ff9933 0 33.33%,#e8ecef 33.33% 66.66%,#138808 66.66%)",
+    // Americas
+    "United States":  "linear-gradient(90deg,#b22234 0 33.33%,#e8ecef 33.33% 66.66%,#3c3b6e 66.66%)",
+    "Mexico":         "linear-gradient(90deg,#006847 0 33.33%,#e8ecef 33.33% 66.66%,#ce1126 66.66%)",
+    "Canada":         "linear-gradient(90deg,#d80621 0 33.33%,#e8ecef 33.33% 66.66%,#d80621 66.66%)",
+    "Costa Rica":     "linear-gradient(90deg,#002b7f 0 25%,#e8ecef 25% 40%,#ce1126 40% 60%,#e8ecef 60% 75%,#002b7f 75%)",
+    "Nicaragua":      "linear-gradient(90deg,#0067c6 0 33.33%,#e8ecef 33.33% 66.66%,#0067c6 66.66%)",
+    "Panama":         "linear-gradient(90deg,#005293 0 33.33%,#e8ecef 33.33% 66.66%,#d21034 66.66%)",
+    "El Salvador":    "linear-gradient(90deg,#0f47af 0 33.33%,#e8ecef 33.33% 66.66%,#0f47af 66.66%)",
+    "Barbados":       "linear-gradient(90deg,#00267f 0 33.33%,#ffc726 33.33% 66.66%,#00267f 66.66%)",
+    "Brazil":         "linear-gradient(90deg,#009c3b 0 33.33%,#ffdf00 33.33% 66.66%,#002776 66.66%)",
+    "Peru":           "linear-gradient(90deg,#d91023 0 33.33%,#e8ecef 33.33% 66.66%,#d91023 66.66%)",
+    "Chile":          "linear-gradient(90deg,#0039a6 0 33.33%,#e8ecef 33.33% 66.66%,#d52b1e 66.66%)",
+    "Ecuador":        "linear-gradient(90deg,#ffdd00 0 40%,#034ea2 40% 70%,#ed1c24 70%)",
+    // Oceania
+    "Australia":      "linear-gradient(90deg,#00008b 0 40%,#e8ecef 40% 55%,#e4002b 55%)",
+    "New Zealand":    "linear-gradient(90deg,#00247d 0 50%,#e8ecef 50% 65%,#cc142b 65%)",
+    "Fiji":           "linear-gradient(90deg,#68bfe5 0 70%,#e8ecef 70% 82%,#d21034 82%)",
+    "French Polynesia":"linear-gradient(90deg,#ce1126 0 25%,#e8ecef 25% 75%,#ce1126 75%)"
   };
   const live = [];
   WAVEBASE_DESTINATIONS.forEach(cont => {
