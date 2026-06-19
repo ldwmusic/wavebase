@@ -3549,7 +3549,10 @@ function runSearch() {
       // advanced surfers (LDW May 2026). Same in the country/sport
       // browse path below.
       const okL = level === "all" || e.type === "stay" || e.levels.includes(level);
-      const okM = month === "all" || e.goodMonths.includes(parseInt(month, 10));
+      // Guard goodMonths (centers/stays may not have it → was crashing the
+      // whole search when a month was picked) and let non-spots bypass the
+      // month filter, since they're not season-bound (Lode 18 Jun).
+      const okM = month === "all" || e.type !== "spot" || (e.goodMonths || []).includes(parseInt(month, 10));
       const okT = type === "all" || e.type === type;
       return okL && okM && okT && passesPriceFilter(e);
     });
@@ -3668,7 +3671,9 @@ function runSearch() {
     const okT = type === "all" || e.type === type;
     return okL && okT && passesPriceFilter(e);
   };
-  const passMonth = e => month === "all" || e.goodMonths.includes(monthInt);
+  // Guard goodMonths + let non-spots bypass the month filter (see free-text
+  // branch above) — a center/stay without goodMonths was crashing the render.
+  const passMonth = e => month === "all" || e.type !== "spot" || (e.goodMonths || []).includes(monthInt);
   const inSeason = liveCountrySportEntries.filter(e => passLevelType(e) && passMonth(e));
   const offSeason = liveCountrySportEntries.filter(e => passLevelType(e) && !passMonth(e));
   let matches = inSeason;
@@ -3942,7 +3947,7 @@ function renderRegionCards() {
       .filter(p => p[1] > 0)
       .map(p => `${p[1]} ${p[0]}${p[1] === 1 ? "" : "s"}`)
       .join(" · ");
-    return `<a class="region-card" style="--flagband:${FLAG[co.name] || "var(--sea)"}" href="kaart.html?country=${encodeURIComponent(co.name)}">
+    return `<a class="region-card" style="--flagband:${FLAG[co.name] || "var(--sea)"}" href="index.html?country=${encodeURIComponent(co.name)}">
       <span class="region-card-flag" aria-hidden="true">${co.flag}</span>
       <span class="region-card-name">${escHTML(co.name)}</span>
       <span class="region-card-area">${escHTML(AREA[co.name] || "")}</span>

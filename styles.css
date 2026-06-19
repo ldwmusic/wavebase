@@ -1041,12 +1041,20 @@ a, button, [role="button"] { -webkit-tap-highlight-color: rgba(63,111,125,0.08);
 }
 .card .sport-icons {
   position: absolute;
-  bottom: 32px; left: 12px;
+  bottom: 30px; left: 12px;
   z-index: 2;
   display: flex;
-  gap: 4px;
+  align-items: center;
+  gap: 5px;
   color: #fffefb;
-  filter: drop-shadow(0 1px 2px rgba(0,0,0,0.25));
+  /* Frosted dark chip so the white icons read on ANY photo, not just the
+     plain gradient (Lode 18 Jun — they washed out on the new photos).
+     Same family as the .badge pill. */
+  background: rgba(0, 0, 0, 0.42);
+  border-radius: 999px;
+  padding: 4px 9px;
+  backdrop-filter: blur(3px);
+  -webkit-backdrop-filter: blur(3px);
 }
 .card .sport-icon { display: inline-flex; }
 .card .sport-icon svg { width: 36px; height: 36px; display: block; }
@@ -2351,7 +2359,9 @@ body.has-pinned-months .bar-tooltip .bt-hint { display: none; }
    ============================================================ */
 /* Home — live-region cards under the search tool. Each card carries a
    flag-colour band along the top so the three countries pop at a glance. */
-.region-strip { margin: 26px auto 2px; }
+/* Match the "Peaking right now" frame width (Lode 18 Jun) so the country
+   carousel spans the same width on wide screens. */
+.region-strip { margin: 26px auto 2px; max-width: 1400px; }
 .region-cards {
   display: flex;
   gap: 16px;
