@@ -6047,6 +6047,38 @@ button.rml-key.off .rml-dot {
   transform: translate(-50%, -50%); pointer-events: none;
 }
 @media (prefers-reduced-motion: reduce) { .dm-goose-layer { display: none !important; } }
+
+/* "Watch this spot" — a YouTube clip surfaced on the detail map (Lode 18 Jun),
+   bottom-left, opening in a lightbox. */
+.dm-video-btn {
+  position: absolute; left: 12px; bottom: 12px; z-index: 660;
+  display: inline-flex; align-items: center; gap: 7px;
+  background: var(--sea); color: #fff; border: none; cursor: pointer;
+  border-radius: 999px; padding: 8px 15px 8px 13px;
+  font: inherit; font-size: 13px; font-weight: 600;
+  box-shadow: 0 6px 16px -4px rgba(0, 0, 0, 0.45);
+}
+.dm-video-btn:hover { background: var(--sea-deep); }
+.dm-video-btn .dm-video-play { font-size: 10px; }
+.spot-video-lightbox {
+  position: fixed; inset: 0; z-index: 10001;
+  display: flex; align-items: center; justify-content: center; padding: 30px;
+  opacity: 0; transition: opacity 0.25s ease;
+}
+.spot-video-lightbox.is-open { opacity: 1; }
+.svl-backdrop { position: absolute; inset: 0; background: rgba(15, 14, 12, 0.85); }
+.svl-panel { position: relative; z-index: 1; }
+.spot-video-lightbox .vid-embed { min-height: 0; }
+.spot-video-lightbox .vid-embed-yt iframe { max-width: min(420px, 86vw); max-height: 84vh; }
+.svl-close {
+  position: absolute; top: -12px; right: -12px; z-index: 2;
+  width: 38px; height: 38px; border-radius: 999px; border: none; cursor: pointer;
+  background: rgba(255, 255, 255, 0.95); color: var(--ink); font-size: 22px; line-height: 1;
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.4);
+}
+.svl-close:focus-visible { outline: 3px solid var(--sea); outline-offset: 2px; }
+@media (prefers-reduced-motion: reduce) { .spot-video-lightbox { transition: none; } }
+
 .map-actions {
   margin: 0 0 30px;
   font-size: 13px;

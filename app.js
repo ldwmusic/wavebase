@@ -3795,7 +3795,7 @@ function renderRegionCards() {
       .filter(p => p[1] > 0)
       .map(p => `${p[1]} ${p[0]}${p[1] === 1 ? "" : "s"}`)
       .join(" · ");
-    return `<a class="region-card" style="--flagband:${FLAG[co.name] || "var(--sea)"}" href="index.html?country=${encodeURIComponent(co.name)}">
+    return `<a class="region-card" style="--flagband:${FLAG[co.name] || "var(--sea)"}" href="kaart.html?country=${encodeURIComponent(co.name)}">
       <span class="region-card-flag" aria-hidden="true">${co.flag}</span>
       <span class="region-card-name">${escHTML(co.name)}</span>
       <span class="region-card-area">${escHTML(AREA[co.name] || "")}</span>
@@ -5390,6 +5390,33 @@ function _mountVideoEmbed(holder, v) {
   }
 }
 
+/* Play a single clip in a centred lightbox over the page — used by the
+   "Watch this spot" button on the detail map (Lode 18 Jun). Reuses
+   _mountVideoEmbed so it's the same privacy-domain YouTube embed as the grid. */
+function openSpotVideoLightbox(v) {
+  const lb = document.createElement("div");
+  lb.className = "spot-video-lightbox";
+  lb.innerHTML =
+    '<div class="svl-backdrop"></div>' +
+    '<div class="svl-panel" role="dialog" aria-modal="true" aria-label="Spot video">' +
+      '<button type="button" class="svl-close" aria-label="Close video">&times;</button>' +
+      '<div class="svl-holder"></div>' +
+    '</div>';
+  document.body.appendChild(lb);
+  _mountVideoEmbed(lb.querySelector(".svl-holder"), v);
+  requestAnimationFrame(() => lb.classList.add("is-open"));
+  function close() {
+    document.removeEventListener("keydown", onKey);
+    lb.classList.remove("is-open");
+    setTimeout(() => { if (lb.parentNode) lb.remove(); }, 250);
+  }
+  function onKey(ev) { if (ev.key === "Escape") close(); }
+  lb.querySelector(".svl-close").addEventListener("click", close);
+  lb.querySelector(".svl-backdrop").addEventListener("click", close);
+  document.addEventListener("keydown", onKey);
+  lb.querySelector(".svl-close").focus();
+}
+
 // One card per video — shared by the public grid and the admin refresh.
 function _videoCardsHTML(e) {
   return (e.videos || []).map((v, i) => {
@@ -5908,6 +5935,17 @@ function initSpot() {
     if (!matchMedia("(prefers-reduced-motion: reduce)").matches) {
       sgGooseLandOnMap(m, e);
     }
+    // If this place has a YouTube clip, surface it on the map itself (Lode 18
+    // Jun): a "Watch this spot" button bottom-left that opens it in a lightbox.
+    const ytVid = (e.videos || []).find(v => _videoKind(v.url) === "youtube" && _ytId(v.url));
+    if (ytVid) {
+      const vb = document.createElement("button");
+      vb.type = "button";
+      vb.className = "dm-video-btn";
+      vb.innerHTML = '<span class="dm-video-play" aria-hidden="true">▶</span> Watch this spot';
+      vb.addEventListener("click", () => openSpotVideoLightbox(ytVid));
+      m.getContainer().appendChild(vb);
+    }
   }
 
   // Wire embedded entry cards (related sections + "More in country") + the
@@ -6253,7 +6291,18 @@ function initMap() {
   layers.spot.addTo(map);
   layers.stay.addTo(map);
   layers.center.addTo(map);
-  if (allCoords.length) map.fitBounds(allCoords, { padding: [30, 30] });
+  // Zoom to a country when asked (Lode 18 Jun: clicking a country card on the
+  // home tab opens the map already zoomed in on that country). Otherwise fit
+  // every pin.
+  const wantCountry = new URLSearchParams(location.search).get("country");
+  const countryCoords = wantCountry
+    ? markerEntries.filter(me => entryCountry(me.entry) === wantCountry).map(me => me.entry.coords)
+    : [];
+  if (countryCoords.length) {
+    map.fitBounds(countryCoords, { padding: [50, 50], maxZoom: 11 });
+  } else if (allCoords.length) {
+    map.fitBounds(allCoords, { padding: [30, 30] });
+  }
 
   /* ===== Hover-card preview → bloom-to-detail (Lode 18 Jun) =====
      Hover a pin → the place's home-style card floats up near it; click it (or
