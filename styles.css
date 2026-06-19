@@ -140,6 +140,20 @@ a, button, [role="button"] { -webkit-tap-highlight-color: rgba(63,111,125,0.08);
 
 /* ---- hero ---- */
 .hero { padding: 72px 0 28px; text-align: center; }
+/* "Paddle down" scroll cue — ported from Lab1 (Lode 18 Jun). The little wave
+   bobs as if floating in the water. */
+.hero-scrollcue {
+  margin-top: 40px;
+  display: inline-flex; flex-direction: column; align-items: center; gap: 6px;
+  color: var(--sea);
+}
+.cue-label { font-size: 11px; font-weight: 600; letter-spacing: 0.22em; text-transform: uppercase; color: var(--ink-soft); }
+.cue-wave { width: 40px; height: 19px; animation: cue-bob 2.6s ease-in-out infinite; }
+@keyframes cue-bob {
+  0%, 100% { transform: translateY(0); }
+  50%      { transform: translateY(7px); }
+}
+@media (prefers-reduced-motion: reduce) { .cue-wave { animation: none; } }
 .hero .kicker {
   font-size: 13px;
   letter-spacing: 0.18em;
@@ -1060,6 +1074,19 @@ a, button, [role="button"] { -webkit-tap-highlight-color: rgba(63,111,125,0.08);
 }
 .card-kstats .kstat-pct { background: var(--cream); border-color: var(--sand-deep); }
 .card-kstats .kstat-wave { background: var(--clay-soft); border-color: #ecd0c2; }
+/* "Watch" video box — same footprint as a stat box, video-red so it reads as
+   a play button (Lode 18 Jun). */
+.card-kstats .kstat-video {
+  cursor: pointer; font: inherit;
+  align-items: center; justify-content: center;
+  background: #cc2b22; border-color: #cc2b22; color: #fff;
+  transition: background 0.18s ease;
+}
+.card-kstats .kstat-video .kstat-n { color: #fff; }
+.card-kstats .kstat-video .kstat-video-play { font-size: 15px; line-height: 1; }
+.card-kstats .kstat-video .kstat-l { color: rgba(255, 255, 255, 0.92); }
+.card-kstats .kstat-video:hover { background: #b1241c; border-color: #b1241c; }
+.card-kstats .kstat-video:focus-visible { outline: 3px solid var(--ink); outline-offset: 2px; }
 .card-kstats .kstat-wave .kstat-n { color: var(--clay); }
 .card-kstats .kstat-n {
   font-family: 'Fraunces', serif; font-weight: 600; font-size: 19px;
@@ -1326,6 +1353,7 @@ table.cal td.host { color: var(--clay); }
   margin-bottom: 8px;
 }
 .gs-goose { width: 30px; height: 30px; object-fit: contain; flex: none; }
+.gs-goose-flip { transform: scaleX(-1); }   /* Skip-if goose faces the other way (Lode 18 Jun) */
 .gs-head h3 {
   font-family: 'Fraunces', serif; font-size: 20px; font-weight: 600;
   color: var(--ink);

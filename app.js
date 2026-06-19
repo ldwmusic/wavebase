@@ -1966,8 +1966,16 @@ function spotKeyStatsHTML(e) {
       chips.push(`<span class="kstat kstat-pct" title="Share of ${escHTML(mLabel)} days with workable wind"><span class="kstat-n">${windPct}<span class="kstat-u">%</span></span><span class="kstat-l">windy days</span></span>`);
   }
 
-  if (!chips.length) return "";
-  return `<div class="card-kstats">${chips.slice(0, 3).join("")}</div>`;
+  // A "Watch" box (same size as a stat box) when this place has a YouTube
+  // clip — opens it in a lightbox (Lode 18 Jun). data-spot-video is handled by
+  // a delegated capture-phase click so it beats the card's own open handler.
+  const ytVid = (e.videos || []).find(v => _videoKind(v.url) === "youtube" && _ytId(v.url));
+  const ytChip = ytVid
+    ? `<button type="button" class="kstat kstat-video" data-spot-video="${e.id}" title="Watch a clip of this spot" aria-label="Watch a video of ${escHTML(e.name || "this spot")}"><span class="kstat-n kstat-video-play" aria-hidden="true">▶</span><span class="kstat-l">Watch</span></button>`
+    : "";
+
+  if (!chips.length && !ytChip) return "";
+  return `<div class="card-kstats">${chips.slice(0, 3).join("")}${ytChip}</div>`;
 }
 
 function cardHTML(e, distKm, opts) {
@@ -3388,6 +3396,8 @@ function runSearch() {
   // they're context, not the primary CTA.
   const isHome = !country && !query;
   document.body.classList.toggle("is-home", isHome);
+  // "Peaking right now" shows only with no month picked (Lode 18 Jun).
+  setPeakingVisibility();
 
   // Once filtered, the prominent hero searchbar slides up into the sticky
   // header (between logo and nav). On home it lives in the hero again.
@@ -3486,6 +3496,12 @@ function runSearch() {
   if (!country) {
     const mInt = parseInt(month, 10);
     const monthIdx = (mInt >= 1 && mInt <= 12) ? mInt : null;
+    // No month picked → don't show a top-5 here; "Peaking right now" below is
+    // the default view (Lode 18 Jun). A month flips it to the top-5 for it.
+    if (!monthIdx) {
+      results.innerHTML = `<p class="featured-hint muted">Pick a month in &ldquo;When?&rdquo; above for your top&nbsp;5 spots &mdash; or see what's <strong>peaking right now</strong> just below.</p>`;
+      return;
+    }
     const featuredSpots = WAVEBASE_DATA.filter(e =>
       e.type === "spot" &&
       entryMatchesSports(e, sports) &&
@@ -4075,6 +4091,15 @@ function renderPeakingCarousel() {
   }
   row.innerHTML = top.map(e => cardHTML(e)).join("");
   wireCards(row);
+}
+
+/* "Peaking right now" shows only when NO month is chosen; picking a month
+   hides it and the top-5-for-that-month takes over (Lode 18 Jun). */
+function setPeakingVisibility() {
+  const mSel = document.getElementById("f-month");
+  const monthChosen = mSel && mSel.value && mSel.value !== "all";
+  const peaking = document.querySelector(".peaking-wrap");
+  if (peaking) peaking.style.display = monthChosen ? "none" : "";
 }
 
 function initIndex() {
@@ -4838,7 +4863,7 @@ function goSkipHTML(e) {
   // to-do; reverses the 13-Jun removal).
   const card = (cls, title, text) => text
     ? `<div class="gs-card ${cls}">
-        <div class="gs-head"><img src="surfgoose_icon.svg" alt="" class="gs-goose"><h3>${title}</h3></div>
+        <div class="gs-head"><img src="surfgoose_icon.svg" alt="" class="gs-goose${cls === "gs-skip" ? " gs-goose-flip" : ""}"><h3>${title}</h3></div>
         <p>${text}</p>
       </div>`
     : "";
@@ -6300,6 +6325,14 @@ function initMap() {
     : [];
   if (countryCoords.length) {
     map.fitBounds(countryCoords, { padding: [50, 50], maxZoom: 11 });
+    // Grey out the pins of OTHER countries so the chosen country stands out —
+    // like the out-of-radius markers on the Nearby tab (Lode 18 Jun).
+    markerEntries.forEach(({ marker, entry }) => {
+      if (entryCountry(entry) !== wantCountry && marker.setStyle) {
+        marker.setStyle({ fillColor: "#b4ada0", color: "#fff", fillOpacity: 0.65, opacity: 0.6, weight: 1.5 });
+        marker._sgDimmed = true;
+      }
+    });
   } else if (allCoords.length) {
     map.fitBounds(allCoords, { padding: [30, 30] });
   }
@@ -11514,5 +11547,22 @@ function pruneStaleAccountIds() {
     var href = a.getAttribute("href") || "";
     if (/^(https?:|mailto:|tel:|#)/i.test(href)) return; // external / anchor — ignore
     try { sessionStorage.setItem("sg_skip_intro", "1"); } catch (e) {}
+  }, true);
+})();
+
+/* The "Watch" video box on cards (Lode 18 Jun) — a delegated capture-phase
+   click so it opens the spot's YouTube clip in a lightbox and beats the
+   card's own open/navigate handler. Works on every surface (home results,
+   the Map-tab hover-card, related cards). */
+(function sgCardVideoButton() {
+  document.addEventListener("click", function (ev) {
+    var btn = ev.target.closest && ev.target.closest("[data-spot-video]");
+    if (!btn) return;
+    ev.preventDefault();
+    ev.stopPropagation();
+    var e = (typeof byId === "function") ? byId(btn.getAttribute("data-spot-video")) : null;
+    if (!e) return;
+    var v = (e.videos || []).find(function (x) { return _videoKind(x.url) === "youtube" && _ytId(x.url); });
+    if (v && typeof openSpotVideoLightbox === "function") openSpotVideoLightbox(v);
   }, true);
 })();
