@@ -715,18 +715,29 @@ function entryImgList(e) {
   if (e && e.images && e.images.length) return e.images;
   return (e && e.photo) ? [{ url: e.photo }] : [];
 }
-/* Default photo for wave-surf spots that have no photo of their own (Lode 18
-   Jun): a surfer-at-sunset shot, framing the woman. Local file `wave-default.jpg`.
+/* Default photo per discipline for spots with no photo of their own (Lode 18
+   Jun): a surfer at sunset for wave, windsurfers for wind, kitesurfers for
+   kite/wing. Local files; the `card`/`hero` positions frame the subject.
    Layered behind the spot gradient so a missing file degrades gracefully. */
-function defaultWaveThumbUrl(e) {
-  return (e && e.type === "spot" && !entryImg(e) && entrySports(e).includes("wave")) ? "wave-default.jpg" : "";
+const SPORT_DEFAULT_PHOTOS = {
+  wave: { url: "pexels-beach-1838501.jpg",            card: "50% 30%", hero: "50% 16%" },
+  wind: { url: "windsurf-action-surfing-3859466.jpg", card: "48% 54%", hero: "48% 56%" },
+  kite: { url: "kitereisen-kite-surfing-3857698.jpg", card: "50% 52%", hero: "50% 54%" },
+  wing: { url: "kitereisen-kite-surfing-3857698.jpg", card: "50% 52%", hero: "50% 54%" }
+};
+function defaultSportPhoto(e) {
+  if (!e || e.type !== "spot" || entryImg(e)) return null;
+  const sports = entrySports(e);
+  let key = sports[0];                                   // the spot's primary discipline
+  if (!SPORT_DEFAULT_PHOTOS[key]) key = sports.indexOf("wave") !== -1 ? "wave" : "wave";
+  return SPORT_DEFAULT_PHOTOS[key] || SPORT_DEFAULT_PHOTOS.wave;
 }
-function hasThumbImage(e) { return !!(entryImg(e) || defaultWaveThumbUrl(e)); }
+function hasThumbImage(e) { return !!(entryImg(e) || defaultSportPhoto(e)); }
 function thumbStyle(e) {
   const im = entryImg(e);
   if (im) { const u = cldUrl(im, { w: 600, h: 600 }); return u ? ` style="background-image:url('${u}')"` : ""; }
-  const dw = defaultWaveThumbUrl(e);
-  if (dw) return ` style="background-image:url('${dw}'), linear-gradient(150deg,#4a7c8c,#2f5360);background-size:cover;background-position:40% 35%"`;
+  const d = defaultSportPhoto(e);
+  if (d) return ` style="background-image:url('${d.url}'), linear-gradient(150deg,#4a7c8c,#2f5360);background-size:cover;background-position:${d.card}"`;
   return "";
 }
 
@@ -2048,7 +2059,7 @@ function cardHTML(e, distKm, opts) {
   }
   return `
   <article class="card" data-href="${spotHref(e.id)}">
-    <div class="thumb ${e.type}${hasThumbImage(e) ? " has-photo" : ""}${(!entryImg(e) && defaultWaveThumbUrl(e)) ? " is-default-photo" : ""}"${thumbStyle(e)}>
+    <div class="thumb ${e.type}${hasThumbImage(e) ? " has-photo" : ""}${(!entryImg(e) && defaultSportPhoto(e)) ? " is-default-photo" : ""}"${thumbStyle(e)}>
       <span class="badge">${typeBadge(e.type)}</span>
       ${seasonChip}
       ${e.type === "stay" ? "" : sportIconsHTML(entrySports(e))}
@@ -5287,8 +5298,8 @@ const _ENTITY_SLUG = { spot: "surf-spots", center: "centers", stay: "stays" };
 function heroHTML(e) {
   const imgs = entryImgList(e);
   if (!imgs.length) {
-    const dw = defaultWaveThumbUrl(e);
-    if (dw) return `<div class="detail-photo ${e.type} has-photo is-default-photo" style="background-image:url('${dw}'), linear-gradient(150deg,#4a7c8c,#2f5360)"></div>`;
+    const d = defaultSportPhoto(e);
+    if (d) return `<div class="detail-photo ${e.type} has-photo is-default-photo" style="background-image:url('${d.url}'), linear-gradient(150deg,#4a7c8c,#2f5360);background-size:cover;background-position:${d.hero}"></div>`;
     return `<div class="detail-photo ${e.type}"><span class="photo-placeholder">Photo coming soon</span></div>`;
   }
   const slides = imgs.map((im, i) =>
@@ -10172,7 +10183,7 @@ function renderCompare() {
     const pts = compareKeyPoints(e).map(([k, v]) =>
       v ? `<div class="cmp-row"><span class="cmp-k">${k}</span><span class="cmp-v">${v}</span></div>` : "").join("");
     return `<div class="cmp-col">
-      <div class="thumb ${e.type}${hasThumbImage(e) ? " has-photo" : ""}${(!entryImg(e) && defaultWaveThumbUrl(e)) ? " is-default-photo" : ""}"${thumbStyle(e)}>
+      <div class="thumb ${e.type}${hasThumbImage(e) ? " has-photo" : ""}${(!entryImg(e) && defaultSportPhoto(e)) ? " is-default-photo" : ""}"${thumbStyle(e)}>
         <span class="badge">${typeBadge(e.type)}</span>
         <button class="cmp-remove" data-uncompare="${e.id}" aria-label="Remove from compare" title="Remove from compare">×</button>
         ${e.type === "stay" ? "" : sportIconsHTML(entrySports(e))}

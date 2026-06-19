@@ -3910,9 +3910,6 @@ html.is-embed #map { height: calc(100vh - 72px); min-height: 0; }
 
 /* photo slots */
 .thumb.has-photo { background-size: cover; background-position: center; }
-/* Default wave-surf photo — frame the surfer (she sits left-of-centre). */
-.thumb.is-default-photo { background-position: 40% 35%; }
-.detail-photo.is-default-photo { background-size: cover; background-position: 42% 28%; }
 .detail-photo {
   height: 280px;
   border-radius: var(--radius);
