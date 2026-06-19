@@ -3650,6 +3650,78 @@ body:not(.is-home) .searchbar-wrap { display: none; }
   box-shadow: var(--shadow-sm);
 }
 
+/* === Map tab: hover-card preview → bloom-to-detail (Lode 18 Jun) ===
+   Hover a pin and the place's card (home-style) floats up near it; click it
+   and the full detail blooms open from the card in an overlay; close and it
+   collapses back to the map (which never left). */
+.map-hover-layer { position: absolute; inset: 0; z-index: 700; pointer-events: none; overflow: hidden; }
+.map-hover-card {
+  position: absolute; width: 300px;
+  pointer-events: auto; cursor: pointer;
+  opacity: 0; transform: translateY(8px) scale(0.96); transform-origin: 50% 100%;
+  transition: opacity 0.18s ease, transform 0.22s cubic-bezier(.22,.61,.36,1);
+  filter: drop-shadow(0 18px 40px rgba(42, 39, 35, 0.30));
+  border-radius: var(--radius); overflow: hidden;
+}
+.map-hover-card.is-in { opacity: 1; transform: translateY(0) scale(1); }
+.map-hover-card .card { margin: 0; cursor: pointer; box-shadow: none; }
+.map-hover-card .card .thumb::before { display: none; }           /* no tilt-sheen here */
+/* Preview is for viewing + clicking through — its action buttons aren't wired. */
+.map-hover-card .trip-btn,
+.map-hover-card .save-btn,
+.map-hover-card .compare-btn { display: none; }
+.map-hover-card-hint {
+  display: block; text-align: center; font-size: 11px; font-weight: 700;
+  letter-spacing: 0.05em; text-transform: uppercase; color: #fff;
+  background: var(--sea); padding: 6px;
+}
+
+/* Bloom overlay — the detail page in an iframe so the map stays mounted. */
+.map-bloom { position: fixed; inset: 0; z-index: 4000; display: none; }
+.map-bloom.is-open { display: block; }
+.map-bloom-backdrop {
+  position: absolute; inset: 0; background: rgba(20, 18, 15, 0.55);
+  opacity: 0; transition: opacity 0.35s ease;
+}
+.map-bloom.is-anim .map-bloom-backdrop { opacity: 1; }
+.map-bloom-panel {
+  position: absolute; inset: 24px; margin: auto;
+  max-width: 1040px; max-height: calc(100vh - 48px);
+  background: var(--cream); border-radius: 22px; overflow: hidden;
+  box-shadow: 0 40px 100px -30px rgba(20, 18, 15, 0.7);
+  display: flex; flex-direction: column;
+  transform: scale(0.16); opacity: 0;
+  transition: transform 0.42s cubic-bezier(.22,.61,.36,1), opacity 0.3s ease;
+}
+.map-bloom.is-anim .map-bloom-panel { transform: scale(1); opacity: 1; }
+.map-bloom-close {
+  position: absolute; top: 12px; right: 12px; z-index: 5;
+  width: 40px; height: 40px; border-radius: 999px; border: none; cursor: pointer;
+  background: rgba(255, 255, 255, 0.92); color: var(--ink);
+  font-size: 24px; line-height: 1; display: flex; align-items: center; justify-content: center;
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.2);
+}
+.map-bloom-close:hover { background: #fff; }
+.map-bloom-close:focus-visible { outline: 3px solid var(--sea); outline-offset: 2px; }
+.map-bloom-frame { flex: 1 1 auto; width: 100%; border: 0; display: block; background: var(--cream); }
+@media (max-width: 620px) {
+  .map-bloom-panel { inset: 0; border-radius: 0; max-height: 100vh; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .map-hover-card, .map-bloom-panel, .map-bloom-backdrop { transition: none; }
+}
+
+/* Embed mode: spot.html shown inside the bloom iframe — hide the site chrome
+   so only the detail content shows. Set pre-paint by an inline head script. */
+html.is-embed .site-header,
+html.is-embed .site-footer,
+html.is-embed .sg-intro,
+html.is-embed .buddy,
+html.is-embed .backlink,
+html.is-embed .mobile-tabbar,
+html.is-embed .mobile-filters-trigger { display: none !important; }
+html.is-embed main { padding-top: 8px; }
+
 @media (max-width: 620px) {
   .site-nav { gap: 14px; }
   .profile-form { padding: 18px; }

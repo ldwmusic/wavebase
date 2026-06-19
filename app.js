@@ -3119,6 +3119,7 @@ const WaveBaseCompareMode = (function () {
   let active = false;          // mode on/off
   let lockedType = null;       // first-clicked type ("spot" / "center" / "stay")
   let _resyncMarkers = null;   // set in init() — re-applies selected styling to every pin
+  let _onNormalClick = null;   // optional: normal-mode pin click handler (e.g. the kaart bloom)
 
   // Clear the whole selection in one go (June 2026, Michiel #9 — instead
   // of clicking every pin off). Wipes the compare list, re-syncs all the
@@ -3219,6 +3220,10 @@ const WaveBaseCompareMode = (function () {
           syncSelectedMarker(marker, entry);
           syncFAB();
           updateNav();
+        } else if (_onNormalClick) {
+          // Normal mode — caller-supplied handler (kaart: bloom open in place).
+          L.DomEvent.stop(ev);
+          _onNormalClick(entry, marker);
         } else {
           // Normal mode — go to detail page
           window.location.href = spotHref(entry.id);
@@ -3240,8 +3245,9 @@ const WaveBaseCompareMode = (function () {
   }
 
   return {
-    init(map, markerEntries) {
+    init(map, markerEntries, opts) {
       if (!L || !map || !markerEntries) return;
+      _onNormalClick = (opts && opts.onOpen) || null;
       const attachAll = () => wireMarkers(markerEntries, map);
       // Let clearAll() re-paint every pin back to unselected after a wipe.
       _resyncMarkers = () => markerEntries.forEach(({ marker, entry }) => syncSelectedMarker(marker, entry));
@@ -6197,13 +6203,17 @@ function initMap() {
     const m = L.circleMarker(e.coords, {
       radius: 8, color: "#fff", weight: 2, fillColor: typeColor(e.type), fillOpacity: 1
     });
-    const note = e.coordsLabel ? "<br><em>Approximate location</em>" : "";
     // Tooltip on hover so compare-mode still has identifying info without
-    // opening a click-popup that would block the selection click.
+    // opening a click-popup that would block the selection click. (On a fine
+    // pointer the richer hover-card below takes over.)
     m.bindTooltip(`<strong>${escHTML(e.name)}</strong><br>${typeLabel(e.type)}${e.town ? " &middot; " + escHTML(e.town) : ""}`,
                   { direction: "top", offset: [0, -6], className: "rml-tooltip" });
-    // Default click handler: open detail page. Compare-mode will replace this.
-    m.on("click", () => { window.location.href = "spot.html?id=" + e.id; });
+    // Hover a pin → the place's card floats up near it; click → bloom open to
+    // the full detail (Lode 18 Jun). Compare-mode replaces the click handler.
+    m.on("mouseover", () => showMapCard(e, m));
+    m.on("mouseout", hideMapCardSoon);
+    // The pin click → bloom is wired through WaveBaseCompareMode's normal-mode
+    // onOpen (below), so compare-mode can cleanly off()/rebind the click.
     markerEntries.push({ marker: m, entry: e, layer: layers[e.type] });
     m.addTo(layers[e.type]);
   });
@@ -6211,6 +6221,138 @@ function initMap() {
   layers.stay.addTo(map);
   layers.center.addTo(map);
   if (allCoords.length) map.fitBounds(allCoords, { padding: [30, 30] });
+
+  /* ===== Hover-card preview → bloom-to-detail (Lode 18 Jun) =====
+     Hover a pin → the place's home-style card floats up near it; click it (or
+     the pin) → the full detail blooms open from the card in an overlay iframe;
+     close → it collapses back to the map, which never navigated away. The
+     hover-card is desktop-only (needs a fine pointer); on touch a tap opens
+     the bloom straight away. */
+  const mapEl = map.getContainer();
+  const finePtr = matchMedia("(hover: hover) and (pointer: fine)").matches;
+  let hoverLayer = null, hoverCard = null, hoverEntry = null, hideTimer = null;
+
+  function ensureHoverLayer() {
+    if (!hoverLayer) {
+      hoverLayer = document.createElement("div");
+      hoverLayer.className = "map-hover-layer";
+      mapEl.appendChild(hoverLayer);
+    }
+    return hoverLayer;
+  }
+  function closeMapCardNow() {
+    clearTimeout(hideTimer);
+    hoverEntry = null;
+    if (hoverCard && hoverCard.parentNode) hoverCard.remove();
+    hoverCard = null;
+  }
+  function hideMapCardSoon() {
+    clearTimeout(hideTimer);
+    hideTimer = setTimeout(() => {
+      const c = hoverCard; hoverCard = null; hoverEntry = null;
+      if (c) { c.classList.remove("is-in"); setTimeout(() => { if (c.parentNode) c.remove(); }, 240); }
+    }, 180);
+  }
+  function showMapCard(e, marker) {
+    if (!finePtr) return;                       // hover preview = desktop only
+    clearTimeout(hideTimer);
+    if (hoverEntry === e && hoverCard) return;  // already showing this pin
+    closeMapCardNow();
+    hoverEntry = e;
+    const layer = ensureHoverLayer();
+    const card = document.createElement("div");
+    card.className = "map-hover-card";
+    card.setAttribute("role", "button");
+    card.setAttribute("tabindex", "0");
+    card.setAttribute("aria-label", "Open details for " + (e.name || "this place"));
+    card.innerHTML = cardHTML(e) + '<span class="map-hover-card-hint">Click for full details</span>';
+    layer.appendChild(card);
+    hoverCard = card;
+    // Position above the pin, clamped to the map box.
+    const cardW = 300, cardH = card.offsetHeight || 320;
+    const pt = map.latLngToContainerPoint(marker.getLatLng());
+    let left = Math.max(8, Math.min(pt.x - cardW / 2, mapEl.clientWidth - cardW - 8));
+    let top = pt.y - cardH - 18;
+    if (top < 8) top = Math.min(pt.y + 18, mapEl.clientHeight - cardH - 8);
+    card.style.left = left + "px";
+    card.style.top = Math.max(8, top) + "px";
+    card.style.width = cardW + "px";
+    requestAnimationFrame(() => card.classList.add("is-in"));
+    card.addEventListener("mouseenter", () => clearTimeout(hideTimer));
+    card.addEventListener("mouseleave", hideMapCardSoon);
+    const open = () => openSpotBloom(e, marker);
+    card.addEventListener("click", open);
+    card.addEventListener("keydown", ev => {
+      if (ev.key === "Enter" || ev.key === " ") { ev.preventDefault(); open(); }
+    });
+  }
+
+  let bloomEl = null;
+  function openSpotBloom(e, marker) {
+    closeMapCardNow();
+    if (bloomEl) return;
+    // Bloom origin = the pin's screen position.
+    let originX = window.innerWidth / 2, originY = window.innerHeight / 2;
+    try {
+      const pt = map.latLngToContainerPoint(marker.getLatLng());
+      const box = mapEl.getBoundingClientRect();
+      originX = box.left + pt.x; originY = box.top + pt.y;
+    } catch (err) {}
+
+    bloomEl = document.createElement("div");
+    bloomEl.className = "map-bloom";
+    bloomEl.innerHTML =
+      '<div class="map-bloom-backdrop"></div>' +
+      '<div class="map-bloom-panel" role="dialog" aria-modal="true" aria-label="' + escHTML(e.name || "Details") + '">' +
+        '<button type="button" class="map-bloom-close" aria-label="Close and return to the map">&times;</button>' +
+        '<iframe class="map-bloom-frame" title="' + escHTML(e.name || "Details") + '" src="spot.html?id=' + encodeURIComponent(e.id) + '&embed=1"></iframe>' +
+      '</div>';
+    document.body.appendChild(bloomEl);
+    const panel = bloomEl.querySelector(".map-bloom-panel");
+    const closeBtn = bloomEl.querySelector(".map-bloom-close");
+    bloomEl.classList.add("is-open");
+
+    // Grow from the pin: set transform-origin to the pin, measured on the
+    // panel's natural (un-scaled) box.
+    const prevTransform = panel.style.transform, prevTransition = panel.style.transition;
+    panel.style.transition = "none";
+    panel.style.transform = "none";
+    const pr = panel.getBoundingClientRect();
+    panel.style.transformOrigin =
+      Math.max(0, Math.min(originX - pr.left, pr.width)) + "px " +
+      Math.max(0, Math.min(originY - pr.top, pr.height)) + "px";
+    panel.style.transform = prevTransform;
+    void panel.offsetWidth;                 // reflow so the origin sticks before animating
+    panel.style.transition = prevTransition;
+    requestAnimationFrame(() => bloomEl.classList.add("is-anim"));
+
+    history.pushState({ sgBloom: 1 }, "");
+    function onKey(ev) { if (ev.key === "Escape") requestClose(); }
+    function onPop() { doClose(); }
+    document.addEventListener("keydown", onKey);
+    window.addEventListener("popstate", onPop);
+    bloomEl._cleanup = () => {
+      document.removeEventListener("keydown", onKey);
+      window.removeEventListener("popstate", onPop);
+    };
+    function requestClose() {
+      // User-initiated → pop our pushed state (its popstate runs doClose).
+      if (history.state && history.state.sgBloom) history.back();
+      else doClose();
+    }
+    closeBtn.addEventListener("click", requestClose);
+    bloomEl.querySelector(".map-bloom-backdrop").addEventListener("click", requestClose);
+    closeBtn.focus();
+  }
+  function doClose() {
+    if (!bloomEl) return;
+    const el = bloomEl; bloomEl = null;
+    if (el._cleanup) el._cleanup();
+    el.classList.remove("is-anim");                       // reverse the bloom
+    setTimeout(() => { if (el.parentNode) el.remove(); }, 460);
+  }
+  // expose for the touch path / external close if ever needed
+  map._sgCloseBloom = doClose;
 
   // ---- filter state ----
   const typeState = { spot: true, stay: true, center: true };
@@ -6257,8 +6399,11 @@ function initMap() {
     });
   });
 
-  // Wire compare-mode on the full kaart.html map too.
-  WaveBaseCompareMode.init(map, markerEntries);
+  // Wire compare-mode on the full kaart.html map too. In NORMAL mode a pin
+  // click blooms the detail open in place (Lode 18 Jun) instead of navigating.
+  WaveBaseCompareMode.init(map, markerEntries, {
+    onOpen: (entry, marker) => openSpotBloom(entry, marker)
+  });
 }
 
 /* ---- trip maps (account) — a roadtrip-style map per trip ---- */
