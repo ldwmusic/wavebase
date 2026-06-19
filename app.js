@@ -715,23 +715,48 @@ function entryImgList(e) {
   if (e && e.images && e.images.length) return e.images;
   return (e && e.photo) ? [{ url: e.photo }] : [];
 }
-/* Default photo per discipline for spots with no photo of their own (Lode 18
-   Jun): a surfer at sunset for wave, windsurfers for wind, kitesurfers for
-   kite/wing. Local files; the `card`/`hero` positions frame the subject.
-   Layered behind the spot gradient so a missing file degrades gracefully. */
-const SPORT_DEFAULT_PHOTOS = {
-  wave: { url: "pexels-beach-1838501.jpg",            card: "50% 30%", hero: "50% 16%" },
-  wind: { url: "windsurf-action-surfing-3859466.jpg", card: "48% 54%", hero: "48% 56%" },
-  kite: { url: "kitereisen-kite-surfing-3857698.jpg", card: "50% 52%", hero: "50% 54%" },
-  wing: { url: "kitereisen-kite-surfing-3857698.jpg", card: "50% 52%", hero: "50% 54%" }
+/* Placeholder photo POOLS per discipline (Lode 18 Jun). A spot with no photo
+   of its own shows ONE photo per discipline it actually offers, picked
+   deterministically by id (stable but varied across spots), in a swipeable
+   carousel on the detail page. Real uploaded photos always win and replace
+   the placeholders. Lode is filling these pools from a project folder — just
+   append more { url, card, hero } entries per discipline here. `card`/`hero`
+   are the background-positions that frame each photo on the thumb / wide hero
+   (default "center"). */
+const DEFAULT_PHOTO_POOLS = {
+  // Per-discipline pools in photos/disciplines/<sport>/. Add more entries as
+  // Lode drops photos in (append { url, card, hero }; default framing "center").
+  wave: [
+    { url: "photos/disciplines/wave/pexels-beach-1838501.jpg",      card: "50% 30%", hero: "50% 16%" },
+    { url: "photos/disciplines/wave/kinenriquez-beach-4426246.jpg", card: "center",  hero: "50% 42%" }
+  ],
+  wind: [ { url: "photos/disciplines/wind/windsurf-action-surfing-3859466.jpg", card: "48% 54%", hero: "48% 56%" } ],
+  kite: [ { url: "photos/disciplines/kite/kitereisen-kite-surfing-3857698.jpg", card: "50% 52%", hero: "50% 54%" } ],
+  wing: [ { url: "photos/disciplines/kite/kitereisen-kite-surfing-3857698.jpg", card: "50% 52%", hero: "50% 54%" } ]
 };
-function defaultSportPhoto(e) {
-  if (!e || e.type !== "spot" || entryImg(e)) return null;
-  const sports = entrySports(e);
-  let key = sports[0];                                   // the spot's primary discipline
-  if (!SPORT_DEFAULT_PHOTOS[key]) key = sports.indexOf("wave") !== -1 ? "wave" : "wave";
-  return SPORT_DEFAULT_PHOTOS[key] || SPORT_DEFAULT_PHOTOS.wave;
+function _sgHashId(s) {
+  s = String(s || ""); let h = 0;
+  for (let i = 0; i < s.length; i++) h = (h * 31 + s.charCodeAt(i)) >>> 0;
+  return h;
 }
+/* One placeholder per discipline the spot offers (deduped, in sports order),
+   each picked deterministically from its pool. [] when the spot has its own
+   photo or isn't a spot. */
+function defaultPhotoSlides(e) {
+  if (!e || e.type !== "spot" || entryImg(e)) return [];
+  const sports = [];
+  entrySports(e).forEach(s => {
+    if (DEFAULT_PHOTO_POOLS[s] && DEFAULT_PHOTO_POOLS[s].length && sports.indexOf(s) === -1) sports.push(s);
+  });
+  if (!sports.length) sports.push("wave");
+  const h = _sgHashId(e.id);
+  return sports.map((s, i) => {
+    const pool = DEFAULT_PHOTO_POOLS[s] || DEFAULT_PHOTO_POOLS.wave;
+    const pick = pool[(h + i) % pool.length];   // +i so multi-discipline picks differ
+    return { url: pick.url, card: pick.card || "center", hero: pick.hero || "center", sport: s };
+  });
+}
+function defaultSportPhoto(e) { return defaultPhotoSlides(e)[0] || null; }   // card thumb = first
 function hasThumbImage(e) { return !!(entryImg(e) || defaultSportPhoto(e)); }
 function thumbStyle(e) {
   const im = entryImg(e);
@@ -5344,8 +5369,16 @@ const _ENTITY_SLUG = { spot: "surf-spots", center: "centers", stay: "stays" };
 function heroHTML(e) {
   const imgs = entryImgList(e);
   if (!imgs.length) {
-    const d = defaultSportPhoto(e);
-    if (d) return `<div class="detail-photo ${e.type} has-photo is-default-photo" style="background-image:url('${d.url}'), linear-gradient(150deg,#4a7c8c,#2f5360);background-size:cover;background-position:${d.hero}"></div>`;
+    // Placeholder carousel: one photo per discipline the spot offers, swipeable.
+    const dslides = defaultPhotoSlides(e);
+    if (dslides.length) {
+      const slideHTML = dslides.map((s, i) =>
+        `<div class="dp-slide${i === 0 ? " is-active" : ""}" style="background-image:url('${s.url}'), linear-gradient(150deg,#4a7c8c,#2f5360);background-size:cover;background-position:${s.hero}"></div>`).join("");
+      const multi = dslides.length > 1;
+      const arrows = multi ? `<button class="dp-arrow dp-prev" data-prev aria-label="Previous photo">&lsaquo;</button><button class="dp-arrow dp-next" data-next aria-label="Next photo">&rsaquo;</button>` : "";
+      const dots = multi ? `<div class="dp-dots">${dslides.map((_, i) => `<button class="dp-dot${i === 0 ? " is-active" : ""}" data-goto="${i}" aria-label="Photo ${i + 1}"></button>`).join("")}</div>` : "";
+      return `<div class="detail-photo ${e.type} has-photo is-default-photo"${multi ? " data-carousel" : ""}>${slideHTML}${arrows}${dots}</div>`;
+    }
     return `<div class="detail-photo ${e.type}"><span class="photo-placeholder">Photo coming soon</span></div>`;
   }
   const slides = imgs.map((im, i) =>
@@ -5381,6 +5414,15 @@ function wireHero(e, root) {
     if (prev) prev.addEventListener("click", (ev) => { ev.stopPropagation(); show(idx - 1); restart(); });
     if (next) next.addEventListener("click", (ev) => { ev.stopPropagation(); show(idx + 1); restart(); });
     dots.forEach((d) => d.addEventListener("click", (ev) => { ev.stopPropagation(); show(parseInt(d.dataset.goto, 10)); restart(); }));
+    // Swipe on touch (Lode 18 Jun) — drag the hero left/right to change photo.
+    let _sx = null, _sy = null;
+    hero.addEventListener("touchstart", (ev) => { _sx = ev.touches[0].clientX; _sy = ev.touches[0].clientY; }, { passive: true });
+    hero.addEventListener("touchend", (ev) => {
+      if (_sx === null) return;
+      const dx = ev.changedTouches[0].clientX - _sx, dy = ev.changedTouches[0].clientY - _sy;
+      _sx = _sy = null;
+      if (Math.abs(dx) > 40 && Math.abs(dx) > Math.abs(dy)) { show(dx < 0 ? idx + 1 : idx - 1); restart(); }
+    }, { passive: true });
     hero.addEventListener("mouseenter", () => { if (_heroTimer) { clearInterval(_heroTimer); _heroTimer = null; } });
     hero.addEventListener("mouseleave", () => { if (!_heroTimer) start(); });
     start();
