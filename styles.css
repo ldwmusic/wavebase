@@ -377,6 +377,26 @@ a, button, [role="button"] { -webkit-tap-highlight-color: rgba(63,111,125,0.08);
 }
 .searcher-sport-row .sport-pills { margin: 0; }
 
+/* Reset + Show-results buttons (Lode 18 Jun). Reset is a quiet ghost button;
+   Show-results is the primary CTA that scrolls you down to the results. */
+.searcher-actions {
+  display: flex; gap: 10px; justify-content: flex-end; align-items: center;
+  margin-top: 16px; flex-wrap: wrap;
+}
+.searcher-reset, .searcher-show {
+  font: inherit; font-size: 14px; font-weight: 600; cursor: pointer;
+  border-radius: 999px; padding: 9px 18px; border: 1px solid transparent;
+  transition: background 0.2s ease, color 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease, transform 0.1s ease;
+}
+.searcher-reset { background: transparent; border-color: var(--sand-deep); color: var(--ink-soft); }
+.searcher-reset:hover { background: var(--sand); color: var(--ink); }
+.searcher-show {
+  background: var(--sea); border-color: var(--sea); color: #fff;
+  box-shadow: 0 6px 16px -6px rgba(63, 111, 125, 0.6);
+}
+.searcher-show:hover { background: var(--sea-deep); border-color: var(--sea-deep); }
+.searcher-show:active, .searcher-reset:active { transform: translateY(1px); }
+
 /* ---- Floating filter card when scrolled past ---- */
 /* When the user scrolls past the .searcher-wrap, JS adds .is-fixed
    and inserts a same-height spacer in the flow. The card lifts out
@@ -961,36 +981,6 @@ a, button, [role="button"] { -webkit-tap-highlight-color: rgba(63,111,125,0.08);
 }
 @media (prefers-reduced-motion: reduce) {
   .buddy { display: none !important; }
-}
-
-/* Page-transition veil — a sea-coloured wave rises with a goose gliding
-   across when you switch top tabs, then lifts on the next page to reveal it
-   (Lab1 port, Lode 18 Jun). Deliberately slow so the goose reads clearly.
-   z-index 5000 covers header (1000) / FAB (1200) / consent; below modals.
-   Reduced-motion: hidden, and the click handler falls back to a plain nav. */
-#sg-veil {
-  position: fixed; inset: 0; z-index: 5000;
-  pointer-events: none;
-  transform: translateY(calc(100% + 96px));   /* parked below; +96px clears the wave crest */
-  /* Hardcoded hex (the site has --sea but no --sea-deep; an undefined var
-     drops the whole gradient). Matches the intro splash's deep sea. */
-  background: linear-gradient(180deg, #3f6f7d 0%, #2e545f 100%);
-  will-change: transform;
-}
-.sg-veil-wave { position: absolute; left: -2%; width: 104%; bottom: 99.5%; height: 92px; }
-.sg-veil-wave path { fill: var(--sea); }
-.sg-veil-goose {
-  position: absolute; left: 0; top: 34%;
-  width: 168px; height: 168px; opacity: 0;
-  filter: drop-shadow(0 16px 26px rgba(20, 32, 36, 0.45));
-  will-change: transform;
-}
-.sg-veil-goose img { width: 100%; height: 100%; object-fit: contain; display: block; }
-/* Arrived through the veil: cover the screen pre-paint (set by an inline
-   head script), then JS lifts it down to reveal the page. */
-html.sg-arrived-veil #sg-veil { transform: translateY(0); }
-@media (prefers-reduced-motion: reduce) {
-  #sg-veil { display: none !important; }
 }
 
 /* Depth-reveal start state (Lab1 port). JS adds .sg-reveal-init to <html>
@@ -2444,6 +2434,18 @@ body:not(.is-home) .searchbar-wrap { display: none; }
 }
 @media (max-width: 720px) {
   .header-search { display: none; }
+  /* Keep the text search reachable while browsing on phone (Lode 18 Jun):
+     the hero searchbar sticks just below the header instead of scrolling
+     away once you've picked a country and scrolled to the results. */
+  body.is-home .searchbar-wrap {
+    position: sticky;
+    top: var(--header-h, 60px);
+    z-index: 850;
+    background: var(--cream);
+    margin-top: 16px;
+    padding-top: 10px;
+    padding-bottom: 10px;
+  }
 }
 
 /* Full-bleed sections (peaking carousel + world map) span the viewport
@@ -6363,7 +6365,6 @@ button.rml-key.off .rml-dot {
 .discover-country-sub {
   margin: 4px 0 0; font-size: 14px; color: var(--ink-soft);
 }
-
 
 /* ============================================================
    Auth modal — login + create-account popup. Injected into <body>

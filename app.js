@@ -3301,6 +3301,23 @@ function renderResultsSections(matches, gridClass, monthIdx, sportFilter) {
    Also toggles `is-home` on <body> to hide the hero/plan-trip/stats
    blocks once the user has filtered anything, and slides the searchbar
    from the hero slot into the sticky header. */
+/* Reset every filter to its default, in place (Lode 18 Jun — a Reset button
+   in the filter section). No reload, so the intro never replays and the
+   scroll position is kept; clearing the country also resets the price range
+   (it falls back to its "Pick a country first" empty state in runSearch). */
+function resetSearchFilters() {
+  const setVal = (id, v) => { const el = document.getElementById(id); if (el) el.value = v; };
+  setVal("f-country", "");
+  setVal("f-level", "all");
+  setVal("f-type", "all");
+  setVal("f-month", "all");
+  setVal("f-search", "");
+  if (typeof setSportPref === "function") setSportPref([]);   // all sports
+  if (typeof setMonthPref === "function") setMonthPref(null);
+  try { window.history.replaceState(null, "", location.pathname); } catch (e) {}
+  if (typeof runSearch === "function") runSearch();
+}
+
 function runSearch() {
   const country = document.getElementById("f-country").value;
   const level = document.getElementById("f-level").value;
@@ -4062,6 +4079,18 @@ function initIndex() {
   ["f-level", "f-month", "f-type", "f-country"].forEach(id => {
     const el = document.getElementById(id);
     if (el) el.addEventListener("change", runSearch);
+  });
+  // Reset + Show-results buttons in the filter section (Lode 18 Jun). Filters
+  // already auto-apply on change; "Show results" just closes the mobile sheet
+  // and scrolls down to the results so you can see them.
+  const resetBtn = document.getElementById("f-reset");
+  if (resetBtn) resetBtn.addEventListener("click", resetSearchFilters);
+  const showBtn = document.getElementById("f-show-results");
+  if (showBtn) showBtn.addEventListener("click", () => {
+    document.body.classList.remove("mobile-filters-open");   // close the bottom-sheet on phone
+    runSearch();
+    const r = document.getElementById("results");
+    if (r) setTimeout(() => r.scrollIntoView({ behavior: "smooth", block: "start" }), 80);
   });
   // Persist the picked month so it carries to Compare / detail pages.
   const fMonth = document.getElementById("f-month");
@@ -11259,85 +11288,4 @@ function pruneStaleAccountIds() {
     if (/^(https?:|mailto:|tel:|#)/i.test(href)) return; // external / anchor — ignore
     try { sessionStorage.setItem("sg_skip_intro", "1"); } catch (e) {}
   }, true);
-})();
-
-/* ============================================================
-   TAB-SWITCH VEIL — wave + goose page transition (Lab1 port, Lode 18 Jun).
-   ============================================================
-   Clicking a TOP TAB (desktop .site-nav or the mobile tabbar) plays a
-   sea-coloured wave that rises with a goose gliding across, then navigates;
-   the destination page lands already covered (an inline <head> script reads
-   the one-shot `sgVeilTransit` flag pre-paint) and JS lifts the veil to
-   reveal it. Scoped to tabs only — content links (cards, search, map pins)
-   navigate normally. Deliberately a touch slower than the lab so the goose
-   reads clearly. Reduced-motion or no-GSAP → a plain navigate (no veil). */
-(function sgVeilTransition() {
-  function start() {
-    var docEl = document.documentElement;
-    var veil = document.getElementById("sg-veil");
-    var goose = document.getElementById("sg-veil-goose");
-    var reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-    var hasGSAP = typeof window.gsap !== "undefined";
-
-    if (goose && !goose.firstChild) {
-      var im = new Image(); im.src = "surfgoose_icon.svg"; im.alt = "";
-      goose.appendChild(im);
-    }
-
-    /* ---- Arrived through the veil → lift it to reveal this page ---- */
-    if (veil && docEl.classList.contains("sg-arrived-veil")) {
-      if (!reduce && hasGSAP) {
-        gsap.to(veil, {
-          yPercent: 100, y: 96, duration: 0.8, ease: "power3.out", delay: 0.12,
-          onComplete: function () { docEl.classList.remove("sg-arrived-veil"); gsap.set(veil, { clearProps: "transform" }); }
-        });
-      } else {
-        docEl.classList.remove("sg-arrived-veil");   // reduced-motion / no GSAP → instant reveal
-      }
-    }
-
-    /* ---- Leave through the veil on a top-tab click ---- */
-    function leaveVia(url) {
-      if (reduce || !veil || !hasGSAP) { location.href = url; return; }
-      try { sessionStorage.setItem("sgVeilTransit", "1"); } catch (e) {}
-      var W = window.innerWidth || docEl.clientWidth || 1200;
-      var done = false;
-      function go() { if (done) return; done = true; location.href = url; }
-      gsap.timeline()
-        .set(veil, { yPercent: 100, y: 96 })
-        .to(veil, { yPercent: 0, y: 0, duration: 0.62, ease: "power3.in" })
-        // Slow, clearly-visible glide-away (Lode 18 Jun: "die mag zeker 2x
-        // trager"). The goose drifts across the covered sea over ~2.5s,
-        // lifting + banking as it leaves; we navigate once it's off-screen.
-        .fromTo(goose,
-          { x: -0.24 * W, y: 0, opacity: 1, rotation: 6 },
-          { x: 1.22 * W, y: -90, rotation: -12, duration: 2.5, ease: "power1.inOut" }, 0.12)
-        .add(go, 2.5);
-      setTimeout(go, 3000);   // failsafe: navigate even if the timeline stalls
-    }
-
-    document.addEventListener("click", function (e) {
-      if (e.defaultPrevented || e.metaKey || e.ctrlKey || e.shiftKey || e.altKey) return;
-      var a = e.target.closest && e.target.closest("a[href]");
-      if (!a) return;
-      if (!(a.closest(".site-nav") || a.closest(".mobile-tabbar"))) return;   // tabs only
-      if (a.target === "_blank") return;
-      var href = a.getAttribute("href") || "";
-      if (/^(https?:|mailto:|tel:|#)/i.test(href)) return;                    // external / anchor
-      // Same page → let it reload (no veil). Normalise .html/clean-URL/index
-      // so e.g. clicking the active tab doesn't trigger a transition-to-self.
-      try {
-        var nk = function (p) { p = p.replace(/\/+$/, "").replace(/\.html$/i, ""); return (p === "" || p === "/index") ? "/" : p; };
-        if (nk(new URL(href, location.href).pathname) === nk(location.pathname)) return;
-      } catch (e2) {}
-      e.preventDefault();
-      leaveVia(href);
-    }, true);
-  }
-
-  if (document.readyState === "loading") {
-    document.addEventListener("DOMContentLoaded", start);
-  } else {
-    start();
-  }
 })();
