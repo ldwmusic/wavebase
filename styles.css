@@ -368,7 +368,7 @@ a, button, [role="button"] { -webkit-tap-highlight-color: rgba(63,111,125,0.08);
   margin-bottom: 60px;
 }
 @media (max-width: 620px) {
-  .about-section { padding: 0 4px; }
+  .about-section { padding: 0 8px; }
   .about-section h2 { font-size: 24px; }
   .about-section p, .about-list li, .about-labels li, .about-live li { font-size: 16px; }
 }
@@ -5316,8 +5316,9 @@ button.rml-key.off .rml-dot {
   .detail-actions .trip-picker { width: 100%; }
   .btn.btn-book { grid-column: 1 / -1; }
 
-  /* general tightening */
-  .wrap { padding: 0 18px; }
+  /* general tightening — 24px side padding keeps content from feeling
+     edge-to-edge on phone (was 18px, Michiel flagged it 21 Jun) */
+  .wrap { padding: 0 24px; }
   .verhaal { padding: 22px 20px; }
   .town-panel { padding: 20px 18px; }
   .kort { padding: 20px 22px; }
@@ -5331,7 +5332,7 @@ button.rml-key.off .rml-dot {
   .trip-item-ctrl { gap: 3px; }
 
   /* destinations mega-menu — already capped at 72vh, ensure padding */
-  .destinations-menu .wrap { padding: 0 18px; }
+  .destinations-menu .wrap { padding: 0 24px; }
   .dest-continent h3 { font-size: 13px; }
   .dest-chip { font-size: 13px; padding: 5px 11px; }
 }
@@ -5359,7 +5360,7 @@ button.rml-key.off .rml-dot {
     flex-direction: row;
     justify-content: center;
     align-items: center;
-    padding: 0 18px;
+    padding: 0 24px;
     gap: 0;
   }
   .logo { font-size: 22px; }
@@ -5420,7 +5421,7 @@ button.rml-key.off .rml-dot {
   .card .tag { font-size: 14px; }
 
   /* hero — fluid scale, calmer on small screens */
-  .hero { padding: 32px 0 12px; }
+  .hero { padding: 32px 6px 12px; }
   .hero h1 { font-size: clamp(28px, 8.5vw, 40px); margin-bottom: 14px; }
   .hero p.lead { font-size: 16px; }
   .hero .kicker { font-size: 11px; margin-bottom: 12px; }
