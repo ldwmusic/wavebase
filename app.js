@@ -6554,9 +6554,88 @@ function sgWireMapHover(map, markerEntries, onOpen) {
   });
 }
 
+/* Remember the Map-tab view (center + zoom) across page loads, so opening and
+   closing a spot/stay/center detail — or navigating away and coming back —
+   never snaps the map to the default world view. The in-place bloom already
+   keeps the map mounted; this is the safety net for the cases where the page
+   actually reloads (phone back-button, detail navigation). Session-scoped so a
+   brand-new visit still fits all pins. (Michiel 22 Jun — esp. on phone.) */
+var SG_MAP_VIEW_KEY = "sg_map_view_v1";
+function sgSaveMapView(map) {
+  try {
+    const c = map.getCenter();
+    sessionStorage.setItem(SG_MAP_VIEW_KEY, JSON.stringify({
+      center: [c.lat, c.lng], zoom: map.getZoom()
+    }));
+  } catch (e) {}
+}
+function sgLoadMapView() {
+  try {
+    const v = JSON.parse(sessionStorage.getItem(SG_MAP_VIEW_KEY) || "null");
+    if (v && Array.isArray(v.center) && v.center.length === 2 && typeof v.zoom === "number"
+        && isFinite(v.center[0]) && isFinite(v.center[1])) return v;
+  } catch (e) {}
+  return null;
+}
+
+/* Full-screen control for the Map tab (Michiel 22 Jun). Same idea — and same
+   mechanism — as the home "Full screen" button that blooms the country map open
+   over the page: a fixed CSS overlay, not the native Fullscreen API. Here the
+   map IS the page, so instead of opening an iframe we just blow the existing
+   map stage up to fill the whole viewport. The same Leaflet map stays mounted,
+   so the view is preserved when toggling, and it behaves identically on phone
+   and desktop (the native element-Fullscreen API isn't available on iOS Safari
+   anyway). */
+function addMapFullscreenControl(map) {
+  if (typeof L === "undefined") return;
+  const stage = document.querySelector(".map-stage");
+  if (!stage) return;
+  const EXPAND = '<svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M8 3H5a2 2 0 0 0-2 2v3m18 0V5a2 2 0 0 0-2-2h-3M3 16v3a2 2 0 0 0 2 2h3m13-5v3a2 2 0 0 1-2 2h-3"/></svg>';
+  const COMPRESS = '<svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M8 3v3a2 2 0 0 1-2 2H3m18 0h-3a2 2 0 0 1-2-2V3M3 16h3a2 2 0 0 1 2 2v3m13-5h-3a2 2 0 0 0-2 2v3"/></svg>';
+
+  let btn = null;
+
+  const Ctrl = L.Control.extend({
+    options: { position: "topleft" },
+    onAdd: function () {
+      const div = L.DomUtil.create("div", "map-fs-ctrl leaflet-bar");
+      btn = L.DomUtil.create("a", "map-fs-btn", div);
+      btn.href = "#";
+      btn.setAttribute("role", "button");
+      btn.title = "Full screen map";
+      btn.setAttribute("aria-label", "Full screen map");
+      btn.innerHTML = EXPAND;
+      L.DomEvent.disableClickPropagation(div);
+      L.DomEvent.on(btn, "click", function (e) { L.DomEvent.stop(e); toggle(); });
+      return div;
+    }
+  });
+  map.addControl(new Ctrl());
+
+  function toggle() {
+    const on = !stage.classList.contains("is-mapfull");
+    stage.classList.toggle("is-mapfull", on);
+    if (btn) {
+      btn.innerHTML = on ? COMPRESS : EXPAND;
+      btn.title = on ? "Exit full screen" : "Full screen map";
+      btn.setAttribute("aria-label", btn.title);
+    }
+    // Let Leaflet recompute its size for the new box (center is preserved).
+    setTimeout(function () { map.invalidateSize(); }, 80);
+  }
+
+  // Esc closes full screen, like any overlay — but not when a detail bloom is
+  // open on top (Esc should dismiss that first, leaving the map full-screen).
+  document.addEventListener("keydown", function (e) {
+    if (e.key === "Escape" && stage.classList.contains("is-mapfull")
+        && !document.querySelector(".map-bloom")) toggle();
+  });
+}
+
 /* ---- MAP ---- */
 function initMap() {
   const map = L.map("map");
+  window.__sgMap = map;   // debug handle (verification ritual)
   L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
     attribution: "&copy; OpenStreetMap contributors", maxZoom: 19
   }).addTo(map);
@@ -6592,6 +6671,10 @@ function initMap() {
   const countryCoords = wantCountry
     ? markerEntries.filter(me => entryCountry(me.entry) === wantCountry).map(me => me.entry.coords)
     : [];
+  // A ?country= deep-link always wins (intentional entry). Otherwise restore the
+  // view the visitor last left (so closing a detail / coming back keeps place).
+  // First-ever visit with neither → fit every pin.
+  const savedView = countryCoords.length ? null : sgLoadMapView();
   if (countryCoords.length) {
     map.fitBounds(countryCoords, { padding: [50, 50], maxZoom: 11 });
     // Grey out the pins of OTHER countries so the chosen country stands out —
@@ -6602,9 +6685,13 @@ function initMap() {
         marker._sgDimmed = true;
       }
     });
+  } else if (savedView) {
+    map.setView(savedView.center, savedView.zoom);
   } else if (allCoords.length) {
     map.fitBounds(allCoords, { padding: [30, 30] });
   }
+  // Remember the view on every pan/zoom so it survives a reload (Michiel 22 Jun).
+  map.on("moveend zoomend", () => sgSaveMapView(map));
 
   // Hover-card preview + click→bloom-to-detail, shared with the home glance
   // map (Lode 18 Jun). Compare-mode owns the pin click via onOpen below.
@@ -6660,6 +6747,9 @@ function initMap() {
   WaveBaseCompareMode.init(map, markerEntries, {
     onOpen: (entry, marker) => sgOpenSpotBloom(map, marker, entry)
   });
+
+  // Full-screen toggle on the map itself (Michiel 22 Jun).
+  addMapFullscreenControl(map);
 }
 
 /* ---- trip maps (account) — a roadtrip-style map per trip ---- */

@@ -3695,6 +3695,36 @@ body:not(.is-home) .searchbar-wrap { display: none; }
   box-shadow: var(--shadow-sm);
 }
 
+/* Map-tab full-screen control (Michiel 22 Jun). Sits in the Leaflet button
+   bar (top-left, under the zoom buttons) and matches their look. */
+.map-fs-btn {
+  display: flex !important;
+  align-items: center;
+  justify-content: center;
+  color: var(--ink);
+  background: #fff;
+}
+.map-fs-btn:hover { background: var(--sea-soft); color: var(--sea-deep); }
+.map-fs-btn svg { display: block; }
+
+/* Full-screen state: a fixed CSS overlay over the whole viewport, same idea as
+   the home country-map bloom. The map fills it edge-to-edge. */
+.map-stage.is-mapfull {
+  position: fixed;
+  inset: 0;
+  z-index: 3500;
+  margin: 0;
+  padding: 0;
+  background: var(--cream);
+}
+.map-stage.is-mapfull #map {
+  height: 100%;
+  min-height: 0;
+  border: 0;
+  border-radius: 0;
+  box-shadow: none;
+}
+
 /* === Map tab: hover-card preview → bloom-to-detail (Lode 18 Jun) ===
    Hover a pin and the place's card (home-style) floats up near it; click it
    and the full detail blooms open from the card in an overlay; close and it
