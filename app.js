@@ -6445,6 +6445,23 @@ function initSpot() {
    detail (spot.html) and the full-screen map (kaart.html). Only one bloom at
    a time. */
 var sgBloomEl = null;
+// When a detail blooms open from a map pin we remember that map + its exact
+// view, and snap it back the moment the detail closes — so opening and closing
+// a spot/stay/center always lands the visitor on precisely the same map, even
+// if anything nudged it while the overlay was up (Michiel 22 + 28 Jun, phone).
+var sgBloomReturnMap = null, sgBloomReturnView = null;
+function sgRestoreBloomMap() {
+  var m = sgBloomReturnMap, v = sgBloomReturnView;
+  sgBloomReturnMap = null; sgBloomReturnView = null;
+  if (!m || !v) return;
+  try {
+    // invalidateSize first (the container may have been resized by the mobile
+    // browser chrome while the full-screen overlay was up), then re-assert the
+    // exact center + zoom without any animation so there's no visible jump.
+    m.invalidateSize(false);
+    m.setView(v.center, v.zoom, { animate: false });
+  } catch (e) {}
+}
 function sgOpenBloom(originX, originY, url, label) {
   if (sgBloomEl) return;
   sgBloomEl = document.createElement("div");
@@ -6494,6 +6511,15 @@ function sgCloseBloom() {
   if (el._cleanup) el._cleanup();
   el.classList.remove("is-anim");                 // reverse the bloom (shrink back)
   setTimeout(function () { if (el.parentNode) el.remove(); }, 460);
+  // Put the map back exactly where it was when the detail opened. Do it now and
+  // again after the shrink animation finishes (the container regains its full
+  // size as the overlay leaves, so a late invalidateSize avoids a half-painted
+  // map). (Michiel 22 + 28 Jun.)
+  sgRestoreBloomMap();
+  var m = window.__sgMap, v = sgLoadMapView && sgLoadMapView();
+  if (m && v) setTimeout(function () {
+    try { m.invalidateSize(false); m.setView(v.center, v.zoom, { animate: false }); } catch (e) {}
+  }, 480);
 }
 // Bloom the spot detail open from a pin's screen position.
 function sgOpenSpotBloom(map, marker, e) {
@@ -6503,6 +6529,8 @@ function sgOpenSpotBloom(map, marker, e) {
     var box = map.getContainer().getBoundingClientRect();
     ox = box.left + pt.x; oy = box.top + pt.y;
   } catch (err) {}
+  // Remember this map + its exact view so closing the detail restores it.
+  try { sgBloomReturnMap = map; sgBloomReturnView = { center: map.getCenter(), zoom: map.getZoom() }; } catch (err) {}
   sgOpenBloom(ox, oy, "spot.html?id=" + encodeURIComponent(e.id) + "&embed=1", e.name || "Details");
 }
 // Wire the hover-card preview on a map's markers. The card click + the pin
@@ -6671,27 +6699,51 @@ function initMap() {
   const countryCoords = wantCountry
     ? markerEntries.filter(me => entryCountry(me.entry) === wantCountry).map(me => me.entry.coords)
     : [];
-  // A ?country= deep-link always wins (intentional entry). Otherwise restore the
-  // view the visitor last left (so closing a detail / coming back keeps place).
-  // First-ever visit with neither → fit every pin.
-  const savedView = countryCoords.length ? null : sgLoadMapView();
-  if (countryCoords.length) {
+  const savedView = sgLoadMapView();
+  // Was this page reached by the browser back/forward (e.g. closing a spot/stay/
+  // center detail that opened as its own page on phone)? Then the visitor wants
+  // to land exactly where they left — never re-fit. (Michiel 22 + 28 Jun.)
+  const navEntry = (window.performance && performance.getEntriesByType)
+    ? performance.getEntriesByType("navigation")[0] : null;
+  const isBackForward = navEntry ? navEntry.type === "back_forward"
+    : (performance.navigation && performance.navigation.type === 2);
+
+  // Pick the opening view:
+  //  1. Coming back to the map → restore the exact saved view (the core fix —
+  //     opening + closing a detail must never move the map).
+  //  2. Fresh ?country= deep-link (e.g. a country card on Home) → fit that
+  //     country.
+  //  3. Otherwise → restore a saved view if we have one, else fit every pin.
+  if (isBackForward && savedView) {
+    map.setView(savedView.center, savedView.zoom);
+  } else if (countryCoords.length) {
     map.fitBounds(countryCoords, { padding: [50, 50], maxZoom: 11 });
-    // Grey out the pins of OTHER countries so the chosen country stands out —
-    // like the out-of-radius markers on the Nearby tab (Lode 18 Jun).
+  } else if (savedView) {
+    map.setView(savedView.center, savedView.zoom);
+  } else if (allCoords.length) {
+    map.fitBounds(allCoords, { padding: [30, 30] });
+  }
+  // Grey out the pins of OTHER countries when a country is in focus, so the
+  // chosen one stands out — like the out-of-radius markers on the Nearby tab
+  // (Lode 18 Jun). Independent of which view branch ran above.
+  if (wantCountry) {
     markerEntries.forEach(({ marker, entry }) => {
       if (entryCountry(entry) !== wantCountry && marker.setStyle) {
         marker.setStyle({ fillColor: "#b4ada0", color: "#fff", fillOpacity: 0.65, opacity: 0.6, weight: 1.5 });
         marker._sgDimmed = true;
       }
     });
-  } else if (savedView) {
-    map.setView(savedView.center, savedView.zoom);
-  } else if (allCoords.length) {
-    map.fitBounds(allCoords, { padding: [30, 30] });
   }
-  // Remember the view on every pan/zoom so it survives a reload (Michiel 22 Jun).
-  map.on("moveend zoomend", () => sgSaveMapView(map));
+  // Remember the view so it survives opening + closing a detail (Michiel 22 +
+  // 28 Jun). Save on every pan/zoom AND right before the page is hidden /
+  // navigated away (pagehide fires before a phone navigates into a detail page,
+  // catching the very last view even if no moveend followed).
+  const persistView = () => sgSaveMapView(map);
+  map.on("moveend zoomend", persistView);
+  window.addEventListener("pagehide", persistView);
+  window.addEventListener("visibilitychange", () => {
+    if (document.visibilityState === "hidden") persistView();
+  });
 
   // Hover-card preview + click→bloom-to-detail, shared with the home glance
   // map (Lode 18 Jun). Compare-mode owns the pin click via onOpen below.
