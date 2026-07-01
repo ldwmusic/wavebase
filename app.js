@@ -728,23 +728,37 @@ const DEFAULT_PHOTO_POOLS = {
   // drops photos in — `card`/`hero` (background-position) are optional and
   // default to "center"; only set them when a photo needs reframing.
   wave: [
-    { url: "photos/disciplines/wave/pexels-beach-1838501.jpg",      card: "50% 30%", hero: "50% 16%" },
     { url: "photos/disciplines/wave/kinenriquez-beach-4426246.jpg", hero: "50% 42%" },
     { url: "photos/disciplines/wave/digtallife-girls-5662900.jpg" },
-    { url: "photos/disciplines/wave/palinska-bali-5111131.jpg" },
-    { url: "photos/disciplines/wave/stocksnap-surfing-926822.jpg" }
+    { url: "photos/disciplines/wave/adil-photos-seascape-4788749_1920.jpg" },
+    { url: "photos/disciplines/wave/ajs1-beach-4814418_1920.jpg" },
+    { url: "photos/disciplines/wave/couleur-waves-1215449_1920.jpg" },
+    { url: "photos/disciplines/wave/dimitrisvetsikas1969-waves-3445011_1920.jpg" },
+    { url: "photos/disciplines/wave/dimitrisvetsikas1969-waves-3473335_1920.jpg" },
+    { url: "photos/disciplines/wave/hans-waves-384385_1920.jpg" },
+    { url: "photos/disciplines/wave/jpdvg-namibia-3909397_1920.jpg" },
+    { url: "photos/disciplines/wave/kirildobrev-blue-4145659_1920.jpg" },
+    { url: "photos/disciplines/wave/mduman1997-beach-5531919_1920.jpg" },
+    { url: "photos/disciplines/wave/thestorychef-water-282784_1920.jpg" }
   ],
   wind: [
-    { url: "photos/disciplines/wind/windsurf-action-surfing-3859466.jpg", card: "48% 54%", hero: "48% 56%" },
-    { url: "photos/disciplines/wind/iulian_ursache-sunset-5327019_1920.jpg" },
-    { url: "photos/disciplines/wind/justasurferdude-sunset-2295669_1920.jpg" },
-    { url: "photos/disciplines/wind/kanenori-windsurfing-7241074_1920.jpg" },
-    { url: "photos/disciplines/wind/loggawiggler-windsurfing-51880_1920.jpg" }
+    { url: "photos/disciplines/wind/loggawiggler-windsurfing-51880_1920.jpg" },
+    { url: "photos/disciplines/wind/loggawiggler-windsurfing-51881_1920.jpg" },
+    { url: "photos/disciplines/wind/adazphoto-windsurfing-7442575_1920.jpg" },
+    { url: "photos/disciplines/wind/matthiasboeckel-surf-sail-4464028_1920.jpg" },
+    { url: "photos/disciplines/wind/matthiasboeckel-windsurfing-4464031_1920.jpg" },
+    { url: "photos/disciplines/wind/alexsoneday-sky-4033106_1920.jpg" }
   ],
   kite: [
-    { url: "photos/disciplines/kite/kitereisen-kite-surfing-3857698.jpg", card: "50% 52%", hero: "50% 54%" },
     { url: "photos/disciplines/kite/pexels-action-1867052_1920.jpg" },
-    { url: "photos/disciplines/kite/wasi1370-heaven-3353857_1920.jpg" }
+    { url: "photos/disciplines/kite/wasi1370-heaven-3353857_1920.jpg" },
+    { url: "photos/disciplines/kite/305kitesurf-fun-3198444_1920.jpg" },
+    { url: "photos/disciplines/kite/dimitrisvetsikas1969-kite-3715975_1920.jpg" },
+    { url: "photos/disciplines/kite/garyuk31-kite-3391183_1920.jpg" },
+    { url: "photos/disciplines/kite/minka2507-kite-4516440_1920.jpg" },
+    { url: "photos/disciplines/kite/ninita_7-kite-2828043_1920.jpg" },
+    { url: "photos/disciplines/kite/odejacob-montenegro-1699060_1920.jpg" },
+    { url: "photos/disciplines/kite/virginia332-sunset-2407918_1920.jpg" }
   ],
   wing: [
     { url: "photos/disciplines/wing/matthiaskost-sea-7514854_1920.jpg" }
