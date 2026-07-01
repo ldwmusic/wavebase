@@ -3762,7 +3762,32 @@ body:not(.is-home) .searchbar-wrap { display: none; }
   min-height: 0;
   border-radius: 0;
 }
+/* Full-screen Nearby: hide the docked list by default, but float it back over
+   the map once you've dropped a pin, so you can see the nearby spots without
+   leaving full screen (Michiel 1 Jul). Docked right on desktop. */
 .explorer-stage.is-mapfull .exp-list { display: none; }
+.explorer-stage.is-mapfull.has-base .exp-list {
+  display: block;
+  position: absolute;
+  top: 14px; right: 14px; bottom: 14px;
+  width: 330px; max-width: calc(100% - 28px);
+  height: auto; min-height: 0;
+  z-index: 1000;
+  background: rgba(255, 255, 255, 0.96);
+  -webkit-backdrop-filter: blur(10px);
+  backdrop-filter: blur(10px);
+  border: 1px solid var(--sand);
+  border-radius: 16px;
+  box-shadow: 0 10px 34px rgba(30, 60, 70, 0.22);
+}
+/* Phone: a bottom sheet instead of a side panel, so it never eats the map. */
+@media (max-width: 640px) {
+  .explorer-stage.is-mapfull.has-base .exp-list {
+    top: auto; left: 8px; right: 8px; bottom: 8px;
+    width: auto; max-width: none;
+    max-height: 42vh;
+  }
+}
 /* Filters float over the top of the full-screen map so they stay adjustable
    (Lode 22 Jun). Glassy bar, centred, wraps on narrow screens. Sits above the
    map + hover layer but below any detail bloom. */

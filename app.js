@@ -11330,6 +11330,12 @@ function initExplorer() {
   function clearBase() { state.base = null; saveState(); redraw(true); }
 
   function redraw(fit) {
+    // Reflect whether a base pin is set, so the full-screen Nearby view can
+    // reveal the results list once you've dropped your pin — and keep the map
+    // clean before that (Michiel 1 Jul).
+    const _expStage = document.querySelector(".explorer-stage");
+    if (_expStage) _expStage.classList.toggle("has-base", !!state.base);
+
     spotLayer.clearLayers();
     if (baseMarker) { map.removeLayer(baseMarker); baseMarker = null; }
     if (reachCircle) { map.removeLayer(reachCircle); reachCircle = null; }
