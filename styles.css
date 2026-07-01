@@ -5764,6 +5764,11 @@ button.rml-key.off .rml-dot {
   gap: 10px !important;
   min-width: 240px;
 }
+/* Budget filter is hidden for now (Lode 22 Jun) — focus is on spots & centers,
+   not stays. The markup + JS stay intact (functionality preserved); this
+   enforces the `hidden` attribute over .searcher .field's inline-flex. Re-enable
+   by removing `hidden` from the span in index.html. */
+.price-range-field[hidden] { display: none !important; }
 /* Inherit the sentence's font-family + size so "Budget?" matches the
    other labels (Where? / For who? / ...). We only set color to match. */
 .price-range-field > span:first-child {
