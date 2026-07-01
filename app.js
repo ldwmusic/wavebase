@@ -6667,10 +6667,35 @@ function addMapFullscreenControl(map) {
       if (!fsPanel) {
         fsPanel = document.createElement("div");
         fsPanel.className = "map-fs-filters";
+        // Collapsible header — on a phone the open panel ate half the map, so it
+        // starts as a compact "Filters" pill you tap to open/close (Lode 22 Jun).
+        const tog = document.createElement("button");
+        tog.type = "button";
+        tog.className = "map-fs-toggle";
+        tog.setAttribute("aria-expanded", "true");
+        tog.innerHTML =
+          '<svg viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 4h18l-7 8v6l-4 2v-8z"/></svg>'
+          + '<span>Filters</span>'
+          + '<svg class="map-fs-chev" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m6 9 6 6 6-6"/></svg>';
+        const body = document.createElement("div");
+        body.className = "map-fs-body";
+        tog.addEventListener("click", function () {
+          const collapsed = fsPanel.classList.toggle("is-collapsed");
+          tog.setAttribute("aria-expanded", collapsed ? "false" : "true");
+        });
+        fsPanel.appendChild(tog);
+        fsPanel.appendChild(body);
+        fsPanel._tog = tog;
+        fsPanel._body = body;
         stage.appendChild(fsPanel);
       }
-      filterEls.forEach(el => fsPanel.appendChild(el));
+      filterEls.forEach(el => fsPanel._body.appendChild(el));
       fsPanel.hidden = false;
+      // Default state per screen: collapsed on phones (keep the map clear),
+      // open on wider screens where there's room. Re-applied on every entry.
+      const startCollapsed = window.matchMedia("(max-width: 640px)").matches;
+      fsPanel.classList.toggle("is-collapsed", startCollapsed);
+      fsPanel._tog.setAttribute("aria-expanded", startCollapsed ? "false" : "true");
     } else {
       // Slot each filter back before its own anchor — order-independent.
       filterHomes.forEach(h => {
