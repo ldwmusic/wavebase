@@ -3225,6 +3225,24 @@ function initResultsMiniMap(matches) {
   const origMap = L.map;
   function patched(el, opts) {
     const m = origMap.call(L, el, opts);
+    // Clamp every map to ONE world (Michiel 1 Jul — "bij uitzoomen zag ik de
+    // wereld naast elkaar herhalen"). noWrap on the tile layer (patched below)
+    // stops the horizontal tile repeat; this locks panning to the world and
+    // caps the zoom-out at "the whole world just fits", so you can never zoom
+    // out past the world into empty/duplicate space. Applies to ALL maps.
+    try {
+      const wb = L.latLngBounds([-90, -180], [90, 180]);
+      m.setMaxBounds(wb);
+      m.options.maxBoundsViscosity = 1.0;
+      const clampMinZoom = function () {
+        try {
+          const z = m.getBoundsZoom(wb, false);   // zoom at which the world fully fits
+          if (isFinite(z) && z > m.getMinZoom()) m.setMinZoom(z);
+        } catch (e) {}
+      };
+      m.whenReady(clampMinZoom);
+      m.on("resize", clampMinZoom);
+    } catch (e) {}
     if (opts && opts.cmdScrollZoom === false) return m;
     try {
       const container = m.getContainer();
@@ -3255,6 +3273,22 @@ function initResultsMiniMap(matches) {
   Object.keys(origMap).forEach(k => { patched[k] = origMap[k]; });
   patched._wbCmdScrollPatched = true;
   L.map = patched;
+})();
+
+/* noWrap on every tile layer so the world map never repeats horizontally
+   (Michiel 1 Jul). Patches L.tileLayer once so all current + future layers get
+   it without per-call wiring; pass `noWrap: false` explicitly to opt out. */
+(function () {
+  if (typeof L === "undefined" || !L.tileLayer || L.tileLayer._wbNoWrapPatched) return;
+  const origTileLayer = L.tileLayer;
+  function patched(url, opts) {
+    opts = opts || {};
+    if (opts.noWrap === undefined) opts.noWrap = true;
+    return origTileLayer.call(L, url, opts);
+  }
+  Object.keys(origTileLayer).forEach(k => { patched[k] = origTileLayer[k]; });
+  patched._wbNoWrapPatched = true;
+  L.tileLayer = patched;
 })();
 
 const WaveBaseCompareMode = (function () {
@@ -6771,7 +6805,10 @@ function addMapFullscreenControl(map, opts) {
       filterHomes.forEach(h => {
         if (h.anchor.parentNode) h.anchor.parentNode.insertBefore(h.el, h.anchor);
       });
-      if (fsPanel) fsPanel.hidden = true;
+      // Remove the panel entirely, not just `hidden` — the CSS sets
+      // display:flex which overrides the hidden attribute, so it lingered as an
+      // empty box after minimising (Michiel 1 Jul). Recreated on next entry.
+      if (fsPanel) { fsPanel.remove(); fsPanel = null; }
     }
     // Let Leaflet recompute its size for the new box (center is preserved).
     setTimeout(function () { map.invalidateSize(); }, 80);
