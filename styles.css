@@ -1050,7 +1050,9 @@ a, button, [role="button"] { -webkit-tap-highlight-color: rgba(63,111,125,0.08);
   border-radius: 999px;
   padding: 4px 12px;
 }
-.card .sport-icons {
+/* Discipline pictograms ON a photo (compare thumb, list view) — white, crisp
+   shadow so they stay legible on any image. */
+.card .thumb .sport-icons {
   position: absolute;
   bottom: 32px; left: 12px;
   z-index: 2;
@@ -1058,14 +1060,34 @@ a, button, [role="button"] { -webkit-tap-highlight-color: rgba(63,111,125,0.08);
   align-items: center;
   gap: 4px;
   color: #fffefb;
-  /* Minimal: no chip — just a crisp shadow so the white icons stay legible on
-     any photo without crowding the card (Lode 18 Jun: the pill was too busy). */
   filter: drop-shadow(0 1px 2.5px rgba(0, 0, 0, 0.6));
 }
+.card .thumb .sport-icon svg { width: 36px; height: 36px; }
 .card .sport-icon { display: inline-flex; }
 .card .sport-icon svg { width: 36px; height: 36px; display: block; }
-/* Pictograms render at 50% opacity everywhere — softer feel against thumbnails. */
+/* Pictograms render at 50% opacity by default — softer feel against photos.
+   The in-body card icons override this below for full legibility on white. */
 .sport-icon { opacity: 0.5; }
+
+/* Discipline pictograms in the card's WHITE SPACE, top-right, on the town line
+   just under the season chip (Michiel 25 Jun — on the photo they washed out).
+   Full opacity + ink colour so they read clearly. */
+.card .place-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+}
+.card .place-row .place { flex: 1 1 auto; min-width: 0; }
+.card .body .sport-icons {
+  flex: 0 0 auto;
+  display: flex;
+  align-items: center;
+  gap: 3px;
+  color: var(--ink);
+}
+.card .body .sport-icon { opacity: 0.85; }
+.card .body .sport-icon svg { width: 25px; height: 25px; display: block; }
 .card .body { padding: 18px 20px 22px; display: flex; flex-direction: column; gap: 8px; flex: 1; }
 .card .place {
   font-size: 13px;
@@ -5524,8 +5546,7 @@ button.rml-key.off .rml-dot {
 .grid.list-view .card .compare-btn { right: 46px; }
 .grid.list-view .card .trip-btn    { right: 82px; }
 .grid.list-view .card .trip-btn svg { width: 12px; height: 12px; }
-.grid.list-view .card .sport-icons { bottom: 10px; left: 10px; gap: 3px; }
-.grid.list-view .card .sport-icon svg { width: 28px; height: 28px; }
+.grid.list-view .card .body .sport-icon svg { width: 23px; height: 23px; }
 .grid.list-view .card .body {
   flex: 1;
   padding: 14px 18px;
@@ -5556,7 +5577,6 @@ button.rml-key.off .rml-dot {
   .grid.list-view .card .save-btn    { right: 12px; }
   .grid.list-view .card .compare-btn { right: 54px; }
   .grid.list-view .card .trip-btn    { right: 96px; }
-  .grid.list-view .card .sport-icons { bottom: 32px; left: 12px; }
 }
 
 /* ===== round 13: sport pills (Wave / Wind / Kite / Wing) on Discover ===== */
