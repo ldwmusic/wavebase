@@ -3746,6 +3746,33 @@ body:not(.is-home) .searchbar-wrap { display: none; }
   border-radius: 0;
   box-shadow: none;
 }
+/* Filters float over the top of the full-screen map so they stay adjustable
+   (Lode 22 Jun). Glassy bar, centred, wraps on narrow screens. Sits above the
+   map + hover layer but below any detail bloom. */
+.map-fs-filters {
+  position: absolute;
+  top: 14px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 1000;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  max-width: calc(100% - 24px);
+  padding: 10px 18px;
+  background: rgba(255, 255, 255, 0.92);
+  -webkit-backdrop-filter: blur(10px);
+  backdrop-filter: blur(10px);
+  border: 1px solid var(--sand);
+  border-radius: 16px;
+  box-shadow: 0 10px 34px rgba(30, 60, 70, 0.22);
+}
+.map-fs-filters .map-filters { margin: 6px 0; row-gap: 8px; }
+.map-fs-filters .map-filters-sports { margin-top: 0; }
+@media (max-width: 640px) {
+  .map-fs-filters { padding: 9px 14px; gap: 0; }
+  .map-fs-filters .map-filters { gap: 12px 16px; font-size: 14px; }
+}
 
 /* === Map tab: hover-card preview → bloom-to-detail (Lode 18 Jun) ===
    Hover a pin and the place's card (home-style) floats up near it; click it

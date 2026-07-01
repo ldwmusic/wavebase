@@ -6620,6 +6620,19 @@ function addMapFullscreenControl(map) {
   if (typeof L === "undefined") return;
   const stage = document.querySelector(".map-stage");
   if (!stage) return;
+
+  // The Show/Sports filters live in the wrap above the stage, so blowing the
+  // stage up to full screen would leave them behind. Instead we reparent the
+  // real filter elements (keeping their checkbox wiring intact) into a floating
+  // panel over the map while full-screen, and slot them back into their exact
+  // spot on exit (Lode 22 Jun — "filters moeten verwerkt worden in full screen").
+  const filterEls = Array.from(document.querySelectorAll(".map-page .map-filters"));
+  const filterHomes = filterEls.map(el => {
+    const anchor = document.createComment("map-filter-home");
+    if (el.parentNode) el.parentNode.insertBefore(anchor, el);
+    return { el, anchor };
+  });
+  let fsPanel = null;
   const EXPAND = '<svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M8 3H5a2 2 0 0 0-2 2v3m18 0V5a2 2 0 0 0-2-2h-3M3 16v3a2 2 0 0 0 2 2h3m13-5v3a2 2 0 0 1-2 2h-3"/></svg>';
   const COMPRESS = '<svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M8 3v3a2 2 0 0 1-2 2H3m18 0h-3a2 2 0 0 1-2-2V3M3 16h3a2 2 0 0 1 2 2v3m13-5h-3a2 2 0 0 0-2 2v3"/></svg>';
 
@@ -6649,6 +6662,21 @@ function addMapFullscreenControl(map) {
       btn.innerHTML = on ? COMPRESS : EXPAND;
       btn.title = on ? "Exit full screen" : "Full screen map";
       btn.setAttribute("aria-label", btn.title);
+    }
+    if (on) {
+      if (!fsPanel) {
+        fsPanel = document.createElement("div");
+        fsPanel.className = "map-fs-filters";
+        stage.appendChild(fsPanel);
+      }
+      filterEls.forEach(el => fsPanel.appendChild(el));
+      fsPanel.hidden = false;
+    } else {
+      // Slot each filter back before its own anchor — order-independent.
+      filterHomes.forEach(h => {
+        if (h.anchor.parentNode) h.anchor.parentNode.insertBefore(h.el, h.anchor);
+      });
+      if (fsPanel) fsPanel.hidden = true;
     }
     // Let Leaflet recompute its size for the new box (center is preserved).
     setTimeout(function () { map.invalidateSize(); }, 80);
