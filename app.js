@@ -6608,25 +6608,78 @@ function sgLoadMapView() {
   return null;
 }
 
-/* Full-screen control for the Map tab (Michiel 22 Jun). Same idea — and same
+/* Drag the floating filter panel anywhere on the full-screen map by its header
+   (Lode 22 Jun — "je moet de filters kunnen verslepen"). Pointer-based so it
+   works on touch + mouse. A real drag flips panel._dragged so the header's
+   click handler doesn't also collapse/expand. Position is clamped to the
+   viewport so the panel can't be lost off-screen. */
+function makePanelDraggable(panel, handle, stage) {
+  let sx = 0, sy = 0, baseLeft = 0, baseTop = 0, active = false, moved = false;
+  const THRESH = 4;
+  handle.style.touchAction = "none";
+  handle.style.cursor = "grab";
+
+  handle.addEventListener("pointerdown", function (e) {
+    if (e.button != null && e.button !== 0) return;
+    active = true; moved = false; panel._dragged = false;
+    sx = e.clientX; sy = e.clientY;
+    const r = panel.getBoundingClientRect();
+    baseLeft = r.left; baseTop = r.top;
+    // Switch from the centred transform to explicit left/top so deltas apply.
+    panel.style.left = baseLeft + "px";
+    panel.style.top = baseTop + "px";
+    panel.style.right = "auto";
+    panel.style.transform = "none";
+    try { handle.setPointerCapture(e.pointerId); } catch (err) {}
+  });
+
+  handle.addEventListener("pointermove", function (e) {
+    if (!active) return;
+    const dx = e.clientX - sx, dy = e.clientY - sy;
+    if (!moved && Math.abs(dx) + Math.abs(dy) > THRESH) {
+      moved = true; handle.style.cursor = "grabbing";
+    }
+    if (!moved) return;
+    const pw = panel.offsetWidth, ph = panel.offsetHeight;
+    const maxL = window.innerWidth - pw - 6, maxT = window.innerHeight - ph - 6;
+    let nl = Math.max(6, Math.min(baseLeft + dx, Math.max(6, maxL)));
+    let nt = Math.max(6, Math.min(baseTop + dy, Math.max(6, maxT)));
+    panel.style.left = nl + "px";
+    panel.style.top = nt + "px";
+  });
+
+  function end(e) {
+    if (!active) return;
+    active = false;
+    handle.style.cursor = "grab";
+    try { handle.releasePointerCapture(e.pointerId); } catch (err) {}
+    if (moved) panel._dragged = true;  // suppress the click that follows
+  }
+  handle.addEventListener("pointerup", end);
+  handle.addEventListener("pointercancel", end);
+}
+
+/* Full-screen control for a map tab (Michiel 22 Jun). Same idea — and same
    mechanism — as the home "Full screen" button that blooms the country map open
    over the page: a fixed CSS overlay, not the native Fullscreen API. Here the
    map IS the page, so instead of opening an iframe we just blow the existing
    map stage up to fill the whole viewport. The same Leaflet map stays mounted,
    so the view is preserved when toggling, and it behaves identically on phone
    and desktop (the native element-Fullscreen API isn't available on iOS Safari
-   anyway). */
-function addMapFullscreenControl(map) {
+   anyway). Reused by the Map tab and the Nearby tab via opts.stage/opts.filters. */
+function addMapFullscreenControl(map, opts) {
   if (typeof L === "undefined") return;
-  const stage = document.querySelector(".map-stage");
+  opts = opts || {};
+  const stage = document.querySelector(opts.stage || ".map-stage");
   if (!stage) return;
 
-  // The Show/Sports filters live in the wrap above the stage, so blowing the
-  // stage up to full screen would leave them behind. Instead we reparent the
-  // real filter elements (keeping their checkbox wiring intact) into a floating
-  // panel over the map while full-screen, and slot them back into their exact
-  // spot on exit (Lode 22 Jun — "filters moeten verwerkt worden in full screen").
-  const filterEls = Array.from(document.querySelectorAll(".map-page .map-filters"));
+  // The filters live in the wrap above the stage, so blowing the stage up to
+  // full screen would leave them behind. Instead we reparent the real filter
+  // elements (keeping their control wiring intact) into a floating panel over
+  // the map while full-screen, and slot them back into their exact spot on exit
+  // (Lode 22 Jun — "filters moeten verwerkt worden in full screen"). Works for
+  // both the Map tab (.map-filters) and the Nearby tab (.explorer-controls).
+  const filterEls = Array.from(document.querySelectorAll(opts.filters || ".map-page .map-filters"));
   const filterHomes = filterEls.map(el => {
     const anchor = document.createComment("map-filter-home");
     if (el.parentNode) el.parentNode.insertBefore(anchor, el);
@@ -6680,6 +6733,8 @@ function addMapFullscreenControl(map) {
         const body = document.createElement("div");
         body.className = "map-fs-body";
         tog.addEventListener("click", function () {
+          // A drag on the header shouldn't also toggle the panel open/closed.
+          if (fsPanel._dragged) { fsPanel._dragged = false; return; }
           const collapsed = fsPanel.classList.toggle("is-collapsed");
           tog.setAttribute("aria-expanded", collapsed ? "false" : "true");
         });
@@ -6688,6 +6743,7 @@ function addMapFullscreenControl(map) {
         fsPanel._tog = tog;
         fsPanel._body = body;
         stage.appendChild(fsPanel);
+        makePanelDraggable(fsPanel, tog, stage);
       }
       filterEls.forEach(el => fsPanel._body.appendChild(el));
       fsPanel.hidden = false;
@@ -11470,6 +11526,10 @@ function initExplorer() {
 
   // Click anywhere on the map → set/move the base there.
   map.on("click", e => setBase(e.latlng.lat, e.latlng.lng, "Your pin"));
+
+  // Full-screen button + floating, collapsible, draggable filter panel — same
+  // as the Map tab (Lode 22 Jun). Here the filters are the whole controls block.
+  addMapFullscreenControl(map, { stage: ".explorer-stage", filters: ".explorer-controls" });
 
   redraw(true);
 }

@@ -3746,6 +3746,23 @@ body:not(.is-home) .searchbar-wrap { display: none; }
   border-radius: 0;
   box-shadow: none;
 }
+/* Nearby tab reuses the same full-screen mechanism (Lode 22 Jun): blow the
+   explorer stage up to fill the viewport, map fills it, the results list steps
+   aside (the map shows the same spots as pins). */
+.explorer-stage.is-mapfull {
+  position: fixed;
+  inset: 0;
+  z-index: 3500;
+  margin: 0;
+  padding: 0;
+  background: var(--cream);
+}
+.explorer-stage.is-mapfull #exp-map {
+  height: 100%;
+  min-height: 0;
+  border-radius: 0;
+}
+.explorer-stage.is-mapfull .exp-list { display: none; }
 /* Filters float over the top of the full-screen map so they stay adjustable
    (Lode 22 Jun). Glassy bar, centred, wraps on narrow screens. Sits above the
    map + hover layer but below any detail bloom. */
@@ -3785,6 +3802,16 @@ body:not(.is-home) .searchbar-wrap { display: none; }
 .map-fs-filters.is-collapsed .map-fs-body { display: none; }
 .map-fs-filters .map-filters { margin: 6px 0; row-gap: 8px; }
 .map-fs-filters .map-filters-sports { margin-top: 0; }
+/* Nearby controls, when floated into the panel: strip the card chrome and
+   stack the fields vertically so they read cleanly in the narrow panel. */
+.map-fs-body .explorer-controls {
+  display: flex; flex-direction: column; align-items: stretch;
+  gap: 14px; background: none; border: 0; padding: 2px 0 0; margin: 0;
+  min-width: 210px;
+}
+.map-fs-body .exp-field { gap: 6px; }
+.map-fs-body .exp-field-reach input[type=range] { width: 100%; }
+.map-fs-body .exp-base-controls { gap: 6px; }
 @media (max-width: 640px) {
   .map-fs-filters { padding: 4px 12px 9px; }
   .map-fs-toggle { min-height: 44px; }
