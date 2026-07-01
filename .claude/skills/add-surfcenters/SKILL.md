@@ -334,23 +334,44 @@ location available, you may consider to take the assumption that a
 surf center should always be on the main land and/or beach, never
 fully surrounded by water. If unclear, pin at the closest beach."
 
-#### Hard Gate 4.7 · booking_url must resolve
+#### Hard Gate 4.7 · booking_url must resolve — verify EVERY link at creation
 
-**Pre-POST check: every `booking_url` must return HTTP 2xx/3xx.**
-The Peniche batch POSTed Na Onda Surf School with `naondasurf.com`
-which returns DNS_PROBE_FINISHED_NXDOMAIN — the domain doesn't even
-exist. Real site is `ericeirasurf.com`. LDW caught this when clicking
-"Visit website" on the live page.
+**Pre-POST check, no exceptions: every `booking_url` must be a link that
+actually opens for a visitor.** This is the single most-reported center bug.
+Na Onda Surf School (Peniche) shipped `naondasurf.com` = NXDOMAIN. Worse, a
+whole batch shipped plausibly-constructed-but-WRONG domains — Michiel caught
+F400 Surfschool (`400surfschool.com`) plus an Ericeira batch (`7aessencia.com`,
+`extrasurf.pt`, `boardculturesurf.com`, `hostel-surfcamp-55.com`,
+`lacasaatlantica.com`) in June 2026: **10 dead links across the catalog**, all
+guessed from the school's name. **Never construct a domain from a name — only
+ship a URL you have actually fetched and seen load.**
 
-**Rule: before adding to the POST payload, curl-test the URL:**
+**How to test (GET, browser UA, follow redirects — NOT a bare HEAD, which many
+sites answer with 403/405):**
 ```bash
-curl -sIo /dev/null -w "%{http_code}" -L "$URL"
+curl -sL -A "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) Safari/605.1.15" \
+  -o /dev/null -w "%{http_code}" --max-time 20 "$URL"
 ```
-- 200/3xx → use it
-- 404/500/connection failed → find a different URL, or set
-  `booking_url: null` with a note rather than ship a broken link
-- If the operator genuinely has no working site → DELETE the center.
-  We don't feature operators we can't link to.
+Classify:
+- **200 / 3xx** → works, use it.
+- **403 / 405 / 429** → the site is UP but bot-blocks automated requests
+  (Cloudflare etc.); it opens fine for a real visitor — **accept the URL, do
+  NOT reject a link over a 403.**
+- **000 / "Could not resolve host" / connection refused / timeout** → the
+  domain is DEAD (DNS/NXDOMAIN). Real broken link — must fix.
+- **404** → retry the ROOT domain (`https://host/`). Root works → use the root
+  or the corrected path. Whole domain 404s → treat as dead.
+
+**When the official site is genuinely gone** (dead domain, unpublished Wix,
+hijacked/parked/spam, empty placeholder): don't ship a dead link and don't
+silently drop the button. Point `booking_url` at the operator's **active
+Instagram or Facebook page** instead (verify it loads) — a working social link
+beats a dead website (LDW decision, June 2026; applied to BoardCulture, La Casa
+Atlantica, Kite and Foil). Only if there's no working site AND no active social
+→ `booking_url: null`, or delete the center if we can't link to it at all.
+
+Match the replacement to the RIGHT operator (name + location), same rigor as the
+coords check — a same-name business elsewhere is not a fix.
 
 #### Hard Gate 4.8 · Brand-vs-Maps mismatch hard-stop
 
@@ -460,10 +481,15 @@ POST https://wavebase-api-qqwt.onrender.com/centers/
   Body: <the CenterCreate payload>
 ```
 
-Auth: the admin JWT lives in `localStorage['wavebase_jwt']` of Lode's browser
-on `wavebase.lode-b162.workers.dev`. If you don't have a token, ask Lode to
-run a small helper snippet in the admin console to copy his JWT — don't try to
-proxy it any other way.
+Auth (verified June 2026): the admin JWT lives in
+`localStorage['wavebase_auth_token_v1']` on **surfgoose.com** (NOT the old
+`wavebase_jwt` / workers.dev — that note is stale). Preferred, token-never-in-
+transcript way: drive the call from Lode's logged-in surfgoose.com tab via
+`WaveBaseAuth.authFetch(path, opts)` (Chrome MCP `javascript_tool`), which
+prepends the API base + bearer. Same mechanism works for `PATCH /centers/{id}`
+with a free-form body like `{booking_url: "..."}` (used to repair the 10 dead
+links). Use top-level `await (async()=>{...})()` in the JS tool so the promise
+resolves.
 
 After each successful POST, briefly confirm the new center's ID + a link to
 its detail page (`spot.html?id=<the-slug>&type=center`) so Lode can visually
