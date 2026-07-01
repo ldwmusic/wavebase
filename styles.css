@@ -169,9 +169,11 @@ a, button, [role="button"] { -webkit-tap-highlight-color: rgba(63,111,125,0.08);
   margin: 0 auto 22px;
 }
 .hero h1 .ul {
-  /* "Goose" in the brand clay-orange, matching the logo — no highlight band
-     (Lode 1 Jul: remove the streep, kleur Goose oranje zoals het logo). */
+  /* "Goose" in the brand clay-orange (matching the logo) with the highlighter
+     band back — now in the soft clay tint so the orange text stays legible on
+     it (Lode 1 Jul: streep terug, maar in de nieuwe kleur van Goose). */
   color: var(--clay);
+  background-image: linear-gradient(transparent 62%, var(--clay-soft) 62%, var(--clay-soft) 92%, transparent 92%);
 }
 .hero p.lead {
   font-size: 19px;
@@ -4591,16 +4593,17 @@ html.is-embed #map { height: calc(100vh - 72px); min-height: 0; }
   font-size: 13px;
   color: var(--ink-soft);
 }
-/* "Full screen" → blooms the full Map-tab map open over the page (Lode 18 Jun). */
-.results-map-fullscreen {
-  display: inline-flex; align-items: center; gap: 6px;
-  font: inherit; font-size: 13px; font-weight: 600; cursor: pointer;
-  color: var(--sea); background: var(--sea-soft); border: 1px solid #c9dde0;
-  border-radius: 999px; padding: 6px 13px;
-  transition: background 0.18s ease, color 0.18s ease;
+/* Full screen: the mini-map blows up to fill the whole screen, exactly like the
+   Map and Nearby tabs (Michiel 1 Jul) — the expand control lives on the map. */
+.results-map-frame.is-mapfull {
+  position: fixed; inset: 0; z-index: 3500;
+  margin: 0; padding: 0; border: 0; border-radius: 0;
+  background: var(--cream);
 }
-.results-map-fullscreen:hover { background: var(--sea); color: #fff; }
-.results-map-fullscreen:focus-visible { outline: 3px solid var(--sea); outline-offset: 2px; }
+.results-map-frame.is-mapfull .results-map-head { display: none; }
+.results-map-frame.is-mapfull .results-mini-map-stage {
+  height: 100%; min-height: 0; border-radius: 0;
+}
 /* Legend keys double as click-toggles for layer visibility. Each key is
    a real <button> — no pill chrome, no background, just plain text with
    the colored dot. When OFF, only the dot goes hollow (white with a

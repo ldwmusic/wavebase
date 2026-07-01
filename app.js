@@ -2015,35 +2015,44 @@ function spotKeyStatsHTML(e) {
   const toPct = (v) => v == null ? null : Math.round(v <= 1.5 ? v * 100 : v);
 
   const chips = [];
-  // Show the metrics that actually matter for THIS spot's discipline
-  // (June 2026, Lode: wave breaks like Anchor Point have no "windy days"
-  // — that's a windsurf/kite metric. Lead a wave break with wave height,
-  // a wind/kite/wing spot with wind). Primary sport = first in the array.
-  const primary = (entrySports(e)[0] === "wave") ? "wave" : "wind";
+  // Show the metrics that matter for THIS spot's disciplines. A pure wave
+  // break leads with wave height (June 2026, Lode: wave breaks have no
+  // meaningful "windy days"); a pure wind/kite/wing spot leads with wind. A
+  // spot that does BOTH shows both headline signals — wave height AND windy
+  // days — so neither side is hidden (Lode 1 Jul, e.g. Falassarna / Faneromeni).
+  const sports  = entrySports(e);
+  const hasWave = sports.indexOf("wave") !== -1;
+  const hasWind = sports.some(sp => sp === "wind" || sp === "kite" || sp === "wing");
+  const primary = (sports[0] === "wave") ? "wave" : "wind";
 
-  if (primary === "wave") {
-    const wave  = pickMonth(s.monthlyWaveM);
-    const water = pickMonth(s.monthlyWaterC);
-    const wind  = pickMonth(s.monthlyWindKn);
-    if (wave != null)
-      chips.push(`<span class="kstat kstat-wave" title="Typical wave height in ${escHTML(mLabel)}"><span class="kstat-n">${wave.toFixed(1)}<span class="kstat-u">m</span></span><span class="kstat-l">${escHTML(mLabel)} wave</span></span>`);
-    if (water != null)
-      chips.push(`<span class="kstat" title="Sea temperature in ${escHTML(mLabel)}"><span class="kstat-n">${Math.round(water)}<span class="kstat-u">°C</span></span><span class="kstat-l">water</span></span>`);
-    if (wind != null)
-      chips.push(`<span class="kstat" title="Average wind in ${escHTML(mLabel)} — lighter is cleaner for surf"><span class="kstat-n">${Math.round(wind)}<span class="kstat-u">kn</span></span><span class="kstat-l">${escHTML(mLabel)} wind</span></span>`);
-  } else {
-    const wind    = pickMonth(s.monthlyWindKn);
-    // Mean gust — same series the detail page's "gust ~X" line leads with.
-    // NOT monthlyGustPeakKn (the monthly MAX, "max 52 kn" on the page).
-    const gust    = pickMonth(s.monthlyGustKn);
-    const windPct = toPct(pickMonth(s.monthlyWindProb));
-    if (wind != null)
-      chips.push(`<span class="kstat" title="Average wind in ${escHTML(mLabel)}"><span class="kstat-n">${Math.round(wind)}<span class="kstat-u">kn</span></span><span class="kstat-l">${escHTML(mLabel)} wind</span></span>`);
-    if (gust != null)
-      chips.push(`<span class="kstat" title="Typical gusts in ${escHTML(mLabel)}"><span class="kstat-n">${Math.round(gust)}<span class="kstat-u">kn</span></span><span class="kstat-l">${escHTML(mLabel)} gusts</span></span>`);
-    if (windPct != null)
-      chips.push(`<span class="kstat kstat-pct" title="Share of ${escHTML(mLabel)} days with workable wind"><span class="kstat-n">${windPct}<span class="kstat-u">%</span></span><span class="kstat-l">windy days</span></span>`);
-  }
+  const wave    = pickMonth(s.monthlyWaveM);
+  const water   = pickMonth(s.monthlyWaterC);
+  const wind    = pickMonth(s.monthlyWindKn);
+  // Mean gust — same series the detail page's "gust ~X" line leads with.
+  // NOT monthlyGustPeakKn (the monthly MAX, "max 52 kn" on the page).
+  const gust    = pickMonth(s.monthlyGustKn);
+  const windPct = toPct(pickMonth(s.monthlyWindProb));
+
+  const waveChip = wave == null ? null :
+    `<span class="kstat kstat-wave" title="Typical wave height in ${escHTML(mLabel)}"><span class="kstat-n">${wave.toFixed(1)}<span class="kstat-u">m</span></span><span class="kstat-l">${escHTML(mLabel)} wave</span></span>`;
+  const waterChip = water == null ? null :
+    `<span class="kstat" title="Sea temperature in ${escHTML(mLabel)}"><span class="kstat-n">${Math.round(water)}<span class="kstat-u">°C</span></span><span class="kstat-l">water</span></span>`;
+  const windChip = wind == null ? null :
+    `<span class="kstat" title="Average wind in ${escHTML(mLabel)}"><span class="kstat-n">${Math.round(wind)}<span class="kstat-u">kn</span></span><span class="kstat-l">${escHTML(mLabel)} wind</span></span>`;
+  const gustChip = gust == null ? null :
+    `<span class="kstat" title="Typical gusts in ${escHTML(mLabel)}"><span class="kstat-n">${Math.round(gust)}<span class="kstat-u">kn</span></span><span class="kstat-l">${escHTML(mLabel)} gusts</span></span>`;
+  const windPctChip = windPct == null ? null :
+    `<span class="kstat kstat-pct" title="Share of ${escHTML(mLabel)} days with workable wind"><span class="kstat-n">${windPct}<span class="kstat-u">%</span></span><span class="kstat-l">windy days</span></span>`;
+
+  // Priority list per case; take the first 3 that actually have data. For a
+  // dual spot that's wave height + windy days first (Lode 1 Jul), then water /
+  // wind / gusts fill any remaining slot (and cover spots tagged wave+wind but
+  // missing wave climate data, so they still show 3 useful stats).
+  let picks;
+  if (hasWave && hasWind)      picks = [waveChip, windPctChip, waterChip, windChip, gustChip];
+  else if (primary === "wave") picks = [waveChip, waterChip, windChip];
+  else                         picks = [windChip, gustChip, windPctChip];
+  picks.filter(Boolean).slice(0, 3).forEach(c => chips.push(c));
 
   // A "Watch" box (same size as a stat box) when this place has a YouTube
   // clip — opens it in a lightbox (Lode 18 Jun). data-spot-video is handled by
@@ -3121,10 +3130,6 @@ function resultsMiniMapHTML(matches) {
     <div class="results-map-head">
       <span class="results-map-title">In one glance, on the map</span>
       <div class="results-map-legend">${legend}</div>
-      <button type="button" class="results-map-fullscreen" title="Open the full map">
-        <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M8 3H5a2 2 0 0 0-2 2v3m18 0V5a2 2 0 0 0-2-2h-3M3 16v3a2 2 0 0 0 2 2h3m13-5v3a2 2 0 0 1-2 2h-3"/></svg>
-        Full screen
-      </button>
     </div>
     <div id="results-mini-map" class="results-mini-map-stage" role="application" aria-label="Mini map of all visible results"></div>
   </section>`;
@@ -3189,17 +3194,11 @@ function initResultsMiniMap(matches) {
     onOpen: (entry, marker) => sgOpenSpotBloom(map, marker, entry)
   });
 
-  // "Full screen" → bloom the FULL Map-tab map (zoomed to this country) open
-  // over the home page; close shrinks it back. Same bloom as a spot detail.
-  const fsBtn = document.querySelector(".results-map-frame .results-map-fullscreen");
-  if (fsBtn) {
-    fsBtn.addEventListener("click", () => {
-      const country = (document.getElementById("f-country") || {}).value || "";
-      const r = fsBtn.getBoundingClientRect();
-      const url = "kaart.html" + (country ? "?country=" + encodeURIComponent(country) + "&embed=1" : "?embed=1");
-      sgOpenBloom(r.left + r.width / 2, r.top + r.height / 2, url, country ? "Map of " + country : "Map");
-    });
-  }
+  // Full-screen the mini-map itself over the whole screen — exactly like the
+  // Map tab and the Nearby tab (Michiel 1 Jul), via the same is-mapfull overlay
+  // + floating legend, instead of the old bloom that opened the Map tab in a
+  // bounded panel (which didn't fill the screen on desktop).
+  addMapFullscreenControl(map, { stage: ".results-map-frame", filters: ".results-map-legend", portalToBody: true });
 }
 
 /* ============================================================
@@ -6721,6 +6720,14 @@ function addMapFullscreenControl(map, opts) {
   const stage = document.querySelector(opts.stage || ".map-stage");
   if (!stage) return;
 
+  // When the stage sits inside a transformed ancestor (the Home results live in
+  // a .wrap that gets a 3D swell-tilt), a position:fixed overlay is contained by
+  // that ancestor instead of the viewport, so it won't fill the screen. Opt-in
+  // portalToBody moves the whole stage to <body> while full-screen (and back to
+  // its exact spot on exit) so it truly fills the screen (Michiel 1 Jul).
+  const portal = !!opts.portalToBody;
+  let stageAnchor = null;
+
   // The filters live in the wrap above the stage, so blowing the stage up to
   // full screen would leave them behind. Instead we reparent the real filter
   // elements (keeping their control wiring intact) into a floating panel over
@@ -6765,6 +6772,11 @@ function addMapFullscreenControl(map, opts) {
       btn.setAttribute("aria-label", btn.title);
     }
     if (on) {
+      if (portal && stage.parentNode && stage.parentNode !== document.body) {
+        stageAnchor = document.createComment("map-stage-home");
+        stage.parentNode.insertBefore(stageAnchor, stage);
+        document.body.appendChild(stage);
+      }
       if (!fsPanel) {
         fsPanel = document.createElement("div");
         fsPanel.className = "map-fs-filters";
@@ -6809,6 +6821,11 @@ function addMapFullscreenControl(map, opts) {
       // display:flex which overrides the hidden attribute, so it lingered as an
       // empty box after minimising (Michiel 1 Jul). Recreated on next entry.
       if (fsPanel) { fsPanel.remove(); fsPanel = null; }
+      // Portal the stage back to its exact original spot.
+      if (portal && stageAnchor && stageAnchor.parentNode) {
+        stageAnchor.parentNode.insertBefore(stage, stageAnchor);
+        stageAnchor.remove(); stageAnchor = null;
+      }
     }
     // Let Leaflet recompute its size for the new box (center is preserved).
     setTimeout(function () { map.invalidateSize(); }, 80);
