@@ -125,8 +125,23 @@ function _renderAccessDenied() {
 
 /* ---------- main render ---------- */
 
+/* Platform filter — scopes every event-based panel (core stats,
+   consent, dwell, views, funnel, searches, affiliate clicks) to the
+   website, the native iOS app, or both combined. Account-based panels
+   (users, saves, trips, engagement score) are platform-agnostic and
+   ignore it. Events stored before the platform field existed count as
+   web — the backend guarantees that, no data migration involved. */
+let _platformFilter = "all";   // "web" | "ios" | "all"
+
+function _platformQS(sep) {
+  // "web"/"ios" filter server-side; "all" is the default so we skip
+  // the param entirely (also keeps old API deploys happy).
+  return _platformFilter === "all" ? "" : (sep + "platform=" + _platformFilter);
+}
+
 async function _loadCoreStats(days) {
-  const res = await WaveBaseAuth.authFetch("/admin/stats/core?days=" + encodeURIComponent(days || 30));
+  const res = await WaveBaseAuth.authFetch(
+    "/admin/stats/core?days=" + encodeURIComponent(days || 30) + _platformQS("&"));
   if (!res.ok) throw new Error("Core stats failed: " + res.status);
   return res.json();
 }
@@ -141,32 +156,32 @@ async function _loadPopularity() {
   return res.json();
 }
 async function _loadEventsAffiliate() {
-  const res = await WaveBaseAuth.authFetch("/admin/events/affiliate");
+  const res = await WaveBaseAuth.authFetch("/admin/events/affiliate" + _platformQS("?"));
   if (!res.ok) throw new Error("Affiliate failed: " + res.status);
   return res.json();
 }
 async function _loadEventsPageviews() {
-  const res = await WaveBaseAuth.authFetch("/admin/events/pageviews");
+  const res = await WaveBaseAuth.authFetch("/admin/events/pageviews" + _platformQS("?"));
   if (!res.ok) throw new Error("Pageviews failed: " + res.status);
   return res.json();
 }
 async function _loadEventsFunnel() {
-  const res = await WaveBaseAuth.authFetch("/admin/events/funnel");
+  const res = await WaveBaseAuth.authFetch("/admin/events/funnel" + _platformQS("?"));
   if (!res.ok) throw new Error("Funnel failed: " + res.status);
   return res.json();
 }
 async function _loadEventsSearch() {
-  const res = await WaveBaseAuth.authFetch("/admin/events/search");
+  const res = await WaveBaseAuth.authFetch("/admin/events/search" + _platformQS("?"));
   if (!res.ok) throw new Error("Search failed: " + res.status);
   return res.json();
 }
 async function _loadEventsConsent() {
-  const res = await WaveBaseAuth.authFetch("/admin/events/consent");
+  const res = await WaveBaseAuth.authFetch("/admin/events/consent" + _platformQS("?"));
   if (!res.ok) throw new Error("Consent failed: " + res.status);
   return res.json();
 }
 async function _loadEventsDwell() {
-  const res = await WaveBaseAuth.authFetch("/admin/events/dwell");
+  const res = await WaveBaseAuth.authFetch("/admin/events/dwell" + _platformQS("?"));
   if (!res.ok) throw new Error("Dwell failed: " + res.status);
   return res.json();
 }
@@ -218,6 +233,53 @@ function _sortUsers(users) {
   return sorted;
 }
 
+/* ---------- platform switcher (July 2026 — native app) ----------
+   Segmented control at the very top: 🌐 Website · 📱 App · Σ Samen.
+   Switching re-fetches the event-based panels with ?platform=… (one
+   dashboard reload — same pattern as every other filter here). In the
+   combined view the backend also returns per-platform splits, which
+   the panels surface as small "web N · app M" chips. */
+
+function _renderPlatformBar() {
+  const seg = (val, label) => `
+    <button type="button" class="adm-filter-pill${_platformFilter === val ? " is-active" : ""}" data-platform-filter="${val}">${label}</button>`;
+  const note = _platformFilter === "web"
+    ? "only events from surfgoose.com"
+    : _platformFilter === "ios"
+    ? "only events from the iOS app"
+    : "website + app combined";
+  return `
+    <div class="adm-filter-row" id="adm-platform-bar" style="margin: 4px 0 18px;">
+      ${seg("web", "🌐 Website")}
+      ${seg("ios", "📱 App")}
+      ${seg("all", "Σ Samen")}
+      <span class="muted" style="font-size:13px;">${note} &mdash; applies to visits, views, time, funnel, searches &amp; clicks</span>
+    </div>`;
+}
+
+function _wirePlatformBar() {
+  document.querySelectorAll("[data-platform-filter]").forEach(btn => {
+    btn.addEventListener("click", () => {
+      const val = btn.dataset.platformFilter;
+      if (val === _platformFilter) return;
+      _platformFilter = val;
+      _renderDashboard();
+    });
+  });
+}
+
+/* Small "web N% · app M%" chip for the combined view, from the
+   platforms breakdown /admin/stats/core returns at platform=all. */
+function _platformSplitChip(platforms) {
+  if (!platforms || _platformFilter !== "all") return "";
+  const web = (platforms.web && platforms.web.visits) || 0;
+  const ios = (platforms.ios && platforms.ios.visits) || 0;
+  const tot = web + ios;
+  if (!tot || !ios) return "";   // no app traffic yet → chip is noise
+  const iosPct = Math.round((ios / tot) * 100);
+  return `<div class="adm-kpi-sub">🌐 web ${100 - iosPct}% &middot; 📱 app ${iosPct}%</div>`;
+}
+
 /* ---------- Core stats (top of page, June 2026 — Michiel) ----------
    One headline number (visits in a flexible window) + avg time on
    site + age-group and country splits. Two honesty notes baked into
@@ -262,9 +324,10 @@ function _renderCoreStats(core) {
     <section class="adm-section adm-core" id="adm-core">
       <div class="adm-core-grid">
         <div class="adm-kpi adm-core-visits">
-          <div class="adm-kpi-label">Website visits</div>
+          <div class="adm-kpi-label">${_platformFilter === "ios" ? "App visits" : _platformFilter === "web" ? "Website visits" : "Visits (web + app)"}</div>
           <div class="adm-kpi-value">${visits}</div>
           <div class="adm-kpi-sub">last ${days} days${since ? ` &middot; tracked since ${since}` : ""}</div>
+          ${_platformSplitChip(core.platforms)}
           <div class="adm-core-winrow">
             ${winBtn(7, "7d")}${winBtn(30, "30d")}${winBtn(90, "90d")}${winBtn(365, "1y")}
           </div>
@@ -521,6 +584,7 @@ async function _renderDashboard() {
         <button type="button" class="link-btn" data-export="trips">trips</button>
       </div>
     </div>
+    ${_renderPlatformBar()}
     ${coreStats
       ? _renderCoreStats(coreStats)
       : `<section class="adm-section adm-core" id="adm-core"><p class="muted">Core stats not available yet &mdash; the API may still be deploying. Reload in a minute.</p></section>`}
@@ -538,6 +602,7 @@ async function _renderDashboard() {
   `;
 
   _wireTableInteractions();
+  _wirePlatformBar();
   _wireCoreStats();
   _wireRecentReviews();
   _wireSearchActions();
@@ -658,9 +723,14 @@ function _renderActivity(evAff, evViews, evFunnel, evSearch) {
     const town  = entry ? entry.town : "";
     const emoji = entry ? _typeEmoji(entry.type) : "·";
     const pct   = Math.round((item.count / maxCount) * 100);
+    // Combined view + the row actually has app traffic → show the
+    // web/app split the backend sends along (no extra call).
+    const split = (_platformFilter === "all" && (item.ios || 0) > 0)
+      ? `<span class="muted adm-aff-split">🌐 ${item.web || 0} · 📱 ${item.ios}</span>`
+      : "";
     return `
       <li class="adm-pop-row">
-        <span class="adm-pop-name">${emoji} ${_esc(name)} <span class="muted">${_esc(town)}</span></span>
+        <span class="adm-pop-name">${emoji} ${_esc(name)} <span class="muted">${_esc(town)}</span>${split}</span>
         <span class="adm-pop-bar"><span class="adm-pop-bar-fill" style="width:${pct}%"></span></span>
         <span class="adm-pop-count">${item.count}</span>
       </li>`;
@@ -720,9 +790,12 @@ function _renderActivity(evAff, evViews, evFunnel, evSearch) {
     ? `<ol class="adm-pop-list">${steps.map(s => {
         const label = stepLabel[s.step] || s.step;
         const pct = firstCount ? Math.round((s.count / firstCount) * 100) : 0;
+        const split = (_platformFilter === "all" && (s.ios || 0) > 0)
+          ? ` <span class="muted adm-aff-split">🌐 ${s.web || 0} · 📱 ${s.ios}</span>`
+          : "";
         return `
           <li class="adm-pop-row">
-            <span class="adm-pop-name">${_esc(label)}</span>
+            <span class="adm-pop-name">${_esc(label)}${split}</span>
             <span class="adm-pop-bar"><span class="adm-pop-bar-fill" style="width:${pct}%"></span></span>
             <span class="adm-pop-count">${s.count}</span>
           </li>`;
@@ -765,7 +838,7 @@ function _renderActivity(evAff, evViews, evFunnel, evSearch) {
   const recentSearchHtml = recentSearch.length
     ? `<ul class="adm-recent-search">${recentSearch.slice(0, 20).map(q => `
         <li>
-          <span class="adm-mono">${_esc(q.query)}</span>
+          <span class="adm-mono">${q.platform === "ios" ? "📱 " : ""}${_esc(q.query)}</span>
           <span class="muted adm-recent-ts">${_fmtDate(q.ts, true)}</span>
         </li>`).join("")}</ul>`
     : `<p class="muted">No searches yet.</p>`;
