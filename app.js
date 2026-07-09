@@ -1076,8 +1076,11 @@ function smartResultsHeading(country, sport, month) {
   const mLabel = (mIdx >= 1 && mIdx <= 12) ? WAVEBASE_MONTHS_FULL[mIdx] : null;
   const loc = countryHeading(country);
   const hasSport = sport && sport !== "all" && sportLabel[sport];
-  if (hasSport && mLabel) return `Best spots for ${sportLabel[sport]} in ${mLabel} <span class="heading-loc">· ${escHTML(loc)}</span>`;
-  if (hasSport)           return `Best spots for ${sportLabel[sport]} <span class="heading-loc">· ${escHTML(loc)}</span>`;
+  // No location suffix on the sport heading — you've already clicked into the
+  // country, so "· Tamraght & Taghazout, Morocco" is redundant (Lode 1 Jul:
+  // enkel "Best spots for windsurfing", geen steden erbij).
+  if (hasSport && mLabel) return `Best spots for ${sportLabel[sport]} in ${mLabel}`;
+  if (hasSport)           return `Best spots for ${sportLabel[sport]}`;
   if (mLabel)             return `${escHTML(loc)} in ${mLabel}`;
   return escHTML(loc);
 }
@@ -5439,6 +5442,21 @@ const _ENTITY_SLUG = { spot: "surf-spots", center: "centers", stay: "stays" };
 
 /* ---- Public hero: carousel + lightbox -------------------------------- */
 function heroHTML(e) {
+  // A spot's YouTube clip plays as a muted, looping "cinemagraph" hero — real
+  // footage of the place instead of a still (Lode 1 Jul, opt-in per spot). The
+  // photo/placeholder stays the fallback for spots without a video. The heavy
+  // iframe is injected by wireHero (lazy + reduced-motion aware); here we only
+  // render the poster (the video's own thumbnail) so it looks right before and
+  // without playback.
+  const heroVid = (e.videos || []).find(v => _videoKind(v.url) === "youtube" && _ytId(v.url));
+  if (heroVid) {
+    const vid = _ytId(heroVid.url);
+    const poster = `https://img.youtube.com/vi/${vid}/maxresdefault.jpg`;
+    return `<div class="detail-photo ${e.type} has-photo is-video" data-hero-video="${vid}" style="background-image:url('${poster}')">
+      <div class="dp-video-slot" aria-hidden="true"></div>
+      <button type="button" class="dp-video-sound" data-sound hidden aria-label="Turn sound on"><span aria-hidden="true">🔇</span></button>
+    </div>`;
+  }
   const imgs = entryImgList(e);
   if (!imgs.length) {
     // Placeholder carousel: one photo per discipline the spot offers, swipeable.
@@ -5468,6 +5486,9 @@ function heroHTML(e) {
 let _heroTimer = null;
 function wireHero(e, root) {
   if (_heroTimer) { clearInterval(_heroTimer); _heroTimer = null; }
+  // Cinemagraph hero (spot has a YouTube clip) — no carousel; wire the video.
+  const vhero = root.querySelector(".detail-photo.is-video[data-hero-video]");
+  if (vhero) { wireHeroVideo(vhero); return; }
   const hero = root.querySelector(".detail-photo[data-carousel]");
   if (!hero) return;
   const imgs   = entryImgList(e);
@@ -5502,6 +5523,82 @@ function wireHero(e, root) {
   hero.addEventListener("click", (ev) => {
     if (ev.target.closest("[data-prev],[data-next],.dp-dot")) return;
     if (imgs.length) openLightbox(imgs, idx);
+  });
+}
+
+/* Wire the cinemagraph hero: inject the muted, looping, controls-free YouTube
+   iframe and cover-fit it to the 280px banner (the container isn't the viewport
+   width, so we size it in JS and re-fit on resize). Respects reduced motion —
+   then we don't autoplay, and a centered ▶ builds the (playing, unmuted) iframe
+   on click. A small speaker toggles sound via the YT postMessage API. */
+let _heroVideoResize = null;
+function wireHeroVideo(hero) {
+  const vid = hero.getAttribute("data-hero-video");
+  if (!vid) return;
+  const slot = hero.querySelector(".dp-video-slot");
+  const soundBtn = hero.querySelector("[data-sound]");
+  if (!slot || !soundBtn) return;
+  if (_heroVideoResize) { window.removeEventListener("resize", _heroVideoResize); _heroVideoResize = null; }
+  const reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+  let muted = true;
+
+  function fitCover() {
+    const ifr = slot.querySelector("iframe");
+    if (!ifr) return;
+    const w = hero.clientWidth, h = hero.clientHeight, r = 16 / 9;
+    if (w / h > r) { ifr.style.width = w + "px"; ifr.style.height = (w / r) + "px"; }
+    else           { ifr.style.height = h + "px"; ifr.style.width = (h * r) + "px"; }
+  }
+  function build(autoplay, mute) {
+    const params = [
+      "autoplay=" + (autoplay ? 1 : 0), "mute=" + (mute ? 1 : 0),
+      "loop=1", "playlist=" + vid, "controls=0", "modestbranding=1",
+      "playsinline=1", "rel=0", "disablekb=1", "fs=0", "iv_load_policy=3",
+      "enablejsapi=1"
+    ].join("&");
+    const ifr = document.createElement("iframe");
+    ifr.className = "dp-video-frame";
+    ifr.src = "https://www.youtube-nocookie.com/embed/" + vid + "?" + params;
+    ifr.title = "Spot video";
+    ifr.allow = "autoplay; encrypted-media; picture-in-picture";
+    ifr.setAttribute("frameborder", "0");
+    ifr.setAttribute("referrerpolicy", "strict-origin-when-cross-origin");
+    slot.innerHTML = "";
+    slot.appendChild(ifr);
+    fitCover();
+  }
+  function ytCmd(func) {
+    const ifr = slot.querySelector("iframe");
+    if (ifr && ifr.contentWindow)
+      ifr.contentWindow.postMessage(JSON.stringify({ event: "command", func: func, args: [] }), "*");
+  }
+
+  _heroVideoResize = fitCover;
+  window.addEventListener("resize", _heroVideoResize);
+
+  if (reduce) {
+    // Don't autoplay — show a centered play button that starts it (with sound).
+    hero.classList.add("is-video-paused");
+    soundBtn.hidden = false;
+    soundBtn.setAttribute("aria-label", "Play video");
+    soundBtn.innerHTML = '<span aria-hidden="true">▶</span>';
+    soundBtn.addEventListener("click", function (ev) {
+      ev.stopPropagation();
+      hero.classList.remove("is-video-paused");
+      build(true, false); muted = false;
+      soundBtn.hidden = true;
+    });
+    return;
+  }
+
+  build(true, true);            // muted autoplay loop = the cinemagraph
+  soundBtn.hidden = false;
+  soundBtn.addEventListener("click", function (ev) {
+    ev.stopPropagation();
+    muted = !muted;
+    ytCmd(muted ? "mute" : "unMute");
+    soundBtn.innerHTML = '<span aria-hidden="true">' + (muted ? "🔇" : "🔊") + "</span>";
+    soundBtn.setAttribute("aria-label", muted ? "Turn sound on" : "Turn sound off");
   });
 }
 
