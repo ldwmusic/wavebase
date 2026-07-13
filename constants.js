@@ -117,3 +117,11 @@ const WAVEBASE_DESTINATIONS = [
 // them when the data arrives.
 let WAVEBASE_DATA  = [];
 let WAVEBASE_TOWNS = {};
+
+// Stays are hidden for now — we'll build them out properly later (Lode 1 Jul).
+// While true: stays are kept in the dataset (WAVEBASE_DATA_ALL, so byId / saved
+// items / direct links don't break) but excluded from the browsable catalog
+// WAVEBASE_DATA, and their filter controls are hidden in the HTML. Flip to
+// false (and un-hide the controls in index/kaart/explorer .html) to bring
+// stays back.
+var HIDE_STAYS = true;

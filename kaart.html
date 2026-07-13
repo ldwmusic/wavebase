@@ -27,7 +27,7 @@
   <meta property="og:image:alt" content="SurfGoose — surfing, told honestly">
   <meta name="twitter:card" content="summary_large_image">
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
-  <link rel="stylesheet" href="styles.css?v=491">
+  <link rel="stylesheet" href="styles.css?v=492">
   <script>/* Embed mode: when shown inside the home "full screen" map bloom, hide the site chrome (Lode 18 Jun) */
     if (location.search.indexOf("embed=1") !== -1) document.documentElement.classList.add("is-embed");</script>
 </head>
@@ -63,7 +63,8 @@
       <div class="map-filters">
         <span class="map-filter-label">Show:</span>
         <label><input type="checkbox" id="t-spot" checked> <span class="dot spot"></span> Spots</label>
-        <label><input type="checkbox" id="t-stay" checked> <span class="dot stay"></span> Stays</label>
+        <!-- Stays hidden for now (Lode 1 Jul). Input kept in the DOM (JS reads it) but the control is hidden; remove the inline style to bring it back. -->
+        <label style="display:none"><input type="checkbox" id="t-stay" checked> <span class="dot stay"></span> Stays</label>
         <label><input type="checkbox" id="t-center" checked> <span class="dot center"></span> Centers</label>
       </div>
       <div class="map-filters map-filters-sports">
@@ -112,9 +113,9 @@
 
   <script src="https://cdn.jsdelivr.net/npm/gsap@3.13.0/dist/gsap.min.js" defer></script>
   <script src="https://cdn.jsdelivr.net/npm/lenis@1.3.11/dist/lenis.min.js" defer></script>
-  <script src="constants.js?v=422"></script>
+  <script src="constants.js?v=423"></script>
   <script src="account.js?v=447"></script>
-  <script src="app.js?v=491"></script>
-  <script src="api-client.js?v=437"></script>
+  <script src="app.js?v=492"></script>
+  <script src="api-client.js?v=438"></script>
 </body>
 </html>

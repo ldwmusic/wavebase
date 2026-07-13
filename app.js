@@ -31,7 +31,9 @@
    ============================================================ */
 
 function cap(s) { return s.charAt(0).toUpperCase() + s.slice(1); }
-function byId(id) { return WAVEBASE_DATA.find(x => x.id === id); }
+// Look up against the FULL catalog (incl. hidden stays) so saved items, compare
+// and direct links resolve even when stays are hidden from browsing.
+function byId(id) { return ((typeof window !== "undefined" && window.WAVEBASE_DATA_ALL) || WAVEBASE_DATA).find(x => x.id === id); }
 
 /* Admin detection — mirrored from admin.js + account.js. Used on
    spot pages to surface moderation controls (delete review / reply

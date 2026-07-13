@@ -313,11 +313,20 @@ function _applyAPIResponse({ spots, centers, stays, towns }, source) {
   window.WAVEBASE_SLUG_BY_API_ID = slugByApiId;
   window.WAVEBASE_API_ID_BY_SLUG = apiIdBySlug;
 
-  WAVEBASE_DATA = [
+  // Full catalog (every type) — kept on WAVEBASE_DATA_ALL so byId(), saved
+  // items, compare and direct links keep resolving stays even while stays are
+  // hidden from browsing.
+  const _allEntries = [
     ...spots  .map(s => _apiToFrontendSpot  (s, _slugByName)),
     ...centers.map(c => _apiToFrontendCenter(c, _slugByName, slugByApiId)),
     ...stays  .map(s => _apiToFrontendStay  (s, _slugByName, slugByApiId)),
   ];
+  window.WAVEBASE_DATA_ALL = _allEntries;
+  // Browsable catalog — stays excluded while HIDE_STAYS (constants.js). This one
+  // filter keeps stays out of every list, map, search result and legend.
+  WAVEBASE_DATA = (typeof HIDE_STAYS !== "undefined" && HIDE_STAYS)
+    ? _allEntries.filter(e => e.type !== "stay")
+    : _allEntries;
   WAVEBASE_TOWNS = Object.fromEntries(towns.map(t => [t.name, _apiToFrontendTown(t)]));
 
   console.log(`[api-client] ${source}: ${WAVEBASE_DATA.length} entries + ${Object.keys(WAVEBASE_TOWNS).length} towns`);
