@@ -646,7 +646,7 @@ function googleMapsHref(entry) {
   }
   // (3) Coord pin only
   if (Array.isArray(entry.coords)) {
-    return `https://www.google.com/maps?q=${entry.coords[0]},${entry.coords[1]}&z=15`;
+    return `https://www.google.com/maps/search/?api=1&query=${entry.coords[0]},${entry.coords[1]}`;
   }
   return "https://www.google.com/maps";
 }
