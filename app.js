@@ -1630,23 +1630,40 @@ function monthlyChartHTML(e) {
     const gustsArr = Array.isArray(stats.monthlyDailyPeakKn)
       ? stats.monthlyDailyPeakKn
       : (Array.isArray(stats.monthlyGustKn) ? stats.monthlyGustKn : null);
+
+    // Axis scales to the data with ~20% headroom instead of a fixed ocean-sized
+    // ceiling — an inland lake (7-12 kn) rendered as a flat smear under a 45 kn
+    // axis, which read as "no wind here" regardless of the numbers. The floor
+    // keeps spots roughly comparable: auto-scaling alone would make every spot
+    // look equally windy, which is the opposite mistake.
+    const axisMax = (arrays, floor, step) => {
+      const vals = arrays.filter(Array.isArray).flat()
+        .filter(v => typeof v === "number" && isFinite(v));
+      if (!vals.length) return floor;
+      return Math.max(floor, Math.ceil((Math.max(...vals) * 1.2) / step) * step);
+    };
+    const windMax = axisMax([stats.monthlyWindKn, gustsArr], 20, 10);
+
     const windChart = (hasWind && gustsArr) ? buildDualBarChart({
       stats, userMonth, monthLabels,
       label: "Wind",
       sublabel: "kn per month — average vs typical daily-peak gust",
-      unit: " kn", maxValue: 45, axisTicks: ["45 kn", "22 kn", "0"],
+      unit: " kn", maxValue: windMax,
+      axisTicks: [`${windMax} kn`, `${Math.round(windMax / 2)} kn`, "0"],
       barA: { arr: stats.monthlyWindKn, label: "Average", colorClass: "color-wind-avg" },
       barB: { arr: gustsArr,            label: "Gust",    colorClass: "color-wind-gust" }
     }) : null;
 
     // Temperature chart (right): per-month dual bars — air + water.
     const hasAir = Array.isArray(stats.monthlyAirC);
+    const tempMax = axisMax([stats.monthlyAirC, stats.monthlyWaterC], 25, 5);
+    const tempTicks = [`${tempMax}°`, `${Math.round(tempMax / 2)}°`, "0°"];
     const tempChart = hasAir
       ? buildDualBarChart({
           stats, userMonth, monthLabels,
           label: "Temperature",
           sublabel: "°C per month — daytime air vs sea water",
-          unit: "°C", maxValue: 35, axisTicks: ["35°", "20°", "0°"],
+          unit: "°C", maxValue: tempMax, axisTicks: tempTicks,
           barA: { arr: stats.monthlyAirC,   label: "Air",   colorClass: "color-air" },
           barB: { arr: stats.monthlyWaterC, label: "Water", colorClass: "color-water" }
         })
@@ -1654,7 +1671,7 @@ function monthlyChartHTML(e) {
           stats, userMonth, monthLabels,
           label: "Temperature",
           sublabel: "°C — sea water",
-          unit: " °C", maxValue: 35, axisTicks: ["35°", "20°", "0°"],
+          unit: " °C", maxValue: tempMax, axisTicks: tempTicks,
           colorClass: "color-water"
         });
 
