@@ -605,7 +605,7 @@ function fmtKm(km) {
 function googleMapsHref(entry) {
   // Backward-compat: callers that still pass a [lat, lng] array.
   if (Array.isArray(entry)) {
-    return `https://www.google.com/maps?q=${entry[0]},${entry[1]}&z=15`;
+    return `https://www.google.com/maps/search/?api=1&query=${entry[0]},${entry[1]}`;
   }
   if (!entry) return "https://www.google.com/maps";
   // (1) Deterministic — Place ID
@@ -623,14 +623,14 @@ function googleMapsHref(entry) {
   //        (for spots Google has no business listing for, e.g. K17, Spiders)
   if (entry.googleMapsQuery === false) {
     if (Array.isArray(entry.coords)) {
-      return `https://www.google.com/maps?q=${entry.coords[0]},${entry.coords[1]}&z=15`;
+      return `https://www.google.com/maps/search/?api=1&query=${entry.coords[0]},${entry.coords[1]}`;
     }
   }
   if (typeof entry.googleMapsQuery === "string" && entry.googleMapsQuery) {
     if (/^https?:\/\//i.test(entry.googleMapsQuery)) {
       return entry.googleMapsQuery;
     }
-    return `https://www.google.com/maps?q=${encodeURIComponent(entry.googleMapsQuery)}`;
+    return `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(entry.googleMapsQuery)}`;
   }
   // (2b) Default: plain ?q=NAME+TOWN+COUNTRY — Google auto-redirects
   //      to the matching place page. We use entryCountry() not
@@ -642,7 +642,7 @@ function googleMapsHref(entry) {
     if (entry.town) parts.push(entry.town);
     const country = (typeof entryCountry === "function") ? entryCountry(entry) : entry.country;
     if (country) parts.push(country);
-    return `https://www.google.com/maps?q=${encodeURIComponent(parts.join(" "))}`;
+    return `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(parts.join(" "))}`;
   }
   // (3) Coord pin only
   if (Array.isArray(entry.coords)) {
