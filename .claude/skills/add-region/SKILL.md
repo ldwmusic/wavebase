@@ -128,6 +128,58 @@ The beach-name capture gives you the **candidate-spots list as a
 side-effect** — every beach a school mentions is a spot candidate.
 Dedupe against the existing-spots survey.
 
+### Gate 3.5 · Inland water: the model LIES about wind. Validate or label. (Lode's rule, 2026-07-17)
+
+**This gate is mandatory for every lake / reservoir / pit / river spot.**
+It exists because the coastal pipeline silently produces worse data inland
+and says nothing about it.
+
+**The physics.** Reanalysis 10 m wind (ERA5, and the whole Open-Meteo
+archive family) is a grid-cell average. A small lake never fills its cell,
+so the cell is land-dominated and **land roughness drags the MEAN wind down
+~30-40%**. Gusts come from a different parameterisation and largely escape
+the effect — so gusts look right while the mean is quietly wrong. That
+combination is the tell.
+
+**The evidence (Austria, Jul 2026).** Podersdorf / Neusiedler See:
+- our ERA5 daytime mean **7.6 kn**, gusts **14.3 kn**
+- Windfinder's *measuring station* on the same beach (6/2007–2/2019):
+  mean **11 kn**, gusts **15 kn**, NW
+- Gusts match. The mean is ~30-40% low. Lode caught it by eye from the
+  chart alone: *"lijkt er niet zoveel wind te zijn, volgens mij is er meer."*
+- Tested and rejected: `cell_selection=sea` returns the SAME cell (the lake
+  is too small to have a sea cell); **CERRA** (5.5 km, closer grid point)
+  only reaches 7.8 kn. There is no model fix. Do not go hunting for one.
+
+**What you MUST do for an inland spot:**
+
+1. **Never let the model be the headline.** Find ground truth and put THAT
+   in `conditions.wind`: a measuring station (Windfinder / Windguru station
+   statistics), the school's own site, or Lode's first-hand account. Name
+   the source in `stats.source`.
+2. **The monthly arrays are for the SEASONAL SHAPE only** — which months
+   blow, how they rank against each other. Reanalysis does that well. Say
+   so explicitly in `stats.source`, including the land-roughness caveat.
+3. **NEVER fabricate wave data.** Inland means:
+   `monthly_wave_m: null`, `monthly_swell_prob: null`, every period's
+   `wave_m: null`, and `wave_type: "None — flat ..."`. A flat nominal
+   `0.2` across twelve months is **banned** — that is invented data wearing
+   a lab coat.
+4. **Water temps are hand climatology, not model output.** Say that too.
+5. **Never invent a correction factor** to close the model/station gap.
+   Label the gap; don't paper over it.
+
+**Copy the precedent, don't reinvent it:** `Florizoone Surfput` (Deinze, BE)
+does all five correctly — real on-water range in `conditions.wind`
+("Typical 8–14 kn, gusty 18–25 kn"), `wave_m: null`, and a source line that
+credits the school + first-hand knowledge for the feel. **Read that entry
+before writing any lake spot.**
+
+**Anti-pattern this gate kills:** the Austrian batch of July 2026 shipped
+Podersdorf with a bare model chart and fabricated 0.2 m waves. The numbers
+were reproducible and still misleading — which is worse than obviously
+wrong, because it looks rigorous.
+
 ### Gate 4 · Pair-by-pair, sequential
 
 This is the meat of the skill. **For each center in your candidate
