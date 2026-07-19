@@ -164,7 +164,13 @@ recent verbatim quotes (≤4 years).
   via adventure-package operators
 - **IKO / ISA / ASI / IRSC / WSL** — international federation directories
   (IKO for kite, ISA/ASI for surf). Confirms certification, which is a
-  signal of safety + insurance + teaching standards
+  signal of safety + insurance + teaching standards. For German-speaking
+  regions (DACH lakes, German coast) add the **VDWS station finder** —
+  there it's the primary directory, not IKO.
+- **Trustpilot** — less common for surf schools but check it: the Salty
+  Kitesurfschool complaint pattern (lesson cancellations + refund
+  refusals, May 2026) surfaced here and on Google while the official
+  site was spotless. Exactly the honest signal we exist for.
 - **Operator aggregators** — BookSurfCamps, Sunbonoo, Surf-Camp.com,
   Adventure-Travel. Often have their own filtered review streams
 - **Wannasurf school listings** — surf-specific, often dated but
@@ -264,6 +270,15 @@ needing a Google API key. Workflow:
 
 Anti-pattern from the Belgium audit: "Akti Villas" matched a wholly different
 hotel because we searched by name only. Always match by **name + location**.
+
+**Shop ≠ station.** Established schools often keep a SHOP in the village
+and the teaching STATION on the beach — and Maps/OSM frequently pin the
+shop. kitesurfing.at's OSM node sat 2.3 km south of its actual Nordstrand
+station (Jul 2026); "Devil's Rock" auto-query landed on the surf SHOP.
+The center's pin is the STATION (where lessons happen, per their own
+site's location page). If your only coord is a shop, it isn't verified
+yet — find the station, and mention the shop in `coords_label` if it's
+useful.
 
 If the place can't be uniquely identified (multiple matches, vague name), stop
 and ask Lode rather than guess.
@@ -538,8 +553,8 @@ Summary table to Lode:
 | Hotel-X-included | Updated | refreshed prices + facilities |
 
 Then ask if Lode wants to do another region or wrap up. **Don't auto-trigger
-Monday updates or any other reporting** — Lode will ask explicitly if he wants
-those.
+reporting** — one brein logboek entry per batch (Monday is retired); anything
+more only when Lode asks.
 
 ## Output style
 

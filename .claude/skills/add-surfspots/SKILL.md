@@ -308,6 +308,20 @@ print(f'  wind={s[\"monthly_wind_kn\"][6]} gust={s[\"monthly_gust_kn\"][6]} '\
 
 Round all values to one decimal place.
 
+#### Inland spot? Different rules — read add-region Gate 3.5 FIRST
+
+For any lake / reservoir / pit / river spot, the coastal pipeline lies
+in two specific ways (Austria, Jul 2026): the ERA5 land-dominated grid
+cell drags the MEAN wind ~30-40% low while gusts stay right, and the
+Marine API simply doesn't cover inland water. The full mandatory rules
+live in **add-region Gate 3.5** — summary: ground truth (measuring
+station / school site / first-hand) is the headline in
+`conditions.wind`, model arrays are for the SEASONAL SHAPE only (say so
+in `stats.source`), `monthly_wave_m`/`monthly_swell_prob`/period
+`wave_m` are **null** (a flat nominal 0.2 m is banned), water temps are
+hand climatology, and no invented correction factors. Reference entry:
+Florizoone Surfput (Deinze).
+
 #### Call 2 · Wave, swell, sea-surface temp (2-year Marine API)
 
 ```
@@ -449,6 +463,20 @@ research-derived starting coord. If the delta is:
   and surface it to Lode as "Skipped: unverifiable identity, source
   named this spot but Google Maps + OSM disagree".
 
+#### When Google Maps is unavailable — the OSM Overpass fallback
+
+Chrome MCP can be disconnected and a clean browser hits Google's
+consent wall (both happened in the Austria run). The fallback for
+BEACHES and natural features is **Overpass**, not Nominatim: query
+`natural=beach` / `leisure=beach_resort` / `sport=*` / named nodes
+around the town centroid — it returns exact beach polygons + school
+POIs, and it's the same OSM data the site's map tiles render, so pins
+land visually right (Podersdorf precedent: Kitestrand, Nordstrand
+entrance and shop/station nodes all came out exact). Nominatim stays
+banned for business addresses (Deinze: 700 m off). Delta-check,
+pin-on-land and the google_maps_query test apply regardless of source;
+name the coord source in `coords_label`.
+
 #### OSM Nominatim as a sanity-check sidecar
 
 For a fast independent second opinion, query OSM Nominatim:
@@ -531,8 +559,8 @@ across all 11 spots — producing 1 generic Q&A per spot ("What sport
 works best here?" → restated metadata) instead of the mandated 3
 mechanism-based Qs.
 
-**Per-spot discipline applies to EVERY step except the optional Monday
-update**: research, Open-Meteo aggregation, coord verification, prose,
+**Per-spot discipline applies to EVERY step except the optional
+end-of-run report**: research, Open-Meteo aggregation, coord verification, prose,
 layers, educational, conditions, periods. None of these get batched
 across spots. What's batched is the GO/SKIP/EDIT decision in Gate 7,
 and the actual POST loop in Gate 8 — never the content authoring.
@@ -683,10 +711,14 @@ POST https://wavebase-api-qqwt.onrender.com/surf-spots/
   Body: <the SurfSpotCreate payload>
 ```
 
-Auth: the admin JWT lives in `localStorage['wavebase_auth_token_v1']` of
-Lode's browser on `wavebase.lode-b162.workers.dev`. If you don't have a token,
-ask Lode to run a small helper snippet in the admin console to copy his JWT —
-don't try to proxy it any other way.
+Auth (corrected Jul 2026 — the old workers.dev note was stale): the admin
+JWT lives in `localStorage['wavebase_auth_token_v1']` on **surfgoose.com**.
+Preferred, token-never-in-transcript way: drive the call from Lode's
+logged-in surfgoose.com tab (Chrome MCP or the in-app Browser pane) via
+`WaveBaseAuth.authFetch(path, opts)` or a plain `fetch` that reads the
+token from localStorage inside the page. If no logged-in session exists,
+put the login screen in front of Lode and wait (login-gate rule) — and do
+this at the START of a run (Gate 0 of add-region), not at write time.
 
 After each successful POST, briefly confirm the new spot's ID + a link to
 its detail page (`spot.html?id=<the-slug>&type=spot`) so Lode can visually
@@ -817,10 +849,25 @@ shape of the POST body. Capture for future regions:
 - `prices` matches the established tier dict shape
 - `linked_spot_id` is the spot UUID — POST spots FIRST, capture IDs, then POST centers with linkage
 
+**Two data-contract traps that keep coming back:**
+
+- `monthly_wind_prob` is a **0–1 FRACTION**, not a percentage. Write
+  `0.52`, never `52`. Every new consumer has re-hit this (site chips
+  showed "0%" Jun 2026; the iOS app showed "1%" Jul 2026) — the
+  producers must stay consistent so consumers can normalise once.
+- **`sports` tags must match the data.** A spot tagged `"wave"` must
+  carry wave climate data (or an explicit gap note in `stats.source`);
+  a flatwater lagoon that windsurfs on chop is NOT a `"wave"` spot.
+  Faneromeni + Xerokampos shipped tagged wave+wind with empty
+  `monthly_wave_m` (Jul 2026) — cards then show no wave stat and the
+  tag reads as a data bug. Tag what the data can back.
+
 **Smoke test before a batch:** POST one minimal payload first with only the
 required-at-the-top fields. Read the 422 response to enumerate any new fields
 you missed. Iterate the script until you get a 200 on one entry — THEN batch
-the rest. This saves the per-entry retry cycle.
+the rest. This saves the per-entry retry cycle. The API also silently DROPS
+unknown fields (`additionalProperties: None`) — a 200 does not prove your
+new field landed; GET it back and check.
 
 ## Spelling + label conventions (memory)
 
@@ -859,8 +906,8 @@ Summary table to Lode:
 | Malia Reef | Update | refreshed monthly arrays + crowd note |
 
 Then ask if Lode wants to do another region, run `add-surfcenters` for the
-same area, or wrap up. **Don't auto-trigger Monday updates or any other
-reporting** — Lode will ask explicitly if he wants those.
+same area, or wrap up. **Don't auto-trigger reporting** — one brein logboek
+entry per batch (Monday is retired); anything more only when Lode asks.
 
 ## Output style
 

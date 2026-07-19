@@ -42,6 +42,54 @@ Use this when the goal is **systematic coverage of a region**. Use the
 individual skills (`/add-surfspots`, `/add-surfcenters`) when adding
 individual entries to a region that's already covered.
 
+## Autonomous mode (Lode's explicit opt-in — "doe maar autonoom")
+
+Lode regularly invokes this skill with full autonomy ("geen GO per spot,
+onderzoek wél volledig, post ze, toon me achteraf de tabel"). That is a
+recognised mode, not a rule-break — but it changes exactly ONE thing:
+**the GO decision is batched. Nothing else is.** The contract:
+
+- **Research depth is unchanged.** Every center still gets the full
+  review-scan; every spot still gets full climate + coord verification.
+  Autonomy buys fewer interruptions, never thinner entries.
+- **Every "ask Lode" stop-criterion becomes SKIP + flag.** Case C
+  ambiguous spots, brand-vs-Maps unresolved, stale-reviews-only,
+  multi-branch questions — in autonomous mode you never guess and never
+  block: skip the entry, log it to the flag-list with the evidence, move
+  on. Lode decides afterwards.
+- **Hard gates become blocking.** Coord delta-check, pin-on-land,
+  booking_url resolve, no-shared-coords, Gate 3.5 inland rules, dup-guard
+  — a failure means the entry is skipped + flagged, not "posted with a
+  note".
+- **Dup-guard before EVERY POST.** Re-check name + coords (≤200 m)
+  against a fresh GET before each write. Autonomous runs get interrupted
+  and resumed; this is what makes a resume safe instead of a
+  double-poster.
+- **End report** = summary table (pairs, status, IDs) + skip-list
+  (Gate 6) + flag-list (the would-have-asked items, with evidence) +
+  live URLs to spot-check.
+
+## Run log — survivability across sessions (mandatory for any run > 1 pair)
+
+Long runs span sessions; context gets compacted; exact verified facts
+(coords to 5 decimals, prices, IDs) are the first thing a summary
+mangles. The Austria run survived its handover ONLY because the findings
+were written out before the switch. So:
+
+- **Write a run-log file as you go** — after every pair, not at the end:
+  `defer/run-<region>-<YYYY-MM-DD>.md` in the repo (create `defer/` if
+  missing; it's the same folder Gate 1 uses for deferred spots).
+- Per pair record: verified coords + source, center prices + review
+  counts, posted IDs, the exact `stats.source` line, skip/flag reasons.
+- Also record **derived-but-unwritable values** (fields the API schema
+  doesn't accept yet, e.g. `bestWindDir` sector-analysis results) so the
+  future backfill is a mechanical PATCH round, not re-research.
+- **A resumed session starts from the run log + a fresh Gate 2 survey**,
+  never from conversational memory.
+- At run end: one logboek entry in the brein summarising the batch +
+  pointing to the run log. (Never auto-post to Monday — retired; the
+  brein in Overture is the log.)
+
 ## Why this is the default (vs. the two individual skills)
 
 The Kreta batch of June 2026 taught the cost of running spots + centers
@@ -66,7 +114,50 @@ The pair-workflow defaults all three issues away:
 - **Brand fragmentation caught early** — center research surfaces
   the customer-facing Maps brand before the spot prose is written.
 
-## Process — six coordinating gates
+## Process — the coordinating gates, in order
+
+### Gate 0 · Pre-flight — before ANY research (10 minutes that save hours)
+
+The Austria run of July 2026 did hours of research, then discovered at
+write-time that no auth was available, that the country record didn't
+exist, and that a planned new field (`bestWindDir`) silently couldn't be
+written. All three are checkable in the first 10 minutes. Do these IN
+ORDER before Gate 1:
+
+1. **API warm-up + reachability.** `GET /surf-spots/` once. Render's
+   free tier cold-starts: the first call after idle can take 30-60 s or
+   time out entirely (`http:000`). Retry once with `-m 90` before
+   concluding anything is broken.
+2. **Auth check — a write session must exist BEFORE research starts.**
+   Writes run from Lode's logged-in browser session (in-app Browser
+   pane or Chrome MCP on **surfgoose.com** — token lives in
+   `localStorage['wavebase_auth_token_v1']`, calls go via fetch/authFetch
+   FROM the page so the token never enters the transcript). If no
+   logged-in session exists: put the login screen in front of Lode NOW
+   (login-gate rule — show the form, never a "log eerst in" message) and
+   wait. Research-first-auth-later wastes the research when auth turns
+   out unavailable.
+3. **Country record check.** `GET /countries/` — does the target country
+   exist? If missing, create it now: `POST /countries/` with
+   `{name, flag, status: "soon", continent}` (all four required;
+   continent enum: Europe / Africa / Asia / North America / South
+   America / Oceania). Dup-guard first (re-fetch, match by name,
+   case-insensitive). It stays `"soon"` — invisible to visitors — until
+   Gate 7 promotes it. Capture the returned id: every spot/center POST
+   needs it as `country_id`.
+4. **"Is it actually new?" check.** Look the country up in
+   `constants.js` `WAVEBASE_DESTINATIONS` AND count its existing DB
+   content. July 2026 near-miss: a "new country" run almost started on
+   Portugal — which had been live with 26 spots for weeks. If content
+   exists, this is a top-up run, not a new-country run; say so to Lode.
+5. **Schema probe for any planned NEW field.** The API's Pydantic models
+   silently DROP unknown fields (`additionalProperties: None`) — a POST
+   with an unsupported field returns 200 and the field is just gone.
+   If the run plans to write anything beyond the known shape (the
+   `bestWindDir` lesson, July 2026), check `GET /openapi.json` first;
+   if the field isn't in the schema, the backend must add it BEFORE the
+   run, or you record the values in the run log for later backfill —
+   never "post it and hope".
 
 ### Gate 1 · Scope confirm
 
@@ -104,9 +195,25 @@ This is the order-of-operations difference from the individual skills.
 Sources to scan (same as `/add-surfcenters` Gate 3):
 - TripAdvisor "Best [region] surfing/windsurfing/kitesurfing"
 - IKO / ISA / ASI / IRSC / WSL international school directories
+- **VDWS station finder** — for German-speaking regions (DACH lakes,
+  German/Dutch coast) this is the primary school directory, not IKO
 - BookSurfCamps / Sunbonoo / Surf-Camp.com aggregators
 - Multi-station chain sites (SurfIsland-style, regional)
 - Local Google Maps "surf school near [region]" searches
+- **`GET /admin/custom-spots`** (admin auth) — user-dropped pins from
+  the app, clustered by ~1 km grid and ranked by distinct users. This
+  is demand data: pins clustered in your region = spots real users
+  looked for and we lack. Check it during discovery, not after.
+
+**School-type filter (the Neusiedler See trap, Jul 2026).** Lake and
+coastal directories are full of Segelschulen / sailing schools / SUP
+rental decks. A center qualifies ONLY if it actually teaches at least
+one of **wave / wind / kite / wing** (per its own site's lesson pages,
+not its name — "Segel- & Surfschule X" often does teach windsurf).
+Sail-only or SUP-only operations: **flag, don't silently include** —
+the site's sport pills are All/Wave/Wind/Kite/Wing, so a SUP-only
+center is invisible to every sport filter and needs Lode's explicit
+call.
 
 **Inland waters are first-class (Lode's rule, 2026-06-12).** Wind,
 kite and wing spots don't need a coastline — Windsurfing Deinze (BE)
@@ -209,7 +316,37 @@ This is a full spot entry — don't shortcut to "minimal spot just for
 the center link".
 
 **Case C: Spot is ambiguous** (multiple beaches mentioned, or
-brand-vs-Maps disagrees) → stop and ask Lode which spot to link to.
+brand-vs-Maps disagrees) → stop and ask Lode which spot to link to
+(autonomous mode: skip + flag).
+
+#### 4.2b · Town record — create on first encounter (the lost rule, restored Jul 2026)
+
+Every detail page renders a **"The town · X" panel** (intro, what to do,
+transport, getting there) — but ONLY when a town record exists in the
+`/towns/` collection. Missing record = the panel silently doesn't render
+(`townPanelHTML` returns `""`). This rule existed in the May 2026
+playbook ("If the town doesn't exist yet, CREATE it — bij België deed
+je dat goed!") and was lost when the skills replaced it. The result:
+as of Jul 2026 only Morocco (4), Greece (1) and Belgium (9) have town
+records — **Netherlands, Germany, Portugal, Spain, France and Austria
+have ZERO**, so none of their spot pages show the town panel.
+
+The rule: the FIRST pair that lands in a town also creates its town
+record (dup-guard against `GET /towns/` first):
+
+```
+POST /towns/   { country_id, name, intro, things_to_do, transport,
+                 distance, source }
+```
+
+All fields English, honest, short: `intro` = 2-3 sentences of real
+character, `things_to_do` = non-surf things, `distance` = nearest
+airport + relevant city. Use the spot's `town` string EXACTLY as the
+town record's `name` — the frontend joins them by name.
+
+When a run touches an older country with missing town records, flag the
+backfill gap once in the end report — don't silently absorb a
+whole-country backfill into a region run.
 
 #### 4.3 · Verify both coords + the linkage
 
@@ -217,11 +354,35 @@ Chrome MCP-verify the center coord. Confirm it's within ~500 m of the
 spot coord. If they're further apart, you've probably got the wrong
 spot match — re-research.
 
+**Shop ≠ station (chains + lake schools, Jul 2026).** Established
+schools often have a SHOP in the village and the teaching STATION on
+the beach — Maps/OSM frequently pins the shop (kitesurfing.at: OSM shop
+node 2.3 km south of the actual Nordstrand station; Devil's Rock
+auto-query landed on "Devil's Rock Surf Shop"). The center's pin is
+the STATION — where lessons happen, per their own site's location page.
+If you only have a shop coord, that's not verified yet.
+
+**When Google Maps is unavailable** (Chrome extension disconnected,
+consent wall in a clean browser — both happened in the Austria run),
+the fallback is OSM, in this order: (1) **Overpass API** — query
+`natural=beach`, `leisure=beach_resort`, `sport=*` and named nodes
+around the town; it returns exact beach polygons + school POIs, and
+it's the SAME map data the site renders, so pins land visually right.
+(2) Nominatim with the polite UA — accepted for natural features only,
+NEVER for a business address (Deinze: 700 m off). All hard gates
+(delta-check, pin-on-land, google_maps_query test) still apply
+regardless of the coord source; note the source honestly in
+`coords_label`.
+
 #### 4.4 · Preview the pair (or just the center if spot already existed)
 
 Build the preview block for the center per `/add-surfcenters` Gate 5.
 If you added a new spot in 4.2, present its preview FIRST, get GO,
 then center preview after.
+
+(**Autonomous mode:** no previews, no per-pair GO — the hard gates ARE
+the approval. Post directly per 4.5, log the pair to the run log, and
+keep everything that would have been a question for the flag-list.)
 
 #### 4.5 · After GO: POST both, with the linkage
 
@@ -319,28 +480,56 @@ The Portugal/Ericeira batch of June 2026 missed this — Portugal stayed
 spots + 23 centers, until Lode caught the gap. The skill now mandates
 the promotion as a final step.
 
-**Three places to update — all required:**
+**The frontend touchpoints are SCATTERED — use the full checklist, not
+memory.** The Austria promotion (Jul 2026) proved the point: the map
+centroid + ISO code were added, but the flag-colour band was missed, so
+Austria's country card renders without its red-white-red band while
+every other live country has one. Each item below is a separate spot in
+the code that does not fail loudly when missed.
 
-1. **Frontend `constants.js`** — change the country's `status: "soon"`
-   to `status: "live"` in the `WAVEBASE_DESTINATIONS` array.
-2. **Legacy `data.js`** — same change in the duplicated
-   `WAVEBASE_DESTINATIONS` block (kept in sync).
-3. **Backend API `/countries/{id}`** — PATCH the country's status to
-   "live". The API has its own status field that's currently unused at
-   runtime but should stay in sync for future use:
-   ```
-   curl -X PATCH https://wavebase-api-qqwt.onrender.com/countries/<country-id> \
-     -H "Authorization: Bearer <JWT>" \
-     -H "Content-Type: application/json" \
-     -d '{"status": "live"}'
-   ```
+**For a country that was already a "soon" placeholder** — flip status in
+all three places:
 
-**Verify after the changes:**
-- Country picker shows the new country WITHOUT the "SOON" badge
-- "Pick a country to begin" section shows the new country as a card
-  alongside existing live countries
-- The worldwide map shows a pin in the new country (auto-renders from
-  the live-status filter)
+1. **Frontend `constants.js`** — `status: "soon"` → `"live"` in
+   `WAVEBASE_DESTINATIONS`.
+2. **Legacy `data.js`** — same flip in the duplicated block.
+3. **Backend `PATCH /countries/{id}`** — `{"status": "live"}` (run it
+   from Lode's logged-in browser session like every write).
+
+**For a country that was entirely ABSENT from the frontend** (the
+Austria case — it wasn't even a placeholder), ALSO add, in `app.js`:
+
+4. **`WAVEBASE_DESTINATIONS`** — the full country entry
+   `{ name, flag, status: "live" }` in the right continent block, in
+   BOTH `constants.js` and `data.js`.
+5. **Country centroid map** (`COUNTRY_COORDS`-style map, ~line 3830) —
+   `[lat, lng]` country center for the worldwide-map pin.
+6. **ISO-code map** (~line 3908) — `"Austria": "at"` style entry
+   (SVG/flag-code matching).
+7. **`FLAG` band map** (~line 3958) — the flag-colour
+   `linear-gradient(90deg, ...)` for the country card's band. THIS is
+   the one Austria missed.
+8. **`countryHeading()`** — optional subtitle ("East Crete, Greece"
+   style); it falls back to the bare country name, so only add one when
+   a region subtitle earns its place.
+9. **Hardcoded country enumerations in copy** — index.html meta
+   description names live countries; kaart.html's was generalised
+   (commit 69e97b2) precisely because these go stale. Grep for the
+   country list pattern; generalise rather than extend when possible.
+
+**Ship + verify:**
+- Bump `?v=` on **app.js AND styles.css together** across all 13 HTML
+  files (they drift when bumped separately — Jun 2026), commit, push.
+  Parallel sessions share this repo: `git status` first, stage ONLY
+  your own files.
+- **Clear the API cache before checking the live site**: the frontend
+  hydrates from `localStorage['wavebase_api_cache_v1']` first, so after
+  API writes the site can show STALE data for a while — you (or Lode)
+  will falsely conclude the batch failed. Hard-refresh + remove that
+  key (or verify in a private window).
+- Country picker: no "SOON" badge; country card present WITH flag band;
+  worldwide map pin renders; one spot + one center page spot-checked
+  (at-a-glance renders, Maps link lands right, town panel present).
 
 **Do NOT skip this gate.** A country with content but still flagged
 "SOON" is invisible to visitors using the picker — the entire batch
@@ -358,16 +547,30 @@ Summary table to Lode:
 | 4 | Amoudara Beach (existed) | Heraklion Windsurfing Club | center added |
 | ... | | | |
 
-Plus the skip-list from Gate 6.
+Plus the skip-list from Gate 6, the flag-list (autonomous mode), and a
+pointer to the run log.
 
 Plus self-organized-pass results if you ran it.
 
-**Don't auto-trigger Monday updates** — Lode will ask explicitly.
+**Don't auto-trigger reporting** — one brein logboek entry per batch is
+the standard (Monday is retired); anything more only when Lode asks.
 
 ## What this skill does NOT do (intentional gaps)
 
 - **Stays.** Accommodation entries go through a separate skill
   (`/add-stays` once built). Don't pull stays into the pair-workflow.
+  What's already known for whoever builds it (Jul 2026): the API has
+  `POST /stays/` with `StayCreate` (required: `country_id`, `name`,
+  `town`, `tagline`, `coords`; plus accommodation/prices/booking_url/
+  linked_spot_id etc.) — but **NO `PATCH /stays/{id}` endpoint exists**,
+  so stays can't be partially updated; fixing a stay means
+  delete + re-POST. Flag that to the backend owner BEFORE building the
+  skill. The non-negotiables carry over from the existing memory rules:
+  match properties by NAME **and** LOCATION (Akti Villas vs Kiani Akti
+  Villas), reviews ≤4 years, booking_url fetch-verified, price tier in
+  the country's own context. Note: stays are currently hidden site-wide
+  (`HIDE_STAYS`, constants.js) — new stays won't be visible until that
+  flag flips.
 - **Replace the individual skills.** `/add-surfspots` and
   `/add-surfcenters` stay available for editing existing entries or
   adding individual new ones to a region that's already covered.
