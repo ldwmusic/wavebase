@@ -190,6 +190,12 @@ async function _loadRecentReviews() {
   if (!res.ok) throw new Error("Recent reviews failed: " + res.status);
   return res.json();
 }
+// Community moderation: open reports on feed posts / comments (Apple UGC).
+async function _loadModerationReports() {
+  const res = await WaveBaseAuth.authFetch("/admin/moderation/reports");
+  if (!res.ok) throw new Error("Moderation reports failed: " + res.status);
+  return res.json();
+}
 async function _loadEngagement() {
   const res = await WaveBaseAuth.authFetch("/admin/engagement?limit=30");
   if (!res.ok) throw new Error("Engagement failed: " + res.status);
@@ -544,9 +550,9 @@ function _renderPopularity(pop) {
 
 async function _renderDashboard() {
   const root = document.getElementById("admin-root");
-  let overview, popularity, evAff, evViews, evFunnel, evSearch, recent, engagement, byCountry, affinity, mismatch, evConsent, evDwell, coreStats;
+  let overview, popularity, evAff, evViews, evFunnel, evSearch, recent, engagement, byCountry, affinity, mismatch, evConsent, evDwell, coreStats, reports;
   try {
-    [overview, popularity, evAff, evViews, evFunnel, evSearch, recent, engagement, byCountry, affinity, mismatch, evConsent, evDwell, coreStats] = await Promise.all([
+    [overview, popularity, evAff, evViews, evFunnel, evSearch, recent, engagement, byCountry, affinity, mismatch, evConsent, evDwell, coreStats, reports] = await Promise.all([
       _loadOverview(),
       _loadPopularity(),
       _loadEventsAffiliate(),
@@ -564,6 +570,8 @@ async function _renderDashboard() {
       // the frontend, the rest of the dashboard must still render, so
       // a failure here degrades to a notice instead of killing the page.
       _loadCoreStats(_coreDays).catch(() => null),
+      // Moderation degrades gracefully if the endpoint isn't deployed yet.
+      _loadModerationReports().catch(() => []),
     ]);
   } catch (e) {
     root.innerHTML = `<p class="muted" style="color:var(--clay);">Failed to load admin data: ${_esc(e.message || e)}</p>`;
@@ -585,6 +593,7 @@ async function _renderDashboard() {
       </div>
     </div>
     ${_renderPlatformBar()}
+    ${_renderModeration(reports)}
     ${coreStats
       ? _renderCoreStats(coreStats)
       : `<section class="adm-section adm-core" id="adm-core"><p class="muted">Core stats not available yet &mdash; the API may still be deploying. Reload in a minute.</p></section>`}
@@ -605,9 +614,94 @@ async function _renderDashboard() {
   _wirePlatformBar();
   _wireCoreStats();
   _wireRecentReviews();
+  _wireModeration();
   _wireSearchActions();
   _wireCsvExports();
   _wireReviewProcessed();
+}
+
+// --- Community moderation (Apple UGC) --------------------------------------
+// Open reports on feed posts / comments. "Remove" unpublishes a post (the
+// owner's private log stays) or deletes a comment; "Dismiss" = it's fine.
+
+function _renderModeration(reports) {
+  reports = Array.isArray(reports) ? reports : [];
+  const hint = reports.length
+    ? `<span class="adm-pill adm-pill-clay">${reports.length} open</span>`
+    : `<span class="adm-pill adm-pill-sea">all clear</span>`;
+  if (!reports.length) {
+    return `<section class="adm-section" id="adm-moderation">
+      <h2>Community moderation ${hint}</h2>
+      <p class="muted">No open reports. Members can report any post or comment; they land here for review.</p>
+    </section>`;
+  }
+  const rows = reports.map(r => {
+    const c = r.content || {};
+    const who = r.author
+      ? `${_esc(r.author.name || "Surfer")}${r.author.email ? ` <span class="muted">(${_esc(r.author.email)})</span>` : ""}`
+      : `<span class="muted">(unknown author)</span>`;
+    const typeBadge = r.target_type === "comment"
+      ? `<span class="adm-pill adm-pill-sea">comment</span>`
+      : `<span class="adm-pill adm-pill-clay">post</span>`;
+    let body = "";
+    if (r.target_type === "comment") {
+      body = `<p class="adm-review-text">${_esc(c.text || "(empty)")}</p>`;
+    } else {
+      const note = (c.note || "").trim();
+      const photos = (c.photos || []).slice(0, 4).map(u =>
+        `<img src="${_esc(u)}" alt="" class="adm-mod-photo" loading="lazy">`).join("");
+      body = `${note ? `<p class="adm-review-text">${_esc(note)}</p>` : `<p class="muted">(no caption)</p>`}
+              ${photos ? `<div class="adm-mod-photos">${photos}</div>` : ""}
+              ${c.public === false ? `<span class="muted">· already unpublished</span>` : ""}`;
+    }
+    const reason = (r.reason || "").trim();
+    return `
+      <li class="adm-review-row">
+        <div class="adm-review-head">
+          ${typeBadge}
+          <span class="muted">reported · by ${who}</span>
+          <span class="muted adm-review-ts"> · ${_fmtDate(r.created_at, true)}</span>
+        </div>
+        ${reason ? `<p class="adm-mod-reason"><strong>Reason:</strong> ${_esc(reason)}</p>` : ""}
+        ${body}
+        <div class="adm-review-actions">
+          <button class="link-btn adm-mod-remove" data-mod-id="${_esc(r.id)}" data-mod-type="${_esc(r.target_type)}">Remove ${r.target_type === "comment" ? "comment" : "from feed"}</button>
+          <button class="link-btn adm-mod-dismiss" data-mod-id="${_esc(r.id)}">Dismiss</button>
+        </div>
+      </li>`;
+  }).join("");
+  return `<section class="adm-section" id="adm-moderation">
+    <h2>Community moderation ${hint}</h2>
+    <p class="muted">Reported posts &amp; comments. <em>Remove</em> takes a post off the feed (the owner keeps it in their private log) or deletes a comment. <em>Dismiss</em> if it&rsquo;s fine.</p>
+    <ul class="adm-review-list">${rows}</ul>
+  </section>`;
+}
+
+function _wireModeration() {
+  async function resolve(id, action, confirmMsg) {
+    if (confirmMsg && !confirm(confirmMsg)) return;
+    try {
+      const res = await WaveBaseAuth.authFetch(
+        "/admin/moderation/reports/" + encodeURIComponent(id),
+        { method: "POST", headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ action }) });
+      if (!res.ok) throw new Error("HTTP " + res.status);
+      _renderDashboard();
+    } catch (e) {
+      alert("Couldn't update report: " + (e && e.message || e));
+    }
+  }
+  document.querySelectorAll(".adm-mod-remove").forEach(btn => {
+    btn.addEventListener("click", () => {
+      const isComment = btn.dataset.modType === "comment";
+      resolve(btn.dataset.modId, "remove",
+              isComment ? "Delete this comment? This is permanent."
+                        : "Remove this post from the community feed?");
+    });
+  });
+  document.querySelectorAll(".adm-mod-dismiss").forEach(btn => {
+    btn.addEventListener("click", () => resolve(btn.dataset.modId, "dismiss"));
+  });
 }
 
 function _renderConsent(c) {
