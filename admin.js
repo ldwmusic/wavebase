@@ -418,6 +418,21 @@ function _renderKpis(totals, today, onlineNow, onlineWindowMin) {
         <div class="adm-kpi-value">${totals.reviews != null ? totals.reviews : 0}</div>
         <div class="adm-kpi-sub">today: +${today.reviews != null ? today.reviews : 0}</div>
       </div>
+      <div class="adm-kpi">
+        <div class="adm-kpi-label">Community posts</div>
+        <div class="adm-kpi-value">${totals.posts != null ? totals.posts : 0}</div>
+        <div class="adm-kpi-sub">of ${totals.sessions_logged != null ? totals.sessions_logged : 0} logged</div>
+      </div>
+      <div class="adm-kpi">
+        <div class="adm-kpi-label">Squads</div>
+        <div class="adm-kpi-value">${totals.squads != null ? totals.squads : 0}</div>
+        <div class="adm-kpi-sub">${totals.squad_messages != null ? totals.squad_messages : 0} messages</div>
+      </div>
+      <div class="adm-kpi">
+        <div class="adm-kpi-label">Questions</div>
+        <div class="adm-kpi-value">${totals.questions != null ? totals.questions : 0}</div>
+        <div class="adm-kpi-sub">${totals.answers != null ? totals.answers : 0} answers</div>
+      </div>
     </div>
   `;
 }
