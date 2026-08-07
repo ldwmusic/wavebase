@@ -5982,6 +5982,33 @@ function adminImagePanel(e) {
     </div>`;
 }
 
+
+/* Verkleinen vóór het uploaden. De admin stuurde het originele bestand door —
+   foto's van meerdere MB voor een hero die hooguit 2000 px breed getoond wordt.
+   Lukt het verkleinen niet (raar formaat, oude browser), dan gaat het origineel
+   alsnog mee: liever een dikke foto dan geen foto. */
+async function _shrinkForUpload(file, maxDimension = 2000, quality = 0.85) {
+  if (!file || !file.type || !file.type.startsWith("image/")) return file;
+  if (file.type === "image/gif") return file;                 // animatie niet slopen
+  try {
+    const bitmap = await createImageBitmap(file);
+    const longest = Math.max(bitmap.width, bitmap.height);
+    if (longest <= maxDimension && file.size < 600 * 1024) return file;
+    const scale = Math.min(1, maxDimension / longest);
+    const w = Math.round(bitmap.width * scale), h = Math.round(bitmap.height * scale);
+    const canvas = document.createElement("canvas");
+    canvas.width = w; canvas.height = h;
+    canvas.getContext("2d").drawImage(bitmap, 0, 0, w, h);
+    const blob = await new Promise((res) => canvas.toBlob(res, "image/jpeg", quality));
+    if (!blob || blob.size >= file.size) return file;          // niets gewonnen
+    return new File([blob], (file.name || "photo").replace(/\.\w+$/, "") + ".jpg",
+                    { type: "image/jpeg" });
+  } catch (err) {
+    return file;
+  }
+}
+
+
 function wireAdminImagePanel(e, root) {
   const panel = root.querySelector(".aimg-panel");
   if (!panel) return;
@@ -6015,7 +6042,7 @@ function wireAdminImagePanel(e, root) {
       const sig = await sigRes.json();
       // 2. upload straight to Cloudinary
       const fd = new FormData();
-      fd.append("file", file);
+      fd.append("file", await _shrinkForUpload(file));
       fd.append("api_key", sig.api_key);
       fd.append("timestamp", sig.timestamp);
       fd.append("folder", sig.folder);
