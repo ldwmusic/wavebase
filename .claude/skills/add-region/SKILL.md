@@ -431,6 +431,23 @@ hours chasing phantom failures on good ones. **Every one of the ten
 plan-file coordinates in the France/Provence batch failed this check** —
 worst case 1.6 km off, on the wrong arm of a tombolo.
 
+⭐ **For a batch of centers, run ONE Overpass query first — not name-by-name
+lookups.** (France/Landes, Jul 2026: a single Overpass request returned ~70
+named operators with coordinates, where per-name Nominatim search had been
+failing.) Query the region's bbox for `nwr["sport"~"surfing|kitesurfing|windsurfing"]`,
+`nwr["leisure"="sports_centre"]`, `nwr["shop"="surf"]` and named `school`
+nodes, then match your candidate list against the result.
+
+Beyond speed, this **catches wrong-town assignments that no amount of
+desk research would**: it placed Tiki Surf School in Labenne (not Tarnos)
+and Max Respect at Contis (not Saint-Girons) — both of which the research
+verdict had assigned to the wrong beach. A center in the wrong town breaks
+the spot pairing silently.
+
+Centers genuinely absent from OSM after an Overpass sweep AND a Nominatim
+check are a legitimate SKIP + flag — do not invent a coordinate from the
+town centre.
+
 **What this caught in Austria (July 2026), after Gate 4.3 had "passed":**
 - `Mondsee` sat on the **West Autobahn**.
 - `Wolfgangsee` sat in a residential street; `Ossiacher See / Bodensdorf`

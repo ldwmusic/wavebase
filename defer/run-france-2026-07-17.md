@@ -735,3 +735,136 @@ club-only · `KWBA` (Arcachon) members' club, no commercial teaching · `KCB` (B
 Pierre-Percée · Vaivre · Villeneuve-de-la-Raho · Matemale · Île-de-France bases (Vaires, Cergy, Jablines) · Gérardmer/Longemer · Liez · Grand-Large Dunkerque.
 🔴 LIVE OPS NOTE (Aug 2026): UCPA Hourtin suspended sessions 27 Jul-9 Aug and Club Nautique de Claouey temporarily closed — **regional
 wildfire emergency**. Re-check before publishing either as open.
+
+---
+
+# RUN — LANDES + PAYS BASQUE cluster POSTED · 2026-08-08 (autonomous)
+
+**Result: 25 spots · 20 centers · 16 town records, all HTTP 200. Zero duplicates, zero gate failures.**
+`country_id` 34b3db5f-686f-4e3c-bda7-3f5e6d2a435d. Auth stayed inside Lode's Chrome (tab surfgoose.com/admin);
+payloads served to the page from a temporary 127.0.0.1:8899 static server (stopped after the run) so the
+token never left the browser and no payload passed through a shell command.
+
+## GATE 4.3a — coordinates (the big finding)
+⚠️ **Every coordinate in the earlier verdict block reverse-geocodes to `highway/*` at zoom=17** — the Landes/Basque
+beach polygons are large, so Nominatim snaps to the nearest access road. Per the gate this is a FAIL, so **every
+coord was re-derived by forward-geocoding the named beach**. In most cases the forward result confirmed the same
+point as `natural=beach` with the commune matching; five were genuinely wrong and were corrected.
+
+CORRECTED coords (run-log value → posted value):
+- **Erretegia** 43.4433,-1.5869 (Chemin de la Plage, a road) → **43.4466,-1.5896** natural=beach, Bidart
+- **Le Penon** 43.6935,-1.4329 → **43.7094,-1.4366** natural=beach "Plage du Penon", Seignosse
+- **Erromardie** 43.4037,-1.6424 (bus stop) → **43.4065,-1.6428** natural=beach, Saint-Jean-de-Luz
+- **Ilbarritz** 43.4595,-1.5700 (hamlet) → **43.4586,-1.5803** natural=beach, Bidart
+- **Les Bourdaines** 43.6986,-1.4341 → **43.6979,-1.4392** place=locality "Plage des Bourdaines", Seignosse
+- **Saint-Girons-Plage** 43.9526,-1.3627 (hamlet) → **43.9515,-1.3650** natural=beach, Vielle-Saint-Girons
+
+The two coords flagged weak in the verdict block, handled explicitly:
+- **Belharra** 43.4036,-1.7178 — reverse-geocodes to `boundary/administrative` "France métropolitaine": open sea,
+  no road, no commune. That is a WATER pass, not a failure. `coords_label` states plainly that this is an offshore
+  reef position from Wikipedia and not a street address. ✅ POSTED
+- **Sainte-Barbe (SJDL)** — forward-geocode returns only `building/yes` at 19 Rue de Sainte-Barbe, an inland street.
+  Could not verify. ❌ **SKIPPED**, as the gate requires.
+- **Plage Sud (Messanges)** — OSM holds no beach polygon. Pinned instead on the beach's own named facility,
+  `emergency=lifeguard` "Poste de secours Plage Sud", commune Messanges confirmed, and the `coords_label` says so.
+  Independently corroborated by Messanges Surf School's OSM node 130 m away. ✅ POSTED
+
+## CLIMATE
+13 grid cells, one batched Open-Meteo archive call + one marine call (2021-06-11 → 2026-04-12, daytime 10-18h).
+`monthly_wind_prob` = share of days with ≥2 consecutive daytime hours ≥12 kn.
+**Swell-probability threshold = swell_wave_height ≥ 0.6 m** — calibrated against the existing La Gravière record so
+neighbouring spots stay comparable (0.4/0.5 m thresholds overshot it; 0.6 m reproduces it). Threshold documented
+here, never in `stats.source`.
+`stats.source` for all 24 coastal spots is the exact 84-char Gate 3.6 line; the Lac Marin uses a 145-char wind-only
+variant. Max length across the run: 145 chars. ✅
+
+## GATE 3.5 — inland
+Applied to **Lac Marin de Port d'Albret** only: `chart_type:"wind"`, `monthly_wave_m`/`monthly_swell_prob`/
+`monthly_water_c` all null, period `wave_m`/`water_c` null with `air_c` instead, and the ground truth written into
+`conditions.wind` ("the coastal cell averages 6.1-7.3 kn; on the lagoon expect noticeably less, and gustier").
+⚠️ **Naming decision:** the verdict block called this "Lac de Soustons / Port d'Albret" — these are TWO different
+waters. Posted as **Lac Marin de Port d'Albret** (the coastal lagoon, verified natural=beach in Soustons). The
+freshwater Lac de Soustons proper, 5 km inland, is NOT covered and needs its own entry.
+
+## GATE 4.2b — town records
+France had ZERO. Created **16**, names matching the spots' `town` strings exactly (verified programmatically,
+zero join misses): Capbreton · Soorts-Hossegor · Seignosse · Vieux-Boucau-les-Bains · Soustons · Messanges ·
+Moliets-et-Maâ · Vielle-Saint-Girons · Saint-Julien-en-Born · Mimizan · Labenne · Tarnos · Bidart · Guéthary ·
+Saint-Jean-de-Luz · Urrugne (all suffixed "(Landes)" or "(Pyrénées-Atlantiques)").
+
+## THE RULES BLOCK
+Shipped as a shared `layers[]` entry "The rules that actually bind on this coast" on **all 25 spots** (checkered
+flag / Anglet arrêté 2024/731 art. 20 + the 18-school cap · the world-first foil ban arrêté 2023/592 · kite is not
+a general option). Never in `stats.source`. Supporting `educational[]` entries authored and attached where relevant:
+the **Gouf de Capbreton** explainer (on all 4 Capbreton spots), the **FFS label** explainer, the **Courant d'Huchet**
+reserve rule (Moliets), plus per-spot pieces on La Piste's rips, La Nord vs La Gravière, paddle-in vs tow-in
+(Parlementia), point-vs-beach mechanics (Lafitenia), the Belharra shoal, and reanalysis-vs-lagoon wind.
+
+## SPOTS POSTED (25)
+Capbreton: La Piste (VVF) a3b11ae6 · Le Prévent 252b2171 · Le Santocha 51794ffc · Les Océanides 9edbd9e0
+Hossegor/Seignosse: La Nord dbac651e · Les Bourdaines bbadebec · Le Penon b9466fef
+Vieux-Boucau/Soustons/Messanges: Plage des Sablères 57f2d7ec · Lac Marin de Port d'Albret d2cae98f · Plage Sud (Messanges) 9315133d
+Mid/north Landes: Moliets-Plage c2241abe · Saint-Girons-Plage 5777bf53 · Contis-Plage 026cccec · Plage Sud (Mimizan) 15bd4fa6
+South Landes: Labenne-Océan a31dae7b · Le Métro 44da5880
+Basque: Parlementia 132f3afa · Les Alcyons (Avalanche) 41bc30ef · Cénitz caec7b9c · Lafitenia dd848242 ·
+  Erromardie 30df2167 · Belharra dd675e3e · Erretegia 655cc900 · Ilbarritz 5c0ac0c2 · Pavillon Royal f9a8b9cc
+
+Editorial notes honoured: Santocha/Prévent written around CONDITIONS (sources disagree on level, said so
+explicitly) · Parlementia states the Bidart/Guéthary commune straddle (OSM files the break under Bidart) ·
+La Nord given its own entry with an educational[] item explaining the difference from La Gravière ·
+Belharra written Mundaka-style as a phenomenon with "nobody surfs here except a handful of tow-in crews" ·
+Cénitz carries the 2/10 consistency rating · Le Penon honestly flagged inconsistent · Les Océanides leads on
+adaptive surf · Grande Plage SJDL named as dyke-protected non-surf water inside the Erromardie entry.
+
+## CENTERS POSTED (20) — all with verified coords + linked_spot_id
+Le Santocha ← Santocha Surf Club · Le Prévent ← Supdivision, Prévent Surf Cool, Adishats · La Piste ← Water Addict
+(WASA), Capbreton Surf House · Les Océanides ← Surf Océanides · Le Penon ← Sud Landes Kite · Plage des Sablères ←
+Vieux Boucau Surf Club, Alternative Surf School, Surf Univers · Lac Marin ← Centre Nautique de Soustons–Evad'Sports ·
+Plage Sud (Messanges) ← Messanges Surf School, École de Surf La Dune · Moliets-Plage ← Moliets Surf School,
+Surfing Courant d'Huchet, Maâ Surf School · Contis-Plage ← Max Respect · Labenne-Océan ← Tiki Surf School ·
+Cénitz ← École de Surf Christophe Reinhardt.
+
+📌 **Method note for future runs:** name-by-name Nominatim search misses most small surf businesses. A single
+**Overpass** query (`amenity=surf_school` + `club=sport` + `leisure=sports_centre` over the bbox 43.30,-1.85,
+44.30,-1.15, via the kumi.systems mirror — the main endpoint 504s) returned ~70 named operators with coords AND
+websites in one request. That is how Tiki Surf School was resolved to **Labenne** (not Tarnos) and Max Respect to
+**Contis-Plage** (not Saint-Girons). Use Overpass first next time.
+
+🚨 `spiritsurfschool.com` — confirmed in OSM at 43.656165,-1.441466 Capbreton but **NOT POSTED**; the domain still
+redirects to gambling. Left out entirely rather than listed without a URL.
+
+## SKIP-LIST (with reasons)
+COORD GATE FAILURE (4.3a, could not verify — never published an estimate):
+- **Sainte-Barbe (SJDL)** — only an inland street address resolves.
+- **Ondres-Plage** — resolves to a railway halt only.
+PAIRING AMBIGUITY (autonomous rule: ambiguity = skip + flag):
+- **Bakun** ("Boutique 21 – Bakun", 43.388733,-1.664549) — SJDL town-centre shop; which beach it serves is unclear.
+- **SURF'SET 64** (43.4325723,-1.5963421, Rue de l'Uhabia, Bidart) — serves L'Uhabia, which was not created.
+- **Boardhead des Landes** (43.755623,-1.338926) — a dedicated WING school, but its base is the **freshwater Lac de
+  Soustons**, a different water from the Lac Marin. Needs the Lac de Soustons spot created first. High value — worth
+  doing next.
+- **Esprit Océan** (44.037891,-1.337345) and **Cap Surf Cool** (44.038012,-1.340008) — both at **Cap de l'Homy /
+  Lit-et-Mixe**, not Saint-Girons as the verdict block assumed. Needs a Cap de l'Homy spot.
+NO VERIFIABLE COORDINATE (absent from OSM and from Nominatim under every name tried):
+- La Sud Surf School, Martin Surf School (Mimizan) · Sharkpool (Labenne) · Bidart Surf Évolution, L'école de la
+  Glisse, Happy Life, Alaia Surf Club, H2O, Aquality, Experience (Bidart) · Habia, Ben B, Aparra, ESF Côte Basque
+  (SJDL) → **Bidart and Saint-Jean-de-Luz therefore have spots but no centers.** Best next action: Google Maps via
+  Chrome MCP for these ~14 names.
+NOT CREATED BY INSTRUCTION: La Sud/Point d'Or, Les Culs Nus (sub-peaks) · Grande Plage SJDL (folded into Erromardie
+as honest flat water) · Mayarco, Soustons-Plage (marginal).
+STALE / DEAD, per the verdict block — not posted: Dreamlandes, Desert Point, Bidart Surf Academy, New School, Etik,
+Alizé Arnaud, Pulse Surf Coaching, Surf Escapade, Quiksilver SJDL; and all listed dead domains.
+
+## FLAG-LIST (the would-have-asked items)
+1. ⚠️ **Every coordinate in the verdict block failed the zoom-17 reverse-geocode.** Not the researcher's error —
+   it is how Nominatim behaves over big beach polygons — but future runs should forward-geocode beaches from the
+   start rather than reverse-checking road-derived points.
+2. ⚠️ **"Lac de Soustons / Port d'Albret" is two waters, not one.** Posted the lagoon; the inland lake is still missing.
+3. ⚠️ **L'Uhabia not created** — not on the priority list, and the verdict block flags an unresolved
+   bathing-water-quality record. Verify before adding; SURF'SET 64 is waiting on it.
+4. ⚠️ **Messanges Plage Sud has no OSM beach polygon** — pinned on the lifeguard post and labelled as such.
+5. ⚠️ **École de Surf La Dune's base is ~2 km north of the spot it is linked to** (northern Messanges beach vs
+   Plage Sud). Same commune; stated openly in the entry and in `coords_label`.
+6. ⚠️ **Prices are thin.** Only 9 of 20 centers publish rates; the other 11 carry
+   `prices.source = "Not published — contact directly"` with null figures, as the enum requires.
+7. 📌 **Bidart and Saint-Jean-de-Luz now have spots with zero centers** — the largest remaining gap in this cluster.
