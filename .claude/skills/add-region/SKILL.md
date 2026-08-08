@@ -287,6 +287,37 @@ Podersdorf with a bare model chart and fabricated 0.2 m waves. The numbers
 were reproducible and still misleading — which is worse than obviously
 wrong, because it looks rigorous.
 
+### Gate 3.6 · `stats.source` is TWO SENTENCES. Hard cap. (Lode's rule, 2026-07-17)
+
+**`stats.source` renders directly under the charts on the spot page and in
+the app. It is a caption, not a methods section.**
+
+- **Maximum 2 sentences, ≤220 characters.** No exceptions.
+- The site's good originals are the benchmark — ~85-105 characters:
+  `"Wave / wind / water: Open-Meteo ERA5 + Marine reanalysis @ 39.60, -9.08 (5y daytime archive)."`
+
+**Templates:**
+- Coastal wave: `"Waves, wind and water: Open-Meteo ERA5 + Marine reanalysis, 5-year daytime averages."`
+- Coastal wind/kite: `"Wind and air: Open-Meteo ERA5, 5-year daytime average."`
+- Inland (Gate 3.5): `"Wind and air: Open-Meteo ERA5, 5-year daytime average. Inland cell — read the monthly numbers as seasonal shape, not real wind strength."`
+
+**NEVER put in `stats.source`:** exact lat/long, hour counts ("15,903 hours
+sampled"), archive date ranges, threshold definitions (workable-wind,
+swell-probability), long land-roughness explanations, coordinate-honesty
+paragraphs, per-center review caveats, "tested and rejected CERRA…" notes,
+water-temperature methodology. That is **internal QA**, not reader-facing.
+
+**Where the honesty goes instead:** `conditions.wind` carries the ground
+truth in plain language, and a `layers[]` block carries any regulation or
+data caveat that genuinely needs explaining. The source line only needs the
+attribution plus — for inland spots — the one clause that the numbers are
+seasonal shape, not absolute strength.
+
+**Anti-pattern this gate kills:** the Italy batch of July 2026 shipped source
+lines of **1,400-1,950 characters** — a wall of methodology under every chart
+that made the app unreadable on a phone. Lode caught it on the Torre Grande
+screen. Reproducible rigour that nobody can read is not honesty, it is noise.
+
 ### Gate 4 · Pair-by-pair, sequential
 
 This is the meat of the skill. **For each center in your candidate
