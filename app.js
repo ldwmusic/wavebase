@@ -6232,7 +6232,8 @@ function initSpot() {
         <span class="head-sep">&middot;</span>
         <a class="head-chip" href="index.html?country=${encodeURIComponent(entryCountry(e))}">${countryFlag(entryCountry(e)) ? countryFlag(entryCountry(e)) + " " : ""}${entryCountry(e)}</a>
       </div>
-      <h1>${e.name}</h1>
+      <h1>${e.name}${e.type === "center" && e.verified
+        ? ` <span class="verified-badge" title="The owner claimed this page and we verified it by hand">✓ Verified</span>` : ""}</h1>
       <p class="tag">${e.tagline}</p>
       ${e.coordsLabel ? `<p class="coords-note">About the location: ${e.coordsLabel}</p>` : ""}
       <div class="detail-actions">

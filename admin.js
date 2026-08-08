@@ -773,6 +773,13 @@ function _renderCenterClaims(claims) {
     const kind = c.center_id
       ? `<span class="adm-pill adm-pill-sea">claims existing</span>`
       : `<span class="adm-pill adm-pill-clay">new center</span>`;
+    // Wachten we op hen, of ligt de bal bij ons?
+    const waiting = c.status === "needs_info"
+      ? `<span class="adm-pill adm-pill-clay">waiting on them</span>` : "";
+    // Het gesprek: onze vragen en hun antwoorden.
+    const thread = (c.thread || []).map(m =>
+      `<p class="adm-review-text"><strong>${m.from === "us" ? "We asked" : "They said"}:</strong>
+        ${_esc(m.text || "")}</p>`).join("");
     const p = c.proposed || {};
     const where = c.center_id ? "" :
       `<p class="muted">${[p.town, p.country].filter(Boolean).map(_esc).join(", ")}
@@ -780,7 +787,7 @@ function _renderCenterClaims(claims) {
     return `
       <li class="adm-review-row">
         <div class="adm-review-head">
-          ${kind}
+          ${kind}${waiting}
           <strong>${_esc(c.center_name || "(no name)")}</strong>
           <span class="muted adm-review-ts"> · ${_fmtDate(c.created_at, true)}</span>
         </div>
@@ -789,8 +796,10 @@ function _renderCenterClaims(claims) {
         ${where}
         ${links ? `<p class="adm-review-text">${links}</p>` : `<p class="muted">No contact details given.</p>`}
         ${c.note ? `<p class="adm-review-text">${_esc(c.note)}</p>` : ""}
+        ${thread}
         <div class="adm-review-actions">
           <button class="link-btn adm-cc-approve" data-cc-id="${_esc(c.id)}" data-cc-name="${_esc(c.center_name || "")}">Verify &amp; approve</button>
+          <button class="link-btn adm-cc-ask" data-cc-id="${_esc(c.id)}">Ask for more</button>
           <button class="link-btn adm-cc-reject" data-cc-id="${_esc(c.id)}">Reject</button>
         </div>
       </li>`;
@@ -820,6 +829,24 @@ function _wireCenterClaims() {
       const name = btn.dataset.ccName || "this center";
       if (!confirm(`Verify "${name}"? They get the Verified badge and can edit their own details.`)) return;
       resolve(btn.dataset.ccId, "approve");
+    });
+  });
+  // Meer info vragen: zij krijgen een pushmelding en kunnen in de app
+  // antwoorden; de claim komt daarna vanzelf terug in deze lijst.
+  document.querySelectorAll(".adm-cc-ask").forEach(btn => {
+    btn.addEventListener("click", async () => {
+      const q = prompt("What do you need from them? (they get a push with this)");
+      if (!q) return;
+      try {
+        const res = await WaveBaseAuth.authFetch(
+          "/admin/center-claims/" + encodeURIComponent(btn.dataset.ccId) + "/ask",
+          { method: "POST", headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ question: q }) });
+        if (!res.ok) throw new Error("HTTP " + res.status);
+        _renderDashboard();
+      } catch (e) {
+        alert("Couldn't send that question: " + (e && e.message || e));
+      }
     });
   });
   document.querySelectorAll(".adm-cc-reject").forEach(btn => {

@@ -8012,3 +8012,22 @@ html.sg-intro-lock, html.sg-intro-lock body { overflow: hidden; }
   .sg-intro-sky { animation: none; }
   .sg-intro.is-dismissed { animation: none; opacity: 0; visibility: hidden; }
 }
+
+
+/* Geverifieerd center: de eigenaar claimde de pagina en wij checkten het met
+   de hand (aug 2026). Bewust klein en naast de naam — het is een keurmerk,
+   geen reclame. */
+.verified-badge {
+  display: inline-block;
+  vertical-align: middle;
+  font-family: var(--font-text, inherit);
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  color: var(--paper, #fff);
+  background: var(--sea, #2f5360);
+  border-radius: 999px;
+  padding: 4px 10px;
+  margin-left: 8px;
+  white-space: nowrap;
+}
