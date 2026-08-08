@@ -196,6 +196,12 @@ async function _loadModerationReports() {
   if (!res.ok) throw new Error("Moderation reports failed: " + res.status);
   return res.json();
 }
+// Eigen pins van surfers: wie maakte er waar één, en hoe vaak wordt hij gebruikt.
+async function _loadCustomSpots() {
+  const res = await WaveBaseAuth.authFetch("/admin/custom-spots/all?limit=200");
+  if (!res.ok) throw new Error("Custom spots failed: " + res.status);
+  return res.json();
+}
 async function _loadEngagement() {
   const res = await WaveBaseAuth.authFetch("/admin/engagement?limit=30");
   if (!res.ok) throw new Error("Engagement failed: " + res.status);
@@ -565,9 +571,9 @@ function _renderPopularity(pop) {
 
 async function _renderDashboard() {
   const root = document.getElementById("admin-root");
-  let overview, popularity, evAff, evViews, evFunnel, evSearch, recent, engagement, byCountry, affinity, mismatch, evConsent, evDwell, coreStats, reports;
+  let overview, popularity, evAff, evViews, evFunnel, evSearch, recent, engagement, byCountry, affinity, mismatch, evConsent, evDwell, coreStats, reports, customSpots;
   try {
-    [overview, popularity, evAff, evViews, evFunnel, evSearch, recent, engagement, byCountry, affinity, mismatch, evConsent, evDwell, coreStats, reports] = await Promise.all([
+    [overview, popularity, evAff, evViews, evFunnel, evSearch, recent, engagement, byCountry, affinity, mismatch, evConsent, evDwell, coreStats, reports, customSpots] = await Promise.all([
       _loadOverview(),
       _loadPopularity(),
       _loadEventsAffiliate(),
@@ -587,6 +593,8 @@ async function _renderDashboard() {
       _loadCoreStats(_coreDays).catch(() => null),
       // Moderation degrades gracefully if the endpoint isn't deployed yet.
       _loadModerationReports().catch(() => []),
+      // Idem: degradeert naar leeg als de API nog niet uitgerold is.
+      _loadCustomSpots().catch(() => []),
     ]);
   } catch (e) {
     root.innerHTML = `<p class="muted" style="color:var(--clay);">Failed to load admin data: ${_esc(e.message || e)}</p>`;
@@ -609,6 +617,7 @@ async function _renderDashboard() {
     </div>
     ${_renderPlatformBar()}
     ${_renderModeration(reports)}
+    ${_renderCustomSpots(customSpots)}
     ${coreStats
       ? _renderCoreStats(coreStats)
       : `<section class="adm-section adm-core" id="adm-core"><p class="muted">Core stats not available yet &mdash; the API may still be deploying. Reload in a minute.</p></section>`}
@@ -630,6 +639,7 @@ async function _renderDashboard() {
   _wireCoreStats();
   _wireRecentReviews();
   _wireModeration();
+  _wireCustomSpots();
   _wireSearchActions();
   _wireCsvExports();
   _wireReviewProcessed();
@@ -716,6 +726,61 @@ function _wireModeration() {
   });
   document.querySelectorAll(".adm-mod-dismiss").forEach(btn => {
     btn.addEventListener("click", () => resolve(btn.dataset.modId, "dismiss"));
+  });
+}
+
+/// Eigen pins ("add your own spot"). Hier zie je wat surfers missen in de
+/// catalogus — en kan je rommel of dubbels opruimen (Lode, aug 2026).
+function _renderCustomSpots(spots) {
+  spots = Array.isArray(spots) ? spots : [];
+  const hint = `<span class="adm-pill adm-pill-sea">${spots.length}</span>`;
+  if (!spots.length) {
+    return `<section class="adm-section" id="adm-custom-spots">
+      <h2>Own spots ${hint}</h2>
+      <p class="muted">No surfer has added their own pin yet.</p>
+    </section>`;
+  }
+  const rows = spots.map(s => {
+    const place = [s.town, s.country].filter(Boolean).map(_esc).join(", ");
+    const maps = (s.lat != null && s.lon != null)
+      ? `<a href="https://www.google.com/maps?q=${s.lat},${s.lon}" target="_blank" rel="noopener">${Number(s.lat).toFixed(4)}, ${Number(s.lon).toFixed(4)}</a>`
+      : `<span class="muted">no coords</span>`;
+    const used = s.sessions
+      ? `<span class="adm-pill adm-pill-sea">${s.sessions} log${s.sessions === 1 ? "" : "s"}</span>`
+      : `<span class="muted">never logged</span>`;
+    return `<tr>
+      <td><strong>${_esc(s.name || "(no name)")}</strong>${place ? `<br><span class="muted">${place}</span>` : ""}</td>
+      <td>${maps}</td>
+      <td>${_esc(s.user_name || "Surfer")}${s.user_email ? `<br><span class="muted">${_esc(s.user_email)}</span>` : ""}</td>
+      <td>${used}</td>
+      <td class="muted">${_fmtDate(s.created_at, true)}</td>
+      <td><button class="link-btn adm-cs-del" data-cs-id="${_esc(s.id)}" data-cs-name="${_esc(s.name || "")}">Delete</button></td>
+    </tr>`;
+  }).join("");
+  return `<section class="adm-section" id="adm-custom-spots">
+    <h2>Own spots ${hint}</h2>
+    <p class="muted">Pins surfers dropped themselves. Good signal for spots we should add properly. Deleting one keeps their logs &mdash; the location just becomes unnamed.</p>
+    <div class="adm-table-wrap"><table class="adm-table">
+      <thead><tr><th>Name</th><th>Coordinates</th><th>Added by</th><th>Used</th><th>When</th><th></th></tr></thead>
+      <tbody>${rows}</tbody>
+    </table></div>
+  </section>`;
+}
+
+function _wireCustomSpots() {
+  document.querySelectorAll(".adm-cs-del").forEach(btn => {
+    btn.addEventListener("click", async () => {
+      const name = btn.dataset.csName || "this pin";
+      if (!confirm(`Delete "${name}"? The surfer's logs stay, but lose their spot name.`)) return;
+      try {
+        const res = await WaveBaseAuth.authFetch(
+          "/admin/custom-spots/" + encodeURIComponent(btn.dataset.csId), { method: "DELETE" });
+        if (!res.ok) throw new Error("HTTP " + res.status);
+        _renderDashboard();
+      } catch (e) {
+        alert("Couldn't delete: " + (e && e.message || e));
+      }
+    });
   });
 }
 
