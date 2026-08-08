@@ -413,6 +413,24 @@ Read `category` / `type` / `display_name` and judge:
 <town>, <country>") and confirm the two agree within a few hundred metres.
 Only then POST.
 
+⚠️ **Reverse-geocoding ALONE produces false failures on beaches** (France,
+Jul 2026). Nominatim snaps to the nearest *addressable* way, so even a
+perfectly correct beach centroid comes back as a footpath or a coastal road.
+A `highway/*` hit next to a beach is normal; a `motorway` 5 km inland, or a
+different commune, is not. So run it in this order and require BOTH to agree:
+
+1. **Forward-geocode** the named beach/business → prefer an OSM object of
+   type `natural=beach`, `leisure=marina`, `water`, `bay`, or the business
+   node itself. That object's coordinate is what you publish.
+2. **Reverse-check** that coordinate and confirm the **commune/town name**
+   matches the entry. The commune is the reliable signal; the feature type
+   is not.
+
+A run that skips step 1 will either publish bad coords (Austria) or spend
+hours chasing phantom failures on good ones. **Every one of the ten
+plan-file coordinates in the France/Provence batch failed this check** —
+worst case 1.6 km off, on the wrong arm of a tombolo.
+
 **What this caught in Austria (July 2026), after Gate 4.3 had "passed":**
 - `Mondsee` sat on the **West Autobahn**.
 - `Wolfgangsee` sat in a residential street; `Ossiacher See / Bodensdorf`
