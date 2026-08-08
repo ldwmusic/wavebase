@@ -196,6 +196,12 @@ async function _loadModerationReports() {
   if (!res.ok) throw new Error("Moderation reports failed: " + res.status);
   return res.json();
 }
+// Centers die hun pagina willen claimen — wachten op onze verificatie.
+async function _loadCenterClaims() {
+  const res = await WaveBaseAuth.authFetch("/admin/center-claims?status=pending");
+  if (!res.ok) throw new Error("Center claims failed: " + res.status);
+  return res.json();
+}
 // Eigen pins van surfers: wie maakte er waar één, en hoe vaak wordt hij gebruikt.
 async function _loadCustomSpots() {
   const res = await WaveBaseAuth.authFetch("/admin/custom-spots/all?limit=200");
@@ -571,9 +577,9 @@ function _renderPopularity(pop) {
 
 async function _renderDashboard() {
   const root = document.getElementById("admin-root");
-  let overview, popularity, evAff, evViews, evFunnel, evSearch, recent, engagement, byCountry, affinity, mismatch, evConsent, evDwell, coreStats, reports, customSpots;
+  let overview, popularity, evAff, evViews, evFunnel, evSearch, recent, engagement, byCountry, affinity, mismatch, evConsent, evDwell, coreStats, reports, customSpots, centerClaims;
   try {
-    [overview, popularity, evAff, evViews, evFunnel, evSearch, recent, engagement, byCountry, affinity, mismatch, evConsent, evDwell, coreStats, reports, customSpots] = await Promise.all([
+    [overview, popularity, evAff, evViews, evFunnel, evSearch, recent, engagement, byCountry, affinity, mismatch, evConsent, evDwell, coreStats, reports, customSpots, centerClaims] = await Promise.all([
       _loadOverview(),
       _loadPopularity(),
       _loadEventsAffiliate(),
@@ -595,6 +601,7 @@ async function _renderDashboard() {
       _loadModerationReports().catch(() => []),
       // Idem: degradeert naar leeg als de API nog niet uitgerold is.
       _loadCustomSpots().catch(() => []),
+      _loadCenterClaims().catch(() => []),
     ]);
   } catch (e) {
     root.innerHTML = `<p class="muted" style="color:var(--clay);">Failed to load admin data: ${_esc(e.message || e)}</p>`;
@@ -616,6 +623,7 @@ async function _renderDashboard() {
       </div>
     </div>
     ${_renderPlatformBar()}
+    ${_renderCenterClaims(centerClaims)}
     ${_renderModeration(reports)}
     ${_renderCustomSpots(customSpots)}
     ${coreStats
@@ -638,6 +646,7 @@ async function _renderDashboard() {
   _wirePlatformBar();
   _wireCoreStats();
   _wireRecentReviews();
+  _wireCenterClaims();
   _wireModeration();
   _wireCustomSpots();
   _wireSearchActions();
@@ -732,6 +741,93 @@ function _wireModeration() {
   });
   document.querySelectorAll(".adm-mod-dismiss").forEach(btn => {
     btn.addEventListener("click", () => resolve(btn.dataset.modId, "dismiss"));
+  });
+}
+
+/// Centers die zich aanmelden. Verificatie doen we met de hand: check de
+/// website/telefoon/Instagram tegen de aanvrager. Dat handmatige is precies
+/// wat "Verified" iets waard maakt (Lode, aug 2026).
+function _renderCenterClaims(claims) {
+  claims = Array.isArray(claims) ? claims : [];
+  const hint = claims.length
+    ? `<span class="adm-pill adm-pill-clay">${claims.length} waiting</span>`
+    : `<span class="adm-pill adm-pill-sea">none waiting</span>`;
+  if (!claims.length) {
+    return `<section class="adm-section" id="adm-center-claims">
+      <h2>Center claims ${hint}</h2>
+      <p class="muted">No surf center is waiting for verification.</p>
+    </section>`;
+  }
+  const rows = claims.map(c => {
+    const ct = c.contact || {};
+    const links = ["website", "instagram", "phone", "email", "whatsapp", "address"]
+      .filter(k => ct[k])
+      .map(k => {
+        const v = _esc(ct[k]);
+        if (k === "website" || k === "instagram") {
+          const href = ct[k].startsWith("http") ? ct[k] : "https://" + ct[k];
+          return `<a href="${_esc(href)}" target="_blank" rel="noopener">${v}</a>`;
+        }
+        return `<span>${v}</span>`;
+      }).join(" · ");
+    const kind = c.center_id
+      ? `<span class="adm-pill adm-pill-sea">claims existing</span>`
+      : `<span class="adm-pill adm-pill-clay">new center</span>`;
+    const p = c.proposed || {};
+    const where = c.center_id ? "" :
+      `<p class="muted">${[p.town, p.country].filter(Boolean).map(_esc).join(", ")}
+       ${(p.sports || []).length ? " · " + (p.sports || []).map(_esc).join(", ") : ""}</p>`;
+    return `
+      <li class="adm-review-row">
+        <div class="adm-review-head">
+          ${kind}
+          <strong>${_esc(c.center_name || "(no name)")}</strong>
+          <span class="muted adm-review-ts"> · ${_fmtDate(c.created_at, true)}</span>
+        </div>
+        <p class="muted">Applicant: ${_esc(c.applicant?.name || "—")}
+          ${c.applicant?.email ? `(${_esc(c.applicant.email)})` : ""}</p>
+        ${where}
+        ${links ? `<p class="adm-review-text">${links}</p>` : `<p class="muted">No contact details given.</p>`}
+        ${c.note ? `<p class="adm-review-text">${_esc(c.note)}</p>` : ""}
+        <div class="adm-review-actions">
+          <button class="link-btn adm-cc-approve" data-cc-id="${_esc(c.id)}" data-cc-name="${_esc(c.center_name || "")}">Verify &amp; approve</button>
+          <button class="link-btn adm-cc-reject" data-cc-id="${_esc(c.id)}">Reject</button>
+        </div>
+      </li>`;
+  }).join("");
+  return `<section class="adm-section" id="adm-center-claims">
+    <h2>Center claims ${hint}</h2>
+    <p class="muted">Check the website, phone or Instagram against the applicant before approving. Approving marks their page <em>Verified</em> and lets them keep their own details up to date &mdash; the tagline, summary and story stay ours.</p>
+    <ul class="adm-review-list">${rows}</ul>
+  </section>`;
+}
+
+function _wireCenterClaims() {
+  async function resolve(id, action, reason) {
+    try {
+      const res = await WaveBaseAuth.authFetch(
+        "/admin/center-claims/" + encodeURIComponent(id),
+        { method: "POST", headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ action, reason: reason || "" }) });
+      if (!res.ok) throw new Error("HTTP " + res.status);
+      _renderDashboard();
+    } catch (e) {
+      alert("Couldn't handle that claim: " + (e && e.message || e));
+    }
+  }
+  document.querySelectorAll(".adm-cc-approve").forEach(btn => {
+    btn.addEventListener("click", () => {
+      const name = btn.dataset.ccName || "this center";
+      if (!confirm(`Verify "${name}"? They get the Verified badge and can edit their own details.`)) return;
+      resolve(btn.dataset.ccId, "approve");
+    });
+  });
+  document.querySelectorAll(".adm-cc-reject").forEach(btn => {
+    btn.addEventListener("click", () => {
+      const reason = prompt("Why are you rejecting this claim? (they see this)");
+      if (reason === null) return;
+      resolve(btn.dataset.ccId, "reject", reason);
+    });
   });
 }
 
