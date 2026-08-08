@@ -667,7 +667,13 @@ function _renderModeration(reports) {
       : `<span class="muted">(unknown author)</span>`;
     const typeBadge = r.target_type === "comment"
       ? `<span class="adm-pill adm-pill-sea">comment</span>`
-      : `<span class="adm-pill adm-pill-clay">post</span>`;
+      : `<span class="adm-pill adm-pill-clay">${_esc(r.target_type || "post")}</span>`;
+    // Automatisch uit de feed na meldingen van meerdere mensen — Dismiss zet
+    // het terug, Remove maakt het definitief.
+    const hiddenBadge = r.auto_hidden
+      ? `<span class="adm-pill adm-pill-clay">auto-hidden</span>` : "";
+    const countBadge = (r.reporter_count || 0) > 1
+      ? `<span class="muted">· ${r.reporter_count} reporters</span>` : "";
     let body = "";
     if (r.target_type === "comment") {
       body = `<p class="adm-review-text">${_esc(c.text || "(empty)")}</p>`;
@@ -683,8 +689,8 @@ function _renderModeration(reports) {
     return `
       <li class="adm-review-row">
         <div class="adm-review-head">
-          ${typeBadge}
-          <span class="muted">reported · by ${who}</span>
+          ${typeBadge}${hiddenBadge}
+          <span class="muted">reported · by ${who}</span> ${countBadge}
           <span class="muted adm-review-ts"> · ${_fmtDate(r.created_at, true)}</span>
         </div>
         ${reason ? `<p class="adm-mod-reason"><strong>Reason:</strong> ${_esc(reason)}</p>` : ""}
@@ -697,7 +703,7 @@ function _renderModeration(reports) {
   }).join("");
   return `<section class="adm-section" id="adm-moderation">
     <h2>Community moderation ${hint}</h2>
-    <p class="muted">Reported posts &amp; comments. <em>Remove</em> takes a post off the feed (the owner keeps it in their private log) or deletes a comment. <em>Dismiss</em> if it&rsquo;s fine.</p>
+    <p class="muted">Reported posts &amp; comments. <em>Remove</em> takes a post off the feed (the owner keeps it in their private log) or deletes a comment. <em>Dismiss</em> if it&rsquo;s fine &mdash; that also puts an <em>auto-hidden</em> item back on the feed. Anything reported by 3 different people is hidden automatically until you judge it.</p>
     <ul class="adm-review-list">${rows}</ul>
   </section>`;
 }
