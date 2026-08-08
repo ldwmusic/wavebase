@@ -385,6 +385,48 @@ Chrome MCP-verify the center coord. Confirm it's within ~500 m of the
 spot coord. If they're further apart, you've probably got the wrong
 spot match — re-research.
 
+##### 4.3a · REVERSE-GEOCODE EVERY COORDINATE BEFORE POSTING. (Lode's rule, 2026-07-17 — Michiel's catch)
+
+**The proximity check above is blind to the most common error.** If the
+spot coord and the center coord both come from the same guess, they sit
+0 m apart and the check passes — while both are kilometres from the
+water. A test that compares two values to each other can never catch a
+mistake they share.
+
+**So every coordinate gets an independent existence test: ask what is
+actually AT that point.**
+
+```
+https://nominatim.openstreetmap.org/reverse?lat=<LAT>&lon=<LON>&format=json&zoom=17
+   (header User-Agent: SurfGoose/1.0 — required by Nominatim)
+```
+
+Read `category` / `type` / `display_name` and judge:
+- ✅ PASS — water, beach, `water_park`, `sports_centre`, marina, strandbad,
+  the named lake/bay, or the named business itself.
+- ❌ FAIL — `highway/*` (a road), `motorway`, farmland, a village centre
+  several km inland, or **a different village than the entry claims**.
+  A road hit is only acceptable if the lakeside road IS the address and a
+  forward geocode of the beach/business lands within ~100 m.
+
+**Then forward-geocode the named place** ("Strandbad X", "<business>,
+<town>, <country>") and confirm the two agree within a few hundred metres.
+Only then POST.
+
+**What this caught in Austria (July 2026), after Gate 4.3 had "passed":**
+- `Mondsee` sat on the **West Autobahn**.
+- `Wolfgangsee` sat in a residential street; `Ossiacher See / Bodensdorf`
+  on a farm track in **Sattendorf — the wrong village**.
+- `Brennsee / Feld am See` was **9 km** from its lake, and its center
+  `Sportschule Krainer` carried the identical wrong coord.
+- 13 coordinates wrong in total. Michiel found 5 by eye, on the live map.
+
+**Never publish a plan-file coordinate.** Approximations gathered during
+research are leads, not data. If a coordinate cannot be verified, say so
+in `coords_label` ("approximate — not independently verified") rather than
+letting a confident-looking pin stand. A spot pinned on a motorway destroys
+more trust than a missing spot ever would.
+
 **Shop ≠ station (chains + lake schools, Jul 2026).** Established
 schools often have a SHOP in the village and the teaching STATION on
 the beach — Maps/OSM frequently pins the shop (kitesurfing.at: OSM shop
